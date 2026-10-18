@@ -1406,6 +1406,11 @@ export class ExplorerPlugin {
     // A return can reach the source page without reopening its transient child.
     // Continue the selected child's already verified entry before a new batch.
     const arrivedReentry=task.coverageContract?.programNavigation&&reentries.find(choice=>choice.itemId===arrived);
+    // Page-position recovery has an authority row as its selected item. Resume
+    // one currently verified original child route before unrelated fresh work.
+    // A different document/URL or unavailable route grants no preference.
+    const returnedReentry=task.coverageContract?.programNavigation&&round.returnedSource?.url===o.url&&round.returnedSource.documentId===o.documentId
+      ?reentries.find(choice=>byId.get(choice.itemId)?.scope.url===o.url):undefined;
     // Once current boundary work is done, use its already admissible local exit
     // before spending a remote recovery turn. Keep the fairness counter: the
     // next observation rebuilds candidates and resumes ordinary scheduling.
@@ -1417,7 +1422,7 @@ export class ExplorerPlugin {
     }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!returnedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!local.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal,deferDestinationReview);
       // Even a short async selection has a final microtask boundary. Check it
@@ -1428,7 +1433,7 @@ export class ExplorerPlugin {
     }
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
-    const selection=boundaryExit||arrivedChoice||arrivedReentry||scopedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const selection=boundaryExit||arrivedChoice||arrivedReentry||returnedReentry||scopedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
@@ -1439,6 +1444,7 @@ export class ExplorerPlugin {
       // The host has already established mechanical executability. Traversal order
       // is scheduling policy, not a semantic question or a functionality verdict.
       const action=selectedAction,selectedReentry=selection?.kind==='reentry'||this.neededEntry(task,round,action,o),revision=task.revision;
+      if(selection===returnedReentry)this.event(task,'recovery.continuation_selected',{resultId:round.returnedSource!.resultId,itemId:selection!.itemId,actionId:action.id,sourceObservationId:o.id,coverageGranted:false,dispatchRevalidationRequired:true});
       if(o.coveragePolicy==='finite-ui-v1')this.event(task,'progress.dependencies',{actionId:action.id,observationId:o.id,...dependencies.get(action.id),coverageGranted:false,scopeUnchanged:true});
       if(selection===scopedDeparture)this.event(task,'branch.local_quota',{itemId:selection!.itemId,actionId:action.id,localSelections:schedule.localSelections,limit:localSelectionLimit,retainedPending:pending.filter(item=>item.id!==selection!.itemId).map(item=>item.id),coverageGranted:false});
       if(selection?.kind==='current'&&reentries.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:reentries.map(choice=>{const action=actions.find(action=>action.id===choice.actionId);return {actionId:choice.actionId,itemId:choice.itemId,label:action?.label,kind:action?.kind};}),retainedInPlan:true,executionAuthorized:false});
@@ -1496,7 +1502,7 @@ export class ExplorerPlugin {
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.persist(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
       try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});round.consecutiveReviewSteps=0;this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
-      if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.persist(task);
+      if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete round.returnedSource;delete task.pendingDispatch;this.persist(task);
       if(action.kind==='dismiss') {
         const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
         if(!result||['changed','unverified'].includes(result.status))throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
@@ -1590,7 +1596,7 @@ export class ExplorerPlugin {
           checkpointVerified:false,coverageGranted:false,currentExecution:false,executionAuthorized:false,continueFromCurrentObservation:true});
         return true;
       }
-      if(result.status==='SOURCE_REACHED'){round.entryPath=[];this.event(task,'recovery.source_reached',{resultId:result.id,sourceObservationId:source.id,observationId:actual.id,checkpointVerified:false,sourceStateRestored:false,currentExecution:false,executionAuthorized:false,continueFromCurrentObservation:true});return true;}
+      if(result.status==='SOURCE_REACHED'){round.entryPath=[];if(task.coverageContract?.programNavigation)round.returnedSource={url:actual.url,documentId:actual.documentId,resultId:result.id};this.event(task,'recovery.source_reached',{resultId:result.id,sourceObservationId:source.id,observationId:actual.id,checkpointVerified:false,sourceStateRestored:false,currentExecution:false,executionAuthorized:false,continueFromCurrentObservation:true});return true;}
       if(result.status==='TARGET_REACHED'){this.event(task,'recovery.target_reached',{resultId:result.id,observationId:actual.id,matchedActionIds:result.matchedActionIds,checkpointVerified:false,currentExecution:false});return true;}
       if(result.status==='REACHED_VERIFIED'||result.status==='REACHED_ACCEPTABLE'){const index=round.stack.indexOf(frame);if(index>=0)round.stack=round.stack.slice(0,index);round.entryPath=[...frame.path];return true;}
       const arrived=this.host.observation(sid),assessment=this.host.recoveryAssessment(sid);
@@ -1712,7 +1718,9 @@ export class ExplorerPlugin {
     return {key,attempts:progressed?0:previous?.attempts||0,completedScopes:[...new Set([...(previous?.completedScopes||[]),...completed])],previous,owner};
   }
   private recordEntry(task:Task,r:Round,a:ActionCandidate,o:Observation) {
-    const target=this.reentryTarget(task,a,o,this.entryTargets(task,a,o),true);
+    const targets=this.entryTargets(task,a,o);
+    if(task.coverageContract?.programNavigation){const selected=task.scheduling?.selection?.itemId;targets.sort((a,b)=>Number(b.id===selected)-Number(a.id===selected));}
+    const target=this.reentryTarget(task,a,o,targets,true);
     if(!target)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
     const progress=this.entryProgress(task,r,a,o);
     (r.reentryProgress??={})[progress.key]={attempts:progress.attempts+1,completedScopes:progress.completedScopes};

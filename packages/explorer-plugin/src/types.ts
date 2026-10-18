@@ -99,6 +99,9 @@ export interface Round {
   stack: Frame[]; entryPath: Scope[]; reentries: string[]; tried: string[]; reviewed: string[]; lastProgress?: string; noProgress: number;
   /** Current browser position, independent of durable work and historical frames. */
   position?: NavigationPosition;
+  /** One continuation turn after a verified page-position return. No child
+   * arrival or replay authority is inherited from this scheduling hint. */
+  returnedSource?: {url:string;documentId:string;resultId:string};
   repetitionDeferrals?: string[];
   evidenceRefreshes?: string[];
   /** No repeated LLM interpretation of the same target and evidence within a round. */
