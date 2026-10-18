@@ -134,3 +134,21 @@ test('mode selectors stay distinct while repeated records merge', async () => {
   // Trading-pair links in one list are one kind of thing.
   expect(new Set(['BTC to PKR', 'BTC to EUR', 'BTC to CNY'].map(n => controlClass(control('link', n)))).size).toBe(1);
 });
+
+test('a page that reopens its dialog forever cannot keep the crawler busy', async () => {
+  // Closing the dialog navigates back to a page that opens it again.
+  const sticky = `<!doctype html><title>Sticky</title><main><p>Body</p></main>
+    <div role="dialog" aria-modal="true" aria-label="Promo" style="position:fixed;inset:20%;background:#fff"><p>Promo</p>
+    <button onclick="location.reload()">Dismiss</button></div>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(sticky); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const started = Date.now();
+    await new SampledCrawler({ url, durationMs: 60000, settleMs: 100, log: e => events.push(e) }).run();
+    expect(Date.now() - started).toBeLessThan(30000);
+    expect(events.filter(e => e.type === 'action' && e.step.label === 'Dismiss')).toHaveLength(1);
+    expect(events.at(-1)).toMatchObject({ type: 'stop' });
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);

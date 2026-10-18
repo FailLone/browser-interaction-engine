@@ -102,7 +102,7 @@ export class SampledCrawler {
     });
     // Popups opened by window.open/target=_blank are closed immediately.
     this.adapter.context!.on('page', popup => { if (popup === this.page) return; if (this.dispatching) this.blockedNavigation = popup.url(); void popup.close(); });
-    let actions = 0, stop = 'budget_exhausted';
+    let actions = 0, idleBacktracks = 0, stop = 'budget_exhausted';
     try {
       await this.settle();
       while (this.now() < this.options.durationMs && actions < this.options.maxActions) {
@@ -113,10 +113,12 @@ export class SampledCrawler {
         await this.assessRelevance(snapshot);
         const candidate = this.choose(snapshot);
         if (!candidate) {
-          if (await this.backtrack(snapshot, 'state_exhausted')) continue;
-          stop = 'scope_exhausted'; break;
+          // Every action spends class budget, so action loops end; backtracks spend none.
+          // A page that keeps reopening an overlay or redirecting must not spin until the deadline.
+          if (++idleBacktracks <= 3 && await this.backtrack(snapshot, 'state_exhausted')) continue;
+          stop = idleBacktracks > 3 ? 'no_progress' : 'scope_exhausted'; break;
         }
-        actions++;
+        actions++; idleBacktracks = 0;
         await this.act(snapshot, candidate);
       }
     } finally {
