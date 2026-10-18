@@ -1,0 +1,18 @@
+{
+  "revision": "34c80e3be7e7fc447b94770e457d10f54cf5e2f4",
+  "runs": [
+    "okx-13-program-only",
+    "okx-14-program-only-confirmation",
+    "okx-15-program-model"
+  ],
+  "filesPerRun": 492,
+  "allHashesEqual": true,
+  "allDiffsEmpty": true,
+  "localSharedFiles": 492,
+  "localSharedHashesEqual": true,
+  "contractBudgetEquality": true,
+  "programModelConfigured": true,
+  "programModelActualCalls": 0,
+  "programModelMeasuredExecutionGain": 0,
+  "providerAvailabilityVerified": false
+}

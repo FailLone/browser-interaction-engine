@@ -1,0 +1,194 @@
+{
+  "metrics": {
+    "run": "legacy-2-v5",
+    "sourceRevision": "13e13e55df80cb6c724269f08807721c4a2d50cc",
+    "sourceFilesDigest": "9a28213817bc9571a3160550dba7805c7fd1481877eafddf7a006a031d43f930",
+    "elapsedMs": 117096,
+    "countedCommands": 80,
+    "firstDispatchMs": 6483,
+    "firstExecutedMs": 8742,
+    "actualBrowserExecuted": 28,
+    "allowedBrowserDispatches": 28,
+    "browserExecutionErrors": 0,
+    "guardRefusals": 51,
+    "attemptStatuses": {
+      "failed": 52,
+      "succeeded": 28
+    },
+    "capturedObservations": 84,
+    "capturedStateIds": 23,
+    "stateCountCaveat": "State canonicalization changed across revisions; these counts are not equivalent coverage.",
+    "successfulTargetSamples": [
+      {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "label": "7天内不再提示",
+        "kind": "check",
+        "value": "True",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "label": "关闭",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "label": "交易",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+        "label": "闪兑币币兑换，0 费率，无滑点",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "机构客户",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "新手学院",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "更多",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "通知和公告",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "更改语言或货币",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "简体中文",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "语言",
+        "kind": "scroll",
+        "value": "{'x': 0, 'y': 216}",
+        "count": 7
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "语言",
+        "kind": "scroll",
+        "value": "{'x': 0, 'y': 24}",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "语言",
+        "kind": "scroll",
+        "value": "{'x': 0, 'y': -24}",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "语言",
+        "kind": "scroll",
+        "value": "{'x': 0, 'y': -216}",
+        "count": 7
+      },
+      {
+        "url": "https://www.okx.com/zh-hans/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "繁體中文",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      },
+      {
+        "url": "https://www.okx.com/zh-hant/trade-convert#from-page=navigation&from-action=web_header",
+        "label": "新手學院",
+        "kind": "click",
+        "value": "None",
+        "count": 1
+      }
+    ],
+    "targetSampleCount": 16,
+    "targetSampleCaveat": "URL,label,kind,value tuple for readable throughput only; not SDK control identity or finite coverage.",
+    "recoverySelections": 0,
+    "recoveryResults": {},
+    "strictChains": null,
+    "strictAuditAvailability": "historical_version_has_no_current_original_source_receipt_API",
+    "accepted": false,
+    "models": [],
+    "modelWallMs": 0,
+    "coverage": null,
+    "taskStatus": null,
+    "taskReason": null,
+    "aborted": false,
+    "modelGaps": [],
+    "verifiedModelExecutionGains": 0,
+    "modelGainCaveat": "Actual operation receipts after SDK-accepted review, not business correctness. Zero calls or zero receipts means no measured model execution gain.",
+    "captureCount": 84,
+    "captureWallMs": 84385,
+    "targetCorrespondenceBatches": 0,
+    "targetCorrespondenceTimedBatches": 0,
+    "targetCorrespondenceWallMs": null,
+    "timingCaveat": "Capture and model spans are measured. Other time includes dispatch, scheduling, persistence, matching and audit; it is not attributed to any one cause."
+  },
+  "result": {
+    "node": "v24.22.0",
+    "revision": "13e13e5",
+    "elapsedMs": 117096,
+    "timedOut": false,
+    "actions": 80,
+    "execution": {
+      "code": 0,
+      "signal": null
+    },
+    "actualAttempts": 80,
+    "succeeded": 28,
+    "failed": 52,
+    "unknown": 0,
+    "calls": {
+      "jev": 0,
+      "llm": 0
+    },
+    "strictChainVerified": false,
+    "strictAuditAvailability": "historical_version_has_no_current_original_source_receipt_API",
+    "noExhaustionClaim": true
+  },
+  "sourceCheck": {
+    "sourceRevision": "13e13e55df80cb6c724269f08807721c4a2d50cc",
+    "filesChecked": 58,
+    "differentFiles": [],
+    "archiveProductUnmodified": true
+  },
+  "rawEvidence": "/Users/xietian/.codex/worktrees/program-first-exploration/browser-interaction-engine/.data/program-first/legacy-2-v5",
+  "hashes": {
+    "source.json": "bd94eb6a81ac3778fb821abc95d8eb8019d924b76da748e11a8ff913107e7a55",
+    "protocol.json": "bf14fed56e902ae4ca6a37652c3155fdaa5eec5c9216a1e41c8c6aae88edf1c7",
+    "result.json": "929e4c5a636ecbb993a9c62261f8b0e2a2be71ab3f7f3829fdd1cef79a1b8f78",
+    "timeline.jsonl": "fec7f837e6f4019fc258058a0f38852abab469155c7c547dcc695c05f026c578",
+    "attempts.json": "567a3c0495aa53e20cce9ea7e0db706e65674d32d8171a7c48fb4aa5fc72d092"
+  }
+}

@@ -1,3 +1,11 @@
+# Final delivery: all requested acceptance gates completed
+
+Product freeze34c80e3be7e7fc447b94770e457d10f54cf5e2f4. Full local9/local10-confirmation pass51.940/49.533s,34commands each, original23branches,37/37finite source duties,two strict chains,real restart15originalpending,zero remaining/duplicate completions;498source hashes equal. Actual OKX13/14-independent/15-configured-model all pass the unchanged strict auditor in217.402/220.642/220.135s,14countedcommands each,one strict original-child chain each,zero JEV/LLM calls. Their492source hashes and all original budgets/contracts match. Final251regression=206pass/45fail with exactly the prior45failure names,zero additions. Focused42 and typechecks pass. Historical13e13e5 Node24/v5 matched run:117.096s,80commands,28actualexec,51guardrefusals,16scrolls; strict original-source audit unavailable in that old API. No throughput advantage or real model gain claimed. Unknown OKX obligations remain incomplete.
+
+[RESULTS.md](RESULTS.md), [IMPLEMENTATION.md](IMPLEMENTATION.md) and evidence/delivery-verification.json are the final delivery. Earlier entries below are immutable chronological work history, not current blockers or current completion claims. All final raw evidence remains in this worktree's .data/program-first. No active acceptance worker remains.
+
+---
+
 # Program-first exploration repair
 
 Started 2026-10-18 from exact a7f25f9dc5a0e84b65c833d19654afe92491ba8e in this isolated worktree. Original worktree /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine is read-only and its chat must not be messaged.

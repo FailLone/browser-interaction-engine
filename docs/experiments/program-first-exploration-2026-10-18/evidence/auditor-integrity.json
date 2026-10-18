@@ -1,0 +1,20 @@
+{
+  "startingRevision": "a7f25f9dc5a0e84b65c833d19654afe92491ba8e",
+  "files": [
+    {
+      "file": "scripts/local-loop-audit.ts",
+      "unchangedFromStartingRevision": true,
+      "sha256": "6f1d6cf2e56306e166c3ed87988a04ddda52fb0158fc772a7a58940bf15fe367"
+    },
+    {
+      "file": "scripts/finite-okx-audit.ts",
+      "unchangedFromStartingRevision": true,
+      "sha256": "f835dbcc33fe1df52eaf5968f67cf719cb4182bbed7f9fc8d944832491bf670b"
+    },
+    {
+      "file": "scripts/okx-plugin-loop-acceptance.ts",
+      "unchangedFromStartingRevision": true,
+      "sha256": "58ab041cdb3c64af2ef4d7d8340e0a8fe670b47cef2ef8d2556f9cbdc13555cf"
+    }
+  ]
+}

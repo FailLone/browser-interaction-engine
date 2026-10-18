@@ -1,3 +1,9 @@
+# Completed in the isolated program-first worktree
+
+The continuation at product freeze34c80e3be7e7fc447b94770e457d10f54cf5e2f4 completed the original full-local/independent gates, actual OKX strict-chain/independent gates, same-code optional-model comparison, matched historical Node24/v5 comparison, and exact251-test regression baseline audit. See [final results](../program-first-exploration-2026-10-18/RESULTS.md) and its evidence index. All unknown website duties remain; no whole-site exhaustion or model/throughput gain is claimed. The entries below preserve earlier stages and failures and are historical.
+
+---
+
 # Latest implementation: explicit program navigation ready for frozen evaluation
 
 Program-first public navigation is implemented; local real-browser delegated/native menus now execute with no configured model. Source/target-bounded necessary hover repetition continues a newly revealed second child after navigation/return. Effects remain unknown, no classification or interface-risk certificate is fabricated, and canvas/semantic duties remain incomplete. See STAGE-2-PROBE-CONTRACT.md and evidence/stage2-program-navigation.72 distinct focused tests and both typechecks pass. Original full local+confirmation and realOKX evaluation on this new freeze are still required. Do not use the prior0dbfe0d local gates for this product change.
