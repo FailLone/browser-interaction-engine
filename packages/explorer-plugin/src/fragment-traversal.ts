@@ -2,6 +2,7 @@ import {browserTraversalFragments,fragmentProjectionPolicy,type ActionCandidate,
 import {digest,matches,schedulingKeyFor} from './policy.js';
 import {boundOperationCondition} from './plan-state.js';
 import type {PlanItem} from './types.js';
+import {encodeFragmentMaterial} from './fragment-material.js';
 import {bestFragmentCandidate,bestFragmentState,emptyFragmentAccess,fragmentWasExplored,fragmentCandidateInfluence,fragmentDuplicationFactor,mapFragmentCandidates,recordFragmentAccess,transferFragmentAccess,type TraversalFragment,type FragmentMapping} from './fragment-traversal-core.js';
 
 export interface FragmentTraversalLedger {
@@ -40,13 +41,15 @@ export function registerFragmentObservation(l:FragmentTraversalLedger,o:Observat
   if(l.policy!==fragmentProjectionPolicy)return {observationId:o.id,byAction,pruned:[],registered,mapped,unmapped:actions.length,elapsedMs:performance.now()-start};
   if(l.authority!==authority){l.authority=authority;l.epoch++;}
   for(const projection of browserTraversalFragments(o,actions,authority)){
-    const material={structure:projection.structure,owner:projection.owner,revision:projection.revision,
-      candidates:projection.candidates.map(({actionId,...c})=>c)},id=digest({url:o.url,...material});
+    const material={structure:projection.structure,owner:encodeFragmentMaterial(projection.owner),revision:projection.revision,
+      candidates:projection.candidates.map(({actionId,...c})=>({...c,guard:encodeFragmentMaterial(c.guard)}))},id=digest({url:o.url,...material});
     let f=l.fragments.find(f=>f.id===id);
-    if(f&&(f.structure!==projection.structure||f.owner!==projection.owner||f.revision!==projection.revision
+    if(f&&(f.structure!==material.structure||f.owner!==material.owner||f.revision!==material.revision
       ||JSON.stringify(f.candidates.map(({id,access,...c})=>c))!==JSON.stringify(material.candidates)))continue;
     if(!f){
-      if(l.bounded||l.fragments.length>=128){l.bounded=true;continue;}
+      // A rejected large record is not a permanent stop latch. Later smaller
+      // records can still fit; old evidence is never evicted to make room.
+      if(l.fragments.length>=128){l.bounded=true;continue;}
       const next={id,...material,candidates:material.candidates.map(c=>({...c,id:digest({fragment:id,...c}),access:emptyFragmentAccess()})),url:o.url,
         source:{sessionId:o.sessionId,observationId:o.id,regionId:projection.regionId},parentRegionId:projection.parentRegionId};
       const edges=l.fragments.flatMap(old=>[...mapFragmentCandidates(old,next),...mapFragmentCandidates(next,old)]).filter(edge=>!l.revokedCandidates[edge.sourceCandidateId]&&!l.revokedCandidates[edge.targetCandidateId]);
@@ -59,7 +62,7 @@ export function registerFragmentObservation(l:FragmentTraversalLedger,o:Observat
       if(l.mappings.length+edges.length>4096||size(l)+size(next)+size(edges)>MAX_BYTES){l.bounded=true;continue;}
       l.fragments.push(next);l.mappings.push(...edges);f=next;registered++;mapped+=edges.length;l.epoch++;
     }
-    for(const current of projection.candidates){const matches=f.candidates.filter(c=>c.path===current.path&&c.operation===current.operation&&c.guard===current.guard);
+    for(const [index,current] of projection.candidates.entries()){const guard=material.candidates[index].guard,matches=f.candidates.filter(c=>c.path===current.path&&c.operation===current.operation&&c.guard===guard);
       if(matches.length===1)byAction.set(current.actionId,{fragmentId:f.id,candidateId:matches[0].id});}
   }
   propagate(l);
@@ -123,8 +126,8 @@ export function fragmentObligationSampled(l:FragmentTraversalLedger|undefined,it
 export function sampledFragmentAction(l:FragmentTraversalLedger,o:Observation,actions:readonly ActionCandidate[],authority:string,actionId:string):boolean {
   for(const projection of browserTraversalFragments(o,actions,authority)){
     const current=projection.candidates.find(c=>c.actionId===actionId);if(!current)continue;
-    const f=l.fragments.find(f=>f.url===o.url&&f.revision===projection.revision&&f.structure===projection.structure&&f.owner===projection.owner);
-    const c=f?.candidates.find(c=>c.path===current.path&&c.operation===current.operation&&c.guard===current.guard);
+    const owner=encodeFragmentMaterial(projection.owner),f=l.fragments.find(f=>f.url===o.url&&f.revision===projection.revision&&f.structure===projection.structure&&f.owner===owner);
+    const guard=encodeFragmentMaterial(current.guard),c=f?.candidates.find(c=>c.path===current.path&&c.operation===current.operation&&c.guard===guard);
     return !!c&&fragmentWasExplored(c.access);
   }
   return false;

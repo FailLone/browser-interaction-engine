@@ -16,6 +16,8 @@ The human request on 2026-10-18 explicitly replaces the old exploration schedule
 
 `fragment.frontier`, `fragment.access_recorded`, `fragment.candidates_ranked` and `fragment.states_ranked` separate sampled/pruned work from actual execution and functional coverage. Every propagated prune includes immutable origin attempt IDs and explicit candidate mappings. The full ledger is available in the task export. Pruning is a sampling decision under observed conditions, not proof of hidden JavaScript state or exhaustive website behavior.
 
+Complete canonical owner and guard strings use the lossless `deflate-raw/base64-v1:` representation. `fragment-material.ts` provides an exact audit decoder; no semantic normalization is involved. Full encoded equality is checked after hash lookup. The metadata limit applies to the encoded durable representation. A rejected large addition is recorded without globally disabling later additions that fit. Duplication weight is shared by every candidate owned by the same closest fragment, as in upstream; state influence includes negative actual-access scores.
+
 ## Removed strategy paths
 
 Removed `selectObligation` and the four-action `localSelectionLimit`; removed both operation sample-priority functions and their runtime branches; replaced the conditional program/legacy selector with one `selectFragmentWork` call. Old `localSelections` fields may deserialize as ignored historical metadata. They are never consulted or updated as a quota. Retained cursor and route retry debt still serve the same strategy. Legacy tests asserting a forced remote turn or counter increments were migrated to the human-requested continuous-fresh-work behavior; SDK guard, original-child, unknown-outcome and await-invalidation assertions remain.

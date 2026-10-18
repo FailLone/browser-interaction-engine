@@ -2,8 +2,16 @@ import {expect,it} from 'vitest';
 import type {Observation} from '@interaction/browser';
 import {digest} from '../packages/explorer-plugin/src/policy.js';
 import {initialFragmentLedger,preferFragmentCandidate,fragmentStateOrder,type FragmentFrontier} from '../packages/explorer-plugin/src/fragment-traversal.js';
+import {encodeFragmentMaterial,decodeFragmentMaterial} from '../packages/explorer-plugin/src/fragment-material.js';
 import {bestFragmentCandidate,bestFragmentState,emptyFragmentAccess,fragmentAccessCounters,fragmentCandidateInfluence,fragmentDuplicationFactor,mapFragmentCandidates,recordFragmentAccess,transferFragmentAccess,type TraversalFragment} from '../packages/explorer-plugin/src/fragment-traversal-core.js';
 const fragment=(id:string,guard='/buy'):TraversalFragment=>({id,structure:'nav/a[1]',owner:'main-navigation',revision:id,candidates:[{id:id+'-a',path:'a[1]',operation:'click',guard,access:emptyFragmentAccess()}]});
+it('retains every byte of repetitive mode evidence while bounding its stored size',()=>{
+ const material=JSON.stringify(Array.from({length:30},(_,i)=>({binding:JSON.stringify({anchor:`id:mode-${i}`,scope:'shared semantic navigation region',role:'button',attributes:{'aria-label':'Mode selector'}}),state:{expanded:false},relation:'observed-document-mode'})));
+ const encoded=encodeFragmentMaterial(material);expect(decodeFragmentMaterial(encoded)).toBe(material);
+ expect(encoded.length).toBeLessThan(material.length/4);
+ const changed=material.replace('mode-29','mode-30');expect(encodeFragmentMaterial(changed)).not.toBe(encoded);expect(decodeFragmentMaterial(encodeFragmentMaterial(changed))).toBe(changed);
+ expect(encodeFragmentMaterial(decodeFragmentMaterial(encoded))).toBe(encoded);expect(decodeFragmentMaterial('legacy material')).toBe('legacy material');
+});
 it('preserves the source influence/factor and fresh-first selection, while event propagation is idempotent',()=>{
  const direct=recordFragmentAccess(emptyFragmentAccess(),'attempt-A'),propagated=transferFragmentAccess(direct,emptyFragmentAccess(),'equivalent');
  expect(fragmentAccessCounters(direct)).toEqual({direct:true,duplicate:1,equivalent:1});expect(fragmentCandidateInfluence(direct)).toBe(-.75);

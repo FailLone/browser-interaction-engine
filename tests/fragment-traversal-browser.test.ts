@@ -37,6 +37,9 @@ it('imports late mappings from actual receipts, survives serialization, and reje
   await f.host.execute(s.id,next.id,'real-next',undefined,{observationId:opened.id,profile:'observed-ui-exploration'});
   const b=f.host.observation(s.id),ba=f.host.actions(s.id),warm=registerFragmentObservation(l,b,ba,'authority',new Set(ba.map(a=>a.id))),bm=ba.find(a=>a.label==='Menu'&&a.kind==='click')!;
   expect(fragmentActionEvidence(l,warm,bm.id)).toMatchObject({pruned:true,originAttemptIds:[attempt.id],coverageGranted:false});
+  const onceBounded=structuredClone(l);onceBounded.bounded=true;
+  const later=registerFragmentObservation(onceBounded,{...b,url:new URL('/later',b.url).href},ba,'authority',new Set(ba.map(a=>a.id)));
+  expect(later.registered).toBeGreaterThan(0);expect(fragmentActionEvidence(onceBounded,later,bm.id)?.pruned).toBe(true);
   const cold=JSON.parse(JSON.stringify(l)),again=registerFragmentObservation(cold,b,ba,'authority',new Set(ba.map(a=>a.id)));
   expect(fragmentActionEvidence(cold,again,bm.id)).toEqual(fragmentActionEvidence(l,warm,bm.id));
   expect(preferFragmentCandidate(cold,again,ba.map(a=>({actionId:a.id})))).toEqual(preferFragmentCandidate(l,warm,ba.map(a=>({actionId:a.id}))));
