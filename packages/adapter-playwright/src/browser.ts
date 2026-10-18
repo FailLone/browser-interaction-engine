@@ -657,7 +657,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     };
     const readyDependencies = (view: NonNullable<typeof dom>) => new Set(view.controls.filter(control => {
       const window = dependencyWindows.get(control.instanceId);
-      return control.visible && control.enabled && !!window && window.key === project(view).get(control.instanceId)
+      return control.visible && (control.enabled || control.instanceId===pendingTarget?.instanceId) && !!window && window.key === project(view).get(control.instanceId)
         && sampledAt - window.since >= this.options.settleMs;
     }).map(control => control.instanceId));
     const pending = captureContext?.afterAction;
@@ -748,6 +748,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     try { navigation = await this.readHistory(dom.documentId); }
     catch (error) { gaps.push({ code: 'NAVIGATION_HISTORY_UNAVAILABLE', message: String(error) }); }
     const currentEntry=navigation?.entries[navigation.currentIndex],sourceHistory=pending?.before.navigation;
+    const navigationPositionCapture:Observation['navigationPositionCapture']=!lastError&&documentWindow&&documentWindow.samples>=2
+      &&documentWindow.key===JSON.stringify([dom.documentId,dom.url])&&sampledAt-documentWindow.since>=this.options.settleMs
+      &&!gaps.some(g=>g.critical)&&currentEntry?.url===dom.url&&currentEntry.method==='GET'
+      ?{version:1,documentId:dom.documentId,url:dom.url,browserSessionId:navigation!.browserSessionId,entryId:currentEntry.id,samples:documentWindow.samples,settledMs:sampledAt-documentWindow.since}:undefined;
     const navigationCapture:Observation['navigationCapture']=!lastError&&navigationReady(dom)&&currentEntry?.method==='GET'&&currentEntry.url===dom.url
       &&sourceHistory?.browserSessionId===navigation?.browserSessionId&&sourceHistory?.entries[sourceHistory.currentIndex]?.method==='GET'
       &&(dom.documentId===pending!.before.documentId||currentEntry.id!==sourceHistory.entries[sourceHistory.currentIndex].id)
@@ -827,7 +831,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, ...(navigationCapture?{navigationCapture}:{}), ...(boundaryExitCapture?{boundaryExitCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, ...(navigationPositionCapture?{navigationPositionCapture}:{}), ...(navigationCapture?{navigationCapture}:{}), ...(boundaryExitCapture?{boundaryExitCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   private lastDismissal?: BoundaryExitDispatch & { actionId: string };
   dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {

@@ -20,7 +20,7 @@ it.each([false,true])('observes a committed native navigation while destination 
   expect(nativeDocumentReturnReady(before,after)).toBe(true);
   for(const change of ['missing-proof','wrong-document','wrong-url','uncommitted-history','critical-gap','new-boundary'] as const){
    const altered=structuredClone(after);
-   if(change==='missing-proof')delete altered.navigationCapture;
+   if(change==='missing-proof'){delete altered.navigationCapture;delete altered.navigationPositionCapture;}
    if(change==='wrong-document')altered.documentId='another-document';
    if(change==='wrong-url')altered.url=url+'/another';
    if(change==='uncommitted-history')altered.navigation!.entries[altered.navigation!.currentIndex].method='POST';
@@ -92,4 +92,24 @@ it('retains unknown when an intercepted native link changes to an unrelated same
  const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:120,observeTimeoutMs:800});
  try{const a=await act(f.engine,f.sessionId,'Open');expect(a.status).toBe('unknown');expect(f.engine.observation(f.sessionId).navigationCapture).toBeUndefined();expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(1);}
  finally{await f.close();await new Promise<void>(r=>server.close(()=>r()));}
+});
+
+
+it('uses a fresh settled GET position after local work without reusing the earlier navigation action proof',async()=>{
+ const server=createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(req.url==='/'?'<a href="/live">Open</a>':'<nav><button role="tab" onclick="this.disabled=true">Local work</button></nav><form><input id="changing" aria-label="Changing"></form><script>setInterval(()=>document.querySelector("#changing").value=String(Date.now()),10)</script>');});
+ await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(server.address() as any).port}`;
+ const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:120,observeTimeoutMs:800,coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',executionBoundary:{version:1,programNavigation:'public-navigation-v1',allowedOperations:['click'],urls:[{url:url+'/',match:'exact'},{url:url+'/live',match:'exact'}],exclusions:[]}});
+ try{
+  const navigation=await act(f.engine,f.sessionId,'Open'),source=f.engine.observation(f.sessionId,navigation.beforeId);
+  await act(f.engine,f.sessionId,'Local work');const current=f.engine.observation(f.sessionId);
+  expect(current.stable).toBe(false);expect(current.navigationCapture).toBeUndefined();expect(nativeDocumentReturnReady(source,current)).toBe(true);
+  expect(current.controls.find(c=>c.name==='Changing')?.readiness?.status).toBe('unstable');
+  for(const change of ['missing','one-sample','wrong-url','wrong-document','wrong-entry','wrong-session','non-get'] as const){
+   const altered=structuredClone(current),p=altered.navigationPositionCapture!;
+   if(change==='missing')delete altered.navigationPositionCapture;if(change==='one-sample')p.samples=1;if(change==='wrong-url')p.url+='different';
+   if(change==='wrong-document')p.documentId='different';if(change==='wrong-entry')p.entryId=-1;if(change==='wrong-session')p.browserSessionId='different';
+   if(change==='non-get')altered.navigation!.entries[altered.navigation!.currentIndex].method='POST';
+   expect(nativeDocumentReturnReady(source,altered),change).toBe(false);
+  }
+ }finally{await f.close();await new Promise<void>(r=>server.close(()=>r()));}
 });

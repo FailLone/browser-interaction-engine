@@ -82,8 +82,9 @@ export function operationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem
 export function programOperationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem)=>number {
   const key=(item:PlanItem)=>{
     if(!item.scope.kind||!item.scope.targetBinding&&!item.scope.stableKey)return;
-    const {stableKey,...scope}=item.scope;
-    return JSON.stringify(Object.entries(item.scope.targetBinding?scope:item.scope).sort(([a],[b])=>a.localeCompare(b)));
+    const {stableKey,url,...scope}=item.scope;
+    let origin=url;try{if(url)origin=new URL(url).origin;}catch{/* Keep malformed sources separate. */}
+    return JSON.stringify(Object.entries(item.scope.targetBinding?{...scope,origin}:item.scope).sort(([a],[b])=>a.localeCompare(b)));
   };
   const attempts=new Map<string,Set<string>>(),verified=operationSamplePriority(plan);
   for(const item of plan){const k=key(item);if(!k)continue;const seen=attempts.get(k)||new Set<string>();
@@ -91,4 +92,22 @@ export function programOperationSamplePriority(plan:readonly PlanItem[]):(item:P
     attempts.set(k,seen);
   }
   return item=>Math.max(verified(item),attempts.get(key(item)||'')?.size||0);
+}
+
+/** Program exploration has no per-page action quota. These are already admitted
+ * candidates: this function only chooses work and cannot authorize dispatch.
+ * A sampled operation remains pending and can run after retained work is tried.
+ */
+export function selectProgramWork(input:{
+  boundaryActive:boolean;
+  continuation?:ObligationSelection;
+  current:{selection:ObligationSelection;untried:boolean}[];
+  remote:ObligationSelection[];
+}):{selection?:ObligationSelection;reason:string;needsRecovery:boolean} {
+  if(input.boundaryActive)return {selection:input.current[0]?.selection,reason:'active_boundary',needsRecovery:false};
+  if(input.continuation)return {selection:input.continuation,reason:'selected_route_continuation',needsRecovery:false};
+  const fresh=input.current.find(candidate=>candidate.untried);
+  if(fresh)return {selection:fresh.selection,reason:'untried_current_candidate',needsRecovery:false};
+  if(input.remote.length)return {selection:input.remote[0],reason:'retained_work_after_current_samples',needsRecovery:false};
+  return {selection:input.current[0]?.selection,reason:input.current.length?'sampled_current_fallback':'current_candidates_exhausted',needsRecovery:true};
 }

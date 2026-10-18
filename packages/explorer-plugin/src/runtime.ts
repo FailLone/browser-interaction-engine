@@ -36,7 +36,7 @@ import { currentObligationTarget } from './current-obligation-target.js';
 import {auditGapIndex,type AuditGapIndex} from './audit-gap-index.js';
 import {observationActionIndex} from './observation-action-index.js';
 import {createCurrentSourceExclusion} from './current-source-exclusion.js';
-import { initialSchedule, orderedObligations, operationSamplePriority, programOperationSamplePriority, unfinishedObligations, selectObligation, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
+import { initialSchedule, orderedObligations, operationSamplePriority, programOperationSamplePriority, unfinishedObligations, selectObligation, selectProgramWork, reserveObligation, bindScheduledRoute, routeDebtAllows, localSelectionLimit, type ObligationSelection } from './obligation-scheduler.js';
 import type { Checkpoint } from '@interaction/browser';
 
 const requiredCapabilities: (keyof ExplorerHost)[]=['operationCoverageCandidates','actionAvailability','operationCorrespondences','explorationSnapshot','controlInterpretationSnapshot','boundaryState','interactionTransition','navigationIsolation','recoveryAssessment','sessions','session','createSession','observation','observe','actions','execute','command','getFrontier','report','list','regionReviewMaterial','explorationReviewMaterial','controlClassificationMaterial','controlReviewMaterial','purposeReviewMaterial','discoveryScanMaterial','createCheckpoint','reachCheckpoint','pause','stop','pinEvidence','unpinEvidence'];
@@ -907,7 +907,12 @@ export class ExplorerPlugin {
     }
     const contains=(scope:Scope,item:PlanItem)=>Object.entries(scope).every(([key,value])=>item.scope[key as keyof Scope]===value);
     const pending:PlanItem[]=[];
-    for(const item of orderedObligations(task.plan,schedule)){
+    // A native page position is cheaper to re-establish than an unresolved
+    // control review. It remains a candidate only: all source/route checks below
+    // and SDK arrival verification still apply, and every child remains pending.
+    const recoveryOrder=orderedObligations(task.plan,schedule);
+    if(task.coverageContract?.programNavigation)recoveryOrder.sort((a,b)=>Number(!pageSourceObligation(a))-Number(!pageSourceObligation(b)));
+    for(const item of recoveryOrder){
       const wait=checkpoint();if(wait){await wait;resume();}
       if(sourceReturnOnly&&!pageSourceObligation(item))continue;
       if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||exclusions.some(excluded=>contains(excluded.scope,item)))continue;
@@ -1318,8 +1323,8 @@ export class ExplorerPlugin {
       &&scope.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&c.enabled&&!c.readiness&&c.actionable?.hitTarget===true)));
     if(readyNavigation&&!visitedNavigation.has(opportunityKey)){
       this.changedRound(task,round);(round.localOpportunityScopes??=[]).push(opportunityKey);visitedNavigation.add(opportunityKey);
-      this.initializeScheduling(task).localSelections=0;this.persist(task);
-      this.event(task,'navigation.local_opportunity',{observationId:o.id,documentId:o.documentId,url:o.url,scopeKey:opportunityKey,reason:'new_page_context_ready_navigation',limit:localSelectionLimit,coverageGranted:false});
+      this.persist(task);
+      this.event(task,'navigation.local_opportunity',{observationId:o.id,documentId:o.documentId,url:o.url,scopeKey:opportunityKey,reason:'observed_ready_navigation_position',priorityReset:false,coverageGranted:false});
     }
     await this.reconcileReviewLedger(task,o,signal);
     await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host));
@@ -1351,7 +1356,7 @@ export class ExplorerPlugin {
       allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),
       // At the local quota, review current material before fairness can send us
       // elsewhere. Reviewing does not reserve an action or reset the quota.
-      allowLocalActionYield:(task.scheduling?.localSelections??0)<localSelectionLimit,
+      allowLocalActionYield:!!task.coverageContract?.programNavigation||(task.scheduling?.localSelections??0)<localSelectionLimit,
       hasPendingAction:(filter?: (action:ActionCandidate)=>boolean,freshOnly=false)=>{
         // Ordinary semantic exploration retains its review-before-mutation
         // order for a newly captured container. Only explicit program navigation
@@ -1420,10 +1425,12 @@ export class ExplorerPlugin {
       &&(['active','alias'].includes(entry.state))&&(entry.reason==='current_target_observed'||entry.source&&entry.correspondence));
     const samplePriority=(task.coverageContract?.programNavigation?programOperationSamplePriority:operationSamplePriority)(task.plan);
     const ordered=orderedObligations(task.plan,schedule).sort((a,b)=>samplePriority(a)-samplePriority(b)),targetOrder=new Map(ordered.map((item,index)=>[item.id,index]));
+    const retainedOrder=new Map(ordered.slice().sort((a,b)=>task.coverageContract?.programNavigation?Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||'')):0).map((item,index)=>[item.id,index]));
     const orderedActions=unique.slice().sort((a,b)=>Number(a.boundary?.intent==='exit')-Number(b.boundary?.intent==='exit')||Number(!!navigationTarget(a,o))-Number(!!navigationTarget(b,o)));
     const local:ObligationSelection[]=[],reentries:ObligationSelection[]=[];
+    const atReturnedSource=!!task.coverageContract?.programNavigation&&round.returnedSource?.url===o.url&&round.returnedSource.documentId===o.documentId;
     for(const action of orderedActions){
-      if(fresh.has(action.id)){
+      if(fresh.has(action.id)&&!(atReturnedSource&&this.neededEntry(task,round,action,o))){
         const members=pending.filter(item=>matches(item.scope,action,o)&&(!boundOperationCondition(item)||boundOperationCondition(item)===keyFor(action,o)));
         const exact=digest(scopeFor(action,o)),item=members.find(item=>item.scope.kind&&digest(item.scope)===exact)||members.find(item=>item.scope.kind)||members[0];
         // Boundary exits and page traversal serve existing work without creating
@@ -1432,7 +1439,7 @@ export class ExplorerPlugin {
         const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||item||prerequisite;
         if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
       }else{
-        const targets=this.entryTargets(task,action,o).sort((a,b)=>(task.coverageContract?.programNavigation?Number(b.id===arrived)-Number(a.id===arrived):0)||(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
+        const targets=this.entryTargets(task,action,o).sort((a,b)=>(task.coverageContract?.programNavigation?Number(b.id===arrived)-Number(a.id===arrived):0)||(retainedOrder.get(a.id)??Infinity)-(retainedOrder.get(b.id)??Infinity));
         const target=this.reentryTarget(task,action,o,targets,true);
         if(target&&byId.has(target.item.id))reentries.push({itemId:target.item.id,kind:'reentry',actionId:action.id,source:target.item.evidence.find(ref=>!ref.attemptId)});
       }
@@ -1443,29 +1450,19 @@ export class ExplorerPlugin {
     // priority: a child link can precede a background tab, while local controls
     // in that same branch precede navigation, preferences and its exit.
     const departure=(choice:ObligationSelection)=>{const a=actions.find(a=>a.id===choice.actionId)!;return this.currentExit(a,o)?3:navigationTarget(a,o)?2:a.source==='program-notice-preference'?1:closing(choice);};
-    if(task.coverageContract?.programNavigation)local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||Math.min(1,locality(b))-Math.min(1,locality(a))||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||departure(a)-departure(b)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    const observationCost=(choice:ObligationSelection)=>{const action=actions.find(a=>a.id===choice.actionId)!;return locality(choice)>0?(this.currentExit(action,o)||closing(choice)?2:action.source==='program-navigation-observation'?1:0):0;};
+    if(task.coverageContract?.programNavigation)local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||Math.min(1,locality(b))-Math.min(1,locality(a))||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||observationCost(a)-observationCost(b)||locality(b)-locality(a)||departure(a)-departure(b)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     else local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||closing(a)-closing(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
     if(!task.coverageContract?.programNavigation&&inPlace.length)local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));
-    // Modal work remains exclusive. A transient branch keeps its turn over
-    // background controls, but at the local quota it may take a ready child
-    // navigation and retain the remaining branch for a later verified return.
-    // Reloading the exact current URL adds no new observed position. Preserve
-    // that duty, but give other current work or a retained route the next turn.
+    // Current-URL reloads and previously sampled locations retain their duties,
+    // but do not create a new-work preference over a verified pending route.
     const currentURLLink=(choice:ObligationSelection)=>{
       const action=actions.find(a=>a.id===choice.actionId)!,control=o.controls.find(c=>c.localId===action.localId),href=control?.reviewBinding?.attributes.href;
       if(action.kind!=='click'||control?.tag!=='a'||typeof href!=='string'||!action.basis?.evidence.some(e=>e.rule==='hyperlink/v1'))return false;
       try{return new URL(href,o.url).href===o.url;}catch{return false;}
     };
     const productiveLocal=task.coverageContract?.programNavigation&&!o.boundaries?.length?local.filter(choice=>!currentURLLink(choice)):local;
-    const scoped=task.coverageContract?.programNavigation?productiveLocal.filter(choice=>!!o.boundaries?.length||locality(choice)>0):[];
-    const scopedDeparture=!o.boundaries?.length&&schedule.localSelections>=localSelectionLimit&&scoped.find(choice=>{
-      const target=navigationTarget(actions.find(a=>a.id===choice.actionId)!,o);return !!target&&!visitedNavigation.has(navigationOpportunityKey(target));
-    });
-    // A fresh child destination can finish this local batch. Cycles through
-    // already visited pages must yield to retained work at the same quota;
-    // modal interiors remain exclusive and every unselected duty stays pending.
-    const scopedChoice=scopedDeparture||(o.boundaries?.length||schedule.localSelections<localSelectionLimit?scoped[0]:undefined);
     // Finish the selected recovered child once before fairness sends us away.
     // Its current target was just projected; reservation changes the selection
     // to current, so this exception never resets or renews the ordinary quota.
@@ -1476,7 +1473,7 @@ export class ExplorerPlugin {
     // Page-position recovery has an authority row as its selected item. Resume
     // one currently verified original child route before unrelated fresh work.
     // A different document/URL or unavailable route grants no preference.
-    const returnedReentry=task.coverageContract?.programNavigation&&round.returnedSource?.url===o.url&&round.returnedSource.documentId===o.documentId
+    const returnedReentry=atReturnedSource
       ?reentries.find(choice=>byId.get(choice.itemId)?.scope.url===o.url):undefined;
     // Once current boundary work is done, use its already admissible local exit
     // before spending a remote recovery turn. Keep the fairness counter: the
@@ -1487,9 +1484,16 @@ export class ExplorerPlugin {
       return this.currentExit(action,o)&&(action.localId?activeOverlay.controlIds.includes(action.localId)||activeOverlay.exitControlIds.includes(action.localId)
         :!action.controlId&&(action.kind==='press'&&action.value==='Escape'||hasReviewedDismissal(action,o)));
     }):undefined;
-    reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    reentries.sort((a,b)=>(retainedOrder.get(a.itemId)??Infinity)-(retainedOrder.get(b.itemId)??Infinity));
+    const currentWork=local.map(selection=>{
+      const target=navigationTarget(actions.find(action=>action.id===selection.actionId)!,o);
+      return {selection,untried:!currentURLLink(selection)&&samplePriority(byId.get(selection.itemId)!)===0
+        &&(!target||!visitedNavigation.has(navigationOpportunityKey(target)))};
+    });
+    const programInput={boundaryActive:!!o.overlays?.some(overlay=>['modal','dialog'].includes(overlay.kind)),continuation:arrivedChoice||arrivedReentry||returnedReentry||undefined,current:currentWork,remote:reentries};
+    const beforeRecovery=task.coverageContract?.programNavigation?selectProgramWork(programInput):undefined;
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!returnedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!productiveLocal.length||schedule.localSelections>=localSelectionLimit)){
+    if(beforeRecovery?beforeRecovery.needsRecovery:!boundaryExit&&!arrivedChoice&&(!productiveLocal.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal,deferDestinationReview);
       // Even a short async selection has a final microtask boundary. Check it
@@ -1500,7 +1504,15 @@ export class ExplorerPlugin {
     }
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
-    const selection=boundaryExit||arrivedChoice||arrivedReentry||returnedReentry||scopedChoice||(!productiveLocal.length&&remote.length?remote[0]:selectObligation(schedule,productiveLocal.length?productiveLocal:local,remote)),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const programDecision=beforeRecovery&&selectProgramWork({...programInput,remote});
+    if(programDecision)this.event(task,'program.candidates_ranked',{
+      observationId:o.id,reason:programDecision.reason,selectedItemId:programDecision.selection?.itemId,
+      current:currentWork.slice(0,128).map(({selection:choice,untried})=>{const action=actions.find(a=>a.id===choice.actionId)!;return {itemId:choice.itemId,actionId:action.id,kind:action.kind,label:action.label,
+        source:action.source,localId:action.localId,targetBinding:byId.get(choice.itemId)?.scope.targetBinding,locality:locality(choice),priorSuccessfulSamples:samplePriority(byId.get(choice.itemId)!),observationCost:observationCost(choice),untried,
+        deferredReason:currentURLLink(choice)?'exact_current_url':untried?undefined:'sampled_operation_or_visited_location'};}),
+      omitted:Math.max(0,local.length-128),remote:remote.map(choice=>({itemId:choice.itemId,kind:choice.kind,routeKey:choice.routeKey})),
+      returnEvaluation:recovery?'candidate_route_available':beforeRecovery?.needsRecovery?'no_selected_return_route':'current_work_preferred',coverageGranted:false});
+    const selection=programDecision?programDecision.selection:boundaryExit||arrivedChoice||(!productiveLocal.length&&remote.length?remote[0]:selectObligation(schedule,productiveLocal.length?productiveLocal:local,remote)),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
@@ -1513,7 +1525,6 @@ export class ExplorerPlugin {
       const action=selectedAction,selectedReentry=selection?.kind==='reentry'||this.neededEntry(task,round,action,o),revision=task.revision;
       if(selection===returnedReentry)this.event(task,'recovery.continuation_selected',{resultId:round.returnedSource!.resultId,itemId:selection!.itemId,actionId:action.id,sourceObservationId:o.id,coverageGranted:false,dispatchRevalidationRequired:true});
       if(o.coveragePolicy==='finite-ui-v1')this.event(task,'progress.dependencies',{actionId:action.id,observationId:o.id,...dependencies.get(action.id),coverageGranted:false,scopeUnchanged:true});
-      if(selection===scopedDeparture)this.event(task,'branch.local_quota',{itemId:selection!.itemId,actionId:action.id,localSelections:schedule.localSelections,limit:localSelectionLimit,retainedPending:pending.filter(item=>item.id!==selection!.itemId).map(item=>item.id),coverageGranted:false});
       if(selection?.kind==='current'&&reentries.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:reentries.map(choice=>{const action=actions.find(action=>action.id===choice.actionId);return {actionId:choice.actionId,itemId:choice.itemId,label:action?.label,kind:action?.kind};}),retainedInPlan:true,executionAuthorized:false});
       this.event(task,'action.selected',{reason:selectedReentry?'unfinished_target_route':'obligation_order',selectionPolicy:selection?.kind==='current'?'ready_local_preference':'finite_local_batch',selectedItemId:selection!.itemId,actionId:action.id,label:action.label,kind:action.kind,scope:decisionScope(scopeFor(action,o)),reentry:selectedReentry,candidateCount:local.length+reentries.length,sourceObservationId:o.id,dispatchRevalidationRequired:true});
       this.assert(task,signal,o.id,revision);
@@ -1806,7 +1817,7 @@ export class ExplorerPlugin {
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
   }
-  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded').sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId));}
+  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded').sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId)||(task.coverageContract?.programNavigation?Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||'')):0));}
   private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const entry=scopeFor(a,o),condition=browserTargetConditions(a,o)?.key||'unverified';
     const key=digest({policy:'entry-progress-v2',route:recoveryRouteKey(o,[a],[entry]),condition}),oldKey=digest({entry,context:o.context}),legacyKey=digest(entry);

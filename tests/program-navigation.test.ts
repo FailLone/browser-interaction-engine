@@ -9,11 +9,11 @@ import {explorerFixture} from './explorer-plugin-helpers.js';
 import {pageOf} from './helpers.js';
 import {bindGuardedReentryRoute} from '../scripts/okx-plugin-loop-acceptance.js';
 
-async function delegatedFixture(reveals=true,initialPopup=false,changingDestination=false,dualEntry=false,recordRows=false,destinationNavigation=false,destinationUnknown=false){
+async function delegatedFixture(reveals=true,initialPopup=false,changingDestination=false,dualEntry=false,recordRows=false,destinationNavigation=false,destinationUnknown=false,destinationBatch:false|'finite'|'continuing'=false){
  mkdirSync(resolve('.data'),{recursive:true});const dir=mkdtempSync(resolve('.data/program-menu-')),site=join(dir,'site');mkdirSync(site);
  writeFileSync(join(site,'index.html'),'<!doctype html><html><head><title>Navigation fixture</title></head><body><div id="root"></div><script type="module" src="/menu.jsx"></script></body></html>');
  writeFileSync(join(site,'menu.jsx'),`import React from 'react';import {createRoot} from 'react-dom/client';function App(){const [open,setOpen]=React.useState(false);const [notice,setNotice]=React.useState(${initialPopup}&&sessionStorage.getItem('skipNotice')!=='true');return <>{notice&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',zIndex:10}}><div role="dialog" aria-modal="true" tabIndex={0} aria-label="Service notice" style={{position:'absolute',left:300,top:150,width:400,padding:30,background:'white'}}><button type="button" role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Read notice</button><div tabIndex={0}>Unresolved notice container<label><input type="checkbox" onChange={e=>sessionStorage.setItem("skipNotice",String(e.target.checked))}/>Do not show again</label><button type="button" onClick={()=>{throw Error('Unauthorized notice action')}}>Continue</button></div><button type="button" onClick={()=>setNotice(false)}>Close</button></div></div>}<header><nav>${recordRows?'<div tabIndex={0} aria-label="Navigation owner">':''}<div id="menu" ${dualEntry?'role="button" onClick={()=>setOpen(true)}':''} tabIndex={0} aria-label="Information menu" aria-expanded={open} aria-controls="links" onMouseEnter={()=>{${reveals?'setOpen(true)':''}}} onMouseLeave={()=>setOpen(false)} style={{position:'relative',width:220,padding:20,cursor:'pointer'}}>Information<div id="links" hidden={!open} style={{position:'absolute',top:'100%',left:0,width:220,background:'white',padding:10}}>${recordRows?'<ul aria-label="Information pages"><li><a href="/overview" onMouseEnter={e=>e.currentTarget.className="highlight"}>Overview</a></li><li><a href="/details" onMouseEnter={e=>e.currentTarget.className="highlight"}>Details</a></li></ul>':'<a href="/overview">Overview</a><br/><a href="/details">Details</a>'}</div></div>${recordRows?'</div>':''}</nav></header><main>{${reveals}&&<button role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Unrelated view</button>}<canvas/>${recordRows?'<div tabIndex={0}>Unrelated twin</div><div tabIndex={0}>Unrelated twin</div>':''}<div tabindex="0" aria-label="Unresolved unrelated">Unknown</div></main></>};createRoot(document.getElementById('root')).render(<App/>);`);
- const pages=(req:any,res:any,next:()=>void)=>{if(['/overview','/details'].includes(req.url||'')){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><title>Overview</title></head><body><h1>Public overview</h1><canvas></canvas>'+(destinationNavigation?'<nav aria-label="Destination navigation"><details><summary>Destination menu</summary><a href="/details">Destination details</a></details></nav>':'')+(destinationUnknown?'<form><div role="slider" tabindex="0" aria-label="Unresolved slider" aria-labelledby="missing-label">Unresolved slider</div></form>':'')+(changingDestination?'<form><input aria-label="Changing quote" id="changing"></form><script>setInterval(()=>document.querySelector("#changing").value=String(Date.now()),10)</script>':'')+'</body></html>');}else next();};
+ const pages=(req:any,res:any,next:()=>void)=>{if(['/overview','/details'].includes(req.url||'')||/^\/next\/\d+$/.test(req.url||'')){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><title>Overview</title></head><body><h1>Public overview</h1><canvas></canvas>'+(destinationBatch?'<nav aria-label="Destination batch">'+Array.from({length:4},(_,i)=>`<button role="tab" onclick="this.disabled=true">Destination work ${i}</button>`).join('')+(destinationBatch==='continuing'?`<a href="/next/${(Number((req.url||'').split('/').at(-1))||0)+1}">Next destination</a>`:'')+'</nav>':'')+(destinationNavigation?'<nav aria-label="Destination navigation"><details><summary>Destination menu</summary><a href="/details">Destination details</a></details></nav>':'')+(destinationUnknown?'<form><div role="slider" tabindex="0" aria-label="Unresolved slider" aria-labelledby="missing-label">Unresolved slider</div></form>':'')+(changingDestination?'<form><input aria-label="Changing quote" id="changing"></form><script>setInterval(()=>document.querySelector("#changing").value=String(Date.now()),10)</script>':'')+'</body></html>');}else next();};
  const server=await createServer({configFile:false,root:site,plugins:[{name:'fixture-public-pages',configureServer(server){server.middlewares.use(pages);}}],server:{host:'127.0.0.1',port:0},logLevel:'silent'});await server.listen();
  const url=server.resolvedUrls!.local[0],host=new BrowserEngine({persistence:new SqliteStore(join(dir,'engine'))});
  return {url,host,close:async()=>{await host.close();await server.close();rmSync(dir,{recursive:true,force:true});}};
@@ -219,5 +219,38 @@ it('prepares the active notice before background navigation on a continuously ch
   }
   expect(final.plan.some(i=>i.required&&i.status!=='succeeded'&&i.scope.label==='Changing quote')).toBe(true);
   expect(store.decisions(task.id)).toEqual([]);
+ }finally{await plugin.close();await f.close();}
+});
+
+
+it('returns to an original pending branch after exhausting finite work on a dynamic destination',async()=>{
+ const f=await delegatedFixture(true,false,true,true,false,false,false,'finite'),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+ try{
+  const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:120,observeTimeoutMs:800},budget:{rounds:1,actions:12,durationMs:30000}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  writeFileSync(resolve('.data/program-first/finite-destination-diagnostic.json'),JSON.stringify({task:final,attempts,events:store.events(task.id),observations:f.host.list(final.rounds[0].sessionId,'observation')}));
+  const returned=attempts.findIndex(a=>a.action.kind==='history');expect(returned,JSON.stringify({reason:final.reason,attempts:attempts.map(a=>[a.action.label,a.status])})).toBeGreaterThan(0);
+  expect(attempts.slice(0,returned).filter(a=>a.action.label.startsWith('Destination work')).map(a=>a.action.label)).toEqual(['Destination work 0','Destination work 1','Destination work 2','Destination work 3']);
+  expect(attempts[returned+1].action.label).toBe('Information menu');
+  expect(store.events(task.id).some(e=>e.type==='recovery.continuation_selected')).toBe(true);
+  const planned=store.events(task.id).find(e=>e.type==='branch.reentry_planned')?.data as any;
+  const original=final.plan.find(i=>i.id===planned?.itemId)!;
+  expect(original?.status).toBe('succeeded');expect(original.conditionCompletion?.status).toBe('verified');
+  const child=attempts.find(a=>a.id===original.resolvedBy?.attemptId)!;
+  expect(child?.action.label).toBe('Details');expect(child.id).not.toBe(attempts[returned+1].id);
+  expect(store.decisions(task.id)).toEqual([]);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('continues newly observed destinations without forced history returns despite retained original children',async()=>{
+ const f=await delegatedFixture(true,false,false,true,false,false,false,'continuing'),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+ try{
+  const task=plugin.create({url:f.url,coverageContract:{...contract(f.url),routes:[{origin:new URL(f.url).origin,pathnamePattern:'^/(overview|details|next/[0-9]+)$',scope:{}}]},sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:0,observeTimeoutMs:800},budget:{rounds:1,actions:14,durationMs:30000}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(attempts.filter(a=>a.action.label==='Next destination'&&a.status==='succeeded').length,JSON.stringify(attempts.map(a=>[a.action.label,a.status]))).toBeGreaterThanOrEqual(2);
+  expect(attempts.some(a=>a.action.kind==='history')).toBe(false);
+  expect(final.plan.some(i=>i.scope.label==='Details'&&i.required&&i.status!=='succeeded'&&i.prerequisites.length)).toBe(true);
+  expect(store.events(task.id).filter(e=>e.type==='navigation.local_opportunity').every(e=>(e.data as any).priorityReset===false)).toBe(true);
+  expect(store.decisions(task.id)).toEqual([]);expect(final.status).not.toBe('completed');
  }finally{await plugin.close();await f.close();}
 });

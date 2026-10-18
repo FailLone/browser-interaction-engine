@@ -21,3 +21,12 @@ it('deprioritizes actual no-effect samples across rebuilt instances without comp
  expect(rank(rebuilt)).toBe(1);expect(rank(fresh)).toBe(0);expect(plan).toEqual(before);expect(source.status).toBe('unresolved');
  expect(programOperationSamplePriority([unknown])(rebuilt)).toBe(0);
 });
+
+it('retains a sampling hint across URLs only for a captured target binding, without merging duties',()=>{
+ const sampled={...item('old','instance-old'),attempts:[{roundId:'r',outcome:'succeeded',evidence:{sessionId:'s',observationId:'o',attemptId:'actual'}}]};
+ const otherPage={...item('new','instance-new'),scope:{...sampled.scope,stableKey:'instance-new',url:'http://local/next'}};
+ const plan=[sampled,otherPage],before=structuredClone(plan);
+ expect(programOperationSamplePriority(plan)(otherPage)).toBe(1);expect(plan).toEqual(before);
+ const unbound={...sampled,scope:{...sampled.scope,targetBinding:undefined}};
+ expect(programOperationSamplePriority([unbound])({...otherPage,scope:{...otherPage.scope,targetBinding:undefined}})).toBe(0);
+});

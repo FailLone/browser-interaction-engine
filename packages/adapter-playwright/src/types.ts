@@ -221,6 +221,7 @@ export interface Observation extends CoreObservation<Control> {
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   /** Two complete DOM samples of the committed document; other controls may remain unready. */
   navigationCapture?:{beforeId:string;actionId:string;sourceDocumentId:string;documentId:string;sourceUrl:string;requestedUrl:string;observedUrl:string;samples:number;settledMs:number}&({version:1}|{version:2;transition:'same-document-url';sourceEntryId:number;entryId:number});
+  navigationPositionCapture?:{version:1;documentId:string;url:string;browserSessionId:string;entryId:number;samples:number;settledMs:number};
   boundaryExitCapture?:{version:1;beforeId:string;actionId:string;samples:number;settledMs:number};
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;

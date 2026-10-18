@@ -35,12 +35,22 @@ function committedNavigationProof(current:Observation):boolean {
    &&sameHTTPDestination(proof.requestedUrl,current.url);
 }
 
+/** Fresh URL/document samples plus native GET history establish a position,
+ * including after local work on a continuously changing page. They never prove
+ * a prior control returned, its old conditions, or a navigation action effect. */
+export function settledNativePosition(o:Observation):boolean {
+ const p=o.navigationPositionCapture,h=o.navigation,entry=h?.entries[h.currentIndex];
+ return !!p&&p.version===1&&p.documentId===o.documentId&&p.url===o.url&&p.samples>=2&&p.settledMs>=0
+   &&h?.browserSessionId===p.browserSessionId&&entry?.id===p.entryId&&entry.url===o.url&&entry.method==='GET'
+   &&!o.gaps.some(g=>g.critical);
+}
+
 /** Only a committed, separately settled native document can avoid recapturing
  * unrelated changing controls before history return. No control readiness or
  * restored source-state equivalence is asserted here. */
 export function nativeDocumentReturnReady(target: Observation, current: Observation) {
-  return target.stable&&!target.gaps.some(g=>g.critical)&&!current.gaps.some(g=>g.critical)&&!current.boundaries?.length
-    &&committedNavigationProof(current)
+  return (target.stable||settledNativePosition(target))&&!target.gaps.some(g=>g.critical)&&!current.gaps.some(g=>g.critical)&&!current.boundaries?.length
+    &&(committedNavigationProof(current)||settledNativePosition(current))
     &&observedSourcePosition(target,current).status==='returnable';
 }
 
