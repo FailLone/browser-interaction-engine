@@ -1,0 +1,18 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/explorer-identity-review-progress.test.ts (1 test) 4567ms
+   ✓ counts finite current-occurrence resolution as real review progress under interface-only policy  4567ms
+ ✓ tests/explorer-progress-dependencies.test.ts (6 tests) 14060ms
+   ✓ bounds a canvas gap to captured DOM while preserving unknown contents and SDK obstruction checks  513ms
+   ✓ holds an unresolved ancestor, shared form or missing ancestry while allowing a disjoint reviewed native control  513ms
+   ✓ executes an independent DOM task but keeps the canvas obligation and overall coverage incomplete  1996ms
+   ✓ gives a ready action a turn before reviewing every independent unknown, then resumes review  4563ms
+   ✓ continues another native task after a session limit while retaining the canvas completeness blocker  2558ms
+   ✓ establishes distinct current occurrences before yielding, without turning pending identity snapshots into completion sources  3916ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  09:44:08
+   Duration  20.20s (transform 616ms, setup 0ms, collect 1.30s, tests 18.63s, environment 0ms, prepare 66ms)
+

@@ -1,6 +1,6 @@
 import {coverageLedger} from './coverage-ledger.js';
 import {contractOperationAllowed,contractProposalError,contractExecutionBoundary,observedContractRoots} from './coverage-contract.js';
-import {progressDependencies} from './progress-dependencies.js';
+import {progressDependencies,unresolvedDependencyControls} from './progress-dependencies.js';
 import { isSuperseded, isUnfinished, schedulableObligation, boundOperationCondition, schedulingOperationCondition, operationSchedulingAliases } from './plan-state.js';
 import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './navigation-state.js';
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, retainRouteFailureCondition, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
@@ -1273,11 +1273,7 @@ export class ExplorerPlugin {
     // A completed one-shot goal with no remaining children does not become a monitor.
     if(task.plan.length&&!task.plan.some(i=>i.required&&isUnfinished(i)))return false;
     const reviewSelection=task.scheduling?.selection;
-    const interpretations=this.host.controlInterpretationSnapshot(sid,o.id);
-    const unresolvedIds=new Set([...interpretations.classifications.controls.filter(c=>c.needsClassification).map(c=>c.control.localId),
-      ...interpretations.operations.controls.filter(c=>c.needsReview).map(c=>c.control.localId),
-      ...o.controls.filter(c=>c.hypothesisId&&this.host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===c.hypothesisId&&h.status==='pending')).map(c=>c.localId)]);
-    const unresolvedControls=o.controls.filter(c=>unresolvedIds.has(c.localId));
+    const unresolvedControls=unresolvedDependencyControls(this.host,o);
     const dependencies=new Map<string,ReturnType<typeof progressDependencies>>();
     const canProgress=(action:ActionCandidate)=>{
       if(o.coveragePolicy!=='finite-ui-v1')return true;
@@ -1920,8 +1916,12 @@ export class ExplorerPlugin {
     // native operation cannot run. Require actual current SDK availability (which
     // now includes local dependency checks), never merely a nonempty todo list.
     const availability=this.host.actionAvailability(o.sessionId,o.id),actions=this.host.actions(o.sessionId,o.id);
-    const ready=actions.filter(a=>permitted(a,o,availability)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&includesScope(task.plan,a,o));
-    const pendingActions=ready.filter(a=>remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&matches(i.scope,a,o)));
+    const unresolvedControls=o.coveragePolicy==='finite-ui-v1'?unresolvedDependencyControls(this.host,o):[];
+    const ready=actions.filter(a=>permitted(a,o,availability)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&includesScope(task.plan,a,o)
+      &&(o.coveragePolicy!=='finite-ui-v1'||progressDependencies(o,a,unresolvedControls).allowed));
+    const completed=completedOperations(this.host,task,o,ready);
+    const pendingActions=ready.filter(a=>this.freshAction(task,round,a,o,completed.has(a))&&remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&matches(i.scope,a,o)
+      &&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(a,o))));
     const reentryActions=ready.filter(a=>this.neededEntry(task,round,a,o));
     const independent=pendingActions.length>0||reentryActions.length>0;
     const unknownRows=remaining.filter(i=>i.reason==='unknown_action_outcome'),unknownOutcome=unknownRows.length>0;

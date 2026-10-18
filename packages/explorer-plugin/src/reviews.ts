@@ -291,6 +291,10 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(o.coveragePolicy==='finite-ui-v1'&&c.programApply){
       const targets=o.controls.filter(x=>x.hypothesisId===h.id);
       if(targets.length===1&&targets[0].instanceId&&o.controls.filter(x=>x.instanceId===targets[0].instanceId).length===1){
+        // Resolving one captured occurrence is completed review work even when
+        // it leaves DOM fingerprint/actions unchanged. Keep it in the bounded
+        // progress signature; a rejected command is rolled back by the caller.
+        mark(key);
         await c.programApply({type:'resolveIdentity',hypothesisId:h.id,identityId:h.provisionalIdentityId,source:'finite-ui-current-instance',
           evidence:[`observation:${o.id}`,`instance:${targets[0].instanceId}`,'Keep current occurrence independent; no historical identity or coverage inherited'],guard:{observationId:o.id,revision:h.revisions.length}},'independent_current_target',{hypothesisId:h.id});return true;
       }
