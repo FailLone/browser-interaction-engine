@@ -1294,7 +1294,11 @@ export class ExplorerPlugin {
       // elsewhere. Reviewing does not reserve an action or reset the quota.
       allowLocalActionYield:(task.scheduling?.localSelections??0)<localSelectionLimit,
       hasPendingAction:(filter?: (action:ActionCandidate)=>boolean,freshOnly=false)=>{
-        const availability=this.host.actionAvailability(sid,o.id),actions=this.host.actions(sid).filter(a=>(!filter||filter(a))&&canProgress(a)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&permitted(a,o,availability)&&includesScope(task.plan,a,o));
+        // Ordinary semantic exploration retains its review-before-mutation
+        // order for a newly captured container. Only explicit program navigation
+        // yields past that interpretation; SDK mechanical permission is shared.
+        const reviewReady=(a:ActionCandidate)=>canProgress(a)&&(!!task.coverageContract?.programNavigation||!dependencies.get(a.id)?.independent.some(ref=>ref.startsWith('structural_container:')));
+        const availability=this.host.actionAvailability(sid,o.id),actions=this.host.actions(sid).filter(a=>(!filter||filter(a))&&reviewReady(a)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&permitted(a,o,availability)&&includesScope(task.plan,a,o));
         const completed=completedOperations(this.host,task,o,actions);
         return actions.some(a=>this.freshAction(task,round,a,o,completed.has(a))||!freshOnly&&this.neededEntry(task,round,a,o));
       },
