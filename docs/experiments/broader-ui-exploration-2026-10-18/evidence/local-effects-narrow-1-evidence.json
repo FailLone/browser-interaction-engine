@@ -1,0 +1,49 @@
+{
+  "revision": "682838fd0a10bb0178852c757b8f7f68a80735f3",
+  "accepted": false,
+  "elapsedMs": 215626,
+  "commands": 13,
+  "strictChains": 0,
+  "reason": "strict_pending_child_reentry_not_established",
+  "fragment": {
+    "run": "/Users/xietian/.codex/worktrees/broader-ui-exploration/browser-interaction-engine/.data/broader-ui/local-effects-narrow-1",
+    "policy": "guarded-host-fragments/v3",
+    "fragmentCount": 177,
+    "mappingCount": 2350,
+    "actualAccessEvents": 8,
+    "accessWithoutLoggedSucceededReceipt": [],
+    "uniqueProjectedPrunedCandidates": 3,
+    "uniquePropagatedPrunedCandidates": 0,
+    "observationsWithPruning": 7,
+    "registration": {
+      "calls": 35,
+      "totalMs": 5750.349456000014,
+      "p50Ms": 152.52962499999558,
+      "p95Ms": 279.91579199998523,
+      "maxMs": 285.3252080000093
+    },
+    "accessRecording": {
+      "calls": 8,
+      "totalMs": 2888.5277489999717,
+      "p50Ms": 346.9367080000011,
+      "p95Ms": 550.3737499999988,
+      "maxMs": 550.3737499999988
+    },
+    "cumulativeMappedActionObservations": 1110,
+    "cumulativeUnmappedActionObservations": 6419,
+    "rootBytes": 197,
+    "auditLedgerBytes": 36391524,
+    "ledgerBytes": 36391524,
+    "bounded": false,
+    "pending": 1407,
+    "projectedPrunedPending": 11,
+    "requiredRestoreDispatches": 1,
+    "limitations": [
+      "Projection counts include observations and are not dispatches avoided or verified coverage.",
+      "Unmapped actions remain in the same strategy; unknown duties remain pending.",
+      "Timing categories can overlap, especially access recording and registration.",
+      "No browser or original-DB mutation is performed by this report."
+    ]
+  },
+  "fullUnknowns": "local-effects-narrow-1-result.json.gz"
+}

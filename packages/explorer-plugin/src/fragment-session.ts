@@ -179,7 +179,7 @@ export class FragmentSession {
     }
   }
   sampling(candidateId:string):StoredSamplingDecision|undefined {
-    if(this.root.policy!=='guarded-host-fragments/v3')return;
+    if(!['guarded-host-fragments/v3',fragmentProjectionPolicy].includes(this.root.policy))return;
     return this.snapshot(()=>this.samplingSnapshot(candidateId));
   }
   private samplingSnapshot(candidateId:string):StoredSamplingDecision {
@@ -213,7 +213,7 @@ export class FragmentSession {
   counts(candidateId:string):FragmentCounters {return this.snapshot(()=>this.countsSnapshot(candidateId));}
   private countsSnapshot(candidateId:string):FragmentCounters {
     this.checkSnapshot();const cached=this.countCache.get(candidateId);if(cached)return {...cached};
-    if(this.root.policy==='guarded-host-fragments/v3'){const decision=this.samplingSnapshot(candidateId);return {direct:decision.status==='direct',duplicate:decision.status==='direct'?decision.sourceCount:0,equivalent:decision.sourceCount};}
+    if(['guarded-host-fragments/v3',fragmentProjectionPolicy].includes(this.root.policy)){const decision=this.samplingSnapshot(candidateId);return {direct:decision.status==='direct',duplicate:decision.status==='direct'?decision.sourceCount:0,equivalent:decision.sourceCount};}
     const c=this.get('candidates',candidateId);if(!c)throw new ExplorerError('FRAGMENT_CANDIDATE_NOT_FOUND');this.validateCandidate(c);
     if(c.classId&&!this.checkedClasses.has(c.classId)){
       for(const member of this.rows('candidates','class_id=?',[c.classId],row=>row.classId===c.classId))this.validateCandidate(member);
@@ -225,7 +225,7 @@ export class FragmentSession {
   }
   origins(candidateId:string,after='',limit=128){
     if(!Number.isSafeInteger(limit)||limit<1||limit>1000)throw new ExplorerError('INVALID_FRAGMENT_PAGE');
-    if(this.root.policy==='guarded-host-fragments/v3')return this.snapshot(()=>{
+    if(['guarded-host-fragments/v3',fragmentProjectionPolicy].includes(this.root.policy))return this.snapshot(()=>{
       const decision=this.samplingSnapshot(candidateId),target=this.get('candidates',candidateId)!,context=target.context===undefined?undefined:this.raw(target.context,'context');
       const result:{event:FragmentRows['events'];direct:boolean;duplicate:boolean}[]=[];
       if(!decision.sourceCount)return result;
@@ -242,7 +242,7 @@ export class FragmentSession {
    * the same scheduling benefit as a reusable sample. This is a priority hint,
    * never access, identity, execution or coverage. All siblings share it. */
   reusablePeers(fragmentId:string):number {return this.snapshot(()=>{
-    this.checkSnapshot();if(this.root.policy!=='guarded-host-fragments/v3')return this.peersSnapshot(fragmentId);
+    this.checkSnapshot();if(!['guarded-host-fragments/v3',fragmentProjectionPolicy].includes(this.root.policy))return this.peersSnapshot(fragmentId);
     const key='reusable:'+fragmentId,old=this.peerCache.get(key);if(old!==undefined)return old;
     const peers=new Set<string>(),owner=this.get('fragments',fragmentId);if(!owner)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');
     for(const source of this.candidates(fragmentId)){
@@ -277,7 +277,7 @@ export class FragmentSession {
   }
   importLegacy(ledger:FragmentTraversalLedger){
     if(this.store.root(this.taskId)||this.materials.size||this.map('fragments').size)throw new ExplorerError('INVALID_FRAGMENT_MIGRATION');
-    if(!['guarded-host-fragments/v1','guarded-host-fragments/v2',fragmentProjectionPolicy].includes(ledger.policy))throw new ExplorerError('FRAGMENT_POLICY_MISMATCH');
+    if(!['guarded-host-fragments/v1','guarded-host-fragments/v2','guarded-host-fragments/v3',fragmentProjectionPolicy].includes(ledger.policy))throw new ExplorerError('FRAGMENT_POLICY_MISMATCH');
     for(const old of ledger.fragments){
       const shape=this.projection(old.url,{...old,owner:decodeFragmentMaterial(old.owner),candidates:old.candidates.map(c=>({...c,guard:decodeFragmentMaterial(c.guard),...(c.context!==undefined?{context:decodeFragmentMaterial(c.context)}:{})}))});
       this.put('fragments',{id:old.id,lookupKey:shape.lookupKey,structure:shape.structure,owner:shape.owner,revision:old.revision,url:old.url,source:old.source,...(old.parentRegionId?{parentRegionId:old.parentRegionId}:{}),legacy:{ownerEncoded:old.owner.startsWith('deflate-raw/base64-v1:')}});

@@ -24,6 +24,6 @@ export function browserFragmentObservedEffect(before:Observation,after:Observati
 export function browserFragmentEffectComparison(material:string):string|undefined {
  let parsed;try{parsed=JSON.parse(material);}catch{return material;}
  if(parsed?.policy!=='fragment-observed-effect/v2')return material;
- if(parsed.comparison?.policy!=='fragment-local-effect/v1'||!parsed.comparison.local||!parsed.comparison.external||!parsed.evidence?.beforeId||!parsed.evidence?.afterId||!parsed.global)return;
+ if(!['fragment-local-effect/v1','fragment-local-effect/v2'].includes(parsed.comparison?.policy)||!parsed.comparison.local||!parsed.comparison.external||!parsed.evidence?.beforeId||!parsed.evidence?.afterId||!parsed.global)return;
  return canonical({policy:parsed.policy,comparison:parsed.comparison});
 }

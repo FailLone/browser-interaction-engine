@@ -1,0 +1,112 @@
+{
+  "baseRevision": "682838fd0a10bb0178852c757b8f7f68a80735f3",
+  "productDirty": true,
+  "policy": "guarded-host-fragments/v4",
+  "effectComparison": "fragment-local-effect/v2",
+  "focused": {
+    "passed": 42,
+    "failed": 0
+  },
+  "integration": {
+    "passed": 41,
+    "failed": 0
+  },
+  "types": "both passed",
+  "plugin": {
+    "realOpportunities": 3,
+    "actualTargetExecutions": 2,
+    "conditionalCandidateAtC": 1,
+    "uniqueActualExecution": true,
+    "elapsedMs": 5342,
+    "commands": 11
+  },
+  "frozenTrajectory": {
+    "loggedCandidateOpportunities": 264,
+    "firstBlockOwnerMismatchBefore": 7,
+    "firstBlockOwnerMismatchAfter": 3,
+    "recheckRequiredBefore": 1,
+    "recheckRequiredAfter": 5,
+    "samplingPermissionChanges": 0
+  },
+  "actualEffects": {
+    "USDT": "local result equal; external changes remain conflicting",
+    "Crypto": "local result equal; header result and disjoint main changes remain in external comparison",
+    "spotSubmenu": "different actual local result: 10 nodes/loading versus 112 nodes/loaded destinations"
+  },
+  "knownFailures": [
+    "focused-2 three assertions failed because semantic review attributes omit ID; fixed by distinguishing subset omission from complete DOM absence"
+  ],
+  "realOKX": "No new run after ID change. Latest frozen682838 narrow215.626s13commands0chains and broad219.140s16commands0chains remain failures.",
+  "archived": [
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-focused-1.json.gz",
+      "bytes": 11923,
+      "sha256": "b6e04c88120329433804e10aa286bfc75f3a5f5d1e14a43a3a51c6d69323eb9c"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-focused-1.log.gz",
+      "bytes": 161,
+      "sha256": "ab2dbce697cf0747f272d36daf2e03a1499c0fc4342231a0bac1e81cda96c753"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-focused-2.json.gz",
+      "bytes": 17723,
+      "sha256": "6dbfbb25908a16c96123611d0fecc536c866cfaeffc08bfcb309eb32f8c34ec3"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-focused-2.log.gz",
+      "bytes": 161,
+      "sha256": "56ff8a5d5517be3740bd2c659ae9dedd5778538f6fffe00c048c7396c943eca7"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-focused-3.json.gz",
+      "bytes": 12446,
+      "sha256": "61b44ab339b31bb362d2ae7a4c142d9b7c5a81d125e91388ae143db279a2986f"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-focused-3.log.gz",
+      "bytes": 161,
+      "sha256": "0db80bda9010f94977f2ffffefb626f154de3682c72ed4d0b2b26d57a20608c6"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-integration-1.json.gz",
+      "bytes": 14954,
+      "sha256": "5cfcf244acd9ebcb206aa351818f54f3e6c302e1ab7b3806dbe7bee6e4039243"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-integration-1.log.gz",
+      "bytes": 165,
+      "sha256": "b90cc2d2be174531113277c232beb44dcf0a6d5976d8bb9421fa618d6202ea01"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-types-final.log.gz",
+      "bytes": 182,
+      "sha256": "5f2ef4cdda9ec7f2f2df61c46750a2334b9909223d8b755a69dc3a100635330b"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-pipeline-1-result.json.gz",
+      "bytes": 440562,
+      "sha256": "be95f295be9330487c2b36af8884aac71f2c3dc2f8c7df4c6ddf7607757851a2"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-effects-1-result.json.gz",
+      "bytes": 1134021,
+      "sha256": "bf8e3d5e7414c89bc343287ab0ff932aa2f707b9842849c493ab800319376f0c"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-plugin-1-result.json.gz",
+      "bytes": 652409,
+      "sha256": "17b8ac011d6f62ce0eeb771c84489df065fa8babfe596b2cfab2e690f6ceab64"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/id-binding-plugin-1.log.gz",
+      "bytes": 243,
+      "sha256": "be87c89bc52df54bd63c395d1d0fa8b28ee5531d589e253ac7135b5fe8f0e6de"
+    },
+    {
+      "file": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/coverage-read-diagnosis-1.json.gz",
+      "bytes": 17507,
+      "sha256": "7a3b19459d694cfce25ce50e1239d330956848ee79de4d55430857c6a20dcf78"
+    }
+  ]
+}

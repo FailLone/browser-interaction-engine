@@ -1,8 +1,9 @@
 import {canonical,hash} from '@interaction/core';
 import {fragmentConditionReader} from './fragment-conditions.js';
+import {fragmentIdBindingReader,fragmentIdReferences} from './fragment-id-binding.js';
 import type {ActionCandidate,Observation,RegionCandidate} from './types.js';
 
-export const fragmentProjectionPolicy='guarded-host-fragments/v3' as const;
+export const fragmentProjectionPolicy='guarded-host-fragments/v4' as const;
 export interface BrowserTraversalFragment {
   regionId:string;parentRegionId?:string;structure:string;owner:string;revision:string;
   candidates:{actionId:string;path:string;operation:string;guard:string;context?:string}[];
@@ -16,14 +17,15 @@ export function browserTraversalFragments(o:Observation,actions:readonly ActionC
   if(o.gaps.some(g=>g.critical))return rejectAll('observation_critical_gap');
   if(Object.values(o.context).some(v=>v.status!=='known'))return rejectAll('context_unknown');
   let origin:string;try{origin=new URL(o.url).origin;}catch{return rejectAll('invalid_origin');}
-  const conditions=fragmentConditionReader(o);
+  const conditions=fragmentConditionReader(o),bindIds=fragmentIdBindingReader(o);
   const regions=(o.regionCandidates||[]).filter((r):r is RegionCandidate&{fragment:NonNullable<RegionCandidate['fragment']>}=>r.fragment?.policy==='host-dom-fragment/v1');
+  const bindings=new Map(regions.map(r=>[r.id,bindIds(r.fragment)]));
   const snapshots:BrowserTraversalFragment[]=regions.map(r=>{
     const f=r.fragment,structure=canonical(f.nodes.map(n=>[n.path,n.tag]));
     const owner=canonical({policy:fragmentProjectionPolicy,origin,authority,ruleVersion:o.ruleVersion,context:o.context,owner:f.owner,
       // Hidden descendant targets matter too: a newly added menu link must
       // invalidate entry pruning before that link becomes visible.
-      content:f.nodes.map(n=>({path:n.path,tag:n.tag,attributes:n.attributes,text:n.text}))});
+      content:(bindings.get(r.id)?.nodes||f.nodes).map(n=>({path:n.path,tag:n.tag,attributes:n.attributes,text:n.text}))});
     return {regionId:r.id,parentRegionId:f.parentId,structure,owner,revision:'',candidates:[]};
   });
   for(const action of actions){
@@ -38,23 +40,23 @@ export function browserTraversalFragments(o:Observation,actions:readonly ActionC
     if(closest.length!==1){reject(action,closest.length?'ambiguous_fragment':'no_complete_fragment');continue;}
     const region=closest[0],f=region.fragment,nodes=f.nodes.filter(n=>n.instanceId===c.instanceId);
     if(nodes.length!==1||new Set(f.nodes.map(n=>n.path)).size!==f.nodes.length){reject(action,'ambiguous_relative_path');continue;}
+    const binding=bindings.get(region.id);if(!binding){reject(action,'incomplete_relative_tree');continue;}
     const references=(c.classificationBinding?.references||[]).map(r=>{
       if(!r.target)return {id:r.id,path:f.nodes.find(n=>n.instanceId===r.targetInstanceId)?.path};
       const index=new Map(r.target.nodes.map((n,i)=>[n.instanceId,i]));
-      return {id:r.id,text:r.target.text,nodes:r.target.nodes.map(n=>({tag:n.tag,parent:index.get(n.parentInstanceId)??-1,attributes:n.attributes}))};
+      return {id:r.id,text:r.target.text,nodes:r.target.nodes.map(n=>({tag:n.tag,parent:index.get(n.parentInstanceId)??-1,attributes:binding.attributes(n.attributes,n.instanceId)}))};
     });
-    const idrefs=new Set(['for','aria-labelledby','aria-describedby','aria-controls','aria-owns','aria-activedescendant','aria-details','aria-errormessage','headers','list','form']);
-    const unresolved=Object.entries(c.reviewBinding!.attributes).filter(([key])=>idrefs.has(key)).flatMap(([,v])=>v.split(/\s+/).filter(Boolean))
+    const unresolved=Object.entries(c.reviewBinding!.attributes).filter(([key])=>fragmentIdReferences.has(key)).flatMap(([,v])=>v.split(/\s+/).filter(Boolean))
       .some(id=>f.nodes.filter(n=>n.attributes.id===id).length!==1&&!references.some(r=>r.id===id&&('nodes' in r||r.path)));
     if(unresolved||references.some(r=>!('nodes' in r)&&!r.path)){reject(action,'unresolved_reference');continue;}
     const dependencies=conditions(c,f),assessment=dependencies.modes,modes=assessment.conditions;
     if(!modes){reject(action,'mode:'+assessment.assessment.reason);continue;}
     const {valid:_,...constraints}=c.constraints;
     const operation=canonical({kind:action.kind,value:action.value});
-    const guard=canonical({tag:c.tag,role:c.role,name:c.label||c.name,target:nodes[0].attributes,
+    const guard=canonical({tag:c.tag,role:c.role,name:c.label||c.name,target:binding.attributes(nodes[0].attributes,c.instanceId),
       binding:c.identityContext&&{scope:c.identityContext.scope,binding:c.identityContext.binding},
       record:c.structuralItem&&{recordKey:c.structuralItem.recordKey,slot:c.structuralItem.slot,template:c.structuralItem.template},
-      events:c.reviewBinding!.runtimeEvents,references,constraints,options:c.options,readOnly:c.readOnly,modes:modes.conditions});
+      events:c.reviewBinding!.runtimeEvents,references:references.map(r=>({...r,id:binding.reference(r.id)})),constraints,options:c.options,readOnly:c.readOnly,modes:modes.conditions});
     snapshots.find(s=>s.regionId===region.id)!.candidates.push({actionId:action.id,path:nodes[0].path,operation,guard,context:dependencies.context});
   }
   for(const f of snapshots)f.candidates.sort((a,b)=>canonical([a.path,a.operation,a.guard]).localeCompare(canonical([b.path,b.operation,b.guard])));

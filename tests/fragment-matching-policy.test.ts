@@ -107,7 +107,7 @@ it('does not discard captured external ancestor dependencies merely because a na
  expect(modeStructureReader(a.observation,'fragment')(a.modes.b)?.key).not.toBe(modeStructureReader(b.observation,'fragment')(b.modes.b)?.key);
 });
 
-it.each(['guarded-host-fragments/v1','guarded-host-fragments/v2'])('disables %s derived pruning while retaining IDs, receipts and pending work',policy=>{
+it.each(['guarded-host-fragments/v1','guarded-host-fragments/v2','guarded-host-fragments/v3'])('disables %s derived pruning while retaining IDs, receipts and pending work',policy=>{
  const r=capture(10),active=fragmentFixture(),ids=new Set(r.actions.map(a=>a.id));
  const front=registerFragmentObservation(active.session,r.observation,r.actions,'authority',ids),[actionId,ref]=[...front.byAction][0];
  const item={id:'original-pending-child',scope:{kind:'click'},status:'pending',required:true} as PlanItem;
@@ -116,7 +116,7 @@ it.each(['guarded-host-fragments/v1','guarded-host-fragments/v2'])('disables %s 
  const legacy=active.session.exportLegacy();legacy.policy=policy;active.close();
  const old=fragmentFixture(':memory:',legacy),l=old.session,before=old.store.exportFragments('task');
  try{
- expect(fragmentProjectionPolicy).toBe('guarded-host-fragments/v3');
+ expect(fragmentProjectionPolicy).toBe('guarded-host-fragments/v4');
  expect(fragmentObligationSampled(l,item)).toBe(false);expect(fragmentActionEvidence(l,front,actionId)).toBeUndefined();
  expect(fragmentSamplingDecision(l,ref.candidateId)).toBeUndefined();
  expect(sampledFragmentAction(l,r.observation,r.actions,'authority',actionId)).toBe(false);

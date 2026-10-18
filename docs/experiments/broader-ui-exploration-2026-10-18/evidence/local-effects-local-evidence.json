@@ -1,0 +1,85 @@
+{
+  "frozenRevision": "682838fd0a10bb0178852c757b8f7f68a80735f3",
+  "sourceFiles": 531,
+  "identicalSourceHashes": true,
+  "runs": [
+    {
+      "run": "local-effects-local-1",
+      "passed": true,
+      "elapsedMs": 38212,
+      "commands": 30,
+      "finite": {
+        "total": 41,
+        "verified": 41,
+        "remaining": []
+      },
+      "strictChains": 1,
+      "duplicateCompletedConditionAttempts": [],
+      "restart": {
+        "occurred": true,
+        "continuedOriginalPendingItemIds": [
+          "041f7704-d5d9-4fb4-8dea-187427b499fa",
+          "1e598e07-f0e0-4c56-a174-feeceacb285e",
+          "2be16e29-293a-401f-a875-9e91d517b97d",
+          "0835636a-c3d5-423b-9d83-45f62a57ae8c",
+          "63e733c3-80cf-40a4-a621-9f7d6d687e4f",
+          "cb0b8451-4fec-4680-a611-c02761c572dc",
+          "40894562-6668-4069-b00b-238faadd49e2",
+          "edcff63f-86ae-48ff-a144-c3fbae42298b",
+          "507d0849-1507-4f0e-9fa3-6d52c4d138e9",
+          "d6a3d97e-185e-4be6-91ea-9d8775452323",
+          "65e9f38b-4731-4a01-bce7-093a4786c82b",
+          "d233b6e5-9f21-4e77-9cd9-21ab97207d35",
+          "b636d9e1-0615-4796-aade-a130e5c20d21",
+          "735fe7a4-ed13-449a-bd5f-e80a4c829a32",
+          "24b9db52-cb46-4efe-a406-9e80270d4df9"
+        ],
+        "processes": [
+          68529,
+          68537
+        ],
+        "boundary": "4c935acb-6a93-4f12-96e9-eba4a058a25b",
+        "postRestartSuccessfulAttempts": 27
+      }
+    },
+    {
+      "run": "local-effects-local-2",
+      "passed": true,
+      "elapsedMs": 44685,
+      "commands": 30,
+      "finite": {
+        "total": 41,
+        "verified": 41,
+        "remaining": []
+      },
+      "strictChains": 1,
+      "duplicateCompletedConditionAttempts": [],
+      "restart": {
+        "occurred": true,
+        "continuedOriginalPendingItemIds": [
+          "351cb793-c27d-4748-a6e2-d736ff24b0c5",
+          "7f536d75-6983-4df5-89b9-fba9aa55f382",
+          "c577087d-7bb1-4746-8bfd-0771687cee3b",
+          "7df1566a-a207-48fb-843c-046fc4d75b78",
+          "aa36c924-e72e-46f4-ab30-a7ca766aeed4",
+          "75934f89-fe24-4ca9-b259-6924ecc3726f",
+          "b6e5e1ec-1d0b-43ad-bca6-b3d08b26c7fe",
+          "4968eb2a-5ad7-4d33-898c-a0403aebc736",
+          "67e0493f-34ce-475e-ab53-0d78255c3a0d",
+          "d063a959-205e-4791-9190-3ad91339ca17",
+          "0dfca1fb-2a26-4081-acd4-309c06bff1b8",
+          "99595e24-0a91-491d-b61b-9659ef883c24",
+          "5ec1b15b-9e34-49d6-af6b-5b2000d7105e",
+          "e14076b2-b688-46e3-8308-698287ca519a",
+          "24d8e901-7f41-497a-837e-949f1a6dd473"
+        ],
+        "processes": [
+          68593,
+          68601
+        ],
+        "boundary": "3cefbd2b-cd19-4f65-b88e-c5eb357730c5",
+        "postRestartSuccessfulAttempts": 27
+      }
+    }
+  ]
+}

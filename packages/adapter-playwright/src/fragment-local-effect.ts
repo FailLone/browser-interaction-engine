@@ -1,5 +1,6 @@
 import {canonical} from '@interaction/core';
 import {fragmentConditionReader} from './fragment-conditions.js';
+import {fragmentIdBindingReader} from './fragment-id-binding.js';
 import type {Control,Observation,RegionCandidate} from './types.js';
 type Fragment=NonNullable<RegionCandidate['fragment']>;
 const attributes=(a:Record<string,string>)=>Object.fromEntries(Object.entries(a).filter(([k])=>k!=='style'));
@@ -21,8 +22,8 @@ function subtree(o:Observation,id:string,anchor:Fragment){
  }
  return {fragment:{...anchor,nodes},binding,basis:'complete-classification-subtree'};
 }
-const inventory=(o:Observation,ids:Set<string>)=>o.controls.filter(c=>ids.has(c.instanceId)).map(c=>({tag:c.tag,role:c.role,name:c.label||c.name,
- visible:c.visible,enabled:c.enabled,editable:c.editable,readOnly:c.readOnly,value:c.value,displayedText:c.displayedText,attributes:c.reviewBinding?.attributes,
+const inventory=(o:Observation,ids:Set<string>,bind:NonNullable<ReturnType<ReturnType<typeof fragmentIdBindingReader>>>)=>o.controls.filter(c=>ids.has(c.instanceId)).map(c=>({tag:c.tag,role:c.role,name:c.label||c.name,
+ visible:c.visible,enabled:c.enabled,editable:c.editable,readOnly:c.readOnly,value:c.value,displayedText:c.displayedText,attributes:c.reviewBinding&&bind.attributes(c.reviewBinding.attributes,c.instanceId),
  checked:c.checked,pressed:c.pressed,expanded:c.expanded,selected:c.selected,options:c.options,constraints:c.constraints,
  record:c.structuralItem&&{key:c.structuralItem.recordKey,template:c.structuralItem.template,slot:c.structuralItem.slot},readiness:c.readiness,
  actionable:c.actionable&&{visible:c.actionable.visible,enabled:c.actionable.enabled,editable:c.actionable.editable,hitTarget:c.actionable.hitTarget,occludedBy:c.actionable.occludedBy,outsideScrollableArea:c.actionable.outsideScrollableArea,unknown:c.actionable.unknown}
@@ -57,6 +58,7 @@ export function localFragmentEffect(before:Observation,after:Observation,regionI
  const anchor=before.regionCandidates?.find(r=>r.id===regionId)?.fragment;if(!anchor)return;
  const source=before.controls.find(c=>c.localId===localId),targets=source&&after.controls.filter(c=>c.instanceId===source.instanceId);
  const prior=subtree(before,regionId,anchor),next=subtree(after,regionId,anchor);if(!prior||!next||targets?.length!==1)return;
+ const bind=fragmentIdBindingReader(after)(next.fragment);if(!bind)return;
  const modes=fragmentConditionReader(after)(targets[0],next.fragment).modes;if(!modes.conditions)return;
  const targetIds=new Set([...anchor.nodes,...prior.fragment.nodes,...next.fragment.nodes].map(n=>n.instanceId));
  const closing=new Map<string,{root:string;binding:NonNullable<Control['classificationBinding']>;ids:Set<string>}>();
@@ -107,10 +109,10 @@ export function localFragmentEffect(before:Observation,after:Observation,regionI
  const excluded=new Set([...targetIds,...[...closing.values()].flatMap(c=>[...c.ids])]);
  const refs=after.controls.filter(c=>targetIds.has(c.instanceId)).flatMap(c=>c.classificationBinding?.references||[]);
  if(refs.some(r=>r.missing||r.ambiguous||r.target?.truncated))return;
- const references=refs.map(r=>({id:r.id,target:r.target&&{text:r.target.text,nodes:r.target.nodes.map(n=>({tag:n.tag,attributes:n.attributes}))}}));
- return {comparison:{policy:'fragment-local-effect/v1',navigation:null,
-  local:{tree:next.fragment.nodes.map(({path,tag,attributes:a,text})=>({path,tag,attributes:attributes(a),text})),text:next.binding.text,controls:inventory(after,new Set(next.fragment.nodes.map(n=>n.instanceId))),relatedModes:modes.conditions.conditions,references},
+ const references=refs.map(r=>({id:bind.reference(r.id),target:r.target&&{text:r.target.text,nodes:r.target.nodes.map(n=>({tag:n.tag,attributes:bind.attributes(n.attributes,n.instanceId)}))}}));
+ return {comparison:{policy:'fragment-local-effect/v2',navigation:null,
+  local:{tree:next.fragment.nodes.map(({instanceId,path,tag,attributes:a,text})=>({path,tag,attributes:bind.attributes(attributes(a),instanceId),text})),text:next.binding.text,controls:inventory(after,new Set(next.fragment.nodes.map(n=>n.instanceId)),bind),relatedModes:modes.conditions.conditions,references},
   external:{text:{removed:unassigned.filter(s=>compact(s)),added:diff.added.filter(s=>compact(s))},changes:effectControlChanges(before,after,excluded)}},
   evidence:{beforeId:before.id,afterId:after.id,regionId,targetInstanceId:source!.instanceId,beforeRoot:prior.binding,afterRoot:next.binding,scopeBasis:next.basis,
-   closing:[...closing.values()].map(({root,binding})=>({root,binding})),assignments}};
+   localIdBindings:bind.bindings,closing:[...closing.values()].map(({root,binding})=>({root,binding})),assignments}};
 }

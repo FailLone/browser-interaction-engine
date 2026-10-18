@@ -1,0 +1,174 @@
+{
+  "frozenRevision": "682838fd0a10bb0178852c757b8f7f68a80735f3",
+  "accepted": false,
+  "checks": {
+    "budget": true,
+    "branches": true,
+    "originalStrictChains": false,
+    "chainRegions": false
+  },
+  "reason": "broad_coverage_incomplete",
+  "branchCount": 5,
+  "branches": [
+    {
+      "key": "navigation:https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application",
+      "kind": "navigation",
+      "attemptId": "2f73cbd0-9bfd-4afc-974e-a26c753d3936",
+      "from": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+      "to": "https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application",
+      "label": "公告"
+    },
+    {
+      "key": "[\"reveal\",\"https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application\",\"banner\",\"#_r_8_-CRYPTO\",\"click\"]",
+      "kind": "reveal",
+      "attemptId": "2374d94f-cb88-478d-9874-63c7bcf9766c",
+      "label": "Crypto",
+      "added": [
+        {
+          "tag": "A",
+          "role": null,
+          "text": "ETH/BTC最新价--24 小时涨跌--",
+          "href": "/zh-hans/trade-spot/eth-btc",
+          "disabled": false,
+          "id": "",
+          "expanded": null,
+          "selected": null,
+          "roleOwner": "NAV",
+          "ownerLabel": "主导航菜单"
+        }
+      ]
+    },
+    {
+      "key": "[\"reveal\",\"https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application\",\"banner\",\"#_r_8_-USDT\",\"click\"]",
+      "kind": "reveal",
+      "attemptId": "e9d3da48-c068-4b52-b78a-027d66061f0f",
+      "label": "USDT",
+      "added": [
+        {
+          "tag": "A",
+          "role": null,
+          "text": "BTC/USDT最新价82,080.624 小时涨跌+0.60%",
+          "href": "/zh-hans/trade-spot/btc-usdt",
+          "disabled": false,
+          "id": "",
+          "expanded": null,
+          "selected": null,
+          "roleOwner": "NAV",
+          "ownerLabel": "主导航菜单"
+        }
+      ]
+    },
+    {
+      "key": "navigation:https://www.okx.com/zh-hans/trade-spot/btc-usdt",
+      "kind": "navigation",
+      "attemptId": "f6856b7c-8c8b-4aa2-83e7-57d4c232fd56",
+      "from": "https://www.okx.com/zh-hans/help/withdrawal-of-okx-hks-vasp-license-application",
+      "to": "https://www.okx.com/zh-hans/trade-spot/btc-usdt",
+      "label": "BTC/USDT最新价82,085.324 小时涨跌+0.61%"
+    },
+    {
+      "key": "[\"reveal\",\"https://www.okx.com/zh-hans/trade-spot/btc-usdt\",\"banner\",\"#_r_9h_-CRYPTO\",\"click\"]",
+      "kind": "reveal",
+      "attemptId": "612e084f-e4b4-4a6a-8aa7-79d1e8d43293",
+      "label": "Crypto",
+      "added": [
+        {
+          "tag": "A",
+          "role": null,
+          "text": "ETH/BTC最新价--24 小时涨跌--",
+          "href": "/zh-hans/trade-spot/eth-btc",
+          "disabled": false,
+          "id": "",
+          "expanded": null,
+          "selected": null,
+          "roleOwner": "NAV",
+          "ownerLabel": "主导航菜单"
+        }
+      ]
+    }
+  ],
+  "strictChains": 0,
+  "chainRegions": 0,
+  "chains": [],
+  "originalAuditAccepted": false,
+  "originalAuditorUnchanged": true,
+  "coverage": {
+    "finite": {
+      "total": 704,
+      "verified": 4,
+      "remaining": 700
+    },
+    "observedCombinations": 12,
+    "unknownDependencies": [
+      "unobserved JavaScript dependencies",
+      "unobserved condition combinations",
+      "unbounded free-input values",
+      "unassessed business effects"
+    ],
+    "exhaustive": false
+  },
+  "calls": {
+    "jev": 0,
+    "llm": 0
+  },
+  "taskStatus": "budget_exhausted",
+  "taskReason": "BUDGET_EXHAUSTED",
+  "elapsedMs": 219140,
+  "timedOut": false,
+  "actions": 16,
+  "execution": {
+    "code": 0,
+    "signal": null,
+    "pid": 68997
+  },
+  "fragmentSummary": {
+    "run": "/Users/xietian/.codex/worktrees/broader-ui-exploration/browser-interaction-engine/.data/broader-ui/local-effects-broad-1",
+    "policy": "guarded-host-fragments/v3",
+    "fragmentCount": 230,
+    "mappingCount": 5576,
+    "actualAccessEvents": 11,
+    "accessWithoutLoggedSucceededReceipt": [],
+    "uniqueProjectedPrunedCandidates": 4,
+    "uniquePropagatedPrunedCandidates": 0,
+    "observationsWithPruning": 10,
+    "registration": {
+      "calls": 39,
+      "totalMs": 9543.738289,
+      "p50Ms": 273.42600000000675,
+      "p95Ms": 431.26350000000093,
+      "maxMs": 452.42874999999185
+    },
+    "accessRecording": {
+      "calls": 11,
+      "totalMs": 4227.177125000013,
+      "p50Ms": 411.3834160000115,
+      "p95Ms": 601.62049999999,
+      "maxMs": 601.62049999999
+    },
+    "cumulativeMappedActionObservations": 2503,
+    "cumulativeUnmappedActionObservations": 3577,
+    "rootBytes": 198,
+    "auditLedgerBytes": 59600779,
+    "ledgerBytes": 59600779,
+    "bounded": false,
+    "pending": 1278,
+    "projectedPrunedPending": 11,
+    "requiredRestoreDispatches": 0,
+    "limitations": [
+      "Projection counts include observations and are not dispatches avoided or verified coverage.",
+      "Unmapped actions remain in the same strategy; unknown duties remain pending.",
+      "Timing categories can overlap, especially access recording and registration.",
+      "No browser or original-DB mutation is performed by this report."
+    ]
+  },
+  "archived": [
+    "result.json",
+    "audit.json",
+    "protocol.json",
+    "source.json",
+    "source.diff",
+    "coverage-ledger.json",
+    "fragment-storage.json",
+    "fragment-summary.json"
+  ]
+}
