@@ -36,7 +36,8 @@
     "@interaction/browser": "workspace:*",
     "@interaction/client": "workspace:*",
     "@interaction/storage-retained": "workspace:*",
-    "@interaction/explorer-plugin": "workspace:*"
+    "@interaction/explorer-plugin": "workspace:*",
+    "@interaction/crawler": "workspace:*"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

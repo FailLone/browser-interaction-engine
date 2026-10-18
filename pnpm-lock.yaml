@@ -20,6 +20,9 @@ importers:
       '@interaction/core':
         specifier: workspace:*
         version: link:packages/core
+      '@interaction/crawler':
+        specifier: workspace:*
+        version: link:packages/crawler
       '@interaction/explorer-plugin':
         specifier: workspace:*
         version: link:packages/explorer-plugin
@@ -174,6 +177,18 @@ importers:
       zod:
         specifier: ^4.1.12
         version: 4.6.7
+
+  packages/crawler:
+    dependencies:
+      '@interaction/adapter-playwright':
+        specifier: workspace:*
+        version: link:../adapter-playwright
+      '@interaction/storage-memory':
+        specifier: workspace:*
+        version: link:../storage-memory
+      playwright:
+        specifier: ^1.58.0
+        version: 1.64.1
 
   packages/explorer-plugin:
     dependencies:

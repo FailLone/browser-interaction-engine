@@ -1,0 +1,24 @@
+{
+  "elapsedMs": 164014,
+  "actions": 72,
+  "states": 41,
+  "onEntryPage": 32,
+  "inOverlay": 14,
+  "failed": 4,
+  "byTier": {
+    "overlay": 14,
+    "body": 24,
+    "in-page-disclosure": 13,
+    "navigate": 6,
+    "chrome": 15
+  },
+  "maxPerClass": 1,
+  "backtracks": 12,
+  "lists": {
+    "classes": 28,
+    "membersSeen": 368,
+    "executed": 13
+  },
+  "pages": 6,
+  "findings": {}
+}
