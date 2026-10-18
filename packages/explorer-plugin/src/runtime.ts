@@ -19,7 +19,7 @@ import { TaskWriter } from './task-writer.js';
 import {FragmentSession} from './fragment-session.js';
 import { DecisionRouter } from './router.js';
 import { createTaskSchema, budgetSchema, planSchema, initialTaskSchema, plannedScopeSchema, limitationAcceptanceSchema, jsonSchema } from './schema.js';
-import { digest, includesScope, schedulingKeyFor as keyFor, keyFor as retainedKeyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, actionScopeReader, broadScope, decisionScope, decisionPlan, migrateOperationConditions, normalizeOperationScheduling, schedulingOperationConditionPolicy as operationConditionPolicy } from './policy.js';
+import { digest, sharedChromeKey, includesScope, schedulingKeyFor as keyFor, keyFor as retainedKeyFor, matches, permitted, unexecutedAction, scopeFor, scopeForControl, navigationTarget, controlInScope, controlScopeMatcher, actionScopeReader, broadScope, decisionScope, decisionPlan, migrateOperationConditions, normalizeOperationScheduling, schedulingOperationConditionPolicy as operationConditionPolicy } from './policy.js';
 import {createOperationSchedulingNormalizer,type OperationSchedulingNormalizer} from './operation-scheduling.js';
 import { reviewNext, type ChoiceConstraints, type RetainedScope } from './reviews.js';
 import { safeError } from './providers.js';
@@ -235,6 +235,9 @@ export class ExplorerPlugin {
     // A new audit gap cannot be appended to a directly completed operation and
     // disappear behind its old success. Preserve that receipt as history.
     let item=exact.find(isUnfinished)||exact.find(i=>!(scope.kind&&i.status==='succeeded'&&i.resolvedBy&&!i.coverageResolvedBy&&!i.reviewResolvedBy));
+    // The same header/navigation control on another page is one site-level duty.
+    const chrome=!item&&sharedChromeKey(scope);
+    if(chrome)item=task.plan.find(i=>i.reason===reason&&!i.dispatchScope&&sharedChromeKey(i.scope)===chrome);
     if(source&&operationConditionKey&&uniqueActionId){
       const owner=availabilityObligation(item?[item]:index?.availability(scope,operationConditionKey,prerequisites)||task.plan,reason,scope,operationConditionKey,required,prerequisites);
       if(owner){item=owner;const previous=item.operationAvailability,next={reason,source:{sessionId:source.sessionId,observationId:source.id},actionId:uniqueActionId};
@@ -1401,6 +1404,7 @@ export class ExplorerPlugin {
     const reviewTarget=reviewSelection&&reviewSelection.kind!=='current'
       ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
     const modelRequestsBefore=task.usage.modelRequests;
+    let bodyStalled=false;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     const deferDestinationReview=!!task.coverageContract?.programNavigation&&!o.stable&&!!o.navigationCapture&&!!this.host.returnToObservedSource
       &&!o.navigationScopes?.some(scope=>scope.complete&&scope.binding&&scope.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&c.enabled&&!c.readiness)))
@@ -1434,8 +1438,12 @@ export class ExplorerPlugin {
       defer:(d,reason)=>{this.router.mark(d,'rejected',reason);this.router.effect(d,'review-deferred',{reason,sourceObservationId:o.id,executionAuthorized:false});},
       unchanged:previous=>this.event(task,'review.unchanged',{...previous,reason:'unchanged_unresolved_evidence',executionAuthorized:false}),
       unresolvedReview:rejected=>unresolvedReviews.push(rejected),
+      bodyStalled:stalled=>{bodyStalled=stalled;},
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),probe:(d,localId,kind)=>this.probe(task,signal,o,d,localId,kind),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required,prerequisites)=>{this.gap(task,reason,scope,required,prerequisites,true,o);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}
-      if(unresolvedReviews.length&&this.host.observation(sid).id===o.id)await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host,{rejected:unresolvedReviews}));if(reviewed){round.consecutiveReviewSteps=Math.min(2,(round.consecutiveReviewSteps??0)+1);return true;} } catch(error) {
+      if(unresolvedReviews.length&&this.host.observation(sid).id===o.id)await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host,{rejected:unresolvedReviews}));if(reviewed){round.consecutiveReviewSteps=Math.min(2,(round.consecutiveReviewSteps??0)+1);return true;}
+      // The page body has unresolved interpretation but no ready program work:
+      // spend one bounded model gap here before chrome navigation leaves the page.
+      if(bodyStalled&&!semanticFallback&&task.coverageContract?.programNavigation&&this.host.observation(sid).id===o.id&&await this.resolveProgramGap(task,round,o,signal))return true; } catch(error) {
       round.reviewed.splice(reviewedBefore);
       for(const key of Object.keys(round.unresolvedPurposeReviews||{}))if(!unresolvedBefore.has(key))delete round.unresolvedPurposeReviews![key];
       // Prepared answers have no host effect if a later member aborts the pass.
@@ -1538,13 +1546,24 @@ export class ExplorerPlugin {
       ?reentries.find(choice=>byId.get(choice.itemId)?.scope.url===o.url):undefined;
     reentries.sort((a,b)=>(retainedOrder.get(a.itemId)??Infinity)-(retainedOrder.get(b.itemId)??Infinity));
     const currentWork=local.map(selection=>({selection,untried:!currentURLLink(selection)}));
+    // Page body before shared site chrome: header/navigation menus lead to other
+    // pages and repeat everywhere, so they only run once the body has no work.
+    // Likewise, finish in-page work (including closing a dialog) before links that
+    // leave this URL; departing first strands the rest of the page.
+    const chromeWork=(work:{selection:ObligationSelection})=>!!byId.get(work.selection.itemId)?.scope.landmark;
+    const leavesPage=(work:{selection:ObligationSelection})=>{
+      const action=actions.find(a=>a.id===work.selection.actionId),target=action&&navigationTarget(action,o);
+      if(!target)return false;try{const u=new URL(target),c=new URL(o.url);return u.origin!==c.origin||u.pathname!==c.pathname;}catch{return false;}
+    };
+    const rank=(work:{selection:ObligationSelection})=>Number(chromeWork(work))*2+Number(leavesPage(work));
+    currentWork.sort((a,b)=>rank(a)-rank(b));
     const frontier=this.fragmentFrontiers.get(task)?.frontier;
     if(task.fragmentTraversal&&frontier?.observationId===o.id){
       // Access propagation replaces sampling hints for mapped candidates. A
       // successful guarded repeat is absent from ordinary work, not completed.
       for(const work of currentWork){const evidence=work.selection.actionId&&fragmentActionEvidence(this.fragments(task),frontier,work.selection.actionId);
         if(evidence)work.untried=!evidence.pruned&&!currentURLLink(work.selection);}
-      const best=preferFragmentCandidate(this.fragments(task),frontier,currentWork.filter(c=>c.untried).map(c=>c.selection));
+      const untried=currentWork.filter(c=>c.untried),body=untried.filter(c=>!rank(c)),best=preferFragmentCandidate(this.fragments(task),frontier,(body.length?body:untried).map(c=>c.selection));
       if(best){const index=currentWork.findIndex(c=>c.selection===best);currentWork.unshift(...currentWork.splice(index,1));}
     }
     const fragmentInput={boundaryActive:!!o.overlays?.some(overlay=>['modal','dialog'].includes(overlay.kind)),continuation:arrivedChoice||arrivedReentry||returnedReentry||undefined,current:currentWork,remote:reentries};

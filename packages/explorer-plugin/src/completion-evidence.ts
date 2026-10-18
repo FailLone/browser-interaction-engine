@@ -1,6 +1,6 @@
 import { browserOperationCorrespondenceHint, type ActionCandidate, type Observation } from '@interaction/browser';
 import type { ExplorerHost, Task } from './types.js';
-import { actionScopeReader } from './policy.js';
+import { actionScopeReader, sharedChromeKey } from './policy.js';
 
 /** A synchronous scheduling read, never current execution coverage or permission.
  * Rebuild after every await, observation/review change or completion-ledger change.
@@ -8,6 +8,9 @@ import { actionScopeReader } from './policy.js';
  */
 export function completedOperations(host:ExplorerHost,task:Task,o:Observation,actions:ActionCandidate[]):ReadonlySet<ActionCandidate> {
   const completed=new Set<ActionCandidate>();
+  // Shared site chrome executed once on any page counts for every page.
+  const chrome=new Set(task.plan.filter(i=>i.required&&i.status==='succeeded'&&i.resolvedBy?.attemptId).map(i=>sharedChromeKey(i.scope)).filter(Boolean));
+  if(chrome.size){const read=actionScopeReader(o);for(const action of actions){const key=sharedChromeKey(read(action));if(key&&chrome.has(key))completed.add(action);}}
   const proofs=task.plan.filter(i=>i.required&&i.status==='succeeded'&&i.resolvedBy?.attemptId&&i.scope.kind&&i.scope.label)
     .flatMap(item=>[...new Map([item.resolvedBy!,...item.attempts.filter(a=>a.outcome==='succeeded'&&a.evidence?.attemptId).map(a=>a.evidence!)].map(ref=>[`${ref.sessionId}:${ref.attemptId}`,ref])).values()].map(ref=>({item,ref,fields:Object.entries(item.scope).filter(([key])=>item.dispatchScope!==false||['url','label','role','kind','value'].includes(key))})));
   if(!proofs.length||!actions.length)return completed;

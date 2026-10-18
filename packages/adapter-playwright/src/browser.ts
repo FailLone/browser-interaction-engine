@@ -250,7 +250,11 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     return localKey ? `item:${JSON.stringify([bindings, localKey])}` : undefined;
   };
   const regions: Region[] = [...document.querySelectorAll(regionSelector)].map(el => ({ key: regionKey(el), instanceId: instance(el), label: label(el) || el.getAttribute('name') || role(el), role: role(el), selector: selector(el), parentKey: regionKey(el.parentElement?.closest(regionSelector) ?? null), rect: rect(el), text: ((el as HTMLElement).innerText || el.textContent || '').slice(0, 8000) }));
-  regions.unshift({ key: 'document', instanceId: document.documentElement ? instance(body || document.documentElement) : undefined, label: document.title, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
+  // Titles often embed live values (prices, counters). The document region is
+  // part of every obligation scope, so numeric runs are masked to keep one page
+  // from re-registering all of its controls whenever such a value ticks.
+  const documentLabel = clean(document.title).replace(/[-+]?\d[\d.,:%]*/g, '#');
+  regions.unshift({ key: 'document', instanceId: document.documentElement ? instance(body || document.documentElement) : undefined, label: documentLabel, role: 'document', selector: 'body', parentKey: '', rect: rect(body), text: bodyText.slice(0, 8000) });
   const query = 'a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=option],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=dialog],[role=alertdialog],dialog,[popover],[aria-expanded],[onclick],[tabindex],[contenteditable]:not([contenteditable=false])';
   const selected = new Set(document.querySelectorAll(query));
   const popupRelations = popupCollector();

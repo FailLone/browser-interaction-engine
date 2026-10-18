@@ -25,6 +25,8 @@ export interface ReviewContext {
   deferSemanticReview?:boolean;
   /** One concrete program-established gap; never a page-wide semantic pass. */
   semanticLocalId?:string;
+  /** Reports whether the page body has no ready program action (site chrome excluded). */
+  bodyStalled?:(stalled:boolean)=>void;
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
@@ -277,9 +279,12 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     // Do not make unrelated occurrence preparation a prerequisite for a current
     // authorized navigation. The selected target must already be unambiguous;
     // all other identity/semantic duties keep their original retained sources.
+    // Site chrome (banner/navigation) is always present and leads off-page.
+    // Deferring body interpretation behind it would starve the page body forever.
+    const bodyAction=(a:ActionCandidate)=>!o.controls.find(x=>x.localId===a.localId)?.landmark;
     if(programNavigation&&c.deferSemanticReview){
       const pendingIds=new Set(host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending').map(h=>h.id));
-      const readyNavigation=(a:ActionCandidate)=>{const target=o.controls.find(x=>x.localId===a.localId);return !!target&&(!target.hypothesisId||!pendingIds.has(target.hypothesisId))&&programNavigationAllowed(contractExecutionBoundary(task.coverageContract!),a,o);};
+      const readyNavigation=(a:ActionCandidate)=>{const target=o.controls.find(x=>x.localId===a.localId);return !!target&&!target.landmark&&(!target.hypothesisId||!pendingIds.has(target.hypothesisId))&&programNavigationAllowed(contractExecutionBoundary(task.coverageContract!),a,o);};
       if(c.hasPendingAction(readyNavigation,true)){retainBeforeYield();return false;}
     }
     const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
@@ -293,7 +298,9 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         if(target){mark(`scan-target:${discovery.topologyKey}:${target.id}`);mark(`scan:${discovery.topologyKey}:${discovery.supplement?.targetId||''}`);await c.programApply!({type:'supplementDiscovery',scan:{observationId:o.id,targetId:target.id,source:'explorer-program',evidence:[`observation:${o.id}`],budget:{elements:1000}}},'bounded_discovery_target');return true;}
       }
     }
-    if(c.deferSemanticReview){retainBeforeYield();return false;}
+    // Program navigation never calls models from ordinary review; when the body
+    // has no ready work the runtime routes one concrete gap to the model instead.
+    if(c.deferSemanticReview){c.bodyStalled?.(!c.hasPendingAction(bodyAction,true));retainBeforeYield();return false;}
   }
   const classifications=readClassification();
   if(c.programApply){

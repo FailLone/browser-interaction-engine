@@ -25,6 +25,15 @@ export function scopeForControl(c:Observation['controls'][number],o:Observation)
   const label=c.name||c.label,region=o.regions.find(r=>r.key===c.region)?.label,stableKey=scopeControlKey(c),targetBinding=browserControlBindingKey(c,o);
   return {url:o.url,...(o.coveragePolicy==='finite-ui-v1'&&c.landmark?{landmark:c.landmark}:{}),...(region?{region}:{}),...(label?{label}:{}),...(c.role?{role:c.role}:{}),...(stableKey?{stableKey}:{}),...(targetBinding?{targetBinding}:{})};
 }
+/** Site chrome (banner/navigation landmarks) repeats on every page. Its controls
+ * share one key across URLs and document-title regions so a header operation is
+ * scheduled once per site, not once per visited page. */
+export function sharedChromeKey(scope:Scope):string|undefined {
+  if(!scope.landmark||!(scope.stableKey||scope.label))return;
+  // Record keys may embed per-document instance IDs ("<uuid>:<n>"); drop them.
+  const stableKey=scope.stableKey?.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:\d+/g,'#');
+  return digest({landmark:scope.landmark,label:scope.label,role:scope.role,stableKey,kind:scope.kind,value:scope.value});
+}
 /** Model-only view: retain equality hints without repeated document/DOM fingerprints. */
 export function decisionScope(scope:Scope):Scope {return {...scope,...(scope.stableKey?{stableKey:`sha256:${digest(scope.stableKey)}`}:{})};}
 /** Accepted authority and exclusions are relevant to selection; the growing evidence ledger is not. */
