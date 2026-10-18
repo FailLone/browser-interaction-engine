@@ -1,15 +1,16 @@
 {
   "status": "active_not_complete",
-  "productRevision": "1145ce471751579edc95f42a2580680fa9a7f541",
+  "productRevision": "f7dc356f40f3db2e8975abbb8e6461ad9bd3733f",
   "localFrozenConfirmation": {
-    "same490SourceHashes": true,
+    "sameSourceHashes": true,
+    "sourceFiles": 491,
     "emptyDiffs": true,
     "runs": [
       {
-        "name": "stage2-local-3",
-        "result": "evidence/stage2-local-3/result.json",
+        "name": "stage2-local-5",
+        "result": "evidence/stage2-local-5/result.json",
         "passed": true,
-        "elapsedMs": 50344,
+        "elapsedMs": 49172,
         "commands": 34,
         "branches": 23,
         "finiteVerified": 37,
@@ -30,10 +31,10 @@
         "continuedOriginalPending": 15
       },
       {
-        "name": "stage2-local-4-confirmation",
-        "result": "evidence/stage2-local-4-confirmation/result.json",
+        "name": "stage2-local-6-confirmation",
+        "result": "evidence/stage2-local-6-confirmation/result.json",
         "passed": true,
-        "elapsedMs": 49633,
+        "elapsedMs": 49534,
         "commands": 34,
         "branches": 23,
         "finiteVerified": 37,
@@ -56,16 +57,16 @@
     ]
   },
   "focusedTests": {
-    "passed": 81,
-    "log": "stage2-focused-5.log"
+    "passed": 82,
+    "log": "stage2-focused-6.log"
   },
-  "typecheck": "stage2-types-14.log",
+  "typecheck": "stage2-types-15.log",
   "broadTests": {
     "tests": 251,
     "passed": 206,
     "failed": 45,
     "newFailures": 0,
-    "comparison": "stage2-broad-summary-3.json"
+    "comparison": "stage2-broad-summary-4.json"
   },
   "scopeAuthorization": "stage2-scope-consistency.json",
   "failedRunsPreserved": [
@@ -73,13 +74,14 @@
     "stage2-local-2"
   ],
   "okx": {
-    "status": "bounded_failed_evaluation",
-    "result": "evidence/stage2-okx-1/result.json",
-    "diagnosis": "evidence/stage2-okx-1/diagnosis.json",
-    "elapsedMs": 215142,
-    "commands": 7,
+    "status": "second_stage2_run_failed",
+    "directory": ".data/stage2-okx-2",
+    "priorFailure": "evidence/stage2-okx-1/result.json",
     "strictChainProved": false,
-    "frozenConfirmationProved": false
+    "frozenConfirmationProved": false,
+    "result": "evidence/stage2-okx-2/result.json",
+    "elapsedMs": 213379,
+    "actions": 5
   },
   "completion": "Not achieved: real OKX strict chain and independent confirmation remain mandatory."
 }
