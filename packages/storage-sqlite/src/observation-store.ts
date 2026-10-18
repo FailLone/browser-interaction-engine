@@ -39,13 +39,16 @@ export class ObservationObjectStore {
   private readonly insertPack:Database.Statement;
   private readonly loadObjects:Database.Statement;
   private readonly loadPacks:Database.Statement;
-  private stamp?:{total:number;dataVersion:number;schemaVersion:number};
+  private stamp?:{total:number;dataVersion:number;schemaVersion:number;tempSchemaVersion:number};
   private readonly changeStamp:Database.Statement;
+  private readonly tempStamp:Database.Statement;
   private fragments=new Map<string,{object:StructuralObject;key:string}>();
   private fragmentBytes=0;
   private addresses=new Map<string,number>();
   private decoded=new Map<string,Buffer>();
   private decodedBytes=0;
+  private reconstructed=new Map<string,{manifest:string;compressed:Buffer;json:string;bytes:number}>();
+  private reconstructedBytes=0;
   // Content caches are bounded independently of retained history. Raw fragments
   // have an 8 MiB / 2048-entry budget (including string + Buffer estimates), and
   // verified decoded objects have an 8 MiB / 4096-entry budget. No cache crosses
@@ -53,17 +56,18 @@ export class ObservationObjectStore {
   // Cache misses batch unique objects and packs into two SQL queries.
   constructor(private readonly db:Database.Database,private readonly changed:(count:number)=>void) {
     this.changeStamp=db.prepare('SELECT total_changes() AS total,(SELECT data_version FROM pragma_data_version) AS dataVersion,(SELECT schema_version FROM pragma_schema_version) AS schemaVersion');
+    this.tempStamp=db.prepare('PRAGMA temp.schema_version');
     this.insertObject=db.prepare('INSERT INTO observation_objects(session_id,sha256,pack_id,byte_offset,bytes) VALUES(?,?,?,?,?)');
     this.insertPack=db.prepare('INSERT INTO observation_packs(session_id,sha256,bytes,codec,data) VALUES(?,?,?,?,?)');
     this.loadObjects=db.prepare('SELECT * FROM observation_objects WHERE session_id=? AND id IN (SELECT value FROM json_each(?))');
     this.loadPacks=db.prepare('SELECT * FROM observation_packs WHERE session_id=? AND id IN (SELECT value FROM json_each(?))');
   }
-  cacheStats() {return {fragmentEntries:this.fragments.size,fragmentBytes:this.fragmentBytes,addressEntries:this.addresses.size,decodedEntries:this.decoded.size,decodedBytes:this.decodedBytes,admissionSessions:this.priorShapes.size,backoffSessions:this.backoff.size,admissionObjectHashes:[...this.priorShapes.values()].reduce((sum,shape)=>sum+shape.size,0)};}
-  private clearContent() {this.fragments.clear();this.addresses.clear();this.decoded.clear();this.fragmentBytes=0;this.decodedBytes=0;}
+  cacheStats() {return {reconstructedEntries:this.reconstructed.size,reconstructedBytes:this.reconstructedBytes,fragmentEntries:this.fragments.size,fragmentBytes:this.fragmentBytes,addressEntries:this.addresses.size,decodedEntries:this.decoded.size,decodedBytes:this.decodedBytes,admissionSessions:this.priorShapes.size,backoffSessions:this.backoff.size,admissionObjectHashes:[...this.priorShapes.values()].reduce((sum,shape)=>sum+shape.size,0)};}
+  private clearContent() {this.reconstructed.clear();this.reconstructedBytes=0;this.fragments.clear();this.addresses.clear();this.decoded.clear();this.fragmentBytes=0;this.decodedBytes=0;}
   invalidate() {this.clearContent();this.priorShapes.clear();this.backoff.clear();this.stamp=undefined;}
   begin(cacheable:boolean) {
-    const stamp=this.changeStamp.get() as NonNullable<ObservationObjectStore['stamp']>;
-    if(!this.stamp||this.stamp.total!==stamp.total||this.stamp.dataVersion!==stamp.dataVersion||this.stamp.schemaVersion!==stamp.schemaVersion)this.invalidate();
+    const stamp={...(this.changeStamp.get() as NonNullable<ObservationObjectStore['stamp']>),tempSchemaVersion:(this.tempStamp.get() as {schema_version:number}).schema_version};
+    if(!this.stamp||this.stamp.total!==stamp.total||this.stamp.dataVersion!==stamp.dataVersion||this.stamp.schemaVersion!==stamp.schemaVersion||this.stamp.tempSchemaVersion!==stamp.tempSchemaVersion)this.invalidate();
     else if(!cacheable)this.clearContent();
     this.stamp=stamp;
   }
@@ -72,6 +76,26 @@ export class ObservationObjectStore {
   end(cacheable:boolean) {if(!cacheable)this.clearContent();}
   knownWrite(count:number) {if(this.stamp)this.stamp.total+=count;}
   private written(count:number) {this.changed(count);this.knownWrite(count);}
+  /** Cache verified serialized bytes, never mutable objects. Every read still
+   * returns a detached JSON parse. The row is reread in the same DB snapshot;
+   * normal ownership, digest, raw-write, transaction and TEMP-DDL fences remain.
+   * Four entries / 16 MiB include text, copied compressed bytes and key cost. */
+  decode<T>(row:StoredEntityRow):T {
+    if(row.kind!=='observation'||!row.id||!row.session_id||row.compressed_json==null)return decodeStoredEntity<T>(row,this.resolve);
+    const key=JSON.stringify([row.session_id,row.id]),cached=this.reconstructed.get(key);
+    if(cached&&cached.manifest===row.json&&cached.compressed.equals(row.compressed_json)){
+      this.reconstructed.delete(key);this.reconstructed.set(key,cached);return JSON.parse(cached.json) as T;
+    }
+    let json:string|undefined;
+    const value=decodeStoredEntity<T>(row,this.resolve,text=>{json=text;});
+    if(json!==undefined){
+      const bytes=(json.length+row.json.length+key.length)*2+row.compressed_json.byteLength+128;
+      if(cached){this.reconstructed.delete(key);this.reconstructedBytes-=cached.bytes;}
+      if(bytes<=16*1024*1024){this.reconstructed.set(key,{manifest:row.json,compressed:Buffer.from(row.compressed_json),json,bytes});this.reconstructedBytes+=bytes;}
+      while(this.reconstructed.size>4||this.reconstructedBytes>16*1024*1024){const first=this.reconstructed.keys().next().value!;this.reconstructedBytes-=this.reconstructed.get(first)!.bytes;this.reconstructed.delete(first);}
+    }
+    return value;
+  }
   private materialize=(value:string|Buffer):StructuralObject=>{
     const cacheKey=typeof value==='string'?`j:${value}`:`b:${value.toString('latin1')}`;
     const cached=this.fragments.get(cacheKey);

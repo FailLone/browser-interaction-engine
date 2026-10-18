@@ -152,3 +152,31 @@ it('backs off repeated churn and probes a new stable regime without remaining in
   expect(firstShared).toBeGreaterThanOrEqual(0);expect(firstShared).toBeLessThan(10);expect(store.observationStorageStats().objects-before.objects).toBe(base.controls.length);
   expect(store.observationCacheStats().backoffSessions).toBe(0);
 }));
+
+it('reuses bounded validated JSON with detached values and exact legacy number semantics',()=>withStore(store=>{
+ const value=observation('legacy'),json=JSON.stringify({...value,signedZero:'REPLACE'}).replace('"signedZero":"REPLACE"','"signedZero":-0'),packed=encodeObservationJson(json);
+ store.db.prepare('INSERT INTO entities(kind,id,session_id,json,compressed_json) VALUES(?,?,?,?,?)').run('observation',value.id,'s',packed.json,packed.compressed_json);
+ const first=store.require<any>('observation',value.id);expect(Object.is(first.signedZero,-0)).toBe(true);first.controls[0].name='mutated';
+ const second=store.require<any>('observation',value.id);expect(Object.is(second.signedZero,-0)).toBe(true);expect(second.controls[0].name).toBe(value.controls[0].name);
+ const stats=()=>store.observationCacheStats();expect(stats().reconstructedEntries).toBe(1);
+ for(let i=0;i<9;i++){store.put('observation',observation(`bounded-${i}`));store.require('observation',`bounded-${i}`);}
+ expect(stats().reconstructedEntries).toBeLessThanOrEqual(4);expect(stats().reconstructedBytes).toBeLessThanOrEqual(16*1024*1024);
+}));
+
+it.each(['local','external','temp-shadow'] as const)('does not let warm reconstructed JSON hide %s shared-pack corruption',mode=>withStore((store,path)=>{
+ store.put('observation',observation('live'));store.require('observation','live');expect(store.observationCacheStats().reconstructedEntries).toBe(1);
+ if(mode==='temp-shadow')store.db.exec("CREATE TEMP TABLE observation_packs AS SELECT id,session_id,sha256,bytes,codec,CAST('corrupt' AS BLOB) AS data FROM main.observation_packs");
+ else if(mode==='local')store.db.prepare('UPDATE observation_packs SET data=?').run(Buffer.from('corrupt'));
+ else{const other=new SqliteStore(path);try{store.require('observation','live');other.db.prepare('UPDATE observation_packs SET data=?').run(Buffer.from('corrupt'));}finally{other.close();}}
+ expect(()=>store.require('observation','live')).toThrow(expect.objectContaining({code:'CORRUPT_ENTITY'}));
+}));
+
+it('does not retain reconstructed bytes read from a rolled-back raw transaction',()=>withStore(store=>{
+ const original=observation('live');store.put('observation',original);store.require('observation','live');
+ const changed=structuredClone(original);changed.controls[0].name='temporary';const packed=encodeObservationJson(JSON.stringify(changed));
+ store.db.exec('BEGIN');try{
+  store.db.prepare('UPDATE entities SET json=?,compressed_json=? WHERE id=?').run(packed.json,packed.compressed_json,'live');
+  expect(store.require<typeof changed>('observation','live').controls[0].name).toBe('temporary');
+ }finally{store.db.exec('ROLLBACK');}
+ expect(store.require('observation','live')).toEqual(original);
+}));

@@ -127,7 +127,7 @@ export class SqliteStore implements Persistence {
             const row = this.db.prepare("SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind='observation' AND session_id=? AND id=?")
               .get(sessionId, observationId) as StoredEntityRow | undefined;
             if (!row) return;
-            const observation = decodeStoredEntity<O>(row, this.observations.resolve);
+            const observation = this.observations.decode<O>(row);
             if (observation.id !== observationId || observation.sessionId !== sessionId)
               throw new EngineError('CORRUPT_ENTITY', 'Observation content does not match its stored ownership');
             return observation;
@@ -208,13 +208,13 @@ export class SqliteStore implements Persistence {
     }
     if (this.observationBatchDepth) {
       const row = this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind, id) as StoredEntityRow | undefined;
-      return row ? decodeStoredEntity<T>(row, this.observations.resolve) : undefined;
+      return row ? this.observations.decode<T>(row) : undefined;
     }
     const cacheable=!this.db.inTransaction;
     try{return this.db.transaction(()=>{
       this.observations.begin(cacheable);
       const row=this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND id=?').get(kind,id) as StoredEntityRow|undefined;
-      return row?decodeStoredEntity<T>(row,this.observations.resolve):undefined;
+      return row?this.observations.decode<T>(row):undefined;
     })();}finally{this.observations.end(cacheable);}
   }
   require<T>(kind: string, id: string): T { const value = this.get<T>(kind, id); if (!value) throw new EngineError('NOT_FOUND', `${kind} ${id} not found`); return value; }
@@ -227,13 +227,13 @@ export class SqliteStore implements Persistence {
     if (this.observationBatchDepth) {
       const rows = (sessionId ? this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind, sessionId)
         : this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
-      return rows.map(row => decodeStoredEntity<T>(row, this.observations.resolve));
+      return rows.map(row => this.observations.decode<T>(row));
     }
     const cacheable=!this.db.inTransaction;
     try{return this.db.transaction(()=>{
       this.observations.begin(cacheable);
       const rows = (sessionId ? this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? AND session_id=? ORDER BY rowid').all(kind, sessionId) : this.db.prepare('SELECT kind,id,session_id,json,compressed_json FROM entities WHERE kind=? ORDER BY rowid').all(kind)) as StoredEntityRow[];
-      return rows.map(r=>decodeStoredEntity<T>(r,this.observations.resolve));
+      return rows.map(r=>this.observations.decode<T>(r));
     })();}finally{this.observations.end(cacheable);}
   }
   listByObservation<T>(kind:string,sessionId:string,observationId:string):T[] {

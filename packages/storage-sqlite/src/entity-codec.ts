@@ -49,7 +49,7 @@ export function sharedObservationLayout(row:StoredEntityRow):{manifest:SharedObs
  * require a resolver from the same database snapshot; absence fails explicitly.
  * SqliteStore.decodeStoredEntity supplies that resolver for raw SQL consumers.
  */
-export function decodeStoredEntity<T=unknown>(row:StoredEntityRow,resolve?:ObservationObjectResolver):T {
+export function decodeStoredEntity<T=unknown>(row:StoredEntityRow,resolve?:ObservationObjectResolver,onValidatedObservationJson?:(json:string)=>void):T {
   try {
     const parsed=JSON.parse(row.json);
     if(row.compressed_json==null){if(((row.kind===undefined||row.kind==='observation')&&marker(parsed))||((row.kind===undefined||row.kind==='state')&&stateMarker(parsed)))throw corruptEntity();return parsed as T;}
@@ -78,9 +78,10 @@ export function decodeStoredEntity<T=unknown>(row:StoredEntityRow,resolve?:Obser
       bytes=Buffer.concat(parts,h.bytes);
     }else throw corruptEntity();
     if(bytes.length!==h.bytes||entityDigest(bytes)!==h.sha256)throw corruptEntity();
-    const value=JSON.parse(bytes.toString('utf8'));
+    const json=bytes.toString('utf8'),value=JSON.parse(json);
     for(const key of metadataKeys)if(Object.hasOwn(manifest,key)&&manifest[key]!==value?.[key])throw corruptEntity();
     if((row.id!==undefined&&row.id!==value?.id)||(row.session_id!==undefined&&row.session_id!==(value?.sessionId??value?.id)))throw corruptEntity();
+    onValidatedObservationJson?.(json);
     return value as T;
   }catch(error){if(error instanceof EngineError&&error.code==='CORRUPT_ENTITY')throw error;throw corruptEntity();}
 }
