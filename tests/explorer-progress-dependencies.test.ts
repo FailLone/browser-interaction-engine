@@ -58,3 +58,18 @@ it('gives a ready action a turn before reviewing every independent unknown, then
   expect(events.some(e=>e.type==='progress.dependencies'&&(e.data as any).independent.length>0)).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
+
+it('continues another native task after a session limit while retaining the canvas completeness blocker',async()=>{
+ const f=await explorerFixture('<canvas></canvas><button id="a" type="button" onclick="this.disabled=true">First</button><button id="b" type="button" onclick="this.disabled=true">Second</button>');
+ const store=new ExplorerStore(':memory:'),providers=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,store,providers);
+ try{
+  const task=plugin.create({url:f.url,goal:'All controls',coverageContract:{version:1,mode:'exhaustive',roots:[{url:f.url}],exclusions:[],allowedOperations:['click']},budget:{rounds:3,actions:5,durationMs:20000},sessionOptions:{coveragePolicy:'finite-ui-v1',headless:true,maxActions:1}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const result=store.task(task.id),attempts=result.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(result.rounds.length).toBeGreaterThan(1);
+  expect(attempts.filter(a=>a.status==='succeeded').map(a=>a.action.label)).toEqual(['First','Second']);
+  expect(result.plan.some(i=>i.required&&i.reason==='missing_capability:UNSUPPORTED_CANVAS'&&i.status!=='succeeded')).toBe(true);
+  expect(result.status).not.toBe('completed');
+  const assessments=store.events(task.id).filter(e=>e.type==='round.progress_assessed').map(e=>e.data as any);
+  expect(assessments.some(a=>a.independent&&a.retainedLimitationIds.length>0&&a.readyActionIds.length>0)).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});

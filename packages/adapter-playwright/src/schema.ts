@@ -28,7 +28,15 @@ export const reuseRegionReviewsSchema = z.object({
   regions: z.array(z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),conditionKey:z.string().min(1)}).strict()).min(1).max(500),
 }).strict();
 export const revokeRegionReuseSchema = z.object({reviewId:z.string().min(1),regionKey:z.string().min(1),source:z.string().trim().min(1),reason:z.string().trim().min(1)}).strict();
+export const routeURLSchema=z.object({
+  origin:z.url().refine(value=>{const u=new URL(value);return ['http:','https:'].includes(u.protocol)&&u.origin===value;},'Use an exact HTTP(S) origin'),
+  pathnamePattern:z.string().min(2).max(512).refine(value=>{try{return value.startsWith('^')&&value.endsWith('$')&&!!new RegExp(value);}catch{return false;}},'Use an anchored pathname expression'),
+}).strict();
 export const sessionSchema = z.object({
+  executionBoundary:z.object({version:z.literal(1),allowedOperations:z.array(z.string().min(1)).min(1).max(30),
+    urls:z.array(z.union([z.object({url:z.url(),match:z.enum(['exact','origin-path'])}).strict(),routeURLSchema.extend({match:z.literal('route')})])).min(1).max(200),
+    exclusions:z.array(z.object({landmark:z.enum(['banner','navigation']).optional(),url:z.url().optional(),region:z.string().optional(),label:z.string().optional(),role:z.string().optional(),stableKey:z.string().optional(),targetBinding:z.string().optional(),kind:z.string().optional(),value:z.union([z.string(),z.boolean(),z.number()]).optional()}).strict()).max(100),
+  }).strict().optional(),
   coveragePolicy: z.literal('finite-ui-v1').optional(),
   localSimulation: z.object({url:z.url().refine(v=>['127.0.0.1','localhost','[::1]'].includes(new URL(v).hostname),'Local simulation requires a loopback URL')}).strict().optional(),
   executionPolicy: z.enum(['interface-only', 'observed-ui']).optional(),

@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/explorer-coverage-contract.test.ts (7 tests) 8879ms
+   ✓ persists caller roots and exclusions without asking a model to replace the task  2010ms
+   ✓ retains a forbidden operation as required untested coverage while allowing another operation  2331ms
+   ✓ grounds header scope in captured structure without model-selected labels or unrelated page work  2083ms
+   ✓ materializes a caller route on real arrival and keeps the original root and exact URL evidence  2449ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  09:20:25
+   Duration  10.16s (transform 682ms, setup 0ms, collect 1.12s, tests 8.88s, environment 0ms, prepare 37ms)
+

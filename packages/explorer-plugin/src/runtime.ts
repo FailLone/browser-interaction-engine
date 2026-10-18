@@ -1,5 +1,5 @@
 import {coverageLedger} from './coverage-ledger.js';
-import {contractOperationAllowed,contractProposalError} from './coverage-contract.js';
+import {contractOperationAllowed,contractProposalError,contractExecutionBoundary,observedContractRoots} from './coverage-contract.js';
 import {progressDependencies} from './progress-dependencies.js';
 import { isSuperseded, isUnfinished, schedulableObligation, boundOperationCondition, schedulingOperationCondition, operationSchedulingAliases } from './plan-state.js';
 import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './navigation-state.js';
@@ -66,7 +66,7 @@ export class ExplorerPlugin {
   view(id:string){const task=this.store.task(id);return {task,decisions:this.store.decisions(id),events:this.store.events(id)};}
   create(input:unknown) {
     const x=createTaskSchema.parse(input);if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,evidenceBudget:x.evidenceBudget,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
-    if(x.coverageContract){if(x.coverageMode!=='all')throw new ExplorerError('CONTRACT_REQUIRES_ALL');task.coverageContract={...structuredClone(x.coverageContract),roots:x.coverageContract.roots.map(scope=>({...scope,url:scope.url||x.url}))};}
+    if(x.coverageContract){if(x.coverageMode!=='all')throw new ExplorerError('CONTRACT_REQUIRES_ALL');if((x.coverageContract.roots.some(scope=>scope.landmark)||x.coverageContract.routes?.some(route=>route.scope.landmark))&&x.sessionOptions.coveragePolicy!=='finite-ui-v1')throw new ExplorerError('STRUCTURAL_SCOPE_REQUIRES_FINITE_POLICY');task.coverageContract={...structuredClone(x.coverageContract),roots:x.coverageContract.roots.map(scope=>({...scope,url:scope.url||x.url}))};}
     this.persist(task);this.event(task,'task.created',{goal:task.goal,coverageContract:task.coverageContract});return task;
   }
   owner(sessionId?:string){const a=this.active;return a&&(!sessionId||a.task.rounds.some(r=>r.sessionId===sessionId))?a.task.id:undefined;}
@@ -215,9 +215,18 @@ export class ExplorerPlugin {
   }
   private async retainHostLimitations(task:Task,o:Observation,signal:AbortSignal) {
     // Noncritical means other controls may proceed, not that unobservable content was covered.
-    const pageScope=task.plan.some(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'&&broadScope(i.scope)&&!i.scope.region&&(!i.scope.url||i.scope.url===o.url));
-    if(!pageScope)return;
-    const codes=[...new Set(o.gaps.filter(g=>g.code.startsWith('UNSUPPORTED_')||g.code.endsWith('_UNSUPPORTED')).map(g=>g.code))];
+    const authorities=task.plan.filter(i=>i.required&&i.dispatchScope===true&&i.status!=='excluded'&&(!i.scope.url||i.scope.url===o.url));
+    const pageScope=authorities.some(i=>broadScope(i.scope)&&!i.scope.region&&!i.scope.landmark);
+    if(!pageScope&&!task.coverageContract)return;
+    const relevant=o.gaps.filter(g=>(g.code.startsWith('UNSUPPORTED_')||g.code.endsWith('_UNSUPPORTED'))&&(pageScope||authorities.some(i=>{
+      const local=g.coverageScope;if(!local?.complete||local.documentId!==o.documentId)return true;
+      if(i.scope.landmark)return local.landmark===i.scope.landmark;
+      // Region-only gaps lack a portable region assignment until separately
+      // reviewed. Keep that uncertainty rather than infer exclusion.
+      if(broadScope(i.scope))return true;
+      return o.controls.some(c=>controlInScope(i.scope,c,o,this.host.actions(o.sessionId,o.id))&&(local.affectedControlIds.includes(c.localId)||local.ancestorInstanceIds.includes(c.instanceId)||c.domAncestry?.instanceIds.includes(local.rootInstanceId)));
+    })));
+    const codes=[...new Set(relevant.map(g=>g.code))];
     const missing=codes.filter(code=>!task.plan.some(i=>i.reason===`missing_capability:${code}`&&i.scope.url===o.url));
     if(!missing.length)return;
     await this.host.pinEvidence(o.sessionId,o.id,`explorer:${task.id}`);
@@ -225,7 +234,7 @@ export class ExplorerPlugin {
     for(const code of missing) {
       const item=this.gap(task,`missing_capability:${code}`,{url:o.url},!task.acceptedLimitations?.some(x=>x.code===code));
       this.changedPlan(task,item);item.completion='Obtain host-supported evidence for the unsupported content; unrelated successful actions cannot verify this scope.';
-      this.event(task,'scope.unsupported',{itemId:item.id,observationId:o.id,limitations:o.gaps.filter(g=>g.code===code),executionAuthorized:false});
+      this.event(task,'scope.unsupported',{itemId:item.id,observationId:o.id,limitations:relevant.filter(g=>g.code===code),executionAuthorized:false});
     }
     this.persist(task);
   }
@@ -429,7 +438,7 @@ export class ExplorerPlugin {
     }
     this.assert(task,signal);
     // Fresh sessions have no inherited grants. Cap every session by the remaining aggregate budget.
-    const session=await this.host.createSession({...task.sessionOptions,url:task.url,headless:task.sessionOptions.headless??true,observeTimeoutMs:task.sessionOptions.observeTimeoutMs??10000,executionPolicy:task.sessionOptions.executionPolicy??'observed-ui',exploration:'controls',listExploration:'review',pageExploration:'review',regionExploration:'review',
+    const session=await this.host.createSession({...task.sessionOptions,...(task.coverageContract?{executionBoundary:contractExecutionBoundary(task.coverageContract)}:{}),url:task.url,headless:task.sessionOptions.headless??true,observeTimeoutMs:task.sessionOptions.observeTimeoutMs??10000,executionPolicy:task.sessionOptions.executionPolicy??'observed-ui',exploration:'controls',listExploration:'review',pageExploration:'review',regionExploration:'review',
       maxActions:Math.min(task.sessionOptions.maxActions||100,task.budget.actions-task.usage.actions),maxDurationMs:Math.max(1,Math.floor(task.budget.durationMs-this.elapsed(task))),
       evidenceRetention:{mode:'persistent',ttlMs:0,...(task.evidenceBudget||{maxBytes:1024**3,maxObservations:1000})}});
     const round:Round={id:randomUUID(),number:task.rounds.length+1,sessionId:session.id,startedAt:now(),status:'running',actions:0,stack:[],entryPath:[],reentries:[],tried:[],reviewed:[],noProgress:0,policyVersion:POLICY_VERSION};
@@ -1246,6 +1255,13 @@ export class ExplorerPlugin {
   }
   private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
+    // Caller route predicates authorize only scopes on this fresh observed URL.
+    // They never prescribe navigation, merge states or settle retained duties.
+    if(task.coverageContract)for(const {scope,declaration} of observedContractRoots(task.coverageContract,o.url)){
+      if(task.plan.some(i=>i.dispatchScope===true&&digest(i.scope)===digest(scope)))continue;
+      this.appendPlan(task,this.newItem({title:'Caller coverage boundary at observed URL',scope,prerequisites:[],completion:'Verify all observed obligations within this caller boundary',required:true,reason:'caller_contract_root'},true,o));
+      this.event(task,'scope.contract_url_bound',{declaration,scope,observationId:o.id,urlAuthorizationOnly:true,coverageGranted:false});
+    }
     this.trackBoundary(round,o);round.position=observedPosition(o);
     if(this.host.recoveryAssessment(sid).blockingBoundaryExit)throw new ExplorerError('BOUNDARY_EXIT_UNVERIFIED');
     if(task.plan.length&&!task.plan.some(item=>item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded'))return false;
@@ -1900,8 +1916,19 @@ export class ExplorerPlugin {
     const signature=digest([...new Set(projection.entries.filter(i=>!['resolved','excluded','authority','superseded'].includes(i.state)).map(i=>JSON.stringify({group:i.groupId,state:i.state==='alias'?'active':i.state,condition:i.conditionVersion})))].sort());
     round.reason=signature;const stalled=task.rounds.filter(r=>r.reason===signature).length>=3;
     const permanent=remaining.some(i=>i.reason.startsWith('missing_capability:')||i.reason==='unknown_action_outcome');
-    const independent=incomplete.size>0||remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome');
-    if(stalled||(permanent&&(!hostTimeLimit||!independent))){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.persist(task);return true;}
+    // A retained limitation is a completeness blocker, not evidence that another
+    // native operation cannot run. Require actual current SDK availability (which
+    // now includes local dependency checks), never merely a nonempty todo list.
+    const availability=this.host.actionAvailability(o.sessionId,o.id),actions=this.host.actions(o.sessionId,o.id);
+    const ready=actions.filter(a=>permitted(a,o,availability)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&includesScope(task.plan,a,o));
+    const pendingActions=ready.filter(a=>remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&matches(i.scope,a,o)));
+    const reentryActions=ready.filter(a=>this.neededEntry(task,round,a,o));
+    const independent=pendingActions.length>0||reentryActions.length>0;
+    const unknownOutcome=remaining.some(i=>i.reason==='unknown_action_outcome');
+    this.event(task,'round.progress_assessed',{observationId:o.id,complete:false,retainedLimitationIds:remaining.filter(i=>i.reason.startsWith('missing_capability:')).map(i=>i.id),
+      readyActionIds:pendingActions.map(a=>a.id),reentryActionIds:reentryActions.map(a=>a.id),independent,unknownOutcome,
+      blockers:availability.actions.filter(a=>!a.executable).map(a=>({actionId:a.actionId,blockers:a.blockers})),executionAuthorized:false});
+    if(stalled||unknownOutcome||permanent&&!independent){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.persist(task);return true;}
     if(hostTimeLimit){const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,remaining:remaining.map(i=>i.id),unknownOutcomesRetained:true,totalBudgetUnchanged:true});this.persist(task);return false;}
     const semanticGaps=remaining.filter(i=>['classification_unresolved','operation_basis_unconfirmed','INPUT_REQUIRED','input_sample_required','target_not_observed'].includes(i.reason));
     if(!semanticGaps.length){this.event(task,'plan.retained',{reason:'known_observation_obligations',remaining:remaining.map(i=>i.id),modelRequired:false});this.persist(task);return false;}

@@ -1,4 +1,5 @@
 import { ExplorationDecisionReuse } from './exploration-decision-reuse.js';
+import {executionBoundaryFailure,progressDependencies} from '@interaction/adapter-playwright';
 import { Interventions } from './interventions.js';
 import { canonical, clone, hash, now } from '@interaction/core';
 import { interventionResponseSchema, continuationSchema, type InterventionResponseInput, type InterventionResponseRecord, type ContinueExplorationInput, type ContinuationRecord } from '@interaction/adapter-playwright';
@@ -754,13 +755,24 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
   }
   private validationMaterial(o:Observation,groups?:ExplorationGroup[]) {
     const session=this.session(o.sessionId);
-    return {session,classifications:this.classifications.records(o.sessionId),regions:this.regions.validationMaterial(o,session),depth:this.depthReuse.validationMaterial(o,groups)};
+    const interpretations=o.coveragePolicy==='finite-ui-v1'?this.interpretationMaterial(o,this.actions(o.sessionId)):undefined;
+    const unresolved=new Set(interpretations?[...interpretations.classifications.controls.filter(c=>c.needsClassification).map(c=>c.control.localId),...interpretations.operations.controls.filter(c=>c.needsReview).map(c=>c.control.localId)]:[]);
+    return {session,classifications:this.classifications.records(o.sessionId),regions:this.regions.validationMaterial(o,session),depth:this.depthReuse.validationMaterial(o,groups),dependencyControls:o.controls.filter(c=>unresolved.has(c.localId))};
   }
   protected override preparedActionValidator(o:Observation,purpose:import('@interaction/core').ActionAttempt['purpose'],groups?:ExplorationGroup[]) {
     const material=this.validationMaterial(o,groups);
     return (action:ActionCandidate)=>this.validatePreparedAction(action,o,purpose,material);
   }
   protected override validatePreparedAction(action: ActionCandidate, observation: Observation, purpose:import('@interaction/core').ActionAttempt['purpose'],material?:ReturnType<BrowserEngine['validationMaterial']>) {
+    const boundaryFailure=executionBoundaryFailure((material?.session||this.session(observation.sessionId)).options.executionBoundary,action,observation);
+    if(boundaryFailure)throw new EngineError('ACTION_OUTSIDE_EXECUTION_BOUNDARY',boundaryFailure,{observationId:observation.id,actionId:action.id,purpose});
+    if(observation.coveragePolicy==='finite-ui-v1'){
+      const unresolved=(material||this.validationMaterial(observation)).dependencyControls;
+      // A bounded SDK probe is intended to gather this target's missing purpose;
+      // it still cannot bypass another dependent review or an unknown subtree.
+      const dependencies=progressDependencies(observation,action,action.source==='external-probe'?unresolved.filter(c=>c.localId!==action.localId):unresolved);
+      if(!dependencies.allowed)throw new EngineError('ACTION_DEPENDENCIES_UNPROVED','Current operation depends on unresolved captured evidence',{observationId:observation.id,actionId:action.id,purpose,...dependencies});
+    }
     this.boundaryExits.validate(action, observation);this.classifications.validate(action, observation,material?.classifications);this.controls.validate(action, observation);this.purposeReviews.validate(action, observation);
     if(purpose!=='external'){this.regions.validateAction(observation,action,material?.session||this.session(observation.sessionId),material?.regions);this.depthReuse.validate(action,observation,material?.depth);}
   }

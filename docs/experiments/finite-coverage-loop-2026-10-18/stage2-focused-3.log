@@ -1,0 +1,42 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/finite-coverage-contract.test.ts (11 tests) 10721ms
+   ✓ keeps finite operation obligations stable across unrelated selectors but retains constraints and target disclosure branches  575ms
+   ✓ binds symmetric controls to distinct document instances, never ordinal or label identity  528ms
+   ✓ allows explicitly scoped local simulation while preserving submission risk and refusing other URLs  1849ms
+   ✓ keeps anonymous native target references stable through sibling deletion, addition and reordering, but not replacement  1535ms
+   ✓ abstracts only native passive readouts and preserves navigation guards, controls, page and boundaries  508ms
+   ✓ does not manufacture an operation from an exact empty handler while retaining opaque or nonempty handlers  526ms
+   ✓ rejects unknown, failed, missing dispatch, wrong-instance and incomplete finite receipts without changing actual outcome  865ms
+   ✓ finite sampling does not turn a revoked reviewed operation into native coverage  1179ms
+   ✓ does not use the finite switch to erase a missing anonymous-target condition witness  879ms
+   ✓ reports sampled obligations separately from observed combinations and unproved dependencies  1079ms
+   ✓ persists current classification proof for a newly retained review source before leaving the scene  1197ms
+ ✓ tests/explorer-progress-dependencies.test.ts (5 tests) 10269ms
+   ✓ bounds a canvas gap to captured DOM while preserving unknown contents and SDK obstruction checks  591ms
+   ✓ holds an unresolved ancestor, shared form or missing ancestry while allowing a disjoint reviewed native control  515ms
+   ✓ executes an independent DOM task but keeps the canvas obligation and overall coverage incomplete  1949ms
+   ✓ gives a ready action a turn before reviewing every independent unknown, then resumes review  4672ms
+   ✓ continues another native task after a session limit while retaining the canvas completeness blocker  2541ms
+ ✓ tests/explorer-coverage-contract.test.ts (7 tests) 8904ms
+   ✓ persists caller roots and exclusions without asking a model to replace the task  2044ms
+   ✓ retains a forbidden operation as required untested coverage while allowing another operation  2345ms
+   ✓ grounds header scope in captured structure without model-selected labels or unrelated page work  2060ms
+   ✓ materializes a caller route on real arrival and keeps the original root and exact URL evidence  2450ms
+ ✓ tests/execution-boundary.test.ts (5 tests) 4298ms
+   ✓ enforces the persisted boundary for SDK commands, probes and recovery validation  586ms
+   ✓ applies local capability dependency checks to actual SDK dispatch, without granting ancestor coverage  912ms
+   ✓ checks caller operations during real SDK recovery with a retained canvas (history authorized: true)  1563ms
+   ✓ checks caller operations during real SDK recovery with a retained canvas (history authorized: false)  1236ms
+ ✓ tests/explorer-review-recovery.test.ts (18 tests) 2320ms
+   ✓ keeps an absent target unverified after a real native return rather than granting checkpoint coverage  906ms
+   ✓ public start keeps a denied generic review pending while a later page executes fresh work  1365ms
+ ✓ tests/explorer-target-review.test.ts (13 tests) 20ms
+ ✓ tests/explorer-review-ledger-sources.test.ts (21 tests) 22ms
+
+ Test Files  7 passed (7)
+      Tests  80 passed (80)
+   Start at  09:21:16
+   Duration  40.36s (transform 739ms, setup 0ms, collect 2.81s, tests 36.55s, environment 1ms, prepare 239ms)
+

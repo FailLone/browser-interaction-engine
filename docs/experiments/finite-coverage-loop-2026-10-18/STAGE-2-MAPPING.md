@@ -1,0 +1,13 @@
+# Stage 2 evidence additions (unfinished)
+
+This supplements CRAWLJAX-MAPPING.md; it does not overwrite Stage 1 results or claim a new accepted OKX chain.
+
+| Source mechanism rechecked | TS change and boundary | Evidence currently available |
+| --- | --- | --- |
+| v3 NormalizedFactory.Vertex indexes graph vertices; Surface.record preserves raw DOM | Caller URL predicates in execution-boundary.ts are authorization only. The finite navigation projection, immutable source URL and receipt proof remain separate. No locale/numeric rewrite was imported from v3. | Route helper negatives reject outside origin/path; real plugin route test preserves query/fragment and original root. |
+| Surface.publicHref limits authorized destination language | Caller supplies generic anchored route rules. Product contains no OKX destination names or menu labels. The acceptance harness repeats its existing guard predicate, including locale/slash variants. | Contract schema and URL positive/negative tests; SDK direct/probe boundary rejection. |
+| Native graph replay and Surface.arrival require actual current readiness | SDK shared validator applies the same caller boundary and local dependency assessment to actual recovery dispatch. Existing target arrival and immutable-child receipt checks remain. | Real SDK history return with canvas succeeds when authorized; the same recovery cannot succeed with click-only authority. Original child remains unexecuted in both cases. |
+| Recovery.pending and v3 A native replay preserve unfinished children independently of replay | Existing pending-item and correspondence machinery remains. Round completion now separates retained capability gaps from independently executable remaining work; recovery alone never verifies a child. | Separate-session two-button/canvas regression; original 63 receipt/review/identity negatives remain passing in 76-test run. Full Stage 2 local and OKX chain evidence still required. |
+| Surface.capture distinguishes hidden/disabled/modal conditions from a passive projection | Structural unknown dependencies gate finite dispatch; incomplete ancestry, ancestor/descendant unknowns, forms, links to unknown controls, critical gaps and active obstructions remain blocking. | Dependent canvas button rejected, independent button dispatched; unresolved ancestor/shared-form/missing-ancestry negatives. No claim about arbitrary JavaScript dependency independence. |
+
+Rechecked original sources: v3/launcher/src/main/java/{NormalizedFactory,Surface,Recovery}.java and v3/NORMALIZATION-RULES.txt under /Users/xietian/Experiments/crawljax-okx-20261018. Source hashes remain in the existing source evidence manifest. V3 A's accepted chains remain external comparison evidence only, never TS acceptance evidence.

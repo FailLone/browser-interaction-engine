@@ -6,7 +6,7 @@ export * from '@interaction/core';
 export interface Rect { x: number; y: number; width: number; height: number }
 export interface Gap extends CoreGap {
   /** Current captured DOM scope only; no claim about hidden JS dependencies. */
-  coverageScope?:{version:'dom-subtree-v1';documentId:string;rootInstanceId:string;ancestorInstanceIds:string[];affectedControlIds:string[];complete:boolean};
+  coverageScope?:{version:'dom-subtree-v1';documentId:string;rootInstanceId:string;ancestorInstanceIds:string[];affectedControlIds:string[];complete:boolean;landmark?:'banner'|'navigation'};
 }
 export interface Region { key: string; instanceId?: string; label: string; role: string; selector: string; parentKey?: string; rect: Rect; text: string }
 export interface Overlay { key: string; name: string; kind: 'modal' | 'dialog' | 'popover' | 'menu' | 'listbox'; selector: string; parentKey?: string; parentRegion: string; evidence: string[]; controlIds: string[]; exitControlIds: string[] }
@@ -102,6 +102,8 @@ export interface ScrollContainer {
   left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
 }
 export interface Control extends CoreControl {
+  /** Structural header/navigation containment, not a page label or logical identity. */
+  landmark?:'banner'|'navigation';
   /** Current document ancestry for dependency checks, never portable identity. */
   domAncestry?:{documentId:string;instanceIds:string[];complete:boolean};
   /** Actual native HTML readOnly property. Missing in legacy observations;
@@ -214,7 +216,15 @@ export interface Observation extends CoreObservation<Control> {
 }
 export interface ContextRule { key: string; selector: string; attribute?: string; required?: boolean }
 export interface MatchRule { role?: string; name?: string; stableKey?: string; kind?: ActionKind; urlIncludes?: string }
+export type BrowserURLRule = {url:string;match:'exact'|'origin-path'} | {origin:string;pathnamePattern:string;match:'route'};
+export interface BrowserExecutionBoundary {
+  version:1; allowedOperations:string[];
+  urls:BrowserURLRule[];
+  exclusions:{url?:string;region?:string;landmark?:'banner'|'navigation';label?:string;role?:string;stableKey?:string;targetBinding?:string;kind?:string;value?:string|boolean|number}[];
+}
 export interface SessionOptions {
+  /** Caller-owned upper bound; applies to direct commands, probes and replay. */
+  executionBoundary?:BrowserExecutionBoundary;
   coveragePolicy?: 'finite-ui-v1';
   localSimulation?: { url: string };
   /** Explicit authorization to explore captured UI operations without certifying business effects. */

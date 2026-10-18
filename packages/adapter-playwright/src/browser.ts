@@ -1,4 +1,5 @@
 import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
+import {executionURLAllowed} from './execution-boundary.js';
 import { collectScrollContainers, traversalScrollInPage, traversalScrollSchema } from './scroll-containers.js';
 import { chromium, type Browser, type BrowserContext, type Page, type CDPSession } from 'playwright';
 import { createHash } from 'node:crypto';
@@ -59,6 +60,16 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const instanceIds:string[]=[];let parent=el.parentElement;
     while(parent&&instanceIds.length<64){instanceIds.push(instance(parent));parent=parent.parentElement;}
     const result={documentId:tracker.documentId as string,instanceIds,complete:!parent};ancestryCache.set(el,result);return result;
+  };
+  const landmark=(el:Element):'banner'|'navigation'|undefined=>{
+    let navigation=false,parent:Element|null=el;
+    while(parent){
+      const explicit=parent.getAttribute('role')?.split(/\s+/)[0];
+      if(explicit==='banner'||!explicit&&parent.tagName==='HEADER'&&!parent.parentElement?.closest('article,aside,main,nav,section'))return 'banner';
+      if(explicit==='navigation'||!explicit&&parent.tagName==='NAV')navigation=true;
+      parent=parent.parentElement;
+    }
+    return navigation?'navigation':undefined;
   };
   const live = liveCollector?.(instance, liveEpoch);
   const clean = (s: string | null | undefined) => (s || '').replace(/\s+/g, ' ').trim().slice(0, 500);
@@ -388,7 +399,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
       reviewAttributes: Object.fromEntries(Array.from(el.attributes).filter(a => /^data-(?!testid)|^name$/.test(a.name)).map(a => [a.name, a.value])),
-      reviewBinding, reviewReuseBinding, domAncestry:ancestry(el), ...(structuralItem ? { structuralItem } : {}),
+      reviewBinding, reviewReuseBinding, domAncestry:ancestry(el),...(landmark(el)?{landmark:landmark(el)}:{}), ...(structuralItem ? { structuralItem } : {}),
       ...(!Object.values(capabilities.actionBasis).some(b => b.status === 'supported') ? { classificationBinding: classificationBinding(el) } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
@@ -419,7 +430,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const discoveryTopology = elements.map(el => [instance(el), el.parentElement ? instance(el.parentElement) : '', el.tagName]);
   const gaps: (Gap & {selector?:string})[] = [];
   const coverageScope=(el:Element):NonNullable<Gap['coverageScope']>=>({version:'dom-subtree-v1',documentId:tracker.documentId,rootInstanceId:instance(el),ancestorInstanceIds:ancestry(el).instanceIds,
-    affectedControlIds:controls.filter((_control,index)=>el.contains(all[index])).map(control=>control.localId),complete:ancestry(el).complete&&all.length===controls.length});
+    affectedControlIds:controls.filter((_control,index)=>el.contains(all[index])).map(control=>control.localId),complete:ancestry(el).complete&&all.length===controls.length,...(landmark(el)?{landmark:landmark(el)}:{})});
   if(structuralScan.limits.templatesTruncated||structuralScan.limits.collectionsTruncated||structuralScan.limits.rowWindowsTruncated)gaps.push({code:'STRUCTURAL_LIST_SCAN_TRUNCATED',reference:'discovery:structural',message:`Repeated-record discovery: ${structuralScan.limits.templatesTruncated} limited templates, ${structuralScan.limits.rowWindowsTruncated} partial sibling windows; collection limit reached: ${structuralScan.limits.collectionsTruncated}`});
   for (const omission of structuralScan.limits.omissions) gaps.push({ code: 'STRUCTURAL_DISCOVERY_LIMIT', selector: omission.rowSelector || omission.ownerSelector, reference: `discovery:${omission.ownerId}:${omission.rowId || ''}:${omission.kind}`, message: `${omission.kind}: limit ${omission.limit}, observed at least ${omission.observed}; inspect discoveryScan for the exact owner and bounded supplementation target` });
   if (!body) gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'Document body is absent; the page may be navigating or rebuilding', critical: true });
@@ -514,7 +525,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     this.page.on('download', d => { this.gaps.push({ code: 'UNSUPPORTED_DOWNLOAD', message: d.suggestedFilename(), critical: true }); void d.cancel().catch(() => {}); });
     await this.page.route('**/*', async route => {
       const request = route.request();
-      if (request.isNavigationRequest() && request.frame() === this.page?.mainFrame() && new URL(request.url()).origin !== new URL(this.options.url).origin) {
+      if (request.isNavigationRequest() && request.frame() === this.page?.mainFrame() && (new URL(request.url()).origin !== new URL(this.options.url).origin
+        ||this.options.executionBoundary&&!executionURLAllowed(this.options.executionBoundary,request.url(),true))) {
         this.gaps.push({ code: 'OUT_OF_SCOPE_NAVIGATION', message: request.url(), critical: true }); await route.abort();
       } else await route.continue();
     });

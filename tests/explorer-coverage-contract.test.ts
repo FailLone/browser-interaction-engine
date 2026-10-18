@@ -51,3 +51,56 @@ it('retains a forbidden operation as required untested coverage while allowing a
   expect(attempts.some(a=>a.action.kind==='fill')).toBe(false);
  }finally{await plugin.close();await f.close();}
 });
+
+it('grounds header scope in captured structure without model-selected labels or unrelated page work',async()=>{
+ const f=await explorerFixture('<div role="banner"><nav><button id="header-action" type="button" onclick="this.disabled=true">Header action</button><canvas></canvas></nav></div><footer><button id="footer-action" type="button">Footer action</button></footer><canvas></canvas>');
+ const store=new ExplorerStore(':memory:'),providers=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,store,providers);
+ try{
+  const task=plugin.create({url:f.url,goal:'Explore header navigation',coverageContract:{version:1,mode:'targeted',roots:[{url:f.url,landmark:'banner'}],exclusions:[],allowedOperations:['click']},budget:{rounds:1,actions:5,durationMs:15000},sessionOptions:{headless:true,coveragePolicy:'finite-ui-v1'}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const result=store.task(task.id),attempts=result.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(attempts.some(a=>a.action.label==='Header action'&&a.status==='succeeded')).toBe(true);
+  expect(attempts.some(a=>a.action.label==='Footer action')).toBe(false);
+  expect(result.plan.some(i=>i.required&&i.reason==='missing_capability:UNSUPPORTED_CANVAS')).toBe(true);
+  const unsupported=store.events(task.id).find(e=>e.type==='scope.unsupported')?.data as any;
+  expect(unsupported.limitations).toHaveLength(1);expect(unsupported.limitations[0].coverageScope.landmark).toBe('banner');
+  expect(result.status).not.toBe('completed');expect(providers.calls.some(c=>c.purpose==='initial-plan')).toBe(false);
+ }finally{await plugin.close();await f.close();}
+});
+
+it('retains caller route language and binds scopes only to observed matching URLs',async()=>{
+ const {contractExecutionBoundary,observedContractRoots}=await import('../packages/explorer-plugin/src/coverage-contract.js');
+ const {executionURLAllowed}=await import('@interaction/browser');
+ const contract:CoverageContract={version:1,mode:'targeted',roots:[{url:'https://example.test/start',landmark:'banner'}],routes:[{origin:'https://example.test',pathnamePattern:'^/(?:[a-z]{2}/)?info/?$',scope:{}}],exclusions:[],allowedOperations:['click','history']};
+ const original=structuredClone(contract),boundary=contractExecutionBoundary(contract);
+ for(const url of ['https://example.test/info','https://example.test/en/info/?x=1#part','https://example.test/zh/info']){
+  expect(executionURLAllowed(boundary,url)).toBe(true);
+  expect(observedContractRoots(contract,url)).toEqual([{scope:{url},declaration:{kind:'route',index:0}}]);
+  expect(contractProposalError(contract,{scope:{url,label:'Information',kind:'click'},prerequisites:[]})).toBeUndefined();
+ }
+ for(const url of ['https://example.test/login','https://other.test/info','https://example.test/info/child','http://example.test/info']){
+  expect(executionURLAllowed(boundary,url)).toBe(false);expect(observedContractRoots(contract,url)).toEqual([]);
+  expect(contractProposalError(contract,{scope:{url},prerequisites:[]})).toBe('outside_contract_root');
+ }
+ expect(contract).toEqual(original);
+ expect(coverageContractSchema.safeParse({...contract,routes:[{...contract.routes![0],pathnamePattern:'info'}]}).success).toBe(false);
+ expect(coverageContractSchema.safeParse({...contract,routes:[{...contract.routes![0],pathnamePattern:'^[$'}]}).success).toBe(false);
+ expect(coverageContractSchema.safeParse({...contract,routes:[{...contract.routes![0],origin:'https://example.test/path'}]}).success).toBe(false);
+});
+
+it('materializes a caller route on real arrival and keeps the original root and exact URL evidence',async()=>{
+ const f=await explorerFixture('<div role="banner"><a href="/info?source=entry#details">Next</a></div><button type="button">Page action</button>');
+ const store=new ExplorerStore(':memory:'),providers=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,store,providers);
+ try{
+  const contract:CoverageContract={version:1,mode:'targeted',roots:[{url:f.url,landmark:'banner'}],routes:[{origin:new URL(f.url).origin,pathnamePattern:'^/info$',scope:{}}],exclusions:[],allowedOperations:['click','history']};
+  const task=plugin.create({url:f.url,coverageContract:contract,budget:{rounds:1,actions:3,durationMs:15000},sessionOptions:{headless:true,coveragePolicy:'finite-ui-v1'}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const result=store.task(task.id),url=new URL('/info?source=entry#details',f.url).href;
+  expect(result.coverageContract).toEqual(contract);
+  expect(result.plan.some(i=>i.dispatchScope&&i.scope.url===f.url&&i.scope.landmark==='banner')).toBe(true);
+  expect(result.plan.some(i=>i.dispatchScope&&i.scope.url===url&&!i.scope.landmark)).toBe(true);
+  const event=store.events(task.id).find(e=>e.type==='scope.contract_url_bound')!;
+  expect(event.data).toMatchObject({declaration:{kind:'route',index:0},scope:{url},urlAuthorizationOnly:true,coverageGranted:false});
+  const attempts=result.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(attempts.some(a=>a.action.label==='Page action'&&f.host.observation(a.sessionId,a.beforeId).url===f.url)).toBe(false);
+  expect(attempts.some(a=>a.action.label==='Page action'&&a.status==='succeeded'&&f.host.observation(a.sessionId,a.beforeId).url===url)).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});

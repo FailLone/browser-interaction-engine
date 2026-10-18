@@ -23,6 +23,8 @@ import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
 export { createOwnerDependencyCodec } from './owner-dependency-codec.js';
+export {executionBoundaryFailure,executionURLAllowed} from './execution-boundary.js';
+export {progressDependencies} from './progress-dependencies.js';
 export type { OwnerDependencyCodec, OwnerDependencyBuilder } from './owner-dependency-codec.js';
 export * from './boundary-exit.js';
 export * from './purpose-review.js';
@@ -156,3 +158,5 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
 export * from './inspection-contract.js';
 
 export * from './exploration-decision-reuse.js';
+
+export {routeURLSchema} from './schema.js';

@@ -9,13 +9,17 @@ export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed'
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
 /** Exact semantic constraints; no old session control IDs or arbitrary selectors. */
-export interface Scope { stableKey?: string; /** Captured semantic owner/binding hint; never an identity or coverage grant. */ targetBinding?: string; url?: string; region?: string; label?: string; role?: string; kind?: string; value?: string | boolean | number }
+export interface Scope { stableKey?: string; /** Captured semantic owner/binding hint; never an identity or coverage grant. */ targetBinding?: string; url?: string; region?: string; landmark?:'banner'|'navigation';label?: string; role?: string; kind?: string; value?: string | boolean | number }
 export interface ScopeExclusion { scope: Scope; instruction: string }
 /** Caller-owned coverage authority. Model proposals cannot replace these roots,
  * remove exclusions, or grant additional operation kinds. Not a safety review. */
 export interface CoverageContract {
   version:1; mode:'exhaustive'|'targeted'; roots:Scope[];
   exclusions:ScopeExclusion[]; allowedOperations:string[];
+  /** Authorization equality only; never navigation-state or receipt equality. */
+  urlMatching?:'exact'|'origin-path';
+  /** Caller-declared scope on observed matching pages; not a crawl route or state identity. */
+  routes?:{origin:string;pathnamePattern:string;scope:Omit<Scope,'url'>}[];
 }
 /** Executable task meaning, separate from natural-language intent and the changing coverage ledger. */
 export type TaskIntent =

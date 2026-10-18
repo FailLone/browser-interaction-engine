@@ -1,5 +1,6 @@
+import {routeURLSchema} from '@interaction/browser';
 import { z } from 'zod';
-export const scopeSchema = z.object({stableKey:z.string().min(1).optional(),targetBinding:z.string().regex(/^browser-target-binding:v1:[a-f0-9]{64}$/).describe('Exact SDK-captured semantic owner/binding hint; not an identity, selector or execution grant').optional(),url:z.url().optional(),region:z.string().min(1).describe('Exact observed region display label, not its key or selector').optional(),label:z.string().min(1).describe('Exact observed action label or accessible control name').optional(),role:z.string().min(1).optional(),kind:z.enum(['click','fill','select','check','scroll','press','hover','focus','navigate','history']).describe('Executable operation kind, never a control type or a desired state').optional(),value:z.union([z.string(),z.boolean(),z.number()]).describe('Actual operation input or option value, not an expected result').optional()}).strict();
+export const scopeSchema = z.object({landmark:z.enum(['banner','navigation']).optional(),stableKey:z.string().min(1).optional(),targetBinding:z.string().regex(/^browser-target-binding:v1:[a-f0-9]{64}$/).describe('Exact SDK-captured semantic owner/binding hint; not an identity, selector or execution grant').optional(),url:z.url().optional(),region:z.string().min(1).describe('Exact observed region display label, not its key or selector').optional(),label:z.string().min(1).describe('Exact observed action label or accessible control name').optional(),role:z.string().min(1).optional(),kind:z.enum(['click','fill','select','check','scroll','press','hover','focus','navigate','history']).describe('Executable operation kind, never a control type or a desired state').optional(),value:z.union([z.string(),z.boolean(),z.number()]).describe('Actual operation input or option value, not an expected result').optional()}).strict();
 export const plannedScopeSchema = z.object({title:z.string().min(1),scope:scopeSchema,prerequisites:z.array(scopeSchema).max(30).describe('Executable prerequisite operations, not assertions about enabled/disabled states'),completion:z.string().min(1),required:z.boolean(),reason:z.string()}).strict();
 export const planSchema = z.object({items:z.array(plannedScopeSchema).min(1).max(100)}).strict();
 export const initialTaskSchema = z.discriminatedUnion('mode',[
@@ -12,12 +13,15 @@ export const initialTaskSchema = z.discriminatedUnion('mode',[
 ]);
 export const budgetSchema=z.object({rounds:z.number().int().min(1).max(100).default(3),actions:z.number().int().min(1).max(10000).default(300),durationMs:z.number().int().min(100).max(86400000).default(1800000),modelRequests:z.number().int().min(1).max(10000).default(300)});
 export const coverageContractSchema=z.object({version:z.literal(1),mode:z.enum(['exhaustive','targeted']),
+  urlMatching:z.enum(['exact','origin-path']).optional(),
+  routes:z.array(routeURLSchema.extend({scope:scopeSchema.omit({url:true})})).max(100).optional(),
   roots:z.array(scopeSchema).min(1).max(100),
   exclusions:z.array(z.object({scope:scopeSchema,instruction:z.string().trim().min(1)}).strict()).max(100),
   allowedOperations:z.array(z.enum(['click','fill','select','check','scroll','press','hover','focus','navigate','history','dismiss'])).min(1).max(11),
 }).strict().superRefine((value,ctx)=>{
+  if(value.mode==='exhaustive'&&value.routes?.some(route=>Object.keys(route.scope).length))ctx.addIssue({code:'custom',message:'Exhaustive route scopes must cover whole declared pages'});
   if(value.mode==='exhaustive'&&value.roots.some(root=>Object.keys(root).some(key=>key!=='url')))ctx.addIssue({code:'custom',message:'Exhaustive roots must cover whole declared pages; restricted roots require targeted mode'});
-  if(value.mode==='targeted'&&value.roots.some(root=>!Object.keys(root).some(key=>key!=='url')))ctx.addIssue({code:'custom',message:'Targeted roots must identify a region, control or operation'});
+  if(value.mode==='targeted'&&value.roots.some(root=>Object.keys(root).length===0))ctx.addIssue({code:'custom',message:'Targeted roots must explicitly identify a page, region, control or operation'});
 });
 export const createTaskSchema = z.object({goal:z.string().trim().max(20000).default(''),url:z.url().refine(v=>['http:','https:'].includes(new URL(v).protocol)),
   coverageContract:coverageContractSchema.optional(),
