@@ -1,6 +1,6 @@
 # Pair-local component correspondence
 
-Development from `82ba9c7f6e725656fd5b1133f19a5fdf5af0d5f6`, isolated branch `codex/component-correspondence`. The original checkout and old development evidence are read-only. `CHECKPOINT.md` records incomplete and failed experiments; a final results document will distinguish completed gates from remaining blockers.
+Development from `82ba9c7f6e725656fd5b1133f19a5fdf5af0d5f6`, isolated branch `codex/component-correspondence`. The original checkout and old development evidence are read-only. `RESULTS.md` records passed and failed gates; `CHECKPOINT.md` preserves the intermediate experiments. The real-site objective is not satisfied by local model execution alone.
 
 ## Contract and provenance
 
@@ -18,7 +18,7 @@ Shared material objects hold complete bounded component JSON. Schema7 adds `comp
 
 The optional channel has4JEV/1LLM/12seconds per240seconds,8JEV/2LLM per task lifetime, and remains subject to the existing total task budget. Input must fit whole; truncation never creates a match. Identical concurrent questions share one request. A crash reservation consumes its count and wait allowance. Exhaustion leaves ordinary program actions eligible.
 
-All paid validation processes use `paid-budget.mjs` and the same absolute `COMPONENT_PAID_LEDGER` path. It reserves before HTTP, charges all failures and batches by judgment count, and refuses beyond8JEV/2LLM. Validation runs are serial. Never delete or reset that ledger. Provider redirects/retries are disabled; configured and actual model names, input/output tokens, HTTP count, judgments, bytes, elapsed time and provider-reported cost are retained. No independent price calculation is claimed.
+All paid validation processes use `paid-budget.mjs` and the same absolute `COMPONENT_PAID_LEDGER` path. It reserves before HTTP, charges all failures and batches by judgment count, and refuses beyond8JEV/2LLM. Validation runs are serial. Never delete or reset that ledger. The provider adapter uses one fetch with redirects rejected and no automatic client retry; server-internal routing is not independently observed. configured and actual model names, input/output tokens, HTTP count, judgments, bytes, elapsed time and provider-reported cost are retained. No independent price calculation is claimed.
 
 `replay-local-provider.mjs` is explicitly offline: it returns the actual five recorded responses from the prior successful `local-effects-local-1` run. It checks the question and captured control semantics, maps only the local URL in responses, persists its cursor across process restart and has no provider-network fallback. The original local browser harness and independent auditor remain unchanged. This preserves a full browser regression without spending another two LLM requests after the already-recorded clarification failure. It is not a fresh model-accuracy evaluation.
 
