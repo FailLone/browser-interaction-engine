@@ -1,0 +1,4 @@
+import {readFileSync,writeFileSync} from 'node:fs';import {BrowserEngine,type ActionAttempt} from '@interaction/browser';import {SqliteStore} from '@interaction/storage-sqlite';
+const root='.data/async-component-integration',host=new BrowserEngine({persistence:new SqliteStore(root+'/closed-diagnosis')}),task=JSON.parse(readFileSync(root+'/okx-frozen-1/task-final.json','utf8'));
+const out=task.rounds.flatMap((r:any)=>host.list<ActionAttempt>(r.sessionId,'attempt')).map((a:ActionAttempt)=>{const o=host.observation(a.sessionId,a.beforeId),graph=o.ownerDependencies as any;return {id:a.id,label:a.action.label,url:o.url,graphKeys:Object.keys(graph||{}),complete:graph?.inventoryComplete,graphCount:graph?.nodes?.length,issues:graph?.issues,gaps:o.gaps.map(g=>g.code),source:graph};});
+writeFileSync(root+'/graph-diagnosis.json',JSON.stringify(out,null,2));console.log(JSON.stringify(out.map(({source,...row}:any)=>row),null,2));await host.close();

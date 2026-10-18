@@ -1,0 +1,11 @@
+# Async content and component integration
+
+The full async development line is integrated, including its product files, fixtures and evidence. This iteration preserves the original OKX 80-command boundary (startup/native dispatch) and separately records acquisition, sampling, waits and auxiliary commands. Startup and native input remain compound operations; their existing native actionability waits are inside those spans. Per-driver event IDs distinguish recovery/new drivers, and failed admitted operations retain their charge. `audit-accounting.mjs RUN` checks native events against the original numbered timeline and persistent counter.
+
+A new native instrumentation hook replaces execute/readDOM prototype wrappers in the OKX worker. It supplies detached synchronous data, rejects asynchronous observers, and cannot replace method implementations or supply witnesses. DOM read completions inside native execution are delivered after input. Custom execute/readDOM implementations still fail the unchanged exact-implementation witness guard. The original extra start navigation route guard, count function, operation guard and independent auditors remain intact.
+
+Ready child controls could wait for deterministic region partition while an old still-enabled entry under a new condition received priority. The program now prepares that partition before yielding to the old entry. It does not equate old and new modes, declare a new child covered, or change model decisions. A still-enabled fixture retains the changed-condition old duty unresolved and obtains a separate actual receipt for the late child.
+
+Pending-content sampling uses the same observation deadline. Another sample starts only when its interval and bounded acquisition reserve fit. This prevents an unnecessary last read from timing out and clearing earlier independent evidence; pending contents remain unknown.
+
+The verification ledger remains the original absolute `.data/component-correspondence/paid-ledger.json`, never reset: 8 JEV / 2 LLM overall, including failures/retries/reservations. At integration start 4 JEV / 1 LLM were spent. Local acceptance replays five explicitly labeled historical answers without a provider-network fallback. Final real-site conclusions must come from the unchanged auditors, not these local checks.
