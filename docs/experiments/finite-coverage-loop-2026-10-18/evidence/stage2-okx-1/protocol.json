@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "coverageContract": {
+    "version": 1,
+    "mode": "targeted",
+    "roots": [
+      {
+        "url": "https://www.okx.com/zh-hans/convert/usd-to-btc"
+      }
+    ],
+    "routes": [
+      {
+        "origin": "https://www.okx.com",
+        "pathnamePattern": "^/(?:[a-z]{2}(?:-[a-z]+)?/)?(?:convert/usd-to-btc|trade-convert|trade-spot(?:/btc-usdt)?)/?$",
+        "scope": {}
+      }
+    ],
+    "exclusions": [],
+    "allowedOperations": [
+      "click",
+      "hover",
+      "focus",
+      "scroll",
+      "history",
+      "press",
+      "dismiss"
+    ]
+  },
+  "contractInterpretation": "Caller-owned public-navigation scope on every observed authorized convert/spot page, including the entry information page and its header menus. Unknowns and disallowed operation obligations are retained; no whole-site exhaustion claim. URL predicates are authorization only. Original dispatch guard remains unchanged.",
+  "changesFromStage1": [
+    "Caller coverage contract replaces model interpretation of initial authority",
+    "SDK checks persisted URL/operation boundary on all dispatch purposes",
+    "Local unknown dependency checks and bounded review yielding",
+    "Continuation requires independently executable remaining work"
+  ],
+  "wallMs": 240000,
+  "actions": 80,
+  "cooperativeStopMs": 210000,
+  "scope": "Public navigation on OKX convert and spot pages only; no login, forms, transactions, identity/region choices or access evasion.",
+  "entry": "https://www.okx.com/zh-hans/convert/usd-to-btc",
+  "coveragePolicy": "finite-ui-v1",
+  "executionPolicy": "interface-only",
+  "internalRounds": 3,
+  "acceptance": "A retained, originally unfinished child becomes absent, plugin selects its recorded reentry path, real counted replay returns, SDK verifies original child correspondence, the real child executes, durable source receipt verifies completion, independent DOM navigation evidence matches. Whole-site exhaustion is not required or claimed. Noncompletion and external limits are reported as such.",
+  "safetyGuard": "Reject out-of-scope destinations and form inputs/business/authentication controls before browser dispatch. Guard never selects a route, rewrites candidates or grants success. Guard refusals remain failures."
+}
