@@ -1312,6 +1312,13 @@ export class ExplorerPlugin {
     if(task.plan.length&&!task.plan.some(item=>item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded'))return false;
     await this.retainHostLimitations(task,o,signal);
     if(o.gaps.some(g=>g.critical)){this.gap(task,'observation_incomplete',{url:o.url});return false;}
+    const readyNavigation=!!task.coverageContract?.programNavigation&&o.navigationScopes?.some(scope=>scope.complete&&scope.binding
+      &&scope.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&c.enabled&&!c.readiness)));
+    if(readyNavigation&&!round.localOpportunityDocuments?.includes(o.documentId)){
+      this.changedRound(task,round);(round.localOpportunityDocuments??=[]).push(o.documentId);
+      this.initializeScheduling(task).localSelections=0;this.persist(task);
+      this.event(task,'navigation.local_opportunity',{observationId:o.id,documentId:o.documentId,reason:'new_document_ready_navigation',limit:localSelectionLimit,coverageGranted:false});
+    }
     await this.reconcileReviewLedger(task,o,signal);
     await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host));
     // Authority rows define permission; concrete unfinished children define work.
@@ -1329,6 +1336,7 @@ export class ExplorerPlugin {
     const modelRequestsBefore=task.usage.modelRequests;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     const deferDestinationReview=!!task.coverageContract?.programNavigation&&!o.stable&&!!o.navigationCapture&&!!this.host.returnToObservedSource
+      &&!o.navigationScopes?.some(scope=>scope.complete&&scope.binding&&scope.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&c.enabled&&!c.readiness)))
       &&task.plan.some(item=>item.required&&isUnfinished(item)&&pageSourceObligation(item)&&item.scope.url===o.navigationCapture!.sourceUrl)
       &&!!sourceReturnCondition(this.host.observation(sid,o.navigationCapture!.beforeId),o);
     if(deferDestinationReview)this.event(task,'review.deferred_for_source_return',{observationId:o.id,sourceObservationId:o.navigationCapture!.beforeId,reason:'native_document_ready_destination_controls_unready',unknownDutiesRetained:true,coverageGranted:false,dispatchRevalidationRequired:true});

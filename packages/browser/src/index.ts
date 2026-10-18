@@ -1,5 +1,5 @@
 import { ExplorationDecisionReuse } from './exploration-decision-reuse.js';
-import {executionBoundaryFailure,progressDependencies,programNavigationDependencies,prepareProgramNavigation} from '@interaction/adapter-playwright';
+import {executionBoundaryFailure,progressDependencies,programNavigationDependencies,prepareProgramNavigation,navigationScopeFor} from '@interaction/adapter-playwright';
 import { Interventions } from './interventions.js';
 import { canonical, clone, hash, now } from '@interaction/core';
 import { interventionResponseSchema, continuationSchema, type InterventionResponseInput, type InterventionResponseRecord, type ContinueExplorationInput, type ContinuationRecord } from '@interaction/adapter-playwright';
@@ -638,8 +638,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
       // Only a partition wholly inside the observed active boundary can use its
       // local readiness. A mixed ancestor, page traversal or unknown anchor keeps
       // the whole-page check, even when an individual region selects fewer members.
-      const scopedTargets = !review.update && active?.key === o.boundaries?.at(-1)?.key && targets.length > 0
-        && anchors.every(id => candidates.has(id)) && targets.every(id => activeIds.has(id)) && !review.regions.some(r => r.pageTraversal) ? targets : undefined;
+      const localNavigation=this.session(sid).options.executionBoundary?.programNavigation&&navigationScopeFor(o,targets);
+      const scopedTargets = targets.length > 0 && anchors.every(id => candidates.has(id)) && !review.regions.some(r => r.pageTraversal)
+        && (!!localNavigation || !review.update && active?.key === o.boundaries?.at(-1)?.key && targets.every(id => activeIds.has(id))) ? targets : undefined;
       if (!(this.driver instanceof BrowserAdapter) || await this.driver.preflight(o, undefined, scopedTargets, [], [...review.regions.filter(r=>r.reuse).flatMap(r=>r.candidateIds),...this.regions.activeReuseAnchors(sid)]) !== 'valid') { await this.capture(sid, 'inspection'); throw new EngineError('STALE_REGION_REVIEW', 'Region facts changed; review the new observation'); }
       const record = this.store.transaction(() => this.regions.record(o, this.actions(sid), this.session(sid), review));
       await this.capture(sid, 'inspection');

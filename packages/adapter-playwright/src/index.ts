@@ -4,6 +4,8 @@ export { scrollProbeSchema } from './scroll-probe.js';
 export type { ScrollProbeOptions } from './scroll-probe.js';
 import { hasReviewedDismissal } from './boundary-exit.js';
 import { nativeFormScope } from './dependencies.js';
+import {navigationScopeFor} from './navigation-readiness.js';
+export {navigationScopeFor} from './navigation-readiness.js';
 import { canonical, id, EngineError, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
 import {programNavigationAllowed} from './execution-boundary.js';
 import { BrowserAdapter } from './browser.js';
@@ -98,6 +100,10 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
       &&proof.observedUrl===after.url&&proof.samples>=2&&proof.settledMs>=0&&!after.gaps.some(g=>g.critical)
       &&history?.browserSessionId===sourceHistory?.browserSessionId&&entry?.url===after.url&&entry.method==='GET'&&entry.id!==sourceHistory?.entries[sourceHistory.currentIndex]?.id)return true;
     const target = before.controls.find(c => c.localId === action.localId);
+    const navigationScope=target&&navigationScopeFor(before,[target.localId]);
+    if(target&&navigationScope&&!after.gaps.some(g=>g.critical)&&before.documentId===after.documentId&&before.url===after.url
+      &&navigationScopeFor(after,[target.localId])?.rootId===navigationScope.rootId
+      &&after.controls.some(c=>c.instanceId===target.instanceId&&!c.readiness))return true;
     const scope = this.validationScope(action, before);
     return !!target && !!scope && !!after.controls.find(c => c.instanceId === target.instanceId && !c.readiness && nativeFormScope(c, action.kind) === scope);
   }

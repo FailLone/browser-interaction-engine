@@ -10,6 +10,7 @@ import { observableCanonical } from './model.js';
 import { controlSurroundingsReader } from './control-surroundings.js';
 import { interactionProjection } from './exploration.js';
 import { dependencyProjection, dependencyProjections, nativeFormScope } from './dependencies.js';
+import {collectNavigationScopes,navigationScopeFor,navigationScopeProjection} from './navigation-readiness.js';
 import { activeInteractionIds, interactionScope, boundaryBinding, targetFacts } from './interaction-scope.js';
 import type { Session, EngineHooks } from './types.js';
 import { constrain } from './policy.js';
@@ -45,13 +46,14 @@ type DOMSnapshot = {
   boundaryExitCandidates?: Observation['boundaryExitCandidates'];
   actionDiscovery?: Observation['actionDiscovery']; discoveryScan?: DiscoverySnapshot;
   ownerDependencies?: Observation['ownerDependencies'];
+  navigationScopes?: Observation['navigationScopes'];
   scroll: Observation['scroll']; scrollContainers?: Observation['scrollContainers']; gaps: Gap[]; detailDom?: DomEvidence;
 };
 type OwnerDependencyCollector = (controls: Control[], elements: Element[], instance: (el: Element) => string,
   documentId: string, priorityLocalIds: string[]) => Observation['ownerDependencies'];
 
 // Runs in the page without DOM mutation. Event metadata remains bounded hints.
-function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, ownerCollector: OwnerDependencyCollector | undefined, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
+function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, ownerCollector: OwnerDependencyCollector | undefined, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan, navigationCollector?: typeof collectNavigationScopes) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
@@ -487,7 +489,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const priorityLocalIds = active && active.key === layers.boundaries.at(-1)?.key ? [...new Set([...active.exitControlIds, ...active.controlIds])] : [];
   const ownerDependencies = ownerCollector?.(controls, all.slice(0, 1500), instance, tracker.documentId, priorityLocalIds);
   if (ownerDependencies && all.length !== controls.length) { ownerDependencies.inventoryComplete = false; ownerDependencies.complete = false; ownerDependencies.reasons.push('control_inventory_truncated'); }
-  return { ...(ownerDependencies ? { ownerDependencies } : {}), scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
+  return { ...(ownerDependencies ? { ownerDependencies } : {}), ...(navigationCollector ? {navigationScopes:navigationCollector(controls,instance)} : {}), scrollContainers: scrollSurfaces.containers, documentId: tracker.documentId as string, url: location.href, title: document.title, text: bodyText.slice(0, 50000), controls, regions, components, ...layers, boundaryExitCandidates: exitCollector(layers.overlays, instance, selector), discoveryScan, discoveryTopology, regionCandidates: candidateCollector?.(controls, all.slice(0, 1500), instance, selector), structuralLists:listDescription?.(structuralScan,controls,all.slice(0,1500),instance), actionDiscovery: { version: 'dom-actions-v2' as const, documentHints }, detailDom: detailCollector && detailOptions ? detailCollector(detailOptions, regions) : undefined, scroll: { x: scrollX, y: scrollY, maxY: Math.max(0, (document.documentElement?.scrollHeight ?? 0) - innerHeight) }, gaps };
 }
 
 export class BrowserAdapter implements InteractionDriver<Observation, SessionOptions> {
@@ -578,7 +580,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
-    const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}`;
+    const args = `, ${this.options.regionExploration === 'review' ? collectRegionCandidates.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? discoverStructuralLists.toString() : 'undefined'}, ${this.options.listExploration !== undefined ? describeStructuralLists.toString() : 'undefined'}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(this.options.evidence)}, ${this.options.exploration === 'controls' ? collectLiveContent.toString() : 'undefined'}, ${this.liveEpoch}, ${this.discoveryPlan?.status === 'active' ? JSON.stringify(this.discoveryPlan) : 'undefined'}, ${this.options.executionBoundary?.programNavigation ? collectNavigationScopes.toString() : 'undefined'}`;
     const ownerCollector = ownerDependencies && this.options.exploration === 'controls'
       ? `(controls, elements, instance, documentId, priorityLocalIds) => (${collectOwnerDependencies.toString()})(controls, elements, instance, documentId, undefined, (${createOwnerDependencyCodec.toString()}), priorityLocalIds)`
       : 'undefined';
@@ -623,7 +625,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     let sampledAt = 0;
     const projections = new WeakMap<object, Map<string, string>>();
     const project = (view: NonNullable<typeof dom>) => {
-      if (!projections.has(view)) projections.set(view, dependencyProjections(view));
+      if (!projections.has(view)) {
+        const result=dependencyProjections(view);
+        for(const scope of view.navigationScopes||[])if(scope.complete&&scope.binding){
+          const key=navigationScopeProjection(view,scope);
+          for(const localId of scope.controlIds){const target=view.controls.find(c=>c.localId===localId);if(target&&!result.has(target.instanceId))result.set(target.instanceId,key);}
+        }
+        projections.set(view,result);
+      }
       return projections.get(view)!;
     };
     const dependencyWindows = new Map<string, { key: string; since: number }>();
@@ -649,6 +658,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const pending = captureContext?.afterAction;
     const pendingTarget = pending?.before.controls.find(c => c.localId === pending.action.localId);
     const pendingScope = pending?.action.risk === 'interface' && pendingTarget ? nativeFormScope(pendingTarget, pending.action.kind) : undefined;
+    const pendingNavigationScope=pendingTarget&&navigationScopeFor(pending!.before,[pendingTarget.localId]);
     const pendingNavigation=pending&&navigationIntent(pending.action,pending.before);
     const sameWindow=!pendingTarget?.reviewBinding?.attributes.target||pendingTarget.reviewBinding.attributes.target==='_self';
     const navigationReady=(view:NonNullable<typeof dom>)=>!!pendingNavigation&&sameWindow&&!!documentWindow&&documentWindow.samples>=2
@@ -659,7 +669,15 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (!pending) return ready.size > 0;
       // Native navigation addresses the browser document, not a changing field
       // on its destination. Retain each unready control; do not replay the link.
-      if(navigationReady(view))return true;
+      if(navigationReady(view)){
+        // A committed document is enough for the navigation receipt, but a
+        // captured local navigation region gets the remaining bounded window
+        // to settle before the caller chooses whether to leave the destination.
+        const scopes=view.navigationScopes?.filter(scope=>scope.complete&&scope.binding)||[];
+        return !scopes.length||scopes.some(scope=>scope.controlIds.some(id=>view.controls.some(c=>c.localId===id&&ready.has(c.instanceId))));
+      }
+      if(pendingNavigationScope&&pendingTarget&&ready.has(pendingTarget.instanceId)
+        &&navigationScopeFor(view,[pendingTarget.localId])?.rootId===pendingNavigationScope.rootId)return true;
       // An unrelated ready input cannot finish a click/navigation's observation.
       // Native field operations may still finish using their own verified form.
       return !!pendingScope && !!pendingTarget && ready.has(pendingTarget.instanceId)
@@ -732,7 +750,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
     if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && (interactionStable || ready.size > 0 || !!navigationCapture)) });
-    if (ready.size) gaps.push({ code: 'PARTIAL_INTERACTION_READY', message: `${ready.size} native form targets have stable dependencies; unsettled operations remain blocked` });
+    if (ready.size) gaps.push({ code: 'PARTIAL_INTERACTION_READY', message: `${ready.size} local targets have stable captured dependencies; unsettled operations remain blocked` });
     if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });
     const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([k, value]) => [k, { value, status: 'known', source: 'declared' }]));
     for (const rule of this.options.contextRules) {
@@ -994,6 +1012,16 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         if(!old?.complete||!fresh?.complete||old.key!==fresh.key||localId===action?.localId&&surroundingReferences.some(ref=>ref.facts.surroundingContextKey!==fresh.key))return 'stale';
       }
     }
+    const navigationScope=this.options.executionBoundary?.programNavigation&&navigationScopeFor(current,[...reviewTargets]);
+    if(navigationScope){
+      const fresh=navigationScopeFor(live,[...reviewTargets]);
+      if(!fresh||fresh.rootId!==navigationScope.rootId||action?.localId&&current.controls.find(c=>c.localId===action.localId)?.readiness
+        ||navigationScopeProjection(current,navigationScope)!==navigationScopeProjection(live,fresh))return 'stale';
+      // Exact current DOM/URL/history/context/boundaries and local relationships
+      // are checked above. This only narrows readiness, never operation policy.
+      if(action)this.prepareDispatchWitness(current,action);
+      return 'valid';
+    }
     const activeIds = activeInteractionIds(current);
     const escapeExit = action?.kind === 'press' && action.value === 'Escape' && !action.controlId && !action.localId && action.boundary?.intent === 'exit' && action.boundary.key === current.boundaries?.at(-1)?.key;
     const scoped = this.options.exploration === 'controls' && !!activeIds && (escapeExit || reviewTargets.size > 0 && [...reviewTargets].every(id => activeIds.has(id)));
@@ -1048,13 +1076,16 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     }
     // A submission or externally reviewed operation must retain its exact target text.
     if (target && action?.risk !== 'interface' && target.displayedText !== live.controls.find(c => c.instanceId === target.instanceId)?.displayedText) return 'stale';
-    if (action && target && action.observationId === current.id && current.ownerDependencies?.inventoryComplete
+    if(action&&target)this.prepareDispatchWitness(current,action);
+    return 'valid';
+  }
+  private prepareDispatchWitness(current:Observation,action:ActionCandidate) {
+    if (action.observationId === current.id && current.ownerDependencies?.inventoryComplete
       && current.navigation?.browserSessionId === this.navigationSessionId && current.instanceScope && !this.hooks.context && !this.options.contextRules.length) {
       this.preparedOwnerDispatch = { action: structuredClone(action), beforeId: current.id, graphKey: hash(current.ownerDependencies),
         context: structuredClone(current.context), documentId: current.documentId, instanceScope: current.instanceScope,
         browserSessionId: this.navigationSessionId, url: current.url };
     }
-    return 'valid';
   }
   private async dispatchWitness(prepared: BrowserAdapter['preparedOwnerDispatch'], action: ActionCandidate, control: Control): Promise<Observation['ownerDependencyDispatch']> {
     try {

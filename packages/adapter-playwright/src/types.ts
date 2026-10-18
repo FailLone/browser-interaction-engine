@@ -88,6 +88,13 @@ export interface CompactOwnerDependencies {
   closures: CompactOwnerDependencyClosure[]; references: CompactOwnerDependencyReference[];
 }
 export type OwnerDependencySnapshot = OwnerDependencies | CompactOwnerDependencies;
+/** Current-document navigation readiness only. Full bounded DOM bindings remain
+ * evidence; this is neither portable identity nor permission to execute. */
+export interface NavigationScopeSnapshot {
+  rootId: string; controlIds: string[]; complete: boolean; reasons: string[];
+  binding?: { markup: string; ancestors: {id:string;tag:string;attributes:Record<string,string>}[];
+    references: {id:string;instanceId:string;markup:string}[] };
+}
 /** Last bounded DOM sample immediately before a native control command. This
  * binds retained source evidence to a dispatch, not an atomic input transaction
  * or an execution/replay grant. Missing legacy witnesses cannot be reconstructed. */
@@ -199,6 +206,7 @@ export interface Observation extends CoreObservation<Control> {
   url: string; title: string; text: string; viewport: { width: number; height: number }; scroll: { x: number; y: number; maxY: number };
   documentId: string; controls: Control[]; regions: Region[]; context: Context;
   ownerDependencies?: OwnerDependencySnapshot;
+  navigationScopes?: NavigationScopeSnapshot[];
   ownerDependencyDispatch?: OwnerDependencyDispatch;
   components?: BrowserComponent[];
   scrollContainers?: ScrollContainer[];

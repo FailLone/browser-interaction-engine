@@ -78,6 +78,10 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // instances without asking a model to accept that scope again. This changes
   // grouping only: classification, operation and probe risk keep their policy.
   const programNavigation=!!task.coverageContract?.programNavigation;
+  const partialNavigation=programNavigation&&!o.stable&&o.gaps.some(g=>g.code==='PARTIAL_INTERACTION_READY')
+    ?o.navigationScopes?.filter(s=>s.complete&&s.binding&&s.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&!c.readiness)))
+      .sort((a,b)=>b.controlIds.length-a.controlIds.length)[0]:undefined;
+  const partialIds=partialNavigation&&new Set(partialNavigation.controlIds);
   const contractRegions=!!task.coverageContract&&!!c.programApply;
   const programRegions=observedUI||contractRegions;
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
@@ -169,7 +173,8 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     return true;
   };
   for(const focused of priorityIds.size?[true,false]:[false]) {
-  const relevantIds=c.semanticLocalId?new Set(allRelevantIds.has(c.semanticLocalId)?[c.semanticLocalId]:[]):focused?priorityControls:allRelevantIds;
+  const requestedRelevant=c.semanticLocalId?new Set(allRelevantIds.has(c.semanticLocalId)?[c.semanticLocalId]:[]):focused?priorityControls:allRelevantIds;
+  const relevantIds=partialIds?new Set([...requestedRelevant].filter(id=>partialIds.has(id))):requestedRelevant;
   const pendingOccurrence=o.controls.some(x=>x.hypothesisId&&allRelevantIds.has(x.localId)&&host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===x.hypothesisId&&h.status==='pending'));
   // Current-occurrence separation is a bounded program operation, with region
   // and group preparation before it. Do not yield halfway through that setup:
@@ -180,7 +185,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
   if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
   const region=readRegions();
-  const broad=!focused&&pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
+  const broad=!focused&&!partialIds&&pendingPlan.some(i=>i.required&&i.dispatchScope===true&&broadScope(i.scope)&&(!i.scope.url||i.scope.url===o.url));
   if(region.enabled&&(region.unassignedControlIds.some(id=>relevantIds.has(id))||(!boundary&&region.unassignedPageTraversal&&broad))) {
     // Reuse only a fresh SDK mapping of an explicitly reusable source. This
     // task/rule scope does not inherit dispatch, depth or completion decisions.
@@ -202,7 +207,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     const key=digest({type:'regions',instance:o.instanceScope,candidates:region.candidates,unassigned:region.unassignedControlIds,review:region.review&&{id:region.review.id,regions:region.review.regions.map(r=>r.status)},...(focused?{priorityControlIds:[...priorityControls].sort()}:{})});
     if(!done(key)) {
       const boundaryInstance=o.regions.find(r=>r.key===boundary?.key)?.instanceId;
-      const candidates=region.candidates.filter(r=>r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
+      const candidates=region.candidates.filter(r=>(!partialIds||r.controlIds.every(id=>partialIds.has(id)))&&r.controlIds.some(id=>relevantIds.has(id)&&region.unassignedControlIds.includes(id)));
       const strength={heading:3,semantic:2,layout:1,document:0};
       candidates.sort((a,b)=>Number(b.id===boundaryInstance)-Number(a.id===boundaryInstance)
         ||(boundaryIds?a.controlIds.filter(id=>!boundaryIds.has(id)).length-b.controlIds.filter(id=>!boundaryIds.has(id)).length:0)

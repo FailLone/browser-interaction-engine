@@ -9,16 +9,33 @@ import {explorerFixture} from './explorer-plugin-helpers.js';
 import {pageOf} from './helpers.js';
 import {bindGuardedReentryRoute} from '../scripts/okx-plugin-loop-acceptance.js';
 
-async function delegatedFixture(reveals=true,initialPopup=false,changingDestination=false,dualEntry=false,recordRows=false){
+async function delegatedFixture(reveals=true,initialPopup=false,changingDestination=false,dualEntry=false,recordRows=false,destinationNavigation=false){
  mkdirSync(resolve('.data'),{recursive:true});const dir=mkdtempSync(resolve('.data/program-menu-')),site=join(dir,'site');mkdirSync(site);
  writeFileSync(join(site,'index.html'),'<!doctype html><html><head><title>Navigation fixture</title></head><body><div id="root"></div><script type="module" src="/menu.jsx"></script></body></html>');
  writeFileSync(join(site,'menu.jsx'),`import React from 'react';import {createRoot} from 'react-dom/client';function App(){const [open,setOpen]=React.useState(false);const [notice,setNotice]=React.useState(${initialPopup}&&sessionStorage.getItem('skipNotice')!=='true');return <>{notice&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',zIndex:10}}><div role="dialog" aria-modal="true" tabIndex={0} aria-label="Service notice" style={{position:'absolute',left:300,top:150,width:400,padding:30,background:'white'}}><button type="button" role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Read notice</button><div tabIndex={0}>Unresolved notice container<label><input type="checkbox" onChange={e=>sessionStorage.setItem("skipNotice",String(e.target.checked))}/>Do not show again</label><button type="button" onClick={()=>{throw Error('Unauthorized notice action')}}>Continue</button></div><button type="button" onClick={()=>setNotice(false)}>Close</button></div></div>}<header><nav>${recordRows?'<div tabIndex={0} aria-label="Navigation owner">':''}<div id="menu" ${dualEntry?'role="button" onClick={()=>setOpen(true)}':''} tabIndex={0} aria-label="Information menu" aria-expanded={open} aria-controls="links" onMouseEnter={()=>{${reveals?'setOpen(true)':''}}} onMouseLeave={()=>setOpen(false)} style={{position:'relative',width:220,padding:20,cursor:'pointer'}}>Information<div id="links" hidden={!open} style={{position:'absolute',top:'100%',left:0,width:220,background:'white',padding:10}}>${recordRows?'<ul aria-label="Information pages"><li><a href="/overview" onMouseEnter={e=>e.currentTarget.className="highlight"}>Overview</a></li><li><a href="/details" onMouseEnter={e=>e.currentTarget.className="highlight"}>Details</a></li></ul>':'<a href="/overview">Overview</a><br/><a href="/details">Details</a>'}</div></div>${recordRows?'</div>':''}</nav></header><main>{${reveals}&&<button role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Unrelated view</button>}<canvas/>${recordRows?'<div tabIndex={0}>Unrelated twin</div><div tabIndex={0}>Unrelated twin</div>':''}<div tabindex="0" aria-label="Unresolved unrelated">Unknown</div></main></>};createRoot(document.getElementById('root')).render(<App/>);`);
- const pages=(req:any,res:any,next:()=>void)=>{if(['/overview','/details'].includes(req.url||'')){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><title>Overview</title></head><body><h1>Public overview</h1><canvas></canvas>'+(changingDestination?'<form><input aria-label="Changing quote" id="changing"></form><script>setInterval(()=>document.querySelector("#changing").value=String(Date.now()),10)</script>':'')+'</body></html>');}else next();};
+ const pages=(req:any,res:any,next:()=>void)=>{if(['/overview','/details'].includes(req.url||'')){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><title>Overview</title></head><body><h1>Public overview</h1><canvas></canvas>'+(destinationNavigation?'<nav aria-label="Destination navigation"><details><summary>Destination menu</summary><a href="/details">Destination details</a></details></nav>':'')+(changingDestination?'<form><input aria-label="Changing quote" id="changing"></form><script>setInterval(()=>document.querySelector("#changing").value=String(Date.now()),10)</script>':'')+'</body></html>');}else next();};
  const server=await createServer({configFile:false,root:site,plugins:[{name:'fixture-public-pages',configureServer(server){server.middlewares.use(pages);}}],server:{host:'127.0.0.1',port:0},logLevel:'silent'});await server.listen();
  const url=server.resolvedUrls!.local[0],host=new BrowserEngine({persistence:new SqliteStore(join(dir,'engine'))});
  return {url,host,close:async()=>{await host.close();await server.close();rmSync(dir,{recursive:true,force:true});}};
 }
 const contract=(url:string)=>({version:1 as const,mode:'exhaustive' as const,programNavigation:'public-navigation-v1' as const,roots:[{url}],routes:[{origin:new URL(url).origin,pathnamePattern:'^/(overview|details)$',scope:{}}],exclusions:[],allowedOperations:['click','hover','focus','history']});
+
+it('prepares and explores ready destination navigation before returning to retained source work on a changing page',async()=>{
+ const f=await delegatedFixture(true,false,true,true,false,true),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+ try{
+  const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:100,observeTimeoutMs:1000},budget:{rounds:1,actions:10,durationMs:25000}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);
+  const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  const menu=attempts.findIndex(a=>a.action.label==='Destination menu'&&a.status==='succeeded'),returned=attempts.findIndex(a=>a.action.kind==='history');
+  expect(menu,JSON.stringify({reason:final.reason,attempts:attempts.map(a=>[a.action.label,a.status,a.reason])})).toBeGreaterThan(0);
+  if(returned>=0)expect(menu).toBeLessThan(returned);
+  const before=f.host.observation(attempts[menu].sessionId,attempts[menu].beforeId);expect(before.url).toBe(new URL('/overview',f.url).href);
+  expect(before.stable).toBe(false);expect(before.controls.find(c=>c.name==='Changing quote')?.readiness?.status).toBe('unstable');
+  expect(attempts.some(a=>a.action.label==='Destination details'&&a.status==='succeeded')).toBe(true);
+  expect(store.events(task.id).some(e=>e.type==='navigation.local_opportunity')).toBe(true);
+  expect(store.decisions(task.id)).toEqual([]);expect(final.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
 
 it('continues the original recorded entry after native source return before a fresh alternative trigger or background action',async()=>{
  const f=await delegatedFixture(true,false,true,true),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
