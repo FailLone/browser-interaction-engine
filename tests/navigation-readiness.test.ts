@@ -58,3 +58,29 @@ it.each(['external-reference','owner-attribute','handler','replacement','native-
   expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(0);
  }finally{await f.close();}
 });
+
+it('bounds a disjoint missing reference without clearing target, ambiguous, ancestry or form dependencies',async()=>{
+ const f=await fixture({independentUnknown:true});try{
+  const {progressDependencies}=await import('../packages/adapter-playwright/src/progress-dependencies.js');
+  const o=f.engine.observation(f.sessionId),action=f.engine.actions(f.sessionId).find(a=>a.label==='Open local menu')!,target=o.controls.find(c=>c.localId===action.localId)!;
+  const neighbor=o.controls.find(c=>c.name==='Unresolved neighbor')!;
+  const unknown={...neighbor,classificationBinding:{...(neighbor.classificationBinding||{}),references:[{id:'missing-panel',missing:true}]}} as typeof neighbor;
+  expect(progressDependencies(o,action,[unknown]).allowed).toBe(true);
+  const noScope=structuredClone(o);delete noScope.navigationScopes;
+  expect(progressDependencies(noScope,action,[unknown]).allowed).toBe(false);
+  const legacy=structuredClone(o);for(const scope of legacy.navigationScopes!)delete (scope as Partial<typeof scope>).blockedControlIds;
+  expect(progressDependencies(legacy,action,[unknown]).allowed).toBe(false);
+  const ambiguous=structuredClone(unknown);ambiguous.classificationBinding!.references![0]={id:'duplicate',ambiguous:true};
+  expect(progressDependencies(o,action,[ambiguous]).allowed).toBe(false);
+  const cross=structuredClone(unknown);cross.classificationBinding!.references![0]={id:'open',targetInstanceId:target.instanceId};
+  expect(progressDependencies(o,action,[cross]).allowed).toBe(false);
+  const missingAncestry=structuredClone(unknown);delete missingAncestry.domAncestry;
+  expect(progressDependencies(o,action,[missingAncestry]).allowed).toBe(false);
+  const targetMissing=structuredClone(o),changed=targetMissing.controls.find(c=>c.localId===action.localId)!;
+  changed.classificationBinding={...(changed.classificationBinding||{}),references:[{id:'missing-target-dependency',missing:true}]} as typeof changed.classificationBinding;
+  expect(progressDependencies(targetMissing,action,[unknown]).allowed).toBe(false);
+  const shared=structuredClone(o),sharedTarget=shared.controls.find(c=>c.localId===action.localId)!;
+  sharedTarget.formOwner={instanceId:'form',key:'form',action:o.url,method:'get',target:'',isolated:false};
+  expect(progressDependencies(shared,action,[{...unknown,formOwner:sharedTarget.formOwner}]).allowed).toBe(false);
+ }finally{await f.close();}
+});

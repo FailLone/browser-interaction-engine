@@ -78,7 +78,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // instances without asking a model to accept that scope again. This changes
   // grouping only: classification, operation and probe risk keep their policy.
   const programNavigation=!!task.coverageContract?.programNavigation;
-  const partialNavigation=programNavigation&&!o.stable&&o.gaps.some(g=>g.code==='PARTIAL_INTERACTION_READY')
+  const partialNavigation=programNavigation&&!o.stable
     ?o.navigationScopes?.filter(s=>s.complete&&s.binding&&s.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&!c.readiness)))
       .sort((a,b)=>b.controlIds.length-a.controlIds.length)[0]:undefined;
   const partialIds=partialNavigation&&new Set(partialNavigation.controlIds);

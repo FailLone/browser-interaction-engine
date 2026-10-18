@@ -1,6 +1,7 @@
 import type {ActionCandidate,Control,Observation} from './types.js';
 import {historyTarget} from './navigation.js';
 import {hasReviewedDismissal} from './boundary-exit.js';
+import {navigationScopeFor} from './navigation-readiness.js';
 
 /** Pure structural containment is not an operation prerequisite. Keep this
  * unknown in the coverage ledger; do not classify it or infer its JS behavior.
@@ -38,6 +39,8 @@ export function progressDependencies(o:Observation,action:ActionCandidate,unreso
    return {allowed:!blockers.length,blockers,independent};
  }
  const target=current[0],ancestry=target.domAncestry;
+ const navigationScope=navigationScopeFor(o,[target.localId]);
+ const boundedNavigation=!!navigationScope&&!navigationScope.blockedControlIds.includes(target.localId)&&!target.readiness;
  if(!target.visible||!target.enabled||target.readiness)block('target_not_ready',target.localId);
  if(o.boundaries?.length&&action.boundary?.key!==o.boundaries.at(-1)?.key)block('outside_active_boundary',target.localId);
  if(['click','hover','check'].includes(action.kind)&&target.actionable?.hitTarget!==true)block('target_hit_unproved',target.localId);
@@ -56,9 +59,13 @@ export function progressDependencies(o:Observation,action:ActionCandidate,unreso
    if(action.basis?.status==='supported'&&structuralAncestor(other,target,o)
      &&!target.classificationBinding?.references?.some(ref=>ref.missing||ref.ambiguous||ref.targetInstanceId===other.instanceId)){independent.push(`structural_container:${other.localId}`);continue;}
    const sharedForm=target.formOwner?.instanceId&&target.formOwner.instanceId===other.formOwner?.instanceId;
-   const references=[...(target.classificationBinding?.references||[]),...(other.classificationBinding?.references||[])];
+   const targetReferences=target.classificationBinding?.references||[],references=[...targetReferences,...(other.classificationBinding?.references||[])];
    if(ancestry!.instanceIds.includes(other.instanceId)||ancestors.instanceIds.includes(target.instanceId)||sharedForm
-     ||references.some(ref=>ref.missing||ref.ambiguous||[target.instanceId,other.instanceId].includes(ref.targetInstanceId||'')
+     // A missing reference in a disjoint widget has no current DOM target.
+     // Only a completely captured, ready navigation scope may keep that local
+     // uncertainty from becoming a page-wide dependency. Target references,
+     // ambiguity, actual cross-links, ancestry and shared forms still block.
+     ||references.some(ref=>ref.missing&&(!boundedNavigation||targetReferences.includes(ref))||ref.ambiguous||[target.instanceId,other.instanceId].includes(ref.targetInstanceId||'')
        ||ref.target?.nodes.some(node=>[target.instanceId,other.instanceId].includes(node.instanceId))))block('review_dependency',other.localId);
    else independent.push(other.localId);
  }

@@ -46,7 +46,7 @@ export function collectNavigationScopes(controls:Control[],instance:(el:Element)
 type View=Pick<Observation,'documentId'|'url'|'controls'|'boundaries'|'scroll'|'navigationScopes'|'regionCandidates'|'structuralLists'|'components'>;
 export function navigationScopeFor(o:Pick<Observation,'navigationScopes'|'controls'>,ids:readonly string[]) {
  if(!ids.length)return;
- return o.navigationScopes?.filter(s=>s.complete&&s.binding&&ids.every(id=>s.controlIds.includes(id))
+ return o.navigationScopes?.filter(s=>s.complete&&s.binding&&Array.isArray(s.blockedControlIds)&&ids.every(id=>s.controlIds.includes(id))
   &&s.controlIds.every(id=>o.controls.filter(c=>c.localId===id).length===1)).sort((a,b)=>a.controlIds.length-b.controlIds.length)[0];
 }
 export function navigationScopeProjection(o:View,scope:NavigationScopeSnapshot) {
