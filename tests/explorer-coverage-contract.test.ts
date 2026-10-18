@@ -64,6 +64,51 @@ it('grounds header scope in captured structure without model-selected labels or 
   const unsupported=store.events(task.id).find(e=>e.type==='scope.unsupported')?.data as any;
   expect(unsupported.limitations).toHaveLength(1);expect(unsupported.limitations[0].coverageScope.landmark).toBe('banner');
   expect(result.status).not.toBe('completed');expect(providers.calls.some(c=>c.purpose==='initial-plan')).toBe(false);
+  expect(providers.calls.some(c=>c.purpose==='region-review')).toBe(false);
+  const partitions=store.events(task.id).filter(e=>e.type==='program.review'&&(e.data as any).reason==='contract_region_partition');
+  expect(partitions.length).toBeGreaterThan(0);
+  for(const event of partitions){
+   const data=event.data as any,o=f.host.observation(event.sessionId!,data.sourceObservationId);
+   expect(data).toMatchObject({executionAuthorized:false,details:{groupingOnly:true,coverageGranted:false}});
+   for(const region of data.command.review.regions){
+    expect(region.pageTraversal).toBe(false);
+    for(const id of region.controlIds)expect(o.controls.find(c=>c.localId===id)?.landmark).toBe('banner');
+   }
+  }
+ }finally{await plugin.close();await f.close();}
+});
+
+it('keeps interface-only operation and probe uncertainty after caller-authorized structural grouping',async()=>{
+ const f=await explorerFixture('<div id="unknown" role="button" tabindex="0" onclick="window.changed=true">Unresolved effect</div><button id="ready" type="button" onclick="this.disabled=true">Ready</button><canvas></canvas>');
+ const store=new ExplorerStore(':memory:'),providers=fakeProviders(f.url),decide=providers.jev.decide;
+ providers.jev.decide=async (request,context)=>{
+  if(['control-risk','probe-risk'].includes(request.purpose)&&(request.state as any).material.control.selector==='#unknown'){
+   providers.calls.push(request);return {value:Object.fromEntries(Object.keys(request.checks!).map(key=>[key,.5])),model:'mock-uncertain',confidence:1};
+  }
+  if(request.purpose==='control-classification'){
+   providers.calls.push(request);return {value:'interaction',model:'mock-explicit',confidence:1};
+  }
+  return decide(request,context);
+ };
+ providers.llm.decide=async (request,context)=>{
+  if(request.purpose==='operation-clarification'){
+   providers.calls.push(request);return {value:{choice:'uncertain',evidenceRefs:[],reason:'Effect is not established'},model:'mock-uncertain',confidence:1};
+  }
+  return decide(request,context);
+ };
+ const plugin=new ExplorerPlugin(f.host,store,providers);
+ try{
+  const contract:CoverageContract={version:1,mode:'exhaustive',roots:[{url:f.url}],exclusions:[],allowedOperations:['click','hover','focus']};
+  const task=plugin.create({url:f.url,coverageContract:contract,budget:{rounds:1,actions:5,durationMs:15000},sessionOptions:{headless:true,coveragePolicy:'finite-ui-v1',executionPolicy:'interface-only'}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(providers.calls.some(r=>r.purpose==='region-review')).toBe(false);
+  expect(providers.calls.some(r=>r.purpose==='control-risk')).toBe(true);
+  expect(providers.calls.some(r=>r.purpose==='probe-risk')).toBe(true);
+  expect(attempts.some(a=>a.status==='succeeded'&&a.action.label==='Ready')).toBe(true);
+  expect(attempts.some(a=>a.action.label==='Unresolved effect')).toBe(false);
+  expect(final.plan.some(i=>i.required&&i.scope.label==='Unresolved effect'&&i.reason==='operation_risk_unresolved')).toBe(true);
+  expect(final.plan.some(i=>i.required&&i.reason==='missing_capability:UNSUPPORTED_CANVAS')).toBe(true);
+  expect(final.status).not.toBe('completed');expect(plugin.coverageLedger(task.id).coverageContract).toEqual(contract);
  }finally{await plugin.close();await f.close();}
 });
 

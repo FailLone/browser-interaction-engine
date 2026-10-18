@@ -66,6 +66,11 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const {host,task,observation:o}=c;const sid=o.sessionId;const round=task.rounds.at(-1)!;
   const sessionOptions=host.session?.(sid)?.options;
   const observedUI=!!sessionOptions&&'executionPolicy' in sessionOptions&&sessionOptions.executionPolicy==='observed-ui';
+  // Caller authority already determines membership. Group exact current SDK
+  // instances without asking a model to accept that scope again. This changes
+  // grouping only: classification, operation and probe risk keep their policy.
+  const contractRegions=!!task.coverageContract&&!!c.programApply;
+  const programRegions=observedUI||contractRegions;
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
   const available=host.actions(sid);
   const boundary=o.boundaries?.at(-1),overlay=o.overlays?.find(b=>b.key===boundary?.key);
@@ -176,7 +181,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
     if(c.programApply&&reusableScene&&region.sessionId===sid&&region.observationId===o.id&&region.review) {
       const keys=new Set((region.delta?.canUpdate?region.review.regions:[]).map(r=>r.key)),used=new Set<string>(),selectedKeys=new Set<string>();let traversal=false;
       const reuse=(region.reuseCandidates||[]).filter(candidate=>{
-        if(candidate.businessScope!==businessScope||candidate.pageTraversal&&(!broad||traversal)||candidate.controlIds.some(id=>used.has(id)||!region.unassignedControlIds.includes(id))
+        if(candidate.businessScope!==businessScope||candidate.pageTraversal&&(!broad||traversal)||candidate.controlIds.some(id=>used.has(id)||!region.unassignedControlIds.includes(id)||contractRegions&&!relevantIds.has(id))
           ||!candidate.controlIds.some(id=>relevantIds.has(id))&&!candidate.pageTraversal||!keys.has(candidate.regionKey)&&keys.size>=500)return false;
         if(selectedKeys.has(candidate.regionKey))return false;
         keys.add(candidate.regionKey);selectedKeys.add(candidate.regionKey);candidate.controlIds.forEach(id=>used.add(id));traversal ||= candidate.pageTraversal;return true;
@@ -195,7 +200,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
         ||strength[b.basis]-strength[a.basis]||b.controlIds.length-a.controlIds.length);
       const batch:{candidate:RegionCandidate;controlIds:string[];decision?:Decision}[]=[],reserved=new Set<string>(),overCapacity=new Set<string>();
       const bindingCounts=new Map<string,number>();
-      if(!observedUI&&reusableScene)for(const candidate of region.candidates)if(candidate.reuseBinding){const binding=digest(candidate.reuseBinding);bindingCounts.set(binding,(bindingCounts.get(binding)||0)+1);}
+      if(!programRegions&&reusableScene)for(const candidate of region.candidates)if(candidate.reuseBinding){const binding=digest(candidate.reuseBinding);bindingCounts.set(binding,(bindingCounts.get(binding)||0)+1);}
       // One current observation supplies every deterministic grouping. The SDK
       // validates the whole command and recaptures once; five-item batches only
       // repeated that capture without adding evidence. Its 500-region limit also
@@ -206,14 +211,15 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       const flush=async()=>{
         mark(key);
         // Keep unrelated current regions through the public incremental contract.
-        const command={type:'reviewRegions',review:{observationId:o.id,source:observedUI?'explorer-program':source,evidence:observedUI?[`observation:${o.id}`]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds,decision},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:!focused&&index===0&&!boundary&&region.unassignedPageTraversal,
+        const command={type:'reviewRegions',review:{observationId:o.id,source:programRegions?'explorer-program':source,evidence:programRegions?[`observation:${o.id}`,...(contractRegions?[`coverage-contract:${digest(task.coverageContract)}`,'Current structural grouping only; no business purpose or execution permission']:[])]:batch.flatMap(entry=>entry.decision?evidence(entry.decision):[]),...(incremental?{update:{baseReviewId:region.review!.id}}:{}),regions:[...(incremental?[]:existing),...batch.map(({candidate,controlIds,decision},index)=>({key:`explorer:${candidate.id}`,label:candidate.label,candidateIds:[candidate.id],controlIds,pageTraversal:!focused&&index===0&&!boundary&&region.unassignedPageTraversal&&(!contractRegions||broad),
           ...(decision&&reusableScene&&candidate.reuseBinding&&bindingCounts.get(digest(candidate.reuseBinding))===1?{reuse:{binding:'same-url-context' as const,businessScope}}:{})}))],rejectedCandidateIds:region.review?.rejectedCandidateIds||[]}};
-        if(observedUI)await c.programApply!(command,'observed_region_partition');
+        if(contractRegions)await c.programApply!(command,'contract_region_partition',{coverageContract:task.coverageContract,groupingOnly:true,executionAuthorized:false,coverageGranted:false});
+        else if(observedUI)await c.programApply!(command,'observed_region_partition');
         else await c.apply(batch.flatMap(entry=>entry.decision?[entry.decision]:[]),command);
         return true;
       };
       for(const candidate of candidates) {
-        const controlIds=candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)&&!reserved.has(id));
+        const controlIds=candidate.controlIds.filter(id=>region.unassignedControlIds.includes(id)&&!reserved.has(id)&&(!contractRegions||relevantIds.has(id)));
         if(!controlIds.some(id=>relevantIds.has(id)))continue;
         const regionKey=`explorer:${candidate.id}`;
         if(!partitionKeys.has(regionKey)&&partitionKeys.size>=500){
@@ -223,7 +229,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
           continue;
         }
         partitionKeys.add(regionKey);
-        if(observedUI){batch.push({candidate,controlIds});controlIds.forEach(id=>reserved.add(id));continue;}
+        if(programRegions){batch.push({candidate,controlIds});controlIds.forEach(id=>reserved.add(id));continue;}
         const d=await c.choose('region-review','Should this observed region be an exploration scope for the task? This is grouping, not action permission. Exact structural bindings remain with the host for fresh validation.',{observationId:o.id,goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',candidate:regionEvidence(candidate),controls:region.controls.filter(x=>controlIds.includes(x.localId)),assignedElsewhere:candidate.controlIds.length-controlIds.length},{include:'Recognized coherent exploration region',uncertain:'Cannot decide its role'});
         // A refresh invalidates all prepared region bindings. Submit clear entries
         // first, then ask about this uncertain candidate against the new capture.
@@ -237,7 +243,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
       }
       for(const control of o.controls)if(overCapacity.has(control.localId)&&!reserved.has(control.localId))c.gap('region_partition_capacity',scopeForControl(control,o));
       if(batch.length)return flush();
-      if((observedUI||overCapacity.size)&&candidates.length)mark(key);
+      if((programRegions||overCapacity.size)&&candidates.length)mark(key);
       if(!candidates.length){mark(key);c.gap('region_partition_unavailable',{url:o.url});}
     }
   }
