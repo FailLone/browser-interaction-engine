@@ -198,3 +198,24 @@ test('a search box is tried with a matching term and with one that exposes the e
     expect(summary.inputs.kinds).toEqual({ 'search:structure': 1 });
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);
+
+test('a mode group that only redraws a canvas is sampled once; one that switches content is fully explored', async () => {
+  const html = `<!doctype html><title>Modes</title><main>
+    <div role="tablist" id="range"><div role="tab" aria-selected="true">1h</div><div role="tab" onclick="draw()">1W</div><div role="tab" onclick="draw()">1M</div><div role="tab" onclick="draw()">1Y</div></div>
+    <canvas id="chart" width="200" height="80"></canvas>
+    <div role="tablist" id="sections"><div role="tab" aria-selected="true" onclick="show('About')">About</div><div role="tab" onclick="show('News')">News</div><div role="tab" onclick="show('Guides')">Guides</div></div>
+    <section id="panel"><button>About action</button></section>
+    <script>function draw(){const g=document.getElementById('chart').getContext('2d');g.fillRect(Math.random()*150,0,20,80);}
+      function show(n){document.getElementById('panel').innerHTML='<button>'+n+' action</button>';}</script></main>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(html); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const summary = await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
+    const labels = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
+    expect(labels.filter(l => ['1W', '1M', '1Y'].includes(l))).toHaveLength(1);
+    expect(labels).toEqual(expect.arrayContaining(['News', 'Guides', 'News action', 'Guides action']));
+    expect(summary.modeGroups.flat).toBe(1);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);

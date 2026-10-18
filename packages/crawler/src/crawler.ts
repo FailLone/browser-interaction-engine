@@ -1,6 +1,6 @@
 import { BrowserAdapter, PlaywrightAdapter, type ActionCandidate, type Control } from '@interaction/adapter-playwright';
 import { MemoryEvidenceStore } from '@interaction/storage-memory';
-import { activeOverlay, controlClass, maskVolatile, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
+import { activeOverlay, controlClass, maskVolatile, modeGroup, modeSiblings, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
 import { findingKey, type Finding, type PageCheck } from './checks.js';
 import type { Judge, Question } from './judge.js';
@@ -64,6 +64,13 @@ export class SampledCrawler {
   /** Executions per action class (state independent): the sampling budget. */
   readonly classCounts = new Map<string, number>();
   readonly failedClasses = new Set<string>();
+  /**
+   * Mode groups (tab rows, radio groups) whose first sampled member revealed
+   * nothing new: the rest only redraw something we cannot inspect (e.g. a canvas chart).
+   */
+  readonly flatModeGroups = new Set<string>();
+  /** Mode groups with at least one member executed. */
+  private readonly sampledModeGroups = new Map<string, boolean>();
   /** Distinct concrete pages entered per page template. */
   readonly templatePages = new Map<string, Set<string>>();
   /** Actions executed per concrete page. */
@@ -156,6 +163,7 @@ export class SampledCrawler {
       inputs: { classes: this.inputKinds.size, kinds: Object.fromEntries([...this.inputKinds.values()].reduce((m, k) => m.set(`${k.kind}:${k.source}`, (m.get(`${k.kind}:${k.source}`) || 0) + 1), new Map<string, number>())),
         filled: actions.filter(a => a.step.kind === 'fill').map(a => ({ label: a.step.label, purpose: a.step.purpose, value: a.step.value?.slice(0, 20), outcome: a.outcome, newState: a.newState })) },
       hovers: actions.filter(a => a.step.kind === 'hover').length,
+      modeGroups: { sampled: this.sampledModeGroups.size, flat: this.flatModeGroups.size },
       goal: this.options.relevance && { plan: this.options.relevance.plan, jevCalls: this.options.relevance.calls, prunedClasses: this.pruned.size },
       lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
         executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0) },
@@ -235,6 +243,7 @@ export class SampledCrawler {
   candidates(s: Snapshot, applyGoal = true): Candidate[] {
     const overlay = activeOverlay(s);
     const scope = overlay ? new Set(overlay.controlIds) : undefined;
+    const siblings = modeSiblings(s);
     const rows: Candidate[] = [];
     for (const c of s.controls) {
       if (!c.visible || (!c.actions.length && !this.confirmed.has(controlClass(c)))) continue;
@@ -249,6 +258,8 @@ export class SampledCrawler {
         const classKey = `${kind}|${controlClass(c)}`;
         if (classKey.includes('|list:')) { const seen = this.listMembers.get(classKey) || new Set(); seen.add(`${pagePath(s.url)}|${c.name}`); this.listMembers.set(classKey, seen); }
         if (kind !== 'fill' && (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey))) continue;
+        const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
+        if (group && this.flatModeGroups.has(group)) continue;
         const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover' || kind === 'fill';
         const tierName = scope ? 'overlay' : where === 'navigate' ? 'navigate' : c.landmark ? 'chrome' : disclosure ? 'in-page-disclosure' : 'body';
         const relevance = applyGoal ? this.options.relevance : undefined;
@@ -266,9 +277,11 @@ export class SampledCrawler {
       }
     }
     // Stable ranking: tier, then reading order (top-left first).
+    // Within a mode group, try an unselected member first: it is the one that can switch content.
+    const isSelected = (r: Candidate) => Number(r.control.selected.length > 0 || r.control.checked === true || r.control.pressed === true);
     // Goal mode ranks by relevance inside the overlay-first rule; otherwise tier then reading order.
     const goal = (r: Candidate) => r.tierName === 'overlay' ? 2 : r.relevance ?? 0.5;
-    return rows.sort((a, b) => (applyGoal && this.options.relevance ? goal(b) - goal(a) : 0) || a.tier - b.tier || a.control.rect.y - b.control.rect.y || a.control.rect.x - b.control.rect.x);
+    return rows.sort((a, b) => (applyGoal && this.options.relevance ? goal(b) - goal(a) : 0) || a.tier - b.tier || isSelected(a) - isSelected(b) || a.control.rect.y - b.control.rect.y || a.control.rect.x - b.control.rect.x);
   }
 
   /** Goal mode: score this state's new action classes in one JEV batch. */
@@ -344,6 +357,14 @@ export class SampledCrawler {
     }
     if (outcome === 'ok') this.path.push(step);
     const isNew = !this.states.has(afterKey);
+    // The first member of a mode group decides whether the rest are worth sampling.
+    const group = c.kind === 'click' ? modeGroup(c.control, before.url, modeSiblings(before)) : undefined;
+    // Clicking the already-selected member proves nothing about the others.
+    const selected = c.control.selected.length > 0 || c.control.checked === true || c.control.pressed === true;
+    if (group && !selected && !this.sampledModeGroups.has(group)) {
+      this.sampledModeGroups.set(group, isNew);
+      if (!isNew && outcome !== 'failed') this.flatModeGroups.add(group);
+    }
     if (isNew && /\|(content|value):/.test(afterKey)) this.states.set(afterKey, { key: afterKey, url: after.url, firstSeenAt: this.now(), controls: after.controls.filter(x => x.visible).length });
     this.emit({ type: 'action', at: this.now(), step, url: before.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, tier: c.tierName, outcome, error, newState: isNew, after: pagePath(after.url) });
     // Left the allowed scope (script navigation, redirect): never repeat this class, return to entry.
