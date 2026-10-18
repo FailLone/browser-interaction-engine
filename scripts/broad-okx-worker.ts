@@ -24,9 +24,9 @@ BrowserAdapter.prototype.execute=async function(action,control){
 };
 const configured=protocol.strategy==='program-only'?{}:providersFromEnv();if(protocol.strategy!=='program-only'&&(!configured.jev||!configured.llm))throw Error('PROVIDERS_REQUIRED');
 const engine=new BrowserEngine({persistence:new SqliteStore(join(dir,'engine'))}),store=new ExplorerStore(join(dir,'explorer.sqlite'));
-const correspondence=engine.explorationTargetCorrespondences.bind(engine);engine.explorationTargetCorrespondences=(sid,input)=>{const began=performance.now(),result=correspondence(sid,input);log('sdk.targetCorrespondences',{...result,elapsedMs:performance.now()-began});return result;};
+
 const save=store.event.bind(store);store.event=e=>{const result=save(e);log('plugin.event',result);if(e.type==='branch.reentry_planned'){const item=store.task(e.taskId).plan.find(i=>i.id===(e.data as any).itemId);log('reentry.pending',{sequence:result.sequence,item});}return result;};
-const host=measuredConsumer(engine,data=>log('sdk.call',data));
+const host=measuredConsumer(engine,(data:any)=>{log('sdk.call',data);if(data.method==='explorationTargetCorrespondences'&&data.result)log('sdk.targetCorrespondences',{...data.result,elapsedMs:data.elapsedMs});});
 const profile=new Profiler();profile.connect();await profile.post('Profiler.enable');await profile.post('Profiler.setSamplingInterval',{interval:1000});await profile.post('Profiler.start');
 const plugin=new ExplorerPlugin(host,store,configured),task=plugin.create({url:protocol.entry,goal:protocol.goal,coverageMode:'all',coverageContract:protocol.coverageContract,budget:{rounds:3,actions:80,durationMs:210000,modelRequests:200},sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:protocol.executionPolicy,headless:true,settleMs:200,observeTimeoutMs:protocol.observeTimeoutMs,actionTimeoutMs:8000,maxActions:80,maxDepth:30}});writeFileSync(join(dir,'task-id'),task.id);log('worker.start',{taskId:task.id,pid:process.pid});
 const sample=costSampler(dir,()=>({captures,planCount:store.taskHeader(task.id).planCount,commands:JSON.parse(readFileSync(budgetPath,'utf8')).actions}));sample('started');const sampling=setInterval(()=>sample('running'),10000);

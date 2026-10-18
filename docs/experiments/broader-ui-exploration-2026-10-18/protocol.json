@@ -1,5 +1,5 @@
 {
-  "version": "broad-public-ui-v2-costs",
+  "version": "broad-public-ui-v3-consumer-measurement",
   "observeTimeoutMs": 10000,
   "strategy": "program-only",
   "coverageContract": {
@@ -66,7 +66,8 @@
     "intervalMs": 10000,
     "storage": "Engine and explorer DB/WAL/SHM, evidence, exports/logs and audit copies separate; startup, 10-second intervals, worker settled, closed. No VACUUM.",
     "memory": "Worker process.memoryUsage and process.resourceUsage maxRSS (KiB), excludes browser processes. Timers can be late during synchronous work.",
-    "timing": "Consumer SDK wall spans and readDOM spans are inclusive and overlap capture/recovery; use interval unions. V8 1ms CPU samples attribute self CPU to source functions, not wall time or browser CPU. No storage-method wrappers that invalidate SDK read fences.",
-    "acceptance": "Unchanged three branches, three original strict chains, two source regions. No scope/budget/success definition change."
+    "timing": "Consumer SDK proxy retains original receiver and methods; no SDK/store method is replaced. Capture/readDOM spans remain inclusive. Use interval unions; never sum nested categories. V8 sampled stack time is not exact CPU or browser CPU.",
+    "acceptance": "Unchanged three branches, three original strict chains, two source regions. No scope/budget/success definition change.",
+    "baseline2": "Preserved full measurement. Inherited direct explorationTargetCorrespondences instrumentation shadowed SDK methods and withdrew built-in batched-read composition. Baseline-3 repeats the delivered product using only consumer proxy measurement. Scope, action guard, budgets and acceptance are unchanged."
   }
 }

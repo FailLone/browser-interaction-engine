@@ -9,3 +9,5 @@ Acceptance requires at least three independently productive branches and three o
 Freeze product/protocol before two final independent broad runs. Recheck original local full cycle and process restart, narrow OKX, related tests and all 251 baseline cases. Report incomplete obligations and failure changes individually. No whole-site exhaustion assertion.
 
 Cost amendment v2: requested during baseline-1, without interrupting it. The same scope/budgets/success criteria apply. Baseline-2 will repeat unchanged delivered product with complete cost instrumentation and the additional checker. Audit works on database copies; originals remain untouched after worker close. See costMeasurement in protocol.json.
+
+Measurement amendment v3: baseline-2 profiling revealed that inherited engine.explorationTargetCorrespondences replacement revokes the built-in composition certificate, causing eager history decoding. Remove this engine override and measure through the consumer proxy only. Repeat delivered packages byte unchanged as baseline-3. Preserve baseline-1/2 and report this harness contribution separately from product gains.
