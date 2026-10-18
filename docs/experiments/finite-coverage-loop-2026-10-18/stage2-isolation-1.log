@@ -1,0 +1,123 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ❯ tests/explorer-plugin.test.ts (95 tests | 1 failed | 90 skipped) 4968ms
+   ↓ reconciles repeated legacy field gaps only after all matching controls are verified
+   ↓ reconciles repeated legacy field gaps only after partial matching controls are verified
+   ↓ reconciles repeated legacy field gaps only after across-rounds matching controls are verified
+   ↓ preserves a disappeared obligation while settling matching field gaps
+   ↓ preserves a missing-source obligation while settling matching field gaps
+   ↓ preserves a unknown obligation while settling matching field gaps
+   ↓ preserves a capability obligation while settling matching field gaps
+   ↓ preserves historical field obligations when all retained action candidates are unavailable
+   ↓ preserves historical field obligations when one retained action candidates are unavailable
+   ↓ does not reuse a completed coarse field scope for a newly revealed semantic field
+   ↓ uses public semantic context to distinguish distinct unnamed-key fields without guessing an occurrence
+   ↓ uses public semantic context to distinguish ambiguous unnamed-key fields without guessing an occurrence
+   ↓ keeps contextual hints separate from stable and list-record keys, values and execution identifiers
+   ↓ matches contextual fields across rounds while keeping actual attempts in their original sessions
+   ↓ provides semantic field evidence with exact scopes so a target plan selects only the intended field
+   ↓ exits a reappearing boundary in same-document even when its close operation succeeded earlier
+   ↓ exits a reappearing boundary in new-document even when its close operation succeeded earlier
+   ↓ does not repeat an ineffective exit while the same boundary remains observed
+   ↓ restores an observed unfinished branch through the host without model ranking
+   ↓ finishes available new controls before replaying an entry and returns for all 2 children
+   ↓ finishes available new controls before replaying an entry and returns for all 3 children
+   ↓ finishes available new controls before replaying an entry and returns for all 5 children
+   ↓ does not replay an unchanged missing branch when unrelated work changes the coverage ledger
+   ↓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: current
+   ↓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: longer-path
+   ↓ preserves branch retry limits across restart, unrelated gaps and duplicate evidence rows: legacy-v2
+   ↓ retains host coverage limitations for whole-page without treating other successes as coverage
+   ↓ retains host coverage limitations for targeted without treating other successes as coverage
+   ↓ retains host coverage limitations for after-last-action without treating other successes as coverage
+   ↓ continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (false)
+   ↓ continues untested controls after persisting unsupported-content acceptance without clearing budgets or unknown outcomes (true)
+   ↓ rejects unobserved, critical and unknown-dispatch limitation acceptance atomically
+   ↓ matches repeated records across fresh documents without treating history as a new execution
+   ↓ migrates legacy scope keys using retained original evidence and preserves unresolved unmatched scopes
+   ↓ does not arbitrarily execute colliding semantic record scopes
+   ↓ explores real browser actions with an independent ledger and leaves engine mode manual
+   ↓ scopes ungrouped candidates and guards application commands while a model is pending
+   ↓ uses only public host APIs and keeps the SDK independent of the optional explorer
+   ↓ continues remaining scopes in a fresh round without resetting total budget or replaying success
+   ↓ continues after the host time limit at after-action without resetting aggregate usage
+   ↓ continues after the host time limit at dispatch-preflight without resetting aggregate usage
+   ↓ resumes an expired unplanned session without mistaking an empty plan for completion
+   ↓ traverses admissible actions on JEV ranking ties without LLM fallback or out-of-scope execution
+   ↓ does not ask for a follow-up plan merely because the session action budget was reached
+   ↓ retains sampled-out ranges and can explicitly select them for a later round
+   ↓ restores paused tasks and counters from plugin storage without changing historical engine records
+   ↓ records missing service configuration and exposes no key through HTTP
+   ↓ keeps exhausted totals until an explicit budget extension, then resumes a selected gap
+   ↓ leaves absent targets unresolved instead of inferring completion
+   ↓ audits newly revealed controls when the opening action consumes the last action budget
+   ↓ reopens the recorded entry path after an action budget boundary (selected supplement: true)
+   ↓ reopens the recorded entry path after an action budget boundary (selected supplement: false)
+   ↓ explores a nested dialog and verifies return before continuing the parent branch
+   ↓ reviews the active dialog before background controls and resumes background work after exit
+   ↓ reviews an outside exit and verifies its close result before background work
+   ↓ reviews an outside exit and verifies its noop result before background work
+   ↓ reviews an outside exit and verifies its changed result before background work
+   ↓ preserves real parent fields rather than default null/empty fields on a large page
+   ↓ never replays an unknown dispatched outcome after restart
+   ↓ retries a required interface exit after a real browser restart without resetting history or totals
+   × isolates an unknown hyperlink without replaying it, including a host time limit: false 2002ms
+     → expected 3 to be 2 // Object.is equality
+   ✓ isolates an unknown hyperlink without replaying it, including a host time limit: true  1543ms
+   ✓ keeps dirty unknown hyperlink outcomes blocked  469ms
+   ✓ keeps executing unknown hyperlink outcomes blocked  484ms
+   ✓ keeps unfinished unknown hyperlink outcomes blocked  469ms
+   ↓ keeps same-name ambiguous targets unresolved without selecting an arbitrary occurrence
+   ↓ revalidates changed dispatch bindings instead of treating old success as the new case
+   ↓ grounds plans in accessible action names and records current members when retaining scopes
+   ↓ retries initial planning after a provider timeout without turning the error into an execution scope
+   ↓ retains all in-scope members with a program decision when sampling is not authorized
+   ↓ retains multiple scopes atomically and retries a stale batch without marking members executed
+   ↓ keeps JEV sampling and action choices while omitting the historical ledger from their prompts
+   ↓ does not grant an operation on ambiguous external-effect evidence, even if LLM would approve
+   ↓ preserves configuration, history and total counters while starting a fresh session for old routing rules
+   ↓ finishes the exact settings flow without recovery or touching unrelated controls (named select: true)
+   ↓ finishes the exact settings flow without recovery or touching unrelated controls (named select: false)
+   ↓ restores legacy authority from the original plan, never from a page gap or derived outside target
+   ↓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM (undefined)
+   ↓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM ()
+   ↓ defaults an omitted or blank task to program-owned exhaustive coverage without LLM (   )
+   ↓ uses JEV alone to recognize a written exhaustive task and discovers controls absent at startup
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'targeted', confidence: 1 })
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'uncertain', confidence: 1 })
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'exhaustive', confidence: 0.4 })
+   ↓ generates a typed target plan when JEV cannot establish unrestricted exhaustion ({ value: 'unsupported', confidence: 0.4 })
+   ↓ understands structured exhaustive intent with quoted exclusions without letting the model enumerate the root
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'exhaustive', boundary: 'current-page', exclusions: [], items: [] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'exhaustive', boundary: 'current-page', exclusions: [ { scope: {}, instruction: '穷尽当前页面' } ] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'exhaustive', boundary: 'current-page', exclusions: [ { scope: { label: 'Beta' }, instruction: 'made up exclusion' } ] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ mode: 'targeted', items: [] })
+   ↓ rejects ambiguous or ungrounded structured intent before executing ({ items: [] })
+   ↓ halts an unsupported JEV classification without LLM or action dispatch
+   ↓ allows clearing a goal to switch to default exhaustion and preserves cumulative usage
+   ↓ preserves a default exhaustive root and its budgets after storage restart
+   ↓ does not release an ordinary idle session when starting a new default task
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/explorer-plugin.test.ts > isolates an unknown hyperlink without replaying it, including a host time limit: false
+AssertionError: expected 3 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ tests/explorer-plugin.test.ts:483:56
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed | 90 skipped (95)
+   Start at  09:25:15
+   Duration  6.53s (transform 807ms, setup 0ms, collect 1.42s, tests 4.97s, environment 0ms, prepare 35ms)
+

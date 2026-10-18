@@ -73,3 +73,18 @@ it('continues another native task after a session limit while retaining the canv
   expect(assessments.some(a=>a.independent&&a.retainedLimitationIds.length>0&&a.readyActionIds.length>0)).toBe(true);
  }finally{await plugin.close();await f.close();}
 });
+
+it('establishes distinct current occurrences before yielding, without turning pending identity snapshots into completion sources',async()=>{
+ const f=await explorerFixture('<button id="open" type="button" onclick="document.querySelector(\'#fields\').hidden=false;this.disabled=true">Open fields</button><button id="other" type="button" onclick="this.disabled=true">Independent</button><div id="fields" hidden><label>Reference<input></label><label>Reference<input></label></div><canvas></canvas>');
+ const store=new ExplorerStore(':memory:'),providers=fakeProviders(f.url),plugin=new ExplorerPlugin(f.host,store,providers);
+ try{
+  const task=plugin.create({url:f.url,goal:'All controls',budget:{rounds:1,actions:8,durationMs:20000},sessionOptions:{coveragePolicy:'finite-ui-v1',headless:true}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const result=store.task(task.id),ledger=plugin.coverageLedger(task.id);
+  const fields=ledger.finite.obligations.filter(i=>i.scope.label==='Reference'&&i.scope.kind==='fill');
+  expect(fields).toHaveLength(2);expect(fields.every(i=>i.verified)).toBe(true);
+  expect(result.plan.some(i=>i.required&&i.reason==='identity_unresolved'&&i.status!=='succeeded')).toBe(false);
+  expect(store.events(task.id).filter(e=>e.type==='program.review'&&(e.data as any).reason==='independent_current_occurrence')).toHaveLength(2);
+  expect(result.status).not.toBe('completed');
+  expect(result.plan.some(i=>i.required&&i.reason==='missing_capability:UNSUPPORTED_CANVAS'&&i.status!=='succeeded')).toBe(true);
+ }finally{await plugin.close();await f.close();}
+});

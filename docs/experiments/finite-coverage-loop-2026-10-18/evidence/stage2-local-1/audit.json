@@ -1,0 +1,482 @@
+{
+  "coverage": {
+    "policy": "finite-ui-v1",
+    "finite": {
+      "total": 39,
+      "verified": 35,
+      "remaining": [
+        "9420b7f2-1845-471b-83e3-1da003b98680",
+        "dbe68351-30a4-4b27-bf71-9104efde7f80",
+        "bbf3923f-5f4f-4a90-a542-fa3e94a84139",
+        "999c13eb-78e1-42ed-aa10-b3620bcff52e"
+      ]
+    },
+    "conditionCombinations": {
+      "count": 25,
+      "exhaustive": false
+    },
+    "unknownDependencies": {
+      "status": "unproved",
+      "categories": [
+        "unobserved JavaScript dependencies",
+        "unobserved condition combinations",
+        "unbounded free-input values",
+        "unassessed business effects"
+      ]
+    },
+    "ledger": "coverage-ledger.json"
+  },
+  "auditorSha256": "6f1d6cf2e56306e166c3ed87988a04ddda52fb0158fc772a7a58940bf15fe367",
+  "passed": false,
+  "taskId": "adbc3bb7-78fc-4118-be8d-a7e5e784b90b",
+  "status": "budget_exhausted",
+  "reason": "ROUND_BUDGET_EXHAUSTED",
+  "elapsedMs": 65644,
+  "actions": 42,
+  "protocolMissing": [],
+  "covered": [
+    "pair:BTC/USDT",
+    "pair:ETH/USDT",
+    "price:1",
+    "amount:1",
+    "post-only:true",
+    "settings:GTC",
+    "settings:Done",
+    "mode:Limit",
+    "submit",
+    "rebuild",
+    "settings:IOC",
+    "unit:USDT",
+    "unit:Base asset",
+    "mode:Market",
+    "duplicate:-1",
+    "quick-market",
+    "reference:0:sample",
+    "reference:1:sample",
+    "reset",
+    "background:true",
+    "background:false",
+    "post-only:false",
+    "duplicate:open",
+    "duplicate:close"
+  ],
+  "restart": {
+    "occurred": true,
+    "continuedOriginalPendingItemIds": [
+      "db1cb865-087c-49d9-9055-4156ebff7c3e",
+      "5045e72f-319a-4726-8b80-bd2961801eef",
+      "27b20760-d342-4b22-a037-c936ffefbe0a",
+      "bd851393-6cb1-4880-95ae-2d199f4e15d9",
+      "be428095-1112-4a10-96ae-c79e2fc6de54",
+      "290a2bfc-4a56-42a9-b850-b66a495d314d",
+      "f3290be0-f8d8-453c-9398-369896808f30",
+      "a41b6846-c6b7-4311-9093-5f7715d4d6f5",
+      "08c884d8-1d9b-4e3b-a5a7-59caf0674884",
+      "bebaa15e-978a-45a2-8104-35084ab23ad3",
+      "9dd05da2-cfbe-4c79-a3a8-c0a10ac95c6f",
+      "97d1545f-3c30-4f74-aa55-b32e0c9dd3ba",
+      "45e092d7-e878-4400-a03b-3e454cfe8d79",
+      "0910b8d7-d08e-470c-9486-02563454a373"
+    ],
+    "processes": [
+      58129,
+      58179
+    ],
+    "boundary": "adbc3bb7-78fc-4118-be8d-a7e5e784b90b",
+    "postRestartSuccessfulAttempts": 37
+  },
+  "reentryChains": [
+    {
+      "itemId": "4e39e6e6-662a-4e73-988b-47d02d947ecc",
+      "label": "Time in force",
+      "entryAttemptId": "7f25089e-a05c-4496-b75f-04e9ec275cad",
+      "childAttemptId": "ab66c806-caee-4dbe-ab46-5ba909e0bc3d",
+      "checks": {
+        "originalPendingAtSelection": true,
+        "originalDiscovered": true,
+        "absent": true,
+        "pluginSelected": true,
+        "entryActuallyExecuted": true,
+        "targetCorrespondence": true,
+        "childExecuted": true,
+        "durableCompletion": true,
+        "independentDOM": true
+      },
+      "passed": true,
+      "proof": {
+        "equivalent": true,
+        "reason": "equivalent_observed_target",
+        "source": {
+          "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+          "observationId": "ef818899-43e9-4f29-ba9e-478f91b67e55",
+          "actionId": "ea6533f6-399f-43bc-b77a-8afd15dd5dc1"
+        },
+        "target": {
+          "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+          "observationId": "a21842f6-28db-4fda-aff6-312cd824a96e",
+          "actionId": "cdb1c23e-fc69-437f-9688-f97377232420"
+        },
+        "evidence": [
+          "captured-stable-key",
+          "semantic-ancestor-scope/v1",
+          "One operation sample per encountered control, target constraints, option and declared context",
+          "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+          "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+          "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+          "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+          "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+          "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+          "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+          "observation:ef818899-43e9-4f29-ba9e-478f91b67e55",
+          "observation:a21842f6-28db-4fda-aff6-312cd824a96e"
+        ],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "conditionKey": "d06a3e37b35fb5403a722e64642bf0f6af927bdb1887620687fc3fd170648a8b",
+        "policy": "browser-controls-correspondence-v2"
+      }
+    },
+    {
+      "itemId": "c76b68e0-9801-49b3-af8c-5f53ea7359af",
+      "label": "Market",
+      "entryAttemptId": "eb41e741-0533-4cda-b2c5-82ce8724edf0",
+      "childAttemptId": "0bf5b838-2141-4a34-9ee6-81bd2fc317ce",
+      "checks": {
+        "originalPendingAtSelection": true,
+        "originalDiscovered": true,
+        "absent": true,
+        "pluginSelected": true,
+        "entryActuallyExecuted": true,
+        "targetCorrespondence": true,
+        "childExecuted": true,
+        "durableCompletion": true,
+        "independentDOM": true
+      },
+      "passed": true,
+      "proof": {
+        "equivalent": true,
+        "reason": "equivalent_observed_target",
+        "source": {
+          "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+          "observationId": "dcf52e15-ec1a-46d0-8e80-55533c3e3e43",
+          "actionId": "b9313197-c278-4c64-8cfa-e01b829e5869"
+        },
+        "target": {
+          "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+          "observationId": "1b710915-ca22-4b9b-9b76-8483f740472a",
+          "actionId": "779375d5-2768-4521-a66a-f368c57ac363"
+        },
+        "evidence": [
+          "captured-semantic-context",
+          "semantic-ancestor-scope/v1",
+          "One operation sample per encountered control, target constraints, option and declared context",
+          "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+          "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+          "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+          "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+          "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+          "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+          "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+          "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+          "observation:dcf52e15-ec1a-46d0-8e80-55533c3e3e43",
+          "observation:1b710915-ca22-4b9b-9b76-8483f740472a"
+        ],
+        "invalidatedBy": [
+          "observation-or-review-change",
+          "nonunique-correspondence",
+          "changed-operation-conditions",
+          "changed-declared-context"
+        ],
+        "identityAuthorized": false,
+        "replayAuthorized": false,
+        "currentExecution": false,
+        "conditionKey": "7c9abb1e90eda4756fe4b559086366ec39d52df340f842bbee176764bdf45436",
+        "policy": "browser-controls-correspondence-v2"
+      }
+    }
+  ],
+  "completedBeforeRestartPreserved": true,
+  "duplicateCompletedConditionAttempts": [],
+  "necessaryReentryProposals": 2,
+  "executedReentries": 2,
+  "noProgressReentries": 0,
+  "reentryEvidence": [
+    {
+      "taskId": "adbc3bb7-78fc-4118-be8d-a7e5e784b90b",
+      "type": "branch.reentry_planned",
+      "actor": "program",
+      "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+      "observationId": "96cfb6bc-5ee5-450d-b39c-9aa9ca11da66",
+      "data": {
+        "scope": {
+          "url": "http://127.0.0.1:53177/?defects=off",
+          "region": "Order form",
+          "label": "Other settings",
+          "role": "button",
+          "stableKey": "id:settings",
+          "targetBinding": "browser-target-binding:v1:03048711df3c5731f5da0e5e28fc612315a43bce6f298932e99c23b5cd025ce2",
+          "kind": "click"
+        },
+        "itemId": "4e39e6e6-662a-4e73-988b-47d02d947ecc",
+        "target": {
+          "url": "http://127.0.0.1:53177/?defects=off",
+          "region": "Other settings",
+          "label": "Time in force",
+          "role": "combobox",
+          "stableKey": "id:time-in-force",
+          "targetBinding": "browser-target-binding:v1:737986b9d70c6dd37695ffe037ec71ef7a57d7a93defc97c50fd6a210bcc199e",
+          "kind": "select",
+          "value": "IOC"
+        },
+        "route": [
+          {
+            "entry": {
+              "url": "http://127.0.0.1:53177/?defects=off",
+              "region": "Order form",
+              "label": "Other settings",
+              "role": "button",
+              "stableKey": "id:settings",
+              "targetBinding": "browser-target-binding:v1:03048711df3c5731f5da0e5e28fc612315a43bce6f298932e99c23b5cd025ce2",
+              "kind": "click"
+            },
+            "targets": [
+              {
+                "url": "http://127.0.0.1:53177/?defects=off",
+                "label": "Time in force",
+                "role": "combobox",
+                "stableKey": "id:time-in-force"
+              },
+              {
+                "url": "http://127.0.0.1:53177/?defects=off",
+                "label": "Done",
+                "role": "button",
+                "stableKey": "explorer:context:v1:2bfa1f27555941664451f8e51cf1439cad332bf59f8df8eea13ceb9839b24e5e"
+              }
+            ],
+            "evidence": {
+              "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+              "beforeId": "c68248b0-7b44-431b-ad7f-f9d0f7096dcc",
+              "observationId": "76b66dcf-87ad-4ca3-bef6-4c81f4cc3848",
+              "attemptId": "a106720f-fca3-4361-bcb2-5704c40a8c8c"
+            }
+          }
+        ],
+        "reason": "observed_route_to_absent_unfinished_target",
+        "executionAuthorized": false
+      },
+      "at": "2026-10-18T01:22:47.189Z",
+      "sequence": 571
+    },
+    {
+      "taskId": "adbc3bb7-78fc-4118-be8d-a7e5e784b90b",
+      "type": "branch.reentry_planned",
+      "actor": "program",
+      "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+      "observationId": "4bda4245-a8c4-427a-a6f2-c537e981c5bf",
+      "data": {
+        "scope": {
+          "url": "http://127.0.0.1:53177/?defects=off",
+          "region": "Order form",
+          "label": "Order type",
+          "role": "button",
+          "stableKey": "id:order-type",
+          "targetBinding": "browser-target-binding:v1:03048711df3c5731f5da0e5e28fc612315a43bce6f298932e99c23b5cd025ce2",
+          "kind": "click"
+        },
+        "itemId": "c76b68e0-9801-49b3-af8c-5f53ea7359af",
+        "target": {
+          "url": "http://127.0.0.1:53177/?defects=off",
+          "region": "Order types",
+          "label": "Market",
+          "role": "menuitem",
+          "stableKey": "explorer:context:v1:664a0a221b94ec60fff5fd402f2649eaca9fbef48f4d0ac4593d8491c1cc5a99",
+          "targetBinding": "browser-target-binding:v1:34fb57872f03cd766c08b40ee98943ce35da8ba072317bfb7f887d5ee0284c7a",
+          "kind": "click"
+        },
+        "route": [
+          {
+            "entry": {
+              "url": "http://127.0.0.1:53177/?defects=off",
+              "region": "Order form",
+              "label": "Order type",
+              "role": "button",
+              "stableKey": "id:order-type",
+              "targetBinding": "browser-target-binding:v1:03048711df3c5731f5da0e5e28fc612315a43bce6f298932e99c23b5cd025ce2",
+              "kind": "click"
+            },
+            "targets": [
+              {
+                "url": "http://127.0.0.1:53177/?defects=off",
+                "label": "Limit",
+                "role": "menuitem",
+                "stableKey": "explorer:context:v1:cd4b93699a57ec7455c8996b889d8db122adf8fbd658636cab23b585e08c3180"
+              },
+              {
+                "url": "http://127.0.0.1:53177/?defects=off",
+                "label": "Market",
+                "role": "menuitem",
+                "stableKey": "explorer:context:v1:664a0a221b94ec60fff5fd402f2649eaca9fbef48f4d0ac4593d8491c1cc5a99"
+              }
+            ],
+            "evidence": {
+              "sessionId": "6d55affa-5af2-4712-ae0a-50fc715c12ca",
+              "beforeId": "c42e2ab0-75d5-4207-9c8a-46d2917d725f",
+              "observationId": "7114bd2b-1785-445b-b9ea-4f755c5c890d",
+              "attemptId": "0f258bc2-9b25-4401-b2eb-29d64fe86cfa"
+            }
+          }
+        ],
+        "reason": "observed_route_to_absent_unfinished_target",
+        "executionAuthorized": false
+      },
+      "at": "2026-10-18T01:22:52.287Z",
+      "sequence": 712
+    }
+  ],
+  "atomicSuccessCount": 25,
+  "resolvedPlanRows": 35,
+  "durableVerifiedAtomicSuccessCount": 27,
+  "remaining": [
+    {
+      "id": "17430b57-3654-4815-be9d-cd05b4ab0651",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off"
+      },
+      "status": "unresolved",
+      "reason": "program_exhaustive_root"
+    },
+    {
+      "id": "54e7ca86-5716-4cc2-a0f4-8a575532fa66",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:9dea369997354cea2df0eb2bdee95ec5b47b022f9221ab597497a70f31a40109"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "7b106839-b084-47c6-86b5-910c65592bf0",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:9287c8872e18c20e99ee9ae5f09d94de3251fd252563e3ff5feb8639a7c685b0"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "9420b7f2-1845-471b-83e3-1da003b98680",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:9dea369997354cea2df0eb2bdee95ec5b47b022f9221ab597497a70f31a40109",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "dbe68351-30a4-4b27-bf71-9104efde7f80",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:9287c8872e18c20e99ee9ae5f09d94de3251fd252563e3ff5feb8639a7c685b0",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "a972f4d9-cdb4-49d0-aa17-10b3a7085e0f",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:c6104cf1c05224e4a70e808070b5afca6f9be53d6a1faa06ef47872049f923aa"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "f1b5873d-c673-4900-ba0c-ec6a805c9447",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:3628e7894948068500ee839f90ab0e12244a786912b041c18d338a3756d2f57e"
+      },
+      "status": "unresolved",
+      "reason": "identity_unresolved"
+    },
+    {
+      "id": "bbf3923f-5f4f-4a90-a542-fa3e94a84139",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:c6104cf1c05224e4a70e808070b5afca6f9be53d6a1faa06ef47872049f923aa",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "999c13eb-78e1-42ed-aa10-b3620bcff52e",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off",
+        "region": "Test controls",
+        "label": "Reference",
+        "role": "textbox",
+        "stableKey": "explorer:context:v1:047ae4ab738ecefcb5293c963bb7821a73081254a001155ae59b1004b4bf450d",
+        "targetBinding": "browser-target-binding:v1:3628e7894948068500ee839f90ab0e12244a786912b041c18d338a3756d2f57e",
+        "kind": "fill",
+        "value": "sample"
+      },
+      "status": "unresolved",
+      "reason": "operation_not_executed"
+    },
+    {
+      "id": "adf881fe-1b0b-4854-817a-343729d099cf",
+      "scope": {
+        "url": "http://127.0.0.1:53177/?defects=off"
+      },
+      "status": "unresolved",
+      "reason": "checkpoint_unverified"
+    }
+  ],
+  "calls": {
+    "jev": 3,
+    "llm": 2
+  },
+  "failure": "Full original-child correspondence and receipt audit remains required; missing branches or scenarios cannot pass"
+}

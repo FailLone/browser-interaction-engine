@@ -156,6 +156,14 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   };
   for(const focused of priorityIds.size?[true,false]:[false]) {
   const relevantIds=focused?priorityControls:allRelevantIds;
+  // Establish distinct current occurrences before retaining source duties for a
+  // yielded action. This bounded SDK-only step does not merge identities or wait
+  // for semantic interpretation of unrelated controls. Otherwise a pending
+  // identity snapshot can become an immutable source no later receipt can prove.
+  if(observedUI&&c.programApply){
+    const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
+    if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
+  }
   const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&!c.allowIndependentActionYield&&(readClassification().controls.some(item=>item.needsClassification&&allRelevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))
     ||o.controls.some(x=>x.hypothesisId&&allRelevantIds.has(x.localId)&&host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===x.hypothesisId&&h.status==='pending')));
   if(!finiteNeedsReview&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
@@ -240,8 +248,6 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const material=readExploration(),scopes=focused?[]:pendingScopes(false);
   const retained=retainGroups(scopes);if(retained){await retained;return true;}
   if(observedUI){
-    const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
-    if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
     // Exhaust bounded observation supplied by the SDK before asking a model to
     // interpret a weak candidate. This never dispatches an interaction.
     if(!focused&&!boundary){

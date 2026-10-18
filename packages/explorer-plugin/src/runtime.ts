@@ -1924,11 +1924,24 @@ export class ExplorerPlugin {
     const pendingActions=ready.filter(a=>remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&matches(i.scope,a,o)));
     const reentryActions=ready.filter(a=>this.neededEntry(task,round,a,o));
     const independent=pendingActions.length>0||reentryActions.length>0;
-    const unknownOutcome=remaining.some(i=>i.reason==='unknown_action_outcome');
+    const unknownRows=remaining.filter(i=>i.reason==='unknown_action_outcome'),unknownOutcome=unknownRows.length>0;
+    // Only a previously isolated, finished native navigation in another session
+    // may coexist with current independent work. Re-read its original SDK facts;
+    // neither a missing receipt nor a fresh session alone proves isolation.
+    const isolated=new Set((task.unverifiedNavigations||[]).filter(n=>{
+      if(n.evidence.sessionId===o.sessionId||!n.evidence.attemptId)return false;
+      try{const facts=this.host.navigationIsolation(n.evidence.sessionId,n.evidence.attemptId);
+        return facts.canIsolate&&facts.intent?.sourceUrl===n.sourceUrl&&facts.intent.targetUrl===n.targetUrl;
+      }catch{return false;}
+    }).map(n=>`${n.evidence.sessionId}:${n.evidence.attemptId}`));
+    const unisolatedUnknownOutcome=unknownRows.some(item=>{
+      const refs=[...item.evidence,...item.attempts.flatMap(a=>a.evidence?[a.evidence]:[])].filter(ref=>ref.attemptId);
+      return !refs.length||refs.some(ref=>!isolated.has(`${ref.sessionId}:${ref.attemptId}`));
+    });
     this.event(task,'round.progress_assessed',{observationId:o.id,complete:false,retainedLimitationIds:remaining.filter(i=>i.reason.startsWith('missing_capability:')).map(i=>i.id),
-      readyActionIds:pendingActions.map(a=>a.id),reentryActionIds:reentryActions.map(a=>a.id),independent,unknownOutcome,
+      readyActionIds:pendingActions.map(a=>a.id),reentryActionIds:reentryActions.map(a=>a.id),independent,unknownOutcome,unisolatedUnknownOutcome,
       blockers:availability.actions.filter(a=>!a.executable).map(a=>({actionId:a.actionId,blockers:a.blockers})),executionAuthorized:false});
-    if(stalled||unknownOutcome||permanent&&!independent){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.persist(task);return true;}
+    if(stalled||unisolatedUnknownOutcome||permanent&&!independent){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.persist(task);return true;}
     if(hostTimeLimit){const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,remaining:remaining.map(i=>i.id),unknownOutcomesRetained:true,totalBudgetUnchanged:true});this.persist(task);return false;}
     const semanticGaps=remaining.filter(i=>['classification_unresolved','operation_basis_unconfirmed','INPUT_REQUIRED','input_sample_required','target_not_observed'].includes(i.reason));
     if(!semanticGaps.length){this.event(task,'plan.retained',{reason:'known_observation_obligations',remaining:remaining.map(i=>i.id),modelRequired:false});this.persist(task);return false;}
