@@ -130,8 +130,17 @@ export function sampledFragmentAction(l:FragmentTraversalLedger,o:Observation,ac
   return false;
 }
 export function preferFragmentCandidate<T extends {actionId?:string}>(l:FragmentTraversalLedger,f:FragmentFrontier,choices:readonly T[]):T|undefined {
+  // Upstream calculateDuplicationFactor belongs to the closest FRAGMENT,
+  // not the number of guarded mappings for this particular action. Partial
+  // host mappings must not give old siblings a larger score than a newly
+  // revealed child in that same fragment.
+  const peersByFragment=new Map<string,Set<string>>();
+  for(const edge of l.mappings){
+    if(edge.revoked||l.revokedCandidates[edge.sourceCandidateId]||l.revokedCandidates[edge.targetCandidateId])continue;
+    const peers=peersByFragment.get(edge.sourceFragmentId)||new Set<string>();peers.add(edge.targetFragmentId);peersByFragment.set(edge.sourceFragmentId,peers);
+  }
   const candidates=choices.map(choice=>{const ref=choice.actionId?f.byAction.get(choice.actionId):undefined,c=ref?candidate(l,ref.candidateId):undefined;
-    const peers=ref?new Set(l.mappings.filter(e=>!e.revoked&&e.sourceCandidateId===ref.candidateId).map(e=>e.targetFragmentId)).size:0;
+    const peers=ref?peersByFragment.get(ref.fragmentId)?.size||0:0;
     return {choice,access:c?.access||emptyFragmentAccess(),factor:fragmentDuplicationFactor(0,peers)};});
   return bestFragmentCandidate(candidates)?.choice;
 }
@@ -145,7 +154,7 @@ export function fragmentStateOrder(l:FragmentTraversalLedger,o:Observation){
     const reachable=!!entry&&entry.method==='GET'&&nav?.browserSessionId===o.navigation?.browserSessionId
       &&o.navigation.entries.some(e=>e.id===entry.id&&e.url===entry.url&&e.method==='GET')&&s.context===digest(o.context);
     return {stateId:s.id,url:s.url,source:s.source,fresh:candidates.filter(c=>!fragmentWasExplored(c.access)).length,
-      influence:candidates.reduce((sum,c)=>sum+Math.max(0,fragmentCandidateInfluence(c.access)),0),reachable,cost:reachable?1:undefined};
+      influence:candidates.reduce((sum,c)=>sum+fragmentCandidateInfluence(c.access),0),reachable,cost:reachable?1:undefined};
   });
   const order:typeof rows=[];let rest=[...rows];for(let best=bestFragmentState(rest);best;best=bestFragmentState(rest)){order.push(best);rest=rest.filter(r=>r!==best);}
   return {order,deferred:rest};

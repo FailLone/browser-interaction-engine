@@ -1498,7 +1498,7 @@ export class ExplorerPlugin {
     };
     // Finish the selected recovered child before considering another state.
     // Its current target was just projected; reservation changes the selection
-    // to current, so this exception never resets or renews the ordinary quota.
+    // to current, so the continuation lasts only for that original child.
     const arrivedChoice=arrivedTarget&&local.find(choice=>choice.itemId===arrived&&choice.actionId===arrivedTarget.currentActionId);
     // A return can reach the source page without reopening its transient child.
     // Continue the selected child's already verified entry before a new batch.
@@ -1543,7 +1543,7 @@ export class ExplorerPlugin {
       returnEvaluation:recovery?'candidate_route_available':beforeRecovery?.needsRecovery?'no_selected_return_route':'current_work_preferred',coverageGranted:false});
     const selection=fragmentDecision.selection,selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
-    const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
+    const schedulingBefore={cursor:schedule.cursor,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
     if(selection?.kind!=='recovery'&&selection?.kind!=='inspect')recovery=undefined;
     this.persist(task);
