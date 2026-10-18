@@ -40,3 +40,5 @@
 原 251 项首轮为 204 通过/47 失败，旧 45 个失败名称全部保留，另外两个是历史字段候选缺失与重复名称退出实例用例。两个新增失败各自在独立复测通过，见 regressions-1/2 日志。首次回归与另一套真实浏览器回归并行，不能仅凭复测就排除时序问题；正在串行重跑完整 251 项，原失败记录保留。
 
 收到人类的新 FRAGGEN 研究方向及独立研究任务通知后，本实现只作为调度基础和对照版本。没有实现完整片段对应/访问传播/剪枝链，不宣称已经移植 FRAGGEN。后续依据研究包核查移植边界、依赖和许可证后再修改，必要路径重放与探索去重仍分开。
+
+串行 251 项为205通过/46失败；唯一新增失败在完整退出用例中稳定复现。原始状态证据显示 stable=false、PARTIAL_BOUNDARY_EXIT_READY，SDK因 observation-completeness unknown 正确拒绝整体 checkpoint 恢复。修复不是放宽到达判断，而是只允许 finite-ui-v1 使用局部退出提前结束观察；旧整页模式继续等待父页面稳定。修复后 reviewed-boundary-exit12/program-navigation20/native-navigation9 共41项全部通过，两个类型检查通过（finite-exit-isolation-1 / finite-exit-types-1）。完整251项仍需在最终实现后复验；首轮和第二轮失败均保留。

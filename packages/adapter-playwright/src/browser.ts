@@ -669,7 +669,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const navigationReady=(view:NonNullable<typeof dom>)=>!!pendingNavigation&&sameWindow&&!!documentWindow&&documentWindow.samples>=2
       &&documentWindow.key===JSON.stringify([view.documentId,view.url])&&sampledAt-documentWindow.since>=this.options.settleMs
       &&(view.documentId!==pending!.before.documentId||sameHTTPDestination(pendingNavigation!.targetUrl,view.url))&&view.url!==pending!.before.url&&!view.gaps.some(g=>g.critical);
-    const exitReady=(view:NonNullable<typeof dom>)=>!!pending&&!!exitWindow&&exitWindow.samples>=2&&sampledAt-exitWindow.since>=this.options.settleMs
+    // A partial exit receipt belongs to finite scoped exploration. Legacy
+    // checkpoint recovery still needs the complete parent observation to settle.
+    const exitReady=(view:NonNullable<typeof dom>)=>this.options.coveragePolicy==='finite-ui-v1'&&!!pending&&!!exitWindow&&exitWindow.samples>=2&&sampledAt-exitWindow.since>=this.options.settleMs
       &&boundaryExitTransition(pending.action,pending.before,view);
     const partialSufficient = (view: NonNullable<typeof dom>) => {
       const ready = readyDependencies(view);
