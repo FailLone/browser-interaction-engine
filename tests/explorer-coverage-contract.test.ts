@@ -92,7 +92,7 @@ it('keeps interface-only operation and probe uncertainty after caller-authorized
  };
  providers.llm.decide=async (request,context)=>{
   if(request.purpose==='operation-clarification'){
-   providers.calls.push(request);return {value:{choice:'uncertain',evidenceRefs:[],reason:'Effect is not established'},model:'mock-uncertain',confidence:1};
+   providers.calls.push(request);return {value:{choice:'uncertain',evidenceRefs:[],reason:'Effect is not established',interfaceOnly:null,externalWrite:null},model:'mock-uncertain',confidence:1};
   }
   return decide(request,context);
  };

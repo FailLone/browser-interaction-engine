@@ -1,6 +1,7 @@
 import type { ActionBasis, ActionEvidence } from '@interaction/core';
 
-// Serialized into the page. No imports or framework internals are used at runtime.
+// Serialized into the page without imported runtime helpers. Event metadata is
+// read through own data descriptors without invoking its handlers or accessors.
 export function collectActionEvidence(el: Element) {
   const actionBasis: Record<string, ActionBasis> = {};
   const interactionHints: ActionEvidence[] = [];
@@ -56,5 +57,22 @@ export function collectActionEvidence(el: Element) {
     interactionHints.push(hint);
     if (!actionBasis.click && !Object.keys(actionBasis).length) actionBasis.click = { status: 'tentative', evidence: [hint] };
   }
+  // React delegates native listeners to a root, but attaches current event props
+  // to their actual DOM target. These are untrusted operation hints, not evidence
+  // of what the function does. Do not borrow a child's/ancestor's props, invoke
+  // getters, inspect closures or infer that other listeners are absent.
+  const propsKeys=Object.getOwnPropertyNames(el).filter(key=>key.startsWith('__reactProps$'));
+  if(propsKeys.length===1){
+    const props=Object.getOwnPropertyDescriptor(el,propsKeys[0])?.value;
+    if(props&&typeof props==='object'){
+      const events:Record<string,string|undefined>={onClick:'click',onMouseEnter:'hover',onMouseOver:'hover',onPointerEnter:'hover',onPointerOver:'hover',onMouseLeave:undefined,onPointerLeave:undefined,onFocus:undefined,onBlur:undefined,onKeyDown:undefined,onInput:undefined,onChange:undefined};
+      for(const [eventProperty,kind] of Object.entries(events))if(typeof Object.getOwnPropertyDescriptor(props,eventProperty)?.value==='function'){
+        const hint:ActionEvidence={source:'runtime-metadata',rule:'react-event-prop/v1',facts:{eventProperty,binding:'own-data-property',purpose:'unknown',otherListeners:'not-enumerated'}};
+        interactionHints.push(hint);
+        if(kind&&!actionBasis[kind])actionBasis[kind]={status:'tentative',evidence:[hint]};
+        else if(kind&&actionBasis[kind].status==='tentative')actionBasis[kind].evidence.push(hint);
+      }
+    }
+  }else if(propsKeys.length>1)interactionHints.push({source:'runtime-metadata',rule:'ambiguous-react-event-props/v1',facts:{count:propsKeys.length,purpose:'unknown'}});
   return { actions: Object.keys(actionBasis), actionBasis, interactionHints };
 }

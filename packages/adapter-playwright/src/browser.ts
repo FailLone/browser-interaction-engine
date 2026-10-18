@@ -49,7 +49,7 @@ type DOMSnapshot = {
 type OwnerDependencyCollector = (controls: Control[], elements: Element[], instance: (el: Element) => string,
   documentId: string, priorityLocalIds: string[]) => Observation['ownerDependencies'];
 
-// Runs in the page without framework knowledge or DOM mutation.
+// Runs in the page without DOM mutation. Event metadata remains bounded hints.
 function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: typeof collectActionEvidence, identityCollector: typeof collectIdentityContexts, popupCollector: typeof collectPopupRelations, componentCollector: typeof collectComponents, scrollCollector: typeof collectScrollContainers, exitCollector: typeof collectBoundaryExits, ownerCollector: OwnerDependencyCollector | undefined, candidateCollector: typeof collectRegionCandidates | undefined, listCollector: typeof discoverStructuralLists | undefined, listDescription: typeof describeStructuralLists | undefined, detailCollector?: typeof collectEvidence, detailOptions?: EvidenceOptions, liveCollector?: typeof collectLiveContent, liveEpoch = 0, scanPlan?: DiscoveryScanPlan) {
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
@@ -439,7 +439,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el),coverageScope:coverageScope(el) });
   for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector,coverageScope:coverageScope(all[controls.indexOf(c)]) });
   if (firstOmitted) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', selector: selector(firstOmitted), reference: 'discovery:signal', message: `${discoveryScan.signal.omitted} elements outside the current bounded signal scan; first omission at document index ${firstOmittedIndex}. Semantic selectors are collected separately` });
-  gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
+  gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Complete delegated and addEventListener enumeration is unavailable. Current-element event metadata is only a hint; handler purpose and business effects are unknown. Focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });
   if (bodyText.length > 50000) gaps.push({ code: 'TEXT_TRUNCATED', message: 'Visible text was truncated to 50000 characters' });
   const layers = overlayCollector(controls, regions, roots => {

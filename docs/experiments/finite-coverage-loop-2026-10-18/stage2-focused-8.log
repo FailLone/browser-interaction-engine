@@ -1,0 +1,57 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/explorer-progress-dependencies.test.ts (6 tests) 14997ms
+   ✓ bounds a canvas gap to captured DOM while preserving unknown contents and SDK obstruction checks  630ms
+   ✓ holds an unresolved ancestor, shared form or missing ancestry while allowing a disjoint reviewed native control  530ms
+   ✓ executes an independent DOM task but keeps the canvas obligation and overall coverage incomplete  1955ms
+   ✓ gives a ready action a turn before reviewing every independent unknown, then resumes review  4789ms
+   ✓ continues another native task after a session limit while retaining the canvas completeness blocker  2589ms
+   ✓ establishes distinct current occurrences before yielding, without turning pending identity snapshots into completion sources  4502ms
+ ✓ tests/explorer-coverage-contract.test.ts (8 tests) 11524ms
+   ✓ persists caller roots and exclusions without asking a model to replace the task  2063ms
+   ✓ retains a forbidden operation as required untested coverage while allowing another operation  2333ms
+   ✓ grounds header scope in captured structure without model-selected labels or unrelated page work  2050ms
+   ✓ keeps interface-only operation and probe uncertainty after caller-authorized structural grouping  2631ms
+   ✓ materializes a caller route on real arrival and keeps the original root and exact URL evidence  2442ms
+ ✓ tests/finite-coverage-contract.test.ts (11 tests) 10304ms
+   ✓ keeps finite operation obligations stable across unrelated selectors but retains constraints and target disclosure branches  533ms
+   ✓ binds symmetric controls to distinct document instances, never ordinal or label identity  504ms
+   ✓ allows explicitly scoped local simulation while preserving submission risk and refusing other URLs  1818ms
+   ✓ keeps anonymous native target references stable through sibling deletion, addition and reordering, but not replacement  1511ms
+   ✓ abstracts only native passive readouts and preserves navigation guards, controls, page and boundaries  499ms
+   ✓ does not manufacture an operation from an exact empty handler while retaining opaque or nonempty handlers  485ms
+   ✓ rejects unknown, failed, missing dispatch, wrong-instance and incomplete finite receipts without changing actual outcome  853ms
+   ✓ finite sampling does not turn a revoked reviewed operation into native coverage  1146ms
+   ✓ does not use the finite switch to erase a missing anonymous-target condition witness  860ms
+   ✓ reports sampled obligations separately from observed combinations and unproved dependencies  885ms
+   ✓ persists current classification proof for a newly retained review source before leaving the scene  1209ms
+ ✓ tests/runtime-event-evidence.test.ts (3 tests) 4886ms
+   ✓ captures only unique own event data properties as tentative evidence without invoking handlers or getters  928ms
+   ✓ rejects a stale event target when its own current handler metadata disappears before dispatch  900ms
+   ✓ keeps runtime handler purpose unknown under interface-only exploration while independent work executes  3057ms
+ ✓ tests/action-evidence.test.ts (6 tests) 4738ms
+   ✓ separates native/declared capabilities, weak hints and current actionability  548ms
+   ✓ never automatically clicks the modal text container and preserves its identity  1084ms
+   ✓ never automatically clicks the handler-modal text container and preserves its identity  1087ms
+   ✓ retains tentative operations in events/frontier, skips DFS and allows an explicit non-replayable probe  776ms
+   ✓ revalidates operation evidence when a handler disappears before execution  522ms
+   ✓ accepts an external action judgment with evidence without rewriting the original observation  682ms
+ ✓ tests/explorer-identity-review-progress.test.ts (1 test) 4591ms
+   ✓ counts finite current-occurrence resolution as real review progress under interface-only policy  4590ms
+ ✓ tests/execution-boundary.test.ts (5 tests) 4288ms
+   ✓ enforces the persisted boundary for SDK commands, probes and recovery validation  600ms
+   ✓ applies local capability dependency checks to actual SDK dispatch, without granting ancestor coverage  891ms
+   ✓ checks caller operations during real SDK recovery with a retained canvas (history authorized: true)  1574ms
+   ✓ checks caller operations during real SDK recovery with a retained canvas (history authorized: false)  1221ms
+ ✓ tests/explorer-review-recovery.test.ts (18 tests) 2374ms
+   ✓ keeps an absent target unverified after a real native return rather than granting checkpoint coverage  936ms
+   ✓ public start keeps a denied generic review pending while a later page executes fresh work  1387ms
+ ✓ tests/explorer-target-review.test.ts (13 tests) 21ms
+ ✓ tests/explorer-review-ledger-sources.test.ts (21 tests) 20ms
+
+ Test Files  10 passed (10)
+      Tests  92 passed (92)
+   Start at  10:15:58
+   Duration  63.13s (transform 702ms, setup 0ms, collect 3.99s, tests 57.74s, environment 1ms, prepare 328ms)
+
