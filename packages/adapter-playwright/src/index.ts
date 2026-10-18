@@ -1,3 +1,4 @@
+import {actualLocalReceipt} from './local-operation-receipt.js';
 import {boundaryExitTransition,disclosureObservationReady} from './capture-readiness.js';
 import {browserComponentCorrespondence} from './component-correspondence.js';
 export {browserComponentCorrespondence} from './component-correspondence.js';
@@ -91,6 +92,9 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   private static readonly defaultCorrespondenceCase=PlaywrightAdapter.prototype.correspondenceCase;
   get receiptIdentityScope() {
     return this.correspondenceCase===PlaywrightAdapter.defaultCorrespondenceCase?'captured-operation-controls-v1' as const:undefined;
+  }
+  actualReceiptCase(...args:Parameters<typeof actualLocalReceipt>) {
+    return this.correspondenceCase===PlaywrightAdapter.defaultCorrespondenceCase?actualLocalReceipt(...args):undefined;
   }
   readonly ruleVersion = 'observable-v8';
   validationScope(action: ActionCandidate, observation: Observation) {

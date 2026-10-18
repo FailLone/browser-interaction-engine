@@ -82,10 +82,15 @@ export function navigationScopeFor(o:Pick<Observation,'navigationScopes'|'contro
   &&s.controlIds.every(id=>o.controls.filter(c=>c.localId===id).length===1)).sort((a,b)=>a.controlIds.length-b.controlIds.length)[0];
 }
 export function navigationScopeProjection(o:View,scope:NavigationScopeSnapshot) {
+ return hash(canonical(navigationScopeMaterial(o,scope)));
+}
+/** The bounded material behind the existing preflight projection, retained for
+ * diagnosis of an actual dispatch. It is not a portable identity or coverage key. */
+export function navigationScopeMaterial(o:View,scope:NavigationScopeSnapshot) {
  const ids=new Set(scope.controlIds),controls=o.controls.filter(c=>ids.has(c.localId));
- return hash(canonical({document:o.documentId,url:o.url,boundaries:o.boundaries,scroll:o.scroll,scope,
+ return {document:o.documentId,url:o.url,boundaries:o.boundaries,scroll:o.scroll,scope,
   interaction:interactionProjection({...o,controls}),controls:controls.map(c=>[c.instanceId,c.rect,c.visible,c.enabled,c.editable,c.readOnly,c.actionable,c.value,c.checked,c.pressed,c.selected,c.expanded,c.actionBasis,c.reviewBinding,c.reviewAttributes,c.reviewReuseBinding,c.classificationBinding,c.purposeBinding]),
   regions:o.regionCandidates?.filter(c=>c.controlIds.every(id=>ids.has(id))),
   lists:o.structuralLists?.filter(c=>c.members.some(m=>ids.has(m.localId))||c.traversalLocalIds.some(id=>ids.has(id))),
-  components:o.components?.filter(c=>c.members.some(m=>ids.has(m.localId)))}));
+  components:o.components?.filter(c=>c.members.some(m=>ids.has(m.localId)))};
 }

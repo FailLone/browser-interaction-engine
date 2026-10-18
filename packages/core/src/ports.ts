@@ -204,6 +204,11 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
    * correspondence case must also declare its complete identityConflictScope.
    * Omission preserves the session-wide identity gate and callback ordering. */
   readonly receiptIdentityScope?: 'captured-operation-controls-v1';
+  /** An exact actual-attempt receipt, independent of portable sampling and
+   * retained coverage. An unavailable result is authoritative, not a fallback.
+   * Instance basis must prove complete local dependencies without logical identity. */
+  actualReceiptCase?(action:ActionCandidate,before:O,after:O,attempt:import('./types.js').ActionAttempt,session:Session<S>):
+    {sample:ExplorationCase;identityBasis:'same-document-instance-v1'}|{unavailable:string}|undefined;
   /** Relevant, portable UI preconditions for target arrival, separate from whole-page equality. */
   explorationTargetConditions?(action: ActionCandidate, observation: O): ExplorationCase | undefined;
   /** Current target readiness; a ready sibling never proves this operation ready. */

@@ -233,6 +233,13 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       const scopedIdentity=this.adapter.receiptIdentityScope==='captured-operation-controls-v1';
       if(identityIssue&&!scopedIdentity&&instanceReader?.identityBasis!=='same-document-instance-v1')return unavailable(identityIssue);
       const blocked=this.receiptConditionBlocker(attempt,before,after);if(blocked)return unavailable(blocked);
+      const actual=this.adapter.actualReceiptCase?.(action,before,after,attempt,session);
+      if(actual){
+        if('unavailable' in actual)return unavailable(actual.unavailable);
+        if(identityIssue&&actual.identityBasis!=='same-document-instance-v1')return unavailable(identityIssue);
+        return {...result,conditionVerified:true,status:'document',reason:'actual_local_operation_receipt',policy:actual.sample.policy,conditionKey:actual.sample.key,
+          evidence:[...result.evidence,...actual.sample.evidence]};
+      }
       const portable=operationSample(action,before,(candidate,o)=>this.adapter.correspondenceCase?.(candidate,o,session));
       if(portable){
         // Identity rejection is not portable-sample unavailability. Never use

@@ -111,6 +111,17 @@ export interface OwnerDependencyDispatch {
   graphKey: string; contextKey: string; documentId: string; instanceScope: string;
   browserSessionId: string; url: string; capturedAt: string;
 }
+/** Native final sample for this exact operation only. Material is bounded by
+ * the navigation collector and retained in the shared EvidenceStore. */
+export interface LocalDispatchAudit {
+  version:'browser-local-dispatch-v1'; sessionId:string; beforeId:string; actionId:string; actionKey:string;
+  documentId:string; instanceScope:string; browserSessionId:string; url:string; contextKey:string;
+  targetId:string; targetInstanceId:string; rootId?:string; capturedAt:string;
+  status:'matched'|'rejected'; reason:string; changedParts?:string[];
+  sourceKey?:string; finalKey?:string; sourceArtifact?:string; finalArtifact?:string;
+  nativeNavigation?:{sourceFrameId:string;finalFrameId?:string;finalLoaderId?:string;finalDocumentId?:string;truncated:boolean;
+    events:{kind:'commit'|'same-document';frameId:string;loaderId?:string;url:string;at:number}[]};
+}
 export interface ScrollContainer {
   nodeId: string; selector: string; name: string; root: boolean; boundaryKey?: string;
   left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
@@ -225,6 +236,7 @@ export interface Observation extends CoreObservation<Control> {
   ownerDependencies?: OwnerDependencySnapshot;
   navigationScopes?: NavigationScopeSnapshot[];
   ownerDependencyDispatch?: OwnerDependencyDispatch;
+  localDispatchAudit?: LocalDispatchAudit;
   components?: BrowserComponent[];
   scrollContainers?: ScrollContainer[];
   overlays?: Overlay[];
@@ -235,7 +247,7 @@ export interface Observation extends CoreObservation<Control> {
   discoveryScan?: import('./discovery-scan.js').DiscoverySnapshot;
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
   /** Two complete DOM samples of the committed document; other controls may remain unready. */
-  navigationCapture?:{beforeId:string;actionId:string;sourceDocumentId:string;documentId:string;sourceUrl:string;requestedUrl:string;observedUrl:string;samples:number;settledMs:number}&({version:1}|{version:2;transition:'same-document-url';sourceEntryId:number;entryId:number});
+  navigationCapture?:{finalPositionSample?:true;beforeId:string;actionId:string;sourceDocumentId:string;documentId:string;sourceUrl:string;requestedUrl:string;observedUrl:string;samples:number;settledMs:number}&({version:1}|{version:2;transition:'same-document-url';sourceEntryId:number;entryId:number});
   navigationPositionCapture?:{version:1;documentId:string;url:string;browserSessionId:string;entryId:number;samples:number;settledMs:number};
   /** Same-document opening witnessed; asynchronous children can remain unknown. */
   disclosureCapture?:{version:1;beforeId:string;actionId:string;rootId:string;samples:number;settledMs:number};

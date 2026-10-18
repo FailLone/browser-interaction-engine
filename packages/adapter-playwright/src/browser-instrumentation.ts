@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {EngineError} from '@interaction/core';
 
-export type BrowserCommandName='start'|'execute'|'capture'|'readDOM'|'readHistory'|'waitForCaptureSample'|'waitForHistory'|'screenshot'|'verify-document'|'inventory'|'accessibility'|'context-read'|'input-validation'|'target-validation'|'scroll-traversal'|'scroll-probe'|'reopen'|'close'|'navigation-wait'|'scroll-wait';
+export type BrowserCommandName='start'|'execute'|'capture'|'readDOM'|'readHistory'|'waitForCaptureSample'|'waitForHistory'|'screenshot'|'verify-document'|'inventory'|'accessibility'|'context-read'|'input-validation'|'target-validation'|'scroll-traversal'|'scroll-probe'|'reopen'|'close'|'navigation-wait'|'scroll-wait'|'dispatch-evidence'|'navigation-observation';
 export interface BrowserCommandEvent {
  driverId:string;id:number;command:BrowserCommandName;phase:'before'|'after';at:number;startedAt:number;input:Record<string,unknown>;
  elapsedMs?:number;status?:'returned'|'failed';operationStarted?:boolean;result?:unknown;error?:string;

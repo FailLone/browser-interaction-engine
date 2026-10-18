@@ -1,3 +1,4 @@
+import {localOperationMaterial,localMaterialChanges} from './local-operation-receipt.js';
 import {BrowserCommandInstrumentation,publicBrowserInventory} from './browser-instrumentation.js';
 import {boundaryExitTransition,unresolvedContentScopes,contentBlockedControls,disclosureTransition} from './capture-readiness.js';
 import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
@@ -501,15 +502,44 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   private recorder?: RuntimeRecorder;
   private navigationClient?: CDPSession;
   private navigationSessionId = '';
+  private mainFrameId='';
+  private documentLoaders=new Map<string,{frameId:string;loaderId:string}>();
+  private nativeNavigation?:NonNullable<Observation['localDispatchAudit']>['nativeNavigation'];
+  private recordNativeNavigation(event:NonNullable<NonNullable<Observation['localDispatchAudit']>['nativeNavigation']>['events'][number]) {
+    const trace=this.nativeNavigation;if(!trace||event.frameId!==trace.sourceFrameId)return;
+    if(trace.events.length>=8||event.url.length>8192){trace.truncated=true;return;}
+    trace.events.push(event);
+  }
   private documentMethods = new Map<string, string>();
   private entryMethods = new Map<number, string>();
   private loaderMethods = new Map<string, string>();
   private documentRequests = new Map<string, { loaderId: string; method: string }>();
   private lastDocumentResponse?: { url: string; method: string };
   private discoveryPlan?: DiscoveryScanPlan & { status: 'active' | 'invalidated'; reason?: string };
-  private preparedOwnerDispatch?: { action: ActionCandidate; beforeId: string; graphKey: string; context: Context;
+  private preparedOwnerDispatch?: { action: ActionCandidate; beforeId: string; graphKey?: string; local?: ReturnType<typeof localOperationMaterial>; context: Context;
     documentId: string; instanceScope: string; browserSessionId: string; url: string };
   private ownerDispatch?: Observation['ownerDependencyDispatch'];
+  private localDispatchAudit?: Observation['localDispatchAudit'];
+  private dispatchMaterials = new Map<string,unknown>();
+  private armNativeNavigation(action:ActionCandidate,control:Control) {
+    const audit=this.localDispatchAudit;
+    if(action.kind==='click'&&control.tag==='a'&&audit?.status==='matched'&&this.mainFrameId){
+      // Synchronous: no extra call or observer between final sample and input.
+      this.nativeNavigation=audit.nativeNavigation={sourceFrameId:this.mainFrameId,truncated:false,events:[]};
+    }
+  }
+  private async retainDispatchMaterial() {
+    const audit=this.localDispatchAudit;
+    if(!audit)return;
+    return this.instrumentation.run('dispatch-evidence',{actionId:audit.actionId},async()=>{
+    try {
+      for(const [key,material] of this.dispatchMaterials)await this.evidence.put(`dispatch-local-${key}.json`,{data:new TextEncoder().encode(JSON.stringify(material)),mediaType:'application/json'});
+      if(audit.sourceKey&&this.dispatchMaterials.has(audit.sourceKey))audit.sourceArtifact=`dispatch-local-${audit.sourceKey}.json`;
+      if(audit.finalKey&&this.dispatchMaterials.has(audit.finalKey))audit.finalArtifact=`dispatch-local-${audit.finalKey}.json`;
+    } catch { audit.status='rejected';audit.reason='local_dispatch_storage_failed'; }
+    finally { this.dispatchMaterials.clear(); }
+    },()=>({status:audit.status,reason:audit.reason,sourceArtifact:audit.sourceArtifact,finalArtifact:audit.finalArtifact,changedParts:audit.changedParts}));
+  }
   setDiscoveryScan(plan: DiscoveryScanPlan) { this.discoveryPlan = { ...structuredClone(plan), status: 'active' }; }
   async validateDiscoveryScan(current: Observation) {
     const live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Discovery validation deadline exceeded');
@@ -526,7 +556,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     this.browser = await chromium.launch({ headless: this.options.headless });
     this.context = await this.browser.newContext({ viewport: this.options.viewport, storageState: this.options.storageState as any, acceptDownloads: false });
     this.page = await this.context.newPage();
-    this.navigationSessionId = id(); this.documentMethods.clear(); this.entryMethods.clear(); this.loaderMethods.clear(); this.documentRequests.clear(); this.lastDocumentResponse = undefined;
+    this.navigationSessionId = id(); this.documentMethods.clear(); this.entryMethods.clear(); this.loaderMethods.clear(); this.documentRequests.clear(); this.lastDocumentResponse = undefined;this.mainFrameId='';this.documentLoaders.clear();this.nativeNavigation=undefined;
     this.navigationClient = await this.context.newCDPSession(this.page);
     // A document may replace its URL before the first capture. Bind the HTTP
     // method to its native loader, never infer GET from the rewritten pathname.
@@ -540,6 +570,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         this.documentRequests.delete(event.requestId);
       }
     });
+    this.navigationClient.on('Page.frameNavigated',({frame})=>{
+      if(frame.parentId)return;this.mainFrameId=frame.id;
+      this.recordNativeNavigation({kind:'commit',frameId:frame.id,loaderId:frame.loaderId,url:frame.url+(frame.urlFragment||''),at:Date.now()});
+    });
+    this.navigationClient.on('Page.navigatedWithinDocument',event=>this.recordNativeNavigation({kind:'same-document',frameId:event.frameId,url:event.url,at:Date.now()}));
+    await this.instrumentation.run('navigation-observation',{},()=>this.navigationClient!.send('Page.enable'));
     await this.navigationClient.send('Network.enable');
     this.page.on('response', response => {
       const request = response.request();
@@ -571,6 +607,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const current = history.entries[history.currentIndex];
     if (documentId && current) {
       const { frameTree } = await this.navigationClient.send('Page.getFrameTree'), frame = frameTree.frame;
+      this.mainFrameId=frame.id;
+      if(frame.url+(frame.urlFragment||'')===current.url)this.documentLoaders.set(documentId,{frameId:frame.id,loaderId:frame.loaderId});
       const loaderMethod = this.loaderMethods.get(frame.loaderId);
       if (!this.documentMethods.has(documentId) && loaderMethod && frame.url + (frame.urlFragment || '') === current.url) this.documentMethods.set(documentId, loaderMethod);
       const withoutHash = (url: string) => url.split('#')[0];
@@ -619,14 +657,18 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   async capture(observationId: string, captureContext?: CaptureContext<Observation>) {
     return this.instrumentation.run('capture',{observationId},async()=>{
     // A capture consumes the slot even on failure, mismatch or ordinary observe.
-    const dispatch = this.ownerDispatch; this.ownerDispatch = undefined; this.preparedOwnerDispatch = undefined;
-    return this.captureWithinDeadline(observationId, captureContext, Date.now() + this.options.observeTimeoutMs, dispatch);
+    const dispatch = this.ownerDispatch,localAudit=this.localDispatchAudit; this.localDispatchAudit=undefined; this.ownerDispatch = undefined; this.preparedOwnerDispatch = undefined;
+    try{return await this.captureWithinDeadline(observationId, captureContext, Date.now() + this.options.observeTimeoutMs, dispatch, localAudit);}
+    finally{this.nativeNavigation=undefined;}
 
     },o=>({id:observationId,content:o.contentReadiness,controls:o.controls.filter(c=>c.visible).map(c=>({name:c.name,id:c.localId,readiness:c.readiness})),gaps:o.gaps,controlCount:o.controls.length,visibleCount:o.controls.filter(c=>c.visible).length}));
   }
   private async captureWithinDeadline(observationId: string, captureContext: CaptureContext<Observation> | undefined,
-    deadline: number, dispatch: Observation['ownerDependencyDispatch'], consistencyRetries = 0): ReturnType<InteractionDriver<Observation, SessionOptions>['capture']> {
+    deadline: number, dispatch: Observation['ownerDependencyDispatch'], localAudit: Observation['localDispatchAudit'], consistencyRetries = 0): ReturnType<InteractionDriver<Observation, SessionOptions>['capture']> {
     const dispatched = captureContext?.afterAction;
+    const localDispatchAudit=localAudit&&dispatched&&localAudit.beforeId===dispatched.before.id
+      &&localAudit.sessionId===dispatched.before.sessionId&&localAudit.actionId===dispatched.action.id
+      &&localAudit.actionKey===hash(dispatched.action)?localAudit:undefined;
     const ownerDependencyDispatch = dispatch && dispatched && dispatch.beforeId === dispatched.before.id
       && dispatch.sessionId === dispatched.before.sessionId && dispatch.actionId === dispatched.action.id
       && dispatched.before.ownerDependencies?.inventoryComplete
@@ -807,7 +849,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       &&documentWindow.key===JSON.stringify([dom.documentId,dom.url])&&sampledAt-documentWindow.since>=this.options.settleMs
       &&!gaps.some(g=>g.critical)&&currentEntry?.url===dom.url&&currentEntry.method==='GET'
       ?{version:1,documentId:dom.documentId,url:dom.url,browserSessionId:navigation!.browserSessionId,entryId:currentEntry.id,samples:documentWindow.samples,settledMs:sampledAt-documentWindow.since}:undefined;
-    const navigationCapture:Observation['navigationCapture']=!lastError&&navigationReady(dom)&&currentEntry?.method==='GET'&&currentEntry.url===dom.url
+    let navigationCapture:Observation['navigationCapture']=!lastError&&navigationReady(dom)&&currentEntry?.method==='GET'&&currentEntry.url===dom.url
       &&sourceHistory?.browserSessionId===navigation?.browserSessionId&&sourceHistory?.entries[sourceHistory.currentIndex]?.method==='GET'
       &&(dom.documentId===pending!.before.documentId||currentEntry.id!==sourceHistory.entries[sourceHistory.currentIndex].id)
       ?{...(dom.documentId===pending!.before.documentId?{version:2 as const,transition:'same-document-url' as const,sourceEntryId:sourceHistory.entries[sourceHistory.currentIndex].id,entryId:currentEntry.id}:{version:1 as const}),beforeId:pending!.before.id,actionId:pending!.action.id,sourceDocumentId:pending!.before.documentId,documentId:dom.documentId,sourceUrl:pending!.before.url,requestedUrl:pendingNavigation!.targetUrl,observedUrl:dom.url,samples:documentWindow!.samples,settledMs:sampledAt-documentWindow!.since}:undefined;
@@ -866,17 +908,33 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       catch (error) { evidenceManifest.gaps.push({ code: 'FULL_PAGE_SCREENSHOT_FAILED', message: String(error) }); }
     }
     try {
-      const current = await this.instrumentation.run('verify-document',{},()=>timeout(this.page!.evaluate(() => ({ documentId: (window as any).__interactionEvidenceTracker?.documentId, hasBody: !!document.body })), this.options.observeTimeoutMs, 'Document verification deadline exceeded'));
-      if (current.documentId !== dom.documentId || !current.hasBody) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: 'Document changed or became unavailable between DOM and evidence collection', critical: true }); }
+      const current = await this.instrumentation.run('verify-document',{},()=>timeout(this.page!.evaluate(() => ({ documentId: (window as any).__interactionEvidenceTracker?.documentId, url:location.href, hasBody: !!document.body })), this.options.observeTimeoutMs, 'Document verification deadline exceeded'));
+      if (current.documentId !== dom.documentId || current.url !== dom.url || !current.hasBody) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: 'Document changed or became unavailable between DOM and evidence collection', critical: true }); }
       if (navigation && (historyPosition(navigation).url !== dom.url || canonical(historyPosition(navigation)) !== canonical(historyPosition(await this.readHistory())))) {
         stable = false; gaps.push({ code: 'NAVIGATION_HISTORY_CHANGED', message: 'Browser history changed during evidence collection', critical: true });
+      }
+      // With a zero quiet interval the DOM loop can legitimately finish after
+      // one sample. Its existing final native document/URL verification is a
+      // second position observation; it proves no additional control readiness.
+      const verifiedAt=Date.now();
+      if(!navigationCapture&&pendingNavigation&&pending&&sameWindow&&!lastError&&documentWindow
+        &&documentWindow.key===JSON.stringify([dom.documentId,dom.url])&&documentWindow.samples>=1
+        &&verifiedAt-documentWindow.since>=this.options.settleMs&&!gaps.some(g=>g.critical)
+        &&current.documentId===dom.documentId&&current.url===dom.url&&current.hasBody
+        &&dom.documentId!==pending.before.documentId&&dom.url!==pending.before.url
+        &&sourceHistory?.browserSessionId===navigation?.browserSessionId
+        &&sourceHistory?.entries[sourceHistory.currentIndex]?.method==='GET'
+        &&currentEntry?.method==='GET'&&currentEntry.url===dom.url&&currentEntry.id!==sourceHistory.entries[sourceHistory.currentIndex].id){
+        navigationCapture={version:1,finalPositionSample:true,beforeId:pending.before.id,actionId:pending.action.id,
+          sourceDocumentId:pending.before.documentId,documentId:dom.documentId,sourceUrl:pending.before.url,
+          requestedUrl:pendingNavigation.targetUrl,observedUrl:dom.url,samples:documentWindow.samples+1,settledMs:verifiedAt-documentWindow.since};
       }
     } catch (error) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: String(error), critical: true }); }
     // Native GET destinations can replace their URL after the first DOM window.
     // Re-collect the complete evidence inside the original capture deadline;
     // never replay the input or attach a new history position to the old DOM.
     if (pendingNavigation && Date.now() < deadline && gaps.some(g => ['NAVIGATION_HISTORY_CHANGED', 'OBSERVATION_INTERRUPTED'].includes(g.code))) {
-      return this.captureWithinDeadline(observationId, captureContext, deadline, dispatch, consistencyRetries + 1);
+      return this.captureWithinDeadline(observationId, captureContext, deadline, dispatch, localAudit, consistencyRetries + 1);
     }
     if (consistencyRetries) gaps.push({ code: 'EVIDENCE_CONSISTENCY_RETRIED', message: `Re-collected after ${consistencyRetries} navigation consistency change(s) inside the original capture deadline; the browser action was not repeated` });
     if (this.options.evidence.enabled) {
@@ -892,8 +950,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       } catch (error) { evidenceManifest.gaps.push({ code: 'DETAIL_STORAGE_FAILED', message: String(error) }); if (error instanceof EngineError && error.code === 'EVIDENCE_BUDGET_EXHAUSTED') gaps.push({ code: error.code, message: error.message, critical: true }); }
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
+    if(localDispatchAudit?.nativeNavigation){const loader=this.documentLoaders.get(dom.documentId);
+      Object.assign(localDispatchAudit.nativeNavigation,{finalDocumentId:dom.documentId,finalFrameId:loader?.frameId,finalLoaderId:loader?.loaderId});}
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, ...(contentReadiness?{contentReadiness}:{}), ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, ...(disclosureCapture?{disclosureCapture}:{}), ...(navigationPositionCapture?{navigationPositionCapture}:{}), ...(navigationCapture?{navigationCapture}:{}), ...(boundaryExitCapture?{boundaryExitCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, ...(contentReadiness?{contentReadiness}:{}), ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), ...(localDispatchAudit?{localDispatchAudit}:{}), navigation, ...(disclosureCapture?{disclosureCapture}:{}), ...(navigationPositionCapture?{navigationPositionCapture}:{}), ...(navigationCapture?{navigationCapture}:{}), ...(boundaryExitCapture?{boundaryExitCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   private lastDismissal?: BoundaryExitDispatch & { actionId: string };
   dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
@@ -904,7 +964,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return this.instrumentation.run('execute',{action,control,url:this.page?.url()},async()=>{
     if(this.instrumentation.inventory)await this.inventory('before',action.id);
     try{
-    const prepared = this.preparedOwnerDispatch; this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
+    const prepared = this.preparedOwnerDispatch; this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; this.localDispatchAudit=undefined;this.dispatchMaterials.clear();this.nativeNavigation=undefined;
     this.liveEpoch++;
     const page = this.page!;
     if (action.kind === 'scroll' && action.source === 'scroll-traversal') return this.traversalScroll(action, true);
@@ -946,6 +1006,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     // No witness for multi-stage scroll/dismiss/history or custom dispatch/read
     // implementations. Capture failure only withholds coverage evidence.
     if (action.kind !== 'scroll') this.ownerDispatch = await this.dispatchWitness(prepared, action, control);
+    this.armNativeNavigation(action,control);
     if (action.kind === 'scroll') {
       const delta = typeof action.value === 'object' && action.value !== null ? action.value as { x: number; y: number } : { x: 0, y: Number(action.value) };
       await target.hover(clickOptions);
@@ -967,7 +1028,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     else if (action.kind === 'focus') await target.focus();
     else throw new EngineError('UNSUPPORTED_ACTION', `Unsupported browser action: ${action.kind}`);
 
-    }finally{if(this.instrumentation.inventory)await this.inventory('after',action.id);}
+    }finally{await this.retainDispatchMaterial();if(this.instrumentation.inventory)await this.inventory('after',action.id);}
     });
   }
   async validateInput(control: Control, value: string) {
@@ -1050,7 +1111,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return actions;
   }
   async preflight(current: Observation, action?: ActionCandidate, reviewTargetLocalIds: string[] = [], reuseTargetLocalIds: string[] = [], regionReuseCandidateIds: string[] = [], surroundingTargetLocalIds: string[] = []): Promise<PreflightResult> {
-    this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
+    this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; this.localDispatchAudit=undefined;this.dispatchMaterials.clear();this.nativeNavigation=undefined;
     let live: Awaited<ReturnType<BrowserAdapter['readDOM']>>;
     try { live = await timeout(this.readDOM(false, false), this.options.observeTimeoutMs, 'Preflight deadline exceeded'); }
     catch { return 'stale'; }
@@ -1165,38 +1226,57 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     return 'valid';
   }
   private prepareDispatchWitness(current:Observation,action:ActionCandidate) {
-    if (action.observationId === current.id && current.ownerDependencies?.inventoryComplete
+    if (action.observationId === current.id
       && current.navigation?.browserSessionId === this.navigationSessionId && current.instanceScope && !this.hooks.context && !this.options.contextRules.length) {
-      this.preparedOwnerDispatch = { action: structuredClone(action), beforeId: current.id, graphKey: hash(current.ownerDependencies),
+      this.preparedOwnerDispatch = { action: structuredClone(action), beforeId: current.id,
+        graphKey:current.ownerDependencies?.inventoryComplete?hash(current.ownerDependencies):undefined,
+        local:action.localId?localOperationMaterial(current,action.localId):undefined,
         context: structuredClone(current.context), documentId: current.documentId, instanceScope: current.instanceScope,
         browserSessionId: this.navigationSessionId, url: current.url };
     }
   }
   private async dispatchWitness(prepared: BrowserAdapter['preparedOwnerDispatch'], action: ActionCandidate, control: Control): Promise<Observation['ownerDependencyDispatch']> {
+    const audit:NonNullable<Observation['localDispatchAudit']>=this.localDispatchAudit={version:'browser-local-dispatch-v1',sessionId:action.sessionId,
+      beforeId:action.observationId,actionId:action.id,actionKey:hash(action),documentId:prepared?.documentId||'',instanceScope:prepared?.instanceScope||'',
+      browserSessionId:this.navigationSessionId,url:prepared?.url||'',contextKey:hash(prepared?.context),targetId:control.localId,targetInstanceId:control.instanceId,
+      capturedAt:now(),status:'rejected',reason:'local_source_not_prepared'};
+    if(prepared?.local){audit.rootId=prepared.local.rootId;audit.sourceKey=prepared.local.key;
+      if(prepared.local.key)this.dispatchMaterials.set(prepared.local.key,prepared.local.material);
+      else if(prepared.local.diagnostic){audit.sourceKey=hash(canonical(prepared.local.diagnostic));this.dispatchMaterials.set(audit.sourceKey,prepared.local.diagnostic);}}
+    const reject=(reason:string):undefined=>{audit.reason=reason;return undefined;};
     try {
-      if (!prepared || this.execute !== defaultExecute || this.readDOM !== defaultReadDOM
-        || this.hooks.context || this.options.contextRules.length || action.risk !== 'interface' || action.basis?.status !== 'supported'
-        || action.observationId !== prepared.beforeId || action.sessionId !== prepared.action.sessionId
-        || prepared.browserSessionId !== this.navigationSessionId) return;
-      // Core can supply an input value and lift only the corresponding missing-
-      // input exclusion. All other action facts must still be the prepared ones.
+      if (!prepared)return;
+      if(this.execute !== defaultExecute || this.readDOM !== defaultReadDOM)return reject('local_native_implementation_required');
+      if(this.hooks.context || this.options.contextRules.length)return reject('local_context_not_jointly_sampled');
+      if(action.risk !== 'interface' || action.basis?.status !== 'supported')return reject('local_operation_unassessed');
+      if(action.observationId !== prepared.beforeId || action.sessionId !== prepared.action.sessionId
+        || prepared.browserSessionId !== this.navigationSessionId)return reject('local_source_binding_changed');
       const comparable = { ...action, value: prepared.action.value,
         ...(prepared.action.exclusionReason === 'input_sample_required' ? { excluded: prepared.action.excluded, exclusionReason: prepared.action.exclusionReason } : {}) };
-      if (canonical(comparable) !== canonical(prepared.action)) return;
-      // DOM rules/custom hooks are sampled separately from the owner graph. A
-      // second asynchronous read cannot prove they belonged to its final sample.
+      if (canonical(comparable) !== canonical(prepared.action))return reject('local_action_changed');
       const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([key, value]) => [key, { value, status: 'known', source: 'declared' }]));
-      if (canonical(context) !== canonical(prepared.context) || canonical(action.preconditions.context) !== canonical(prepared.context)) return;
+      if (canonical(context) !== canonical(prepared.context) || canonical(action.preconditions.context) !== canonical(prepared.context))return reject('local_context_changed');
       const live = await timeout(this.readDOM(false, true), this.options.observeTimeoutMs, 'Dispatch evidence deadline exceeded');
-      if (this.execute !== defaultExecute || this.readDOM !== defaultReadDOM
-        || prepared.browserSessionId !== this.navigationSessionId || live.documentId !== prepared.documentId || live.url !== prepared.url
-        || live.gaps.some(g => g.critical) || !live.ownerDependencies?.inventoryComplete || hash(live.ownerDependencies) !== prepared.graphKey
-        || live.controls.filter(c => c.localId === action.localId && c.instanceId === control.instanceId).length !== 1
-        || live.controls.filter(c => c.instanceId === control.instanceId).length !== 1) return;
+      audit.capturedAt=now();
+      const local=localOperationMaterial(live,control.localId);audit.finalKey=local.key;
+      if(local.key)this.dispatchMaterials.set(local.key,local.material);
+      else if(local.diagnostic){audit.finalKey=hash(canonical(local.diagnostic));this.dispatchMaterials.set(audit.finalKey,local.diagnostic);}
+      if(this.execute !== defaultExecute || this.readDOM !== defaultReadDOM)return reject('local_native_implementation_required');
+      if(prepared.browserSessionId !== this.navigationSessionId || live.documentId !== prepared.documentId || live.url !== prepared.url)return reject('local_document_changed');
+      if(live.gaps.some(g => g.critical))return reject('local_final_sample_incomplete');
+      if(live.controls.filter(c => c.localId === action.localId && c.instanceId === control.instanceId).length !== 1
+        || live.controls.filter(c => c.instanceId === control.instanceId).length !== 1)return reject('local_target_instance_changed');
+      if(!prepared.local?.key)reject(prepared.local?.reason||'local_scope_unavailable');
+      else if(!local.key)reject(local.reason);
+      else if(local.rootId!==prepared.local.rootId||local.key!==prepared.local.key){reject('local_dependencies_changed');audit.changedParts=localMaterialChanges(prepared.local.material!,local.material!);}
+      else {audit.status='matched';audit.reason='local_dependencies_matched';}
+      // Preserve the legacy whole-owner witness exactly. The local result is
+      // separate and can only be consumed with this actual operation receipt.
+      if(!live.ownerDependencies?.inventoryComplete||!prepared.graphKey||hash(live.ownerDependencies)!==prepared.graphKey)return;
       return { version: 'browser-owner-dispatch-v1', sessionId: action.sessionId, beforeId: prepared.beforeId, actionId: action.id,
         actionKey: hash(action), graphKey: prepared.graphKey, contextKey: hash(context), documentId: live.documentId,
-        instanceScope: prepared.instanceScope, browserSessionId: prepared.browserSessionId, url: live.url, capturedAt: now() };
-    } catch { return; }
+        instanceScope: prepared.instanceScope, browserSessionId: prepared.browserSessionId, url: live.url, capturedAt: audit.capturedAt };
+    } catch { reject('local_final_sample_failed');return; }
   }
   async validateDismissal(action: ActionCandidate, acceptClosedAfterMove = false) {
     const ref = dismissalReference(action);
@@ -1261,12 +1341,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
   }
   async reopen() {
     return this.instrumentation.run('reopen',{},async()=>{
-    this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
+    this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; this.localDispatchAudit=undefined;this.dispatchMaterials.clear();this.nativeNavigation=undefined;
     const storageState = await this.context!.storageState(); await this.close();
     this.options = { ...this.options, storageState }; await this.start();
     });
   }
-  async close() { return this.instrumentation.run('close',{},async()=>{this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; await this.context?.close().catch(() => {}); await this.browser?.close().catch(() => {}); this.page = undefined;}); }
+  async close() { return this.instrumentation.run('close',{},async()=>{this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; this.localDispatchAudit=undefined;this.dispatchMaterials.clear();this.nativeNavigation=undefined; await this.context?.close().catch(() => {}); await this.browser?.close().catch(() => {}); this.page = undefined;}); }
 }
 
 // Capture implementation authority once. Later prototype replacement or an
