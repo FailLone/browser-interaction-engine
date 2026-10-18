@@ -1,16 +1,16 @@
 {
   "status": "active_not_complete",
-  "productRevision": "0b025cd1aa7e5e1b1750bcc27ec842b55bf0dc61",
+  "productRevision": "0dbfe0d65692cfd41cec41e6f83b6e0752f8af1b",
   "localFrozenConfirmation": {
     "sameSourceHashes": true,
-    "sourceFiles": 492,
+    "sourceFiles": 493,
     "emptyDiffs": true,
     "runs": [
       {
-        "name": "stage2-local-11",
-        "result": "evidence/stage2-local-11/result.json",
+        "name": "stage2-local-13",
+        "result": "evidence/stage2-local-13/result.json",
         "passed": true,
-        "elapsedMs": 47802,
+        "elapsedMs": 52178,
         "commands": 34,
         "branches": 23,
         "finiteVerified": 37,
@@ -31,10 +31,10 @@
         "continuedOriginalPending": 15
       },
       {
-        "name": "stage2-local-12-confirmation",
-        "result": "evidence/stage2-local-12-confirmation/result.json",
+        "name": "stage2-local-14-confirmation",
+        "result": "evidence/stage2-local-14-confirmation/result.json",
         "passed": true,
-        "elapsedMs": 49458,
+        "elapsedMs": 50353,
         "commands": 34,
         "branches": 23,
         "finiteVerified": 37,
@@ -57,25 +57,37 @@
     ]
   },
   "focusedTests": {
-    "passed": 174,
-    "total": 175,
-    "log": "stage2-focused-9.log",
-    "knownFailure": "shares document projections across target keys without changing captured facts",
-    "baselineProof": "stage2-review-projection-baseline.log",
-    "baselineRevision": "87ab6eb",
-    "separatePurposeReuse": {
-      "passed": 11,
-      "total": 11,
-      "log": "stage2-purpose-reuse-1.log"
+    "newQuotaTests": {
+      "total": 17,
+      "passed": 17,
+      "evidence": "evidence/stage2-review-quota/stage2-quota-focused-5.log.gz"
+    },
+    "relatedScopeDependencyRuntimeTests": {
+      "passed": 19,
+      "evidence": "evidence/stage2-review-quota/stage2-quota-focused-2.log.gz",
+      "note": "This intermediate run also contains the first failing persistence fixture; final persistence correction is in focused-5."
+    },
+    "semanticSuite": {
+      "passed": 49,
+      "failed": 8,
+      "baselineRevision": "87ab6eb",
+      "newFailures": [],
+      "evidence": "evidence/stage2-review-quota/summary.json",
+      "sourceCheck": "stage2-quota-baseline-source-check.json"
     }
   },
-  "typecheck": "stage2-types-20.log",
+  "typecheck": {
+    "root": "passed (.data/stage2-types-23.log)",
+    "core": "passed (.data/stage2-types-core-21.log)",
+    "evidence": "evidence/stage2-review-quota/"
+  },
   "broadTests": {
     "tests": 251,
     "passed": 206,
     "failed": 45,
-    "newFailures": 0,
-    "comparison": "stage2-broad-summary-7.json"
+    "newFailures": [],
+    "resolvedFailures": [],
+    "comparison": "stage2-broad-summary-8.json"
   },
   "scopeAuthorization": "stage2-scope-consistency.json",
   "failedRunsPreserved": [
@@ -111,5 +123,12 @@
     "phaseComparison": "stage2-phase-comparison.json",
     "CSSInspection": "evidence/stage2-hover-css-diagnostics",
     "next": "Resolve observation admission contract with an explicit, auditable bounded-probe design; no speculative repeated full OKX evaluation."
+  },
+  "programFirst": {
+    "status": "not_yet_implemented",
+    "method": "Program-first explicit bounded public navigation; model fallback only for concrete unresolved work.",
+    "authorityBoundary": "STAGE-2-PROBE-CONTRACT.md",
+    "baselineCandidates": "stage2-historical-throughput-candidates.json",
+    "quotaFix": "implemented; completed negative review units yield to scheduling and persist before the next unit"
   }
 }
