@@ -14,7 +14,7 @@ import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './p
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
 export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
 export { navigationIntent, type NavigationIntent } from './navigation.js';
-import { historyReturn, observedSourcePosition } from './navigation.js';
+import { historyReturn, observedSourcePosition, navigationIntent } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 import { browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader } from './review-target.js';
 export { browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey } from './review-target.js';
@@ -91,7 +91,12 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
     return action.risk === 'interface' && target ? nativeFormScope(target, action.kind) : undefined;
   }
   actionObservationReady(action: ActionCandidate, before: Observation, after: Observation) {
-    if (!after.gaps.some(g => g.code === 'PARTIAL_INTERACTION_READY')) return true;
+    if (!after.gaps.some(g => ['PARTIAL_INTERACTION_READY','PARTIAL_NATIVE_NAVIGATION_READY'].includes(g.code))) return true;
+    const proof=after.navigationCapture,intent=navigationIntent(action,before),history=after.navigation,entry=history?.entries[history.currentIndex],sourceHistory=before.navigation;
+    if(proof&&intent&&proof.version===1&&proof.beforeId===before.id&&proof.actionId===action.id&&proof.sourceDocumentId===before.documentId
+      &&proof.documentId===after.documentId&&proof.documentId!==before.documentId&&proof.sourceUrl===before.url&&proof.requestedUrl===intent.targetUrl
+      &&proof.observedUrl===after.url&&proof.samples>=2&&proof.settledMs>=0&&!after.gaps.some(g=>g.critical)
+      &&history?.browserSessionId===sourceHistory?.browserSessionId&&entry?.url===after.url&&entry.method==='GET'&&entry.id!==sourceHistory?.entries[sourceHistory.currentIndex]?.id)return true;
     const target = before.controls.find(c => c.localId === action.localId);
     const scope = this.validationScope(action, before);
     return !!target && !!scope && !!after.controls.find(c => c.instanceId === target.instanceId && !c.readiness && nativeFormScope(c, action.kind) === scope);

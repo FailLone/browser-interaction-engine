@@ -209,6 +209,8 @@ export interface Observation extends CoreObservation<Control> {
   structuralLists?: StructuralListCandidate[];
   discoveryScan?: import('./discovery-scan.js').DiscoverySnapshot;
   actionDiscovery?: { version: 'dom-actions-v2'; documentHints: ActionEvidence[] };
+  /** Two complete DOM samples of the committed document; other controls may remain unready. */
+  navigationCapture?:{version:1;beforeId:string;actionId:string;sourceDocumentId:string;documentId:string;sourceUrl:string;requestedUrl:string;observedUrl:string;samples:number;settledMs:number};
   screenshot?: string; gaps: Gap[]; stable: boolean;
   evidence?: BrowserEvidenceManifest;
   stateId: ID; visitId: ID; fingerprint: string; canonical: string; ruleVersion: 'observable-v1' | 'observable-v2' | 'observable-v3' | 'observable-v3-live-v1' | 'observable-v3-live-v2' | 'observable-v4' | 'observable-v5' | 'observable-v6' | 'observable-v7' | 'observable-v8';

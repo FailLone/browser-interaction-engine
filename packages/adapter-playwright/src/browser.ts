@@ -1,4 +1,5 @@
 import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
+import {navigationIntent} from './navigation.js';
 import {executionURLAllowed} from './execution-boundary.js';
 import { collectScrollContainers, traversalScrollInPage, traversalScrollSchema } from './scroll-containers.js';
 import { chromium, type Browser, type BrowserContext, type Page, type CDPSession } from 'playwright';
@@ -603,7 +604,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       return projections.get(view)!;
     };
     const dependencyWindows = new Map<string, { key: string; since: number }>();
+    let documentWindow:{key:string;since:number;samples:number}|undefined;
     const sampleDependencies = (view: NonNullable<typeof dom>) => {
+      const documentKey=JSON.stringify([view.documentId,view.url]);
+      if(view.gaps.some(g=>g.critical||['DOM_ROOT_UNAVAILABLE','DOCUMENT_LOADING'].includes(g.code)))documentWindow=undefined;
+      else if(documentWindow?.key===documentKey)documentWindow.samples++;
+      else documentWindow={key:documentKey,since:sampledAt,samples:1};
       const present = new Set<string>();
       for (const control of view.controls) {
         const key = project(view).get(control.instanceId); if (!key) continue;
@@ -620,9 +626,17 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const pending = captureContext?.afterAction;
     const pendingTarget = pending?.before.controls.find(c => c.localId === pending.action.localId);
     const pendingScope = pending?.action.risk === 'interface' && pendingTarget ? nativeFormScope(pendingTarget, pending.action.kind) : undefined;
+    const pendingNavigation=pending&&navigationIntent(pending.action,pending.before);
+    const sameWindow=!pendingTarget?.reviewBinding?.attributes.target||pendingTarget.reviewBinding.attributes.target==='_self';
+    const navigationReady=(view:NonNullable<typeof dom>)=>!!pendingNavigation&&sameWindow&&!!documentWindow&&documentWindow.samples>=2
+      &&documentWindow.key===JSON.stringify([view.documentId,view.url])&&sampledAt-documentWindow.since>=this.options.settleMs
+      &&view.documentId!==pending!.before.documentId&&view.url!==pending!.before.url&&!view.gaps.some(g=>g.critical);
     const partialSufficient = (view: NonNullable<typeof dom>) => {
       const ready = readyDependencies(view);
       if (!pending) return ready.size > 0;
+      // Native navigation addresses the browser document, not a changing field
+      // on its destination. Retain each unready control; do not replay the link.
+      if(navigationReady(view))return true;
       // An unrelated ready input cannot finish a click/navigation's observation.
       // Native field operations may still finish using their own verified form.
       return !!pendingScope && !!pendingTarget && ready.has(pendingTarget.instanceId)
@@ -649,7 +663,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           if (!incomplete && sampledAt - unchangedSince >= this.options.settleMs) { stable = true; break; }
           if (this.options.exploration === 'controls' && !dom.gaps.some(g => g.critical) && (interactionStable || partialSufficient(dom))) break;
         } catch (error) {
-          dependencyWindows.clear(); lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
+          dependencyWindows.clear(); documentWindow=undefined; lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
           if (this.page.isClosed()) break;
         }
         if (Date.now() >= deadline) break;
@@ -661,7 +675,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists)) {
             interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(interactionScope(dom).regionCandidates?.map(c => [c.id, c.binding])) === canonical(interactionScope(detailed).regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
             stable = false;
-            const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0));
+            const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0 || navigationReady(detailed)));
             const sufficient = this.options.exploration === 'controls' && (interactionStable || partialSufficient(detailed));
             dom = detailed;
             // A transition can arrive after the quiet sampling window. Re-sample
@@ -680,16 +694,21 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
     const ready = this.options.exploration === 'controls' && !stable && !interactionStable && !lastError && !dom.gaps.some(g => g.critical)
       ? readyDependencies(dom) : new Set<string>();
-    if (ready.size) for (const control of dom.controls) if (!ready.has(control.instanceId)) {
-      control.readiness = { status: 'unstable', reason: 'This operation’s dependency scope did not settle during capture' };
-    }
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
     let navigation: BrowserHistory | undefined;
     try { navigation = await this.readHistory(dom.documentId); }
     catch (error) { gaps.push({ code: 'NAVIGATION_HISTORY_UNAVAILABLE', message: String(error) }); }
+    const currentEntry=navigation?.entries[navigation.currentIndex],sourceHistory=pending?.before.navigation;
+    const navigationCapture:Observation['navigationCapture']=!lastError&&navigationReady(dom)&&currentEntry?.method==='GET'&&currentEntry.url===dom.url
+      &&sourceHistory?.browserSessionId===navigation?.browserSessionId&&currentEntry.id!==sourceHistory?.entries[sourceHistory.currentIndex]?.id
+      ?{version:1,beforeId:pending!.before.id,actionId:pending!.action.id,sourceDocumentId:pending!.before.documentId,documentId:dom.documentId,sourceUrl:pending!.before.url,requestedUrl:pendingNavigation!.targetUrl,observedUrl:dom.url,samples:documentWindow!.samples,settledMs:sampledAt-documentWindow!.since}:undefined;
+    if(ready.size||navigationCapture&&!stable&&!interactionStable)for(const control of dom.controls)if(!ready.has(control.instanceId)){
+      control.readiness={status:'unstable',reason:'This operation’s dependency scope did not settle during capture'};
+    }
+    if(navigationCapture&&!stable&&!interactionStable)gaps.push({code:'PARTIAL_NATIVE_NAVIGATION_READY',message:'The new document and native GET history were observed; destination control dependencies remain independently unready'});
     if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
-    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && (interactionStable || ready.size > 0)) });
+    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && (interactionStable || ready.size > 0 || !!navigationCapture)) });
     if (ready.size) gaps.push({ code: 'PARTIAL_INTERACTION_READY', message: `${ready.size} native form targets have stable dependencies; unsettled operations remain blocked` });
     if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });
     const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([k, value]) => [k, { value, status: 'known', source: 'declared' }]));
@@ -749,7 +768,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, ...(navigationCapture?{navigationCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   private lastDismissal?: BoundaryExitDispatch & { actionId: string };
   dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
