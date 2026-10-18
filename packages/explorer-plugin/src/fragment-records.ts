@@ -19,9 +19,9 @@ export interface FragmentRecord {
   /** Original wire representation is solely for exact legacy audit export. */
   legacy?:{ownerEncoded:boolean};
 }
-export interface CandidateRecord {id:string;fragmentId:string;position:number;path:string;operation:string;guard:string;classId?:string;legacy?:{guardEncoded:boolean}}
+export interface CandidateRecord {id:string;fragmentId:string;position:number;path:string;operation:string;guard:string;context?:string;classId?:string;legacy?:{guardEncoded:boolean;contextEncoded?:boolean}}
 export interface FragmentClass {id:string;key:string}
-export interface FragmentEvent {id:string;fragmentId:string;candidateId:string;sessionId:string;observationId:string;afterId:string;actionId:string}
+export interface FragmentEvent {id:string;fragmentId:string;candidateId:string;sessionId:string;observationId:string;afterId:string;actionId:string;effect?:string;legacy?:{effectEncoded:boolean}}
 export interface FragmentState {id:string;url:string;context:string;candidateIds:string[];source:{sessionId:string;observationId:string};navigation?:Observation['navigation']}
 export interface FragmentObligation {id:string;scopeKey:string;authority:string;candidateIds:string[]}
 export interface FragmentEdge extends FragmentMapping {id:string}

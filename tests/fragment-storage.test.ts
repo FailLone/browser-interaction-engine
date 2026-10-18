@@ -100,3 +100,34 @@ it('preserves state tie order while a source update is staged and after the atom
  const state=session.get('states','first')!;state.source={...source,observationId:'new-source'};session.put('states',state);
  expect([...session.rows('states')].map(s=>s.id)).toEqual(['first','second']);writer.flush();expect([...session.rows('states')].map(s=>s.id)).toEqual(['first','second']);
 });
+
+it('retains exact context and observed-effect materials through commit, reload and explicit compaction',()=>{
+ const {session,writer,store,task}=fixture(),record=register(session,0);
+ const raw=JSON.stringify({external:Array.from({length:90},(_,i)=>({name:`模式 ${i}`,value:'原始值',unknown:true})),spacing:'  unchanged  '});
+ const context=session.material('context',raw),effect=session.material('effect',raw),unused=session.material('effect','unused');
+ expect(context).not.toBe(effect);
+ const candidate={...record.candidates[0],id:'context-candidate',position:1,path:'./a[2]',classId:undefined,context};
+ session.put('candidates',candidate);session.put('events',{...event('context-receipt',record),candidateId:candidate.id,effect});writer.flush();
+ expect(store.fragmentRecords.verify(task.id).events).toBe(1);
+ const cold=new TaskWriter(store,store.taskState(task.id)).fragments();
+ expect(cold.raw(cold.get('candidates',candidate.id)!.context!,'context')).toBe(raw);
+ expect(cold.raw(cold.get('events','context-receipt')!.effect!,'effect')).toBe(raw);
+ const audit=cold.exportLegacy();expect(audit.fragments[0].candidates[1].context).toBe(raw);expect(audit.events[0].effect).toBe(raw);
+ const compact=store.fragmentRecords.compact();
+ expect(compact.removedObjects).toContainEqual({kind:'material',id:unused});
+ expect(store.fragmentRecords.material(context,'context')).toBe(raw);expect(store.fragmentRecords.material(effect,'effect')).toBe(raw);
+ expect(store.fragmentRecords.stats(task.id).events).toBe(1);
+ session.put('events',{...event('wrong-effect-role',record),effect:record.candidates[0].guard});
+ expect(()=>writer.flush()).toThrow('CORRUPT_FRAGMENT_STORAGE');
+ expect(store.fragmentRecords.get(task.id,'events','wrong-effect-role')).toBeUndefined();
+});
+
+it.each([false,true])('keeps old-policy context and result bytes during migration without granting a new policy (encoded=%s)',encoded=>{
+ const legacy=emptyLegacy(),wire=(s:string)=>encoded?encodeFragmentMaterial(s):s;legacy.policy='guarded-host-fragments/v2';
+ legacy.fragments.push({id:'original-fragment',url:'https://example.test/original',structure:'tree',owner:'owner',revision:'r',source,
+  candidates:[{id:'original-child',path:'./a',operation:'click',guard:wire('guard'),context:wire('external context'),access:{direct:['receipt'],duplicate:[],equivalent:[]}}]});
+ legacy.events.push({id:'receipt',fragmentId:'original-fragment',candidateId:'original-child',sessionId:'s',observationId:'o',afterId:'after',actionId:'a',effect:wire('actual observed result')});
+ const {store,session,task}=fixture(':memory:',legacy),audit=store.exportFragments(task.id)!;
+ expect(audit.policy).toBe(legacy.policy);expect(audit.fragments).toEqual(legacy.fragments);expect(audit.events).toEqual(legacy.events);
+ expect(session.get('candidates','original-child')?.classId).toBeUndefined();expect(store.fragmentRecords.verify(task.id).events).toBe(1);
+});

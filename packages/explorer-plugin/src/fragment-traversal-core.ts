@@ -14,7 +14,7 @@ export interface FragmentAccess {
 export interface FragmentCounters {direct:boolean;duplicate:number;equivalent:number}
 export type FragmentAccessView=FragmentAccess|FragmentCounters;
 export interface FragmentCandidate {
-  id:string; path:string; operation:string; guard:string;
+  id:string; path:string; operation:string; guard:string; context?:string;
   access:FragmentAccess;
 }
 export interface TraversalFragment {

@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto';
 import {ExplorerError} from './types.js';
 
-export type FragmentMaterialKind='structure'|'owner'|'operation'|'guard';
+export type FragmentMaterialKind='structure'|'owner'|'operation'|'guard'|'context'|'effect';
 export type FragmentMaterialLayout=([0,string]|[1,string])[];
 export interface FragmentAtom {id:string;raw:string;bytes:number}
 export interface FragmentMaterial {id:string;kind:FragmentMaterialKind;bytes:number;layout:FragmentMaterialLayout}
@@ -52,7 +52,7 @@ export function splitFragmentMaterial(kind:FragmentMaterialKind,raw:string,diges
 
 /** Resolve and validate the complete comparison material, never just its key. */
 export function readFragmentMaterial(material:FragmentMaterial,resolve:(id:string)=>FragmentAtom,digest:FragmentDigest=sha):string {
-  if(!material||!['structure','owner','operation','guard'].includes(material.kind)||!Number.isSafeInteger(material.bytes)||material.bytes<0||!Array.isArray(material.layout))return corrupt();
+  if(!material||!['structure','owner','operation','guard','context','effect'].includes(material.kind)||!Number.isSafeInteger(material.bytes)||material.bytes<0||!Array.isArray(material.layout))return corrupt();
   const raw=material.layout.map(piece=>{
     if(!Array.isArray(piece)||piece.length!==2||typeof piece[1]!=='string')return corrupt();
     if(piece[0]===0)return piece[1];if(piece[0]!==1)return corrupt();

@@ -8,7 +8,7 @@ import {emptyFragmentDelta,fragmentRoot,fragmentRowKinds,type FragmentDelta,type
 
 const equal=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
 export type FragmentCounters={direct:boolean;duplicate:number;equivalent:number};
-export type FragmentProjectionInput={structure:string;owner:string;revision:string;candidates:{path:string;operation:string;guard:string}[]};
+export type FragmentProjectionInput={structure:string;owner:string;revision:string;candidates:{path:string;operation:string;guard:string;context?:string}[]};
 /** A small explicit write set over indexed durable records. Closing/reloading
  * a session does not generate events. Failed flushes retain this write set. */
 export class FragmentSession {
@@ -59,15 +59,15 @@ export class FragmentSession {
   candidates(fragmentId:string){return [...this.rows('candidates','fragment_id=?',[fragmentId],c=>c.fragmentId===fragmentId)].sort((a,b)=>a.position-b.position);}
   private projection(url:string,input:FragmentProjectionInput,stage=true){
     const material=(kind:FragmentMaterialKind,raw:string)=>stage?this.material(kind,raw):fragmentMaterialId(kind,raw);
-    const structure=material('structure',input.structure),owner=material('owner',input.owner),candidates=input.candidates.map(c=>({path:c.path,operation:material('operation',c.operation),guard:material('guard',c.guard)}));
+    const structure=material('structure',input.structure),owner=material('owner',input.owner),candidates=input.candidates.map(c=>({path:c.path,operation:material('operation',c.operation),guard:material('guard',c.guard),...(c.context!==undefined?{context:material('context',c.context)}:{})}));
     const shape={url,structure,owner,revision:input.revision,candidates},lookupKey=taskDigest(JSON.stringify(shape));return {...shape,lookupKey};
   }
   find(url:string,input:FragmentProjectionInput){
     const shape=this.projection(url,input,false),matches:FragmentRecord[]=[];
     for(const f of this.rows('fragments','lookup_key=?',[shape.lookupKey],f=>f.lookupKey===shape.lookupKey)){
-      const candidates=this.candidates(f.id).map(({path,operation,guard})=>({path,operation,guard}));
+      const candidates=this.candidates(f.id).map(({path,operation,guard,context})=>({path,operation,guard,...(context!==undefined?{context}:{})}));
       if(!equal({url:f.url,structure:f.structure,owner:f.owner,revision:f.revision,candidates},{url:shape.url,structure:shape.structure,owner:shape.owner,revision:shape.revision,candidates:shape.candidates}))throw new ExplorerError('FRAGMENT_RECORD_CONFLICT');
-      if(this.raw(f.structure)!==input.structure||this.raw(f.owner)!==input.owner||candidates.some((c,i)=>this.raw(c.guard)!==input.candidates[i].guard||this.raw(c.operation)!==input.candidates[i].operation))throw new ExplorerError('FRAGMENT_MATERIAL_HASH_CONFLICT');
+      if(this.raw(f.structure)!==input.structure||this.raw(f.owner)!==input.owner||candidates.some((c,i)=>this.raw(c.guard)!==input.candidates[i].guard||this.raw(c.operation)!==input.candidates[i].operation||(c.context===undefined?undefined:this.raw(c.context,'context'))!==input.candidates[i].context))throw new ExplorerError('FRAGMENT_MATERIAL_HASH_CONFLICT');
       matches.push(f);
     }
     // An encoded/plain legacy collision must not collapse independent records.
@@ -141,6 +141,7 @@ export class FragmentSession {
   private validateCandidate(c:CandidateRecord){
     const f=this.get('fragments',c.fragmentId);if(!f)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');
     this.raw(f.structure,'structure');this.raw(f.owner,'owner');this.raw(c.operation,'operation');this.raw(c.guard,'guard');
+    if(c.context!==undefined)this.raw(c.context,'context');
     if(c.classId){const key=JSON.stringify([this.root.policy,f.structure,f.owner,c.path,c.operation,c.guard]);if(this.get('classes',c.classId)?.key!==key||taskDigest('fragment-class/v2\0'+key)!==c.classId)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');}
   }
   counts(candidateId:string):FragmentCounters {return this.snapshot(()=>this.countsSnapshot(candidateId));}
@@ -173,14 +174,14 @@ export class FragmentSession {
   }
   importLegacy(ledger:FragmentTraversalLedger){
     if(this.store.root(this.taskId)||this.materials.size||this.map('fragments').size)throw new ExplorerError('INVALID_FRAGMENT_MIGRATION');
-    if(!['guarded-host-fragments/v1',fragmentProjectionPolicy].includes(ledger.policy))throw new ExplorerError('FRAGMENT_POLICY_MISMATCH');
+    if(!['guarded-host-fragments/v1','guarded-host-fragments/v2',fragmentProjectionPolicy].includes(ledger.policy))throw new ExplorerError('FRAGMENT_POLICY_MISMATCH');
     for(const old of ledger.fragments){
-      const shape=this.projection(old.url,{...old,owner:decodeFragmentMaterial(old.owner),candidates:old.candidates.map(c=>({...c,guard:decodeFragmentMaterial(c.guard)}))});
+      const shape=this.projection(old.url,{...old,owner:decodeFragmentMaterial(old.owner),candidates:old.candidates.map(c=>({...c,guard:decodeFragmentMaterial(c.guard),...(c.context!==undefined?{context:decodeFragmentMaterial(c.context)}:{})}))});
       this.put('fragments',{id:old.id,lookupKey:shape.lookupKey,structure:shape.structure,owner:shape.owner,revision:old.revision,url:old.url,source:old.source,...(old.parentRegionId?{parentRegionId:old.parentRegionId}:{}),legacy:{ownerEncoded:old.owner.startsWith('deflate-raw/base64-v1:')}});
-      old.candidates.forEach((c,position)=>this.put('candidates',{id:c.id,fragmentId:old.id,position,...shape.candidates[position],legacy:{guardEncoded:c.guard.startsWith('deflate-raw/base64-v1:')}}));
+      old.candidates.forEach((c,position)=>this.put('candidates',{id:c.id,fragmentId:old.id,position,...shape.candidates[position],legacy:{guardEncoded:c.guard.startsWith('deflate-raw/base64-v1:'),...(c.context!==undefined?{contextEncoded:c.context.startsWith('deflate-raw/base64-v1:')}:{})}}));
     }
     ledger.mappings.forEach((edge,index)=>this.put('edges',{...edge,id:`legacy:${index}`}));
-    for(const event of ledger.events){if(this.get('events',event.id))throw new ExplorerError('DUPLICATE_FRAGMENT_ORIGIN');this.put('events',event);}
+    for(const event of ledger.events){if(this.get('events',event.id))throw new ExplorerError('DUPLICATE_FRAGMENT_ORIGIN');this.put('events',{...event,...(event.effect!==undefined?{effect:this.material('effect',decodeFragmentMaterial(event.effect)),legacy:{effectEncoded:event.effect.startsWith('deflate-raw/base64-v1:')}}:{})});}
     for(const [id,reason] of Object.entries(ledger.revokedCandidates))this.put('revocations',{id,reason});
     for(const state of ledger.states)this.put('states',state);
     for(const [id,ref] of Object.entries(ledger.obligations))this.put('obligations',{id,...ref});
@@ -190,10 +191,10 @@ export class FragmentSession {
   exportLegacy():FragmentTraversalLedger {
     const fragments=[...this.rows('fragments')].map(f=>({...f,structure:this.raw(f.structure),owner:f.legacy?.ownerEncoded?encodeFragmentMaterial(this.raw(f.owner)):this.raw(f.owner),candidates:this.candidates(f.id).map(c=>{
       const direct:string[]=[],duplicate:string[]=[],equivalent:string[]=[];let after='';for(;;){const page=this.origins(c.id,after);for(const row of page){(row.direct?direct:row.duplicate?duplicate:equivalent).push(row.event.id);after=row.event.id;}if(page.length<128)break;}
-      return {id:c.id,path:c.path,operation:this.raw(c.operation),guard:c.legacy?.guardEncoded?encodeFragmentMaterial(this.raw(c.guard)):this.raw(c.guard),access:{direct,duplicate,equivalent}};
+      return {id:c.id,path:c.path,operation:this.raw(c.operation),guard:c.legacy?.guardEncoded?encodeFragmentMaterial(this.raw(c.guard)):this.raw(c.guard),...(c.context!==undefined?{context:c.legacy?.contextEncoded?encodeFragmentMaterial(this.raw(c.context,'context')):this.raw(c.context,'context')}:{ }),access:{direct,duplicate,equivalent}};
     })}));
     const mappings=[...this.rows('edges')].map(({id,...edge})=>edge);
     for(const cls of this.rows('classes')){const members=[...this.rows('candidates','class_id=?',[cls.id],c=>c.classId===cls.id)];for(const a of members)for(const b of members)if(a.id!==b.id)mappings.push({sourceFragmentId:a.fragmentId,targetFragmentId:b.fragmentId,sourceCandidateId:a.id,targetCandidateId:b.id,kind:'equivalent'});}
-    return {policy:this.root.policy,epoch:this.root.epoch,authority:this.root.authority,...(this.root.legacyBounded?{bounded:true as const}:{}),fragments:fragments.map(({lookupKey,legacy,...f})=>f),mappings,events:[...this.rows('events')],states:[...this.rows('states')],obligations:Object.fromEntries([...this.rows('obligations')].map(({id,...o})=>[id,o])),revokedCandidates:Object.fromEntries([...this.rows('revocations')].map(r=>[r.id,r.reason]))};
+    return {policy:this.root.policy,epoch:this.root.epoch,authority:this.root.authority,...(this.root.legacyBounded?{bounded:true as const}:{}),fragments:fragments.map(({lookupKey,legacy,...f})=>f),mappings,events:[...this.rows('events')].map(({legacy,...e})=>({...e,...(e.effect!==undefined?{effect:legacy?.effectEncoded?encodeFragmentMaterial(this.raw(e.effect,'effect')):this.raw(e.effect,'effect')}:{})})),states:[...this.rows('states')],obligations:Object.fromEntries([...this.rows('obligations')].map(({id,...o})=>[id,o])),revokedCandidates:Object.fromEntries([...this.rows('revocations')].map(r=>[r.id,r.reason]))};
   }
 }

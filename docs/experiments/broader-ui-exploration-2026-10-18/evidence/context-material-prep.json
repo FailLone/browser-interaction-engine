@@ -1,0 +1,20 @@
+{
+  "purpose": "Exact context/effect persistence preparation, current runtime still policy v2",
+  "logs": [
+    {
+      "path": ".data/broader-ui/storage-prep/context-material-prep.log",
+      "archive": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/context-material-prep.log.gz",
+      "sha256": "fc9445b3d4543ab67f75424410f13225da5135d0a2bfd0dd2d156c0cf744603b"
+    },
+    {
+      "path": ".data/broader-ui/storage-prep/context-material-prep-2.log",
+      "archive": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/context-material-prep-2.log.gz",
+      "sha256": "75ee3bf3da744e8db8dcec852397b2082d77c1cd6494d928454cea6f40ccaea1"
+    },
+    {
+      "path": ".data/broader-ui/storage-prep/context-material-types.log",
+      "archive": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/context-material-types.log.gz",
+      "sha256": "39fe5975cee7d32092db1ba50229596db0ee9a5a133742de09db609fe896902c"
+    }
+  ]
+}

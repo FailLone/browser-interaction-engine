@@ -145,10 +145,12 @@ export class FragmentStore {
         if(kind==='fragments'){const f=value as FragmentRows['fragments'];this.material(f.structure,'structure');this.material(f.owner,'owner');}
         if(kind==='candidates'){
           const c=value as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');
+          if(c.context!==undefined)this.material(c.context,'context');
           if(c.classId){const cls=this.get(taskId,'classes',c.classId),f=this.get(taskId,'fragments',c.fragmentId);
             const key=JSON.stringify([delta.root.policy,f?.structure,f?.owner,c.path,c.operation,c.guard]);
             if(!f||cls?.key!==key||taskDigest('fragment-class/v2\0'+key)!==c.classId)corrupt();}
         }
+        if(kind==='events'){const e=value as FragmentRows['events'];if(e.effect!==undefined)this.material(e.effect,'effect');}
         if(kind==='edges'){
           const e=value as FragmentRows['edges'],a=this.get(taskId,'candidates',e.sourceCandidateId),b=this.get(taskId,'candidates',e.targetCandidateId);
           if(!a||!b||a.fragmentId!==e.sourceFragmentId||b.fragmentId!==e.targetFragmentId||!['duplicate','equivalent'].includes(e.kind))corrupt();
@@ -172,7 +174,8 @@ export class FragmentStore {
   verify(taskId:string){
     for(const kind of fragmentRowKinds)for(const row of this.rows(taskId,kind)){
       if(kind==='fragments'){const f=row as FragmentRows['fragments'];this.material(f.structure,'structure');this.material(f.owner,'owner');}
-      if(kind==='candidates'){const c=row as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');}
+      if(kind==='candidates'){const c=row as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');if(c.context!==undefined)this.material(c.context,'context');}
+      if(kind==='events'){const e=row as FragmentRows['events'];if(e.effect!==undefined)this.material(e.effect,'effect');}
     }
     if((this.db.pragma('foreign_key_check') as unknown[]).length)corrupt();return this.stats(taskId);
   }
@@ -184,6 +187,10 @@ export class FragmentStore {
     try{return this.db.transaction(()=>{
       const tasks=this.db.prepare('SELECT task_id FROM fg_roots').all() as {task_id:string}[];for(const task of tasks)this.verify(task.task_id);
       const materialIds=new Set((this.db.prepare('SELECT structure_id id FROM fg_fragments UNION SELECT owner_id FROM fg_fragments UNION SELECT operation_id FROM fg_candidates UNION SELECT guard_id FROM fg_candidates').all() as {id:string}[]).map(row=>row.id));
+      for(const task of tasks){
+        for(const c of this.rows(task.task_id,'candidates'))if(c.context!==undefined)materialIds.add(c.context);
+        for(const e of this.rows(task.task_id,'events'))if(e.effect!==undefined)materialIds.add(e.effect);
+      }
       const atoms=new Set<string>();for(const id of materialIds)for(const piece of this.object('material',id).layout)if(piece[0]===1)atoms.add(piece[1]);
       const removedObjects:{kind:string;id:string}[]=[];for(const row of this.db.prepare('SELECT kind,id FROM fg_objects').all() as {kind:string;id:string}[])if(!(row.kind==='material'?materialIds:atoms).has(row.id))removedObjects.push(row);
       for(const row of removedObjects)this.db.prepare('DELETE FROM fg_objects WHERE kind=? AND id=?').run(row.kind,row.id);
