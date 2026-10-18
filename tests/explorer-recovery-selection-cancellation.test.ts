@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { expect, it, vi } from 'vitest';
 import type { ActionCandidate, Checkpoint, Observation } from '@interaction/browser';
-import { ExplorerPlugin, type ExplorerHost, type ExplorerStore, type PlanItem, type Scope } from '@interaction/explorer-plugin';
+import { ExplorerPlugin, type ExplorerHost, ExplorerStore, type PlanItem, type Scope } from '@interaction/explorer-plugin';
 import { recordRouteRetry } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
 import { keyFor, scopeFor } from '../packages/explorer-plugin/src/policy.js';
 import { createRecoverySelectionView } from '../packages/browser/src/recovery-selection-view.js';
@@ -33,7 +33,8 @@ function item(id: string, scope: Scope, sources: Observation[]): PlanItem {
 }
 
 // Exercise the production selector with recorded facts only. This fixture has
-// no engine, browser, provider or database; selection itself must never dispatch.
+// no engine, browser or provider; the in-memory task store supports fragment
+// transactions, and selection itself must never dispatch.
 function fixture(count = 64) {
   const sources = Array.from({ length: count }, (_,index) => observation(`source-${index + 1}`)), current = observation('current', false);
   const frames = new Map([...sources, current].map(source => [source.id, source]));
@@ -64,8 +65,9 @@ function fixture(count = 64) {
     checkpointRecoveryCandidates: assess, createCheckpoint: effect(), reachCheckpoint: effect(), reachExplorationTarget: effect(), execute: effect(),
   } as unknown as ExplorerHost;
   const events: { type: string; data: unknown; observationId?: string }[] = [];
-  const store = { save: vi.fn(), close: () => {}, decisionCursor: () => 0, decisions: () => [],
-    event: (event: typeof events[number]) => { events.push(event); return event; } } as unknown as ExplorerStore;
+  const persistence=new ExplorerStore(':memory:');
+  const store = Object.assign(persistence,{ save: vi.fn(persistence.save.bind(persistence)), decisionCursor: () => 0, decisions: () => [],
+    event: (event: typeof events[number]) => { events.push(event); return event; } }) as unknown as ExplorerStore;
   const plugin = new ExplorerPlugin(host, store), task = plugin.create({ url, coverageMode: 'all' });
   const review = item('review', { url, region: 'Main menu', label: 'Remaining', role: 'generic', stableKey: 'id:remaining' }, sources);
   const authority = { ...item('authority', { url }, sources), dispatchScope: true, status: 'pending' as const, reason: 'accepted scope' };

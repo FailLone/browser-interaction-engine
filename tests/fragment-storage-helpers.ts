@@ -1,3 +1,4 @@
+import {fragmentProjectionPolicy} from '@interaction/browser';
 import {ExplorerStore} from '../packages/explorer-plugin/src/store.js';
 import {TaskWriter} from '../packages/explorer-plugin/src/task-writer.js';
 import type {FragmentSession} from '../packages/explorer-plugin/src/fragment-session.js';
@@ -9,4 +10,4 @@ export function fragmentFixture(path=':memory:',legacy?:FragmentTraversalLedger)
   const writer=new TaskWriter(store,store.taskState(task.id)),session=writer.fragments();
   return {store,writer,session,task:writer.task,close:()=>store.close()};
 }
-export const emptyLegacy=():FragmentTraversalLedger=>({policy:'guarded-host-fragments/v1',epoch:0,revokedCandidates:{},obligations:{},fragments:[],mappings:[],events:[],states:[]});
+export const emptyLegacy=():FragmentTraversalLedger=>({policy:fragmentProjectionPolicy,epoch:0,revokedCandidates:{},obligations:{},fragments:[],mappings:[],events:[],states:[]});

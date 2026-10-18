@@ -45,7 +45,7 @@ it('rolls back fragments, origins, unknown and budget together, retains dirty wo
 });
 
 it.each([false,true])('migrates original IDs and incomplete directed duplicate/equivalent graphs, cycles and single-edge revocations (encoded=%s)',encoded=>{
- const legacy=emptyLegacy();legacy.epoch=17;legacy.authority='authority';
+ const legacy=emptyLegacy();legacy.policy='guarded-host-fragments/v1';legacy.epoch=17;legacy.authority='authority';
  for(const id of ['A','B','C'])legacy.fragments.push({id,structure:'tree',owner:encoded?encodeFragmentMaterial('owner'):'owner',revision:'r',url:'https://example.test/'+id,source,candidates:[{id:id+'-candidate',path:'a',operation:'click',guard:encoded?encodeFragmentMaterial('guard'):'guard',access:emptyFragmentAccess()}]});
  const [a,b,c]=legacy.fragments;
  legacy.mappings=[...mapFragmentCandidates(a,b),{...mapFragmentCandidates(b,c)[0],kind:'duplicate'},...mapFragmentCandidates(c,a)];
@@ -92,4 +92,11 @@ it('reads ordinary task headers without unpacking graph history and rejects forg
  delta.candidates[0].classId=a.candidates[0].classId;const {plan,rounds,...header}=task;
  expect(()=>store.applyTaskDelta(task.id,store.taskHeader(task.id).version,{header,fragments:delta})).toThrow('CORRUPT_FRAGMENT_STORAGE');
  expect(store.fragmentRecords.get(task.id,'fragments',changed.fragment.id)).toBeUndefined();expect(store.fragmentRecords.stats(task.id).fragments).toBe(1);
+});
+
+it('preserves state tie order while a source update is staged and after the atomic flush',()=>{
+ const {session,writer}=fixture(),a=register(session,0),b=register(session,1);
+ for(const [id,record] of [['first',a],['second',b]] as const)session.put('states',{id,url:record.fragment.url,context:'context',candidateIds:record.candidates.map(c=>c.id),source});writer.flush();
+ const state=session.get('states','first')!;state.source={...source,observationId:'new-source'};session.put('states',state);
+ expect([...session.rows('states')].map(s=>s.id)).toEqual(['first','second']);writer.flush();expect([...session.rows('states')].map(s=>s.id)).toEqual(['first','second']);
 });

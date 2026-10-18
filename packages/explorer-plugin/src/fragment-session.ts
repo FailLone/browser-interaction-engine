@@ -30,8 +30,13 @@ export class FragmentSession {
   private map<K extends FragmentRowKind>(kind:K):Map<string,FragmentRows[K]>{return (this.maps[kind]??=new Map() as never) as Map<string,FragmentRows[K]>;}
   get<K extends FragmentRowKind>(kind:K,id:string):FragmentRows[K]|undefined {const value=this.map(kind).get(id)??this.store.get(this.taskId,kind,id);return value?structuredClone(value):undefined;}
   *rows<K extends FragmentRowKind>(kind:K,where='',params:unknown[]=[],filter:(row:FragmentRows[K])=>boolean=()=>true):Generator<FragmentRows[K]> {
-    const changes=this.map(kind);for(const row of this.store.rows(this.taskId,kind,where,params))if(!changes.has(row.id))yield row;
-    for(const row of changes.values())if(filter(row))yield row;
+    const changes=this.map(kind),seen=new Set<string>();
+    for(const row of this.store.rows(this.taskId,kind,where,params)){
+      const updated=changes.get(row.id);if(updated){seen.add(row.id);if(filter(updated))yield structuredClone(updated);}else yield row;
+    }
+    // Replacing a persisted state must retain its insertion/tie order before
+    // flush as well as after flush. Only newly appended records go at the end.
+    for(const row of changes.values())if(!seen.has(row.id)&&filter(row))yield structuredClone(row);
   }
   put<K extends FragmentRowKind>(kind:K,value:FragmentRows[K]){
     const old=this.get(kind,value.id);if(equal(old,value))return false;
@@ -44,13 +49,13 @@ export class FragmentSession {
     if(old&&!equal(old,material))throw new ExplorerError('FRAGMENT_MATERIAL_HASH_CONFLICT');
     // Existing objects are checked against full bytes, including on hash hits.
     if(this.store.db.prepare("SELECT 1 FROM fg_objects WHERE kind='material' AND id=?").get(material.id)){
-      if(this.store.material(material.id)!==raw)throw new ExplorerError('FRAGMENT_MATERIAL_HASH_CONFLICT');return material.id;
+      if(this.store.object('material',material.id).kind!==kind||this.store.material(material.id)!==raw)throw new ExplorerError('FRAGMENT_MATERIAL_HASH_CONFLICT');return material.id;
     }
     this.materials.set(material.id,material);
     for(const atom of atoms){const old=this.atoms.get(atom.id);if(old&&old.raw!==atom.raw)throw new ExplorerError('FRAGMENT_MATERIAL_HASH_CONFLICT');this.atoms.set(atom.id,atom);}
     this.dirty=true;return material.id;
   }
-  raw(id:string):string {const value=this.materials.get(id);return value?readFragmentMaterial(value,id=>this.atoms.get(id)??this.store.object('atom',id)):this.store.material(id);}
+  raw(id:string,kind?:FragmentMaterialKind):string {const value=this.materials.get(id);if(value&&kind&&value.kind!==kind)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');return value?readFragmentMaterial(value,id=>this.atoms.get(id)??this.store.object('atom',id)):this.store.material(id,kind);}
   candidates(fragmentId:string){return [...this.rows('candidates','fragment_id=?',[fragmentId],c=>c.fragmentId===fragmentId)].sort((a,b)=>a.position-b.position);}
   private projection(url:string,input:FragmentProjectionInput,stage=true){
     const material=(kind:FragmentMaterialKind,raw:string)=>stage?this.material(kind,raw):fragmentMaterialId(kind,raw);
@@ -135,7 +140,7 @@ export class FragmentSession {
       WHERE EXISTS(SELECT 1 FROM walk WHERE node='c:'||json_extract(json,'$.candidateId') AND dup=0))`};}
   private validateCandidate(c:CandidateRecord){
     const f=this.get('fragments',c.fragmentId);if(!f)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');
-    this.raw(f.structure);this.raw(f.owner);this.raw(c.operation);this.raw(c.guard);
+    this.raw(f.structure,'structure');this.raw(f.owner,'owner');this.raw(c.operation,'operation');this.raw(c.guard,'guard');
     if(c.classId){const key=JSON.stringify([this.root.policy,f.structure,f.owner,c.path,c.operation,c.guard]);if(this.get('classes',c.classId)?.key!==key||taskDigest('fragment-class/v2\0'+key)!==c.classId)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');}
   }
   counts(candidateId:string):FragmentCounters {return this.snapshot(()=>this.countsSnapshot(candidateId));}
@@ -168,7 +173,7 @@ export class FragmentSession {
   }
   importLegacy(ledger:FragmentTraversalLedger){
     if(this.store.root(this.taskId)||this.materials.size||this.map('fragments').size)throw new ExplorerError('INVALID_FRAGMENT_MIGRATION');
-    if(ledger.policy!==fragmentProjectionPolicy)throw new ExplorerError('FRAGMENT_POLICY_MISMATCH');
+    if(!['guarded-host-fragments/v1',fragmentProjectionPolicy].includes(ledger.policy))throw new ExplorerError('FRAGMENT_POLICY_MISMATCH');
     for(const old of ledger.fragments){
       const shape=this.projection(old.url,{...old,owner:decodeFragmentMaterial(old.owner),candidates:old.candidates.map(c=>({...c,guard:decodeFragmentMaterial(c.guard)}))});
       this.put('fragments',{id:old.id,lookupKey:shape.lookupKey,structure:shape.structure,owner:shape.owner,revision:old.revision,url:old.url,source:old.source,...(old.parentRegionId?{parentRegionId:old.parentRegionId}:{}),legacy:{ownerEncoded:old.owner.startsWith('deflate-raw/base64-v1:')}});

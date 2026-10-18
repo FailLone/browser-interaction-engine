@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 import {ExplorerError} from './types.js';
 import {packTaskRecords,unpackTaskRecords,taskDigest,TASK_BLOCK_BYTES,TASK_BLOCK_ITEMS,type PackedTaskValue} from './task-codec.js';
-import {readFragmentMaterial,type FragmentAtom,type FragmentMaterial} from './fragment-codec.js';
+import {readFragmentMaterial,type FragmentAtom,type FragmentMaterial,type FragmentMaterialKind} from './fragment-codec.js';
 import {fragmentRowKinds,type FragmentDelta,type FragmentRoot,type FragmentRows,type FragmentRowKind} from './fragment-records.js';
 
 const corrupt=():never=>{throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');};
@@ -105,7 +105,7 @@ export class FragmentStore {
       if(!row||row.id!==id||row.kind!==kind||row.value.id!==id)return corrupt();return row.value;
     });
   }
-  material(id:string):string {return this.cached(`raw:${id}`,()=>readFragmentMaterial(this.object('material',id),id=>this.object('atom',id)));}
+  material(id:string,kind?:FragmentMaterialKind):string {if(kind&&this.object('material',id).kind!==kind)return corrupt();return this.cached(`raw:${id}`,()=>readFragmentMaterial(this.object('material',id),id=>this.object('atom',id)));}
   changeToken(){this.checkCache();return this.stamp;}
   private recordPacks(taskId:string,delta:FragmentDelta){
     const refs=new Map<string,{pack:number;slot:number}>();let batch:{kind:FragmentRowKind;id:string;value:FragmentRows[FragmentRowKind]}[]=[],bytes=0;
@@ -142,9 +142,9 @@ export class FragmentStore {
         const old=this.get(taskId,kind,value.id),json=JSON.stringify(value);
         if(old&&same(old,value))continue;
         if(old&&!['states','obligations','edges','revocations'].includes(kind))throw new ExplorerError('FRAGMENT_RECORD_CONFLICT');
-        if(kind==='fragments'){const f=value as FragmentRows['fragments'];this.material(f.structure);this.material(f.owner);}
+        if(kind==='fragments'){const f=value as FragmentRows['fragments'];this.material(f.structure,'structure');this.material(f.owner,'owner');}
         if(kind==='candidates'){
-          const c=value as FragmentRows['candidates'];this.material(c.operation);this.material(c.guard);
+          const c=value as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');
           if(c.classId){const cls=this.get(taskId,'classes',c.classId),f=this.get(taskId,'fragments',c.fragmentId);
             const key=JSON.stringify([delta.root.policy,f?.structure,f?.owner,c.path,c.operation,c.guard]);
             if(!f||cls?.key!==key||taskDigest('fragment-class/v2\0'+key)!==c.classId)corrupt();}
@@ -171,8 +171,8 @@ export class FragmentStore {
   /** Explicit maintenance; ordinary task reads never materialize the graph. */
   verify(taskId:string){
     for(const kind of fragmentRowKinds)for(const row of this.rows(taskId,kind)){
-      if(kind==='fragments'){const f=row as FragmentRows['fragments'];this.material(f.structure);this.material(f.owner);}
-      if(kind==='candidates'){const c=row as FragmentRows['candidates'];this.material(c.operation);this.material(c.guard);}
+      if(kind==='fragments'){const f=row as FragmentRows['fragments'];this.material(f.structure,'structure');this.material(f.owner,'owner');}
+      if(kind==='candidates'){const c=row as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');}
     }
     if((this.db.pragma('foreign_key_check') as unknown[]).length)corrupt();return this.stats(taskId);
   }

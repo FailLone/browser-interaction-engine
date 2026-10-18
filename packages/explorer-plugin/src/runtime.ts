@@ -869,6 +869,9 @@ export class ExplorerPlugin {
   private async scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader,signal:AbortSignal=new AbortController().signal,sourceReturnOnly=false):Promise<ScheduledRecovery|undefined> {
     const revision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
     const liveTask=task;
+    // Recovery stages only route/scheduling metadata. Fragment reads must use
+    // the live writer session, which can contain an uncommitted observation.
+    // A shallow Task copy is not an independently persisted fragment root.
     let selectionView=this.host.recoverySelectionView?.(o.sessionId,{observationId:o.id});
     try {
     if(selectionView){
@@ -942,7 +945,7 @@ export class ExplorerPlugin {
     // and SDK arrival verification still apply, and every child remains pending.
     const recoveryOrder=orderedObligations(task.plan,schedule);
     {
-      const work=task.fragmentTraversal&&fragmentStateOrder(this.fragments(task),o),rank=new Map<string,number>();
+      const work=task.fragmentTraversal&&fragmentStateOrder(this.fragments(liveTask),o),rank=new Map<string,number>();
       for(const state of work?.order||[])if(!rank.has(state.url))rank.set(state.url,rank.size);
       recoveryOrder.sort((a,b)=>(rank.get(a.scope.url||'')??Infinity)-(rank.get(b.scope.url||'')??Infinity)||Number(!pageSourceObligation(a))-Number(!pageSourceObligation(b)));
       if(work)emitSelection('fragment.states_ranked',{root:task.fragmentTraversal,order:work.order.slice(0,32),deferred:work.deferred.slice(0,32),omitted:{order:Math.max(0,work.order.length-32),deferred:Math.max(0,work.deferred.length-32)},reason:'fresh_then_influence_minus_known_native_cost',strictFallbackRetained:true,coverageGranted:false});
@@ -950,7 +953,7 @@ export class ExplorerPlugin {
     for(const item of recoveryOrder){
       const wait=checkpoint();if(wait){await wait;resume();}
       if(sourceReturnOnly&&!pageSourceObligation(item))continue;
-      if(fragmentObligationSampled(this.fragments(task),item)){deferSelection(item.id,recoveryConditionVersion(o),'fragment_sampled_ordinary_target',o.id);continue;}
+      if(fragmentObligationSampled(liveTask.fragmentTraversal?this.fragments(liveTask):undefined,item)){deferSelection(item.id,recoveryConditionVersion(o),'fragment_sampled_ordinary_target',o.id);continue;}
       if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||exclusions.some(excluded=>contains(excluded.scope,item)))continue;
       if(item.reason.startsWith('missing_capability:')||item.reason==='unknown_action_outcome')continue;
       const entry=entries.get(item.id);
@@ -1076,7 +1079,7 @@ export class ExplorerPlugin {
       if(item.scope.kind&&(targets.length!==1||!targetConditions(facts,targets[0])&&!this.host.checkpointRecoveryCandidates))return unverified;
       if(task.fragmentTraversal&&item.dispatchScope!==true&&targets.length===1){
         const sampled=facts.sampledFragments??=new Map<string,boolean>(),id=targets[0].id;
-        if(!sampled.has(id))sampled.set(id,sampledFragmentAction(this.fragments(task),source,sourceActions,this.fragmentAuthority(task),id));
+        if(!sampled.has(id))sampled.set(id,sampledFragmentAction(this.fragments(liveTask),source,sourceActions,this.fragmentAuthority(task),id));
         if(sampled.get(id))return {skip:true,reason:'fragment_sampled_ordinary_target'};
       }
       if(!broadScope(item.scope)){
@@ -1852,7 +1855,7 @@ export class ExplorerPlugin {
       &&(i.dispatchScope===true||grants.some(grant=>Object.entries(grant.scope).every(([key,value])=>i.scope[key as keyof Scope]===value)))
       &&i.prerequisites.some(p=>Object.entries(p).every(([key,value])=>actual[key as keyof Scope]===value)));
   }
-  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded'&&!fragmentObligationSampled(this.fragments(task),i)).sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId)||(Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||''))));}
+  private entryTargets(task:Task,a:ActionCandidate,o:Observation) {const selected=task.scheduling?.selection;return this.entryObligations(task,a,o).filter(i=>i.status!=='succeeded'&&!fragmentObligationSampled(task.fragmentTraversal?this.fragments(task):undefined,i)).sort((a,b)=>Number(selected?.kind==='reentry'&&b.id===selected.itemId)-Number(selected?.kind==='reentry'&&a.id===selected.itemId)||(Number(['hover','focus'].includes(a.scope.kind||''))-Number(['hover','focus'].includes(b.scope.kind||''))));}
   private entryProgressRecord(task:Task,r:Round,a:ActionCandidate,o:Observation) {
     const entry=scopeFor(a,o),condition=browserTargetConditions(a,o)?.key||'unverified';
     const key=digest({policy:'entry-progress-v2',route:recoveryRouteKey(o,[a],[entry]),condition}),oldKey=digest({entry,context:o.context}),legacyKey=digest(entry);

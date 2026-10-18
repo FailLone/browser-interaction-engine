@@ -4,7 +4,7 @@ import type { Control, Observation } from './types.js';
 
 type Node = NonNullable<Control['classificationBinding']>['nodes'][number];
 export interface ModeStructureReference {
-  policy:'selector-structural-reference/v2'; key:string;
+  policy:'selector-structural-reference/v2'|'selector-fragment-reference/v1'; key:string;
   ownerLocalId:string; ownerNodes:number; fragmentNodes:number;
 }
 const idrefs=new Set(['for','aria-labelledby','aria-describedby','aria-controls','aria-owns','aria-activedescendant','aria-details','aria-errormessage','headers','list','form']);
@@ -16,7 +16,7 @@ const record=(n:Pick<Node,'tag'|'attributes'>)=>['li','tr'].includes(n.tag)||['l
  * identity is unresolved. This grants neither target identity nor execution.
  * A fresh reader is owned by one synchronous projection; no global cache or
  * additional capture/history read. Symmetric nodes never get ordinal IDs. */
-export function modeStructureReader(o:Observation) {
+export function modeStructureReader(o:Observation, purpose:'review'|'fragment'='review') {
   const instances=new Map<string,Control[]>(),anchors=new Map<string,Control[]>(),direct=new Map<string,Control[]>(),localCounts=new Map<string,number>();
   for(const c of o.controls){
     instances.set(c.instanceId,[...instances.get(c.instanceId)||[],c]);
@@ -125,8 +125,13 @@ export function modeStructureReader(o:Observation) {
     // identity reuse. Apply the same proof on both sides, independent of scope.
     // Arbitrary virtual rows, checkboxes, presses and unkeyed records stay barred.
     const navigation=()=>{
-      if(target.role!=='button'||typeof target.expanded!=='boolean'||target.checked!=null||target.pressed!=null
-        ||target.selected.length||target.structuralItem||!target.label)return;
+      const disclosure=target.role==='button'&&typeof target.expanded==='boolean'&&!target.selected.length&&!!target.label;
+      // A tab inside a uniquely destination-bound navigation row describes a
+      // mode, not a business record. This proof is used only for fragment
+      // scheduling; review/arrival identities retain their existing policy.
+      const tab=purpose==='fragment'&&target.role==='tab'&&!!(target.label||target.name)
+        &&['true','false'].includes(tree.nodes.get(target.instanceId)!.attributes['aria-selected']);
+      if((!disclosure&&!tab)||target.checked!=null||target.pressed!=null||target.structuralItem)return;
       const ancestors=owner.reviewReuseBinding?.ancestors||[];
       if(!ancestors.some(a=>(a.tag==='nav'||a.attributes.role==='navigation')&&!!a.label)
         ||ancestors.some(record))return;
@@ -198,8 +203,12 @@ export function modeStructureReader(o:Observation) {
     }
     // Capture may also establish ownership outside this subtree. Retain it as
     // a condition, never use absent ancestry to discard a competing owner.
+    // Only captured instance links are temporary. Ancestor attributes can be
+    // hidden dependencies; a navigation landmark alone is no independence
+    // contract for arbitrary handlers reading them.
     const ownerAncestry=owner.reviewReuseBinding?.ancestors.map(({tag,attributes,label})=>({tag,attributes,label}));
-    const result:ModeStructureReference={policy:'selector-structural-reference/v2',key:hash({policy:'selector-structural-reference/v2',owner:tree.ownerKey,ownerAncestry,
+    const policy=purpose==='fragment'?'selector-fragment-reference/v1' as const:'selector-structural-reference/v2' as const;
+    const result:ModeStructureReference={policy,key:hash({policy,owner:tree.ownerKey,ownerAncestry,
       navigationRecords,ancestry,fragment:tree.guard.get(fragment.instanceId),path}),ownerLocalId:owner.localId,ownerNodes:tree.nodes.size,fragmentNodes:tree.sizes.get(fragment.instanceId)!};
     cache.set(target,result);return result;
   };

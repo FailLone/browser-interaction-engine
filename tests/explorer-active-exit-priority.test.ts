@@ -2,12 +2,13 @@ const localSelectionLimit=4; // Historical saved metadata; the strategy must ign
 import { EventEmitter } from 'node:events';
 import { expect, it, vi } from 'vitest';
 import { exitCandidateKey, type ActionAttempt, type ActionCandidate, type BoundaryExitCandidate, type Observation } from '@interaction/browser';
-import { ExplorerPlugin, type ExplorerHost, type ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
+import { ExplorerPlugin, type ExplorerHost, ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
 import { type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
 
 // Review decisions are outside this scheduling regression. All candidate
 // availability, uniqueness, freshness, scope and run-entry unknown gates below
-// are the real runtime code; no browser, SDK engine or database is constructed.
+// are the real runtime code; only an in-memory task store is constructed.
+// No browser or SDK engine is constructed.
 vi.mock('../packages/explorer-plugin/src/reviews.js', () => ({ reviewNext: async () => false }));
 
 const url = 'https://active-exit.fixture.invalid/';
@@ -40,8 +41,9 @@ function fixture() {
     explorationSnapshot: () => ({ actions, operationCandidates: actions, availability: availability() }),
     createCheckpoint: effect(), reachCheckpoint: effect(), reachExplorationTarget: effect(), returnToObservedSource: effect(),
     execute: effect(), observe: effect(), createSession: effect() } as unknown as ExplorerHost;
-  const store = { save: vi.fn(), decisionCursor: () => 0, decisions: () => [], close: () => {},
-    event: (event: { type: string; data: unknown }) => { events.push(event); if (event.type === 'obligation.selected') throw selected; } } as unknown as ExplorerStore;
+  const persistence=new ExplorerStore(':memory:');
+  const store = Object.assign(persistence,{ save: vi.fn(persistence.save.bind(persistence)), decisionCursor: () => 0, decisions: () => [],
+    event: (event: { type: string; data: unknown }) => { events.push(event); if (event.type === 'obligation.selected') throw selected; } }) as unknown as ExplorerStore;
   const plugin = new ExplorerPlugin(host, store), task = plugin.create({ url, coverageMode: 'all' });
   task.status = 'running';
   const round: Round = { id: 'round', number: 1, sessionId: observation.sessionId, startedAt: new Date().toISOString(), status: 'running',

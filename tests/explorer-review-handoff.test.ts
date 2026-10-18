@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import { expect, it, vi } from 'vitest';
 import { hash } from '@interaction/core';
 import type { ActionAttempt, ActionCandidate, Observation, OperationReceiptCondition } from '@interaction/browser';
-import { ExplorerPlugin, type Decision, type ExplorerHost, type ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
+import { ExplorerPlugin, type Decision, type ExplorerHost, ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
 import { type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
 import { recordRouteRetry } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
 import { digest, keyFor, matches, navigationTarget, scopeFor, schedulingKeyFor } from '../packages/explorer-plugin/src/policy.js';
@@ -22,7 +22,8 @@ function item(id: string, scope: Scope, dispatchScope = true): PlanItem {
 // Real runtime.step, reviewNext, scope/availability checks, guarded apply and
 // fairness selection. Only independent audit projections, durable persistence,
 // retained route discovery and model answers are substituted. No provider, SDK
-// engine, browser, database or server is created; all navigation is forbidden.
+// engine, browser or server is created; an in-memory task store backs the
+// transactional fragment interface. All navigation remains forbidden.
 function fixture(count = localSelectionLimit, continueDispatch = false) {
   const control = (id: string, role: string, label: string): Control => ({ localId: id, instanceId: `instance-${id}`,
     identityId: `identity-${id}`, identityScope: 'semantic', stableKey: `id:${id}`, tag: role === 'button' ? 'button' : 'div',
@@ -71,11 +72,12 @@ function fixture(count = localSelectionLimit, continueDispatch = false) {
     createCheckpoint: effect(), reachCheckpoint: effect(), reachExplorationTarget: effect(), returnToObservedSource: effect(),
     execute: effect(), observe: effect(), createSession: effect(),
   } as unknown as ExplorerHost;
-  const store = { save: vi.fn(), close: () => {}, decisionCursor: () => decisions.length,
+  const persistence=new ExplorerStore(':memory:');
+  const store = Object.assign(persistence,{ save: vi.fn(persistence.save.bind(persistence)), decisionCursor: () => decisions.length,
     decisions: (_id: string, cursor = 0) => decisions.slice(cursor),
     decision: (decision: Decision) => { if (!decisions.includes(decision)) decisions.push(decision); },
     event: (event: Event) => { events.push(event); if (!continueDispatch && event.type === 'obligation.selected') throw localSelected; return event; },
-  } as unknown as ExplorerStore;
+  }) as unknown as ExplorerStore;
   const plugin = new ExplorerPlugin(host, store), task = plugin.create({ url, coverageMode: 'all' });
   const review = { ...item('review', { url, label: dialog.name, role: dialog.role }, false), reason: 'classification_unresolved', status: 'unresolved' as const,
     evidence: [{ sessionId: 'old-session', observationId: 'old-dialog-A' }, { sessionId: 'old-session', observationId: 'old-dialog-B' }] };
@@ -207,7 +209,7 @@ function reentryDispatchFixture(outcome: 'succeeded' | 'unknown' | 'no-attempt',
   }
   const priorSchedule = structuredClone(f.task.scheduling!);
   const saved: Task[] = [];
-  vi.mocked(f.store.save).mockImplementation(task => { saved.push(structuredClone(task)); return `saved-${saved.length}`; });
+  vi.mocked(f.store.save).mockImplementation((...args) => { saved.push(structuredClone(args[0])); return ExplorerStore.prototype.save.apply(f.store,args); });
   f.host.createCheckpoint = vi.fn(async () => ({ id: 'entry-checkpoint' })) as unknown as ExplorerHost['createCheckpoint'];
   f.host.interactionTransition = vi.fn(() => ({ verified: false })) as unknown as ExplorerHost['interactionTransition'];
   runtime.settleScopes = () => {};

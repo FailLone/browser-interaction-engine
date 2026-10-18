@@ -1,0 +1,5 @@
+{
+  "packages/adapter-playwright/src/fragment-projection.ts": "c19785bde242853a9b9a2022de7095bbf57ce7e371555297f3d3404837e708dd",
+  "packages/adapter-playwright/src/mode-structure.ts": "82e776795ea6dd1c977b2c34048d5076ab3c6a0d8861249ad1d31beb57567b4d",
+  "packages/adapter-playwright/src/branch-conditions.ts": "28b2d0b7d223de4ffcc0bf5a3c481f6d3bbc94640635cfc9aef14d793c3ae812"
+}

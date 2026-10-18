@@ -1,4 +1,4 @@
-import {browserTraversalFragments,type ActionCandidate,type ActionAttempt,type Observation} from '@interaction/browser';
+import {browserTraversalFragments,fragmentProjectionPolicy,type ActionCandidate,type ActionAttempt,type Observation} from '@interaction/browser';
 import {digest,matches,schedulingKeyFor} from './policy.js';
 import {boundOperationCondition} from './plan-state.js';
 import {ExplorerError,type PlanItem} from './types.js';
@@ -10,6 +10,7 @@ export interface FragmentFrontier {observationId:string;byAction:Map<string,{fra
  * no coverage-count ceiling; material/cache budgets never erase pending work. */
 export function registerFragmentObservation(l:FragmentSession,o:Observation,actions:readonly ActionCandidate[],authority:string,eligibleIds:ReadonlySet<string>):FragmentFrontier {
   const start=performance.now(),byAction:FragmentFrontier['byAction']=new Map();let registered=0,mapped=0;
+  if(l.root.policy!==fragmentProjectionPolicy)return {observationId:o.id,byAction,pruned:[],registered,mapped,unmapped:actions.length,elapsedMs:performance.now()-start};
   l.authority(authority);
   for(const projection of browserTraversalFragments(o,actions,authority)){
     const record=l.register(o.url,projection,{sessionId:o.sessionId,observationId:o.id,regionId:projection.regionId},projection.parentRegionId);
@@ -30,6 +31,7 @@ export function registerFragmentObservation(l:FragmentSession,o:Observation,acti
 /** A durable succeeded SDK receipt precedes this idempotent ingest. The two
  * databases are not one transaction; missing ingest never means unexecuted. */
 export function recordFragmentOutcome(l:FragmentSession,frontier:FragmentFrontier,attempt:ActionAttempt):boolean {
+  if(l.root.policy!==fragmentProjectionPolicy)return false;
   if(attempt.status!=='succeeded'||!attempt.afterId||attempt.beforeId!==frontier.observationId)return false;
   const ref=frontier.byAction.get(attempt.action.id);if(!ref)return false;
   const event={id:attempt.id,...ref,sessionId:attempt.sessionId,observationId:attempt.beforeId,afterId:attempt.afterId,actionId:attempt.action.id},prior=l.get('events',attempt.id);
@@ -40,10 +42,12 @@ export function revokeFragmentMappings(l:FragmentSession,candidateId:string,reas
 /** Compact stable reference. Full origin receipts are paginated by origins();
  * ordinary logs never duplicate growing source sets. */
 export function fragmentActionEvidence(l:FragmentSession,f:FragmentFrontier,actionId:string){
+  if(l.root.policy!==fragmentProjectionPolicy)return;
   const ref=f.byAction.get(actionId);if(!ref)return;const access=l.counts(ref.candidateId);
   return {...ref,pruned:fragmentWasExplored(access),access,originCount:access.equivalent,evidenceRef:{rootKey:l.root.rootKey,candidateId:ref.candidateId,epoch:l.root.epoch},coverageGranted:false as const};
 }
 export function linkFragmentObligations(l:FragmentSession,f:FragmentFrontier,o:Observation,actions:readonly ActionCandidate[],plan:readonly PlanItem[]){
+  if(l.root.policy!==fragmentProjectionPolicy)return;
   for(const item of plan){
     if(!item.scope.kind||item.dispatchScope===true)continue;
     const condition=boundOperationCondition(item),current=actions.filter(a=>matches(item.scope,a,o)&&(!condition||condition===schedulingKeyFor(a,o)));
@@ -54,13 +58,14 @@ export function linkFragmentObligations(l:FragmentSession,f:FragmentFrontier,o:O
   }
 }
 export function fragmentObligationSampled(l:FragmentSession|undefined,item:PlanItem){
-  if(!l||item.dispatchScope===true)return false;
+  if(!l||l.root.policy!==fragmentProjectionPolicy||item.dispatchScope===true)return false;
   const ref=l.get('obligations',item.id);if(!ref||ref.authority!==l.root.authority||ref.scopeKey!==digest({scope:item.scope,condition:boundOperationCondition(item)}))return false;
   return ref.candidateIds.length>0&&ref.candidateIds.every(id=>!!l.get('candidates',id)&&fragmentWasExplored(l.counts(id)));
 }
 /** Ordinary historical targets are sampled; selected restore entries retain
  * their independent SDK arrival and child execution contract in the caller. */
 export function sampledFragmentAction(l:FragmentSession,o:Observation,actions:readonly ActionCandidate[],authority:string,actionId:string):boolean {
+  if(l.root.policy!==fragmentProjectionPolicy)return false;
   for(const projection of browserTraversalFragments(o,actions,authority)){
     const index=projection.candidates.findIndex(c=>c.actionId===actionId);if(index<0)continue;
     const found=l.find(o.url,projection);return !!found&&fragmentWasExplored(l.counts(found.candidates[index].id));
@@ -68,6 +73,7 @@ export function sampledFragmentAction(l:FragmentSession,o:Observation,actions:re
   return false;
 }
 export function preferFragmentCandidate<T extends {actionId?:string}>(l:FragmentSession,f:FragmentFrontier,choices:readonly T[]):T|undefined {
+  if(l.root.policy!==fragmentProjectionPolicy)return choices[0];
   const peers=new Map<string,number>();
   return bestFragmentCandidate(choices.map(choice=>{const ref=choice.actionId?f.byAction.get(choice.actionId):undefined;
     if(ref&&!peers.has(ref.fragmentId))peers.set(ref.fragmentId,l.peers(ref.fragmentId));
@@ -75,6 +81,7 @@ export function preferFragmentCandidate<T extends {actionId?:string}>(l:Fragment
   }))?.choice;
 }
 export function fragmentStateOrder(l:FragmentSession,o:Observation){
+  if(l.root.policy!==fragmentProjectionPolicy)return {order:[],deferred:[]};
   const rows=[...l.rows('states')].filter(s=>s.url!==o.url).map(s=>{
     const candidates=s.candidateIds.map(id=>l.counts(id)),nav=s.navigation,entry=nav?.entries[nav.currentIndex];
     const reachable=!!entry&&entry.method==='GET'&&nav?.browserSessionId===o.navigation?.browserSessionId&&o.navigation.entries.some(e=>e.id===entry.id&&e.url===entry.url&&e.method==='GET')&&s.context===digest(o.context);
