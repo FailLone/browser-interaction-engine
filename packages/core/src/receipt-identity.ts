@@ -1,11 +1,13 @@
 import type { ExplorationCase } from './ports.js';
+import type { CorrespondenceHint } from './coverage-reconciliation.js';
 import type { ActionCandidate, IdentityHypothesis, Observation } from './types.js';
 
 /** Validate an adapter's completed condition-proof references. Structural mode
- * references remain instance references; only the operation target needs a
- * logical identity. This grants no identity, arrival or replay authority. */
+ * references remain instance references. A target needs a logical identity or
+ * a separately revalidated unique operation reference bound to its actual
+ * dispatched instance. This grants no identity, arrival or replay authority. */
 export function receiptIdentityConflict(scope: NonNullable<ExplorationCase['identityConflictScope']>, action: ActionCandidate,
-  before: Observation, hypotheses: IdentityHypothesis[]): string | undefined {
+  before: Observation, hypotheses: IdentityHypothesis[], operationReference?:CorrespondenceHint): string | undefined {
   if(scope.policy!=='captured-operation-controls-v1'||!Array.isArray(scope.localIds)||!scope.localIds.length
     ||new Set(scope.localIds).size!==scope.localIds.length||!action.localId||!scope.localIds.includes(action.localId))return 'source_identity_scope_unverified';
   const aliases=new Map(hypotheses.filter(h=>h.status==='resolved'&&h.revisions?.length)
@@ -26,7 +28,10 @@ export function receiptIdentityConflict(scope: NonNullable<ExplorationCase['iden
       if(!hypothesis||hypothesis.status!=='resolved')return hypothesis?.status==='pending'?'identity_pending':'source_identity_unverified';
     }
     const identity=resolve(c.identityId);if(!identity)return 'source_identity_unverified';
-    if(localId===action.localId&&c.identityScope==='instance'
+    const operationTarget=scope.operationTarget,instanceOperation=localId===action.localId&&operationTarget
+      &&operationReference?.requiresUniqueTarget===true&&operationReference.key===operationTarget.referenceKey&&operationReference.policy===operationTarget.referencePolicy
+      &&action.target?.kind==='instance'&&action.target.instanceScope===before.instanceScope&&action.target.instanceId===c.instanceId;
+    if(localId===action.localId&&c.identityScope==='instance'&&!instanceOperation
       ||c.identityScope!=='instance'&&before.controls.filter(other=>resolve(other.identityId)===identity).length!==1)return 'source_identity_unverified';
     relevant.add(identity);
   }

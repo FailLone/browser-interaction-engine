@@ -166,7 +166,9 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
     return {key:hash({url:o.url,reference:native.key,branch:branch?.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
       readOnly:c.readOnly,constraints,options:c.options,attributes:native.policy==='browser-native-navigation-v2'?nativeNavigationAttributes(c.reviewBinding?.attributes||{}):c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
-      policy:native.policy==='browser-native-navigation-v2'?'browser-native-navigation-operation-v2':'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
+      policy:native.policy==='browser-native-navigation-v2'?'browser-native-navigation-operation-v2':'browser-native-record-link-operation-v2',
+      identityConflictScope:identityConflictScope&&{...identityConflictScope,...native.policy==='browser-native-navigation-v2'?{operationTarget:{referenceKey:native.key,referencePolicy:native.policy}}:{}},
+      evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
   }
   // Review record IDs identify evidence, not a new operation. Preserve the
   // reviewed DOM conditions and risk; dispatch still validates the exact review.

@@ -119,7 +119,11 @@ export interface ExplorationCase {
   /** Complete captured control references used by this operation's condition
    * proof, including its target. This scopes identity conflicts, not identity
    * authority. Observation-local IDs must never enter the portable sample key. */
-  identityConflictScope?: { policy: 'captured-operation-controls-v1'; localIds: string[] };
+  identityConflictScope?: { policy: 'captured-operation-controls-v1'; localIds: string[];
+    /** Separate unique operation reference for a retained instance target.
+     * Revalidated by the adapter; never a logical identity or replay grant. */
+    operationTarget?: {referenceKey:string;referencePolicy:string};
+  };
 }
 export interface RestorationStep {
   action: ActionCandidate;

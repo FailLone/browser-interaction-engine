@@ -14,7 +14,7 @@ import { ExplorationGroups, currentExplorationDecision, explorationGates, valida
 import { explorationReviewMaterial } from './exploration-review.js';
 import { auditExploration } from './exploration-audit.js';
 import { isObservedUIOperation, isObservedUIProbe, type ProbeGuard, type ProbeAvailability, type DispatchGuard, type ActionAvailability, type ExecutionBlocker, type ExecutionGuard } from './execution-readiness.js';
-import { identityResolver, operationSample, type OperationCorrespondence, type OperationReceiptCondition, type ReceiptCoverageReader, reconcileCoverage } from './coverage-reconciliation.js';
+import { identityResolver, operationSample, type CorrespondenceHint, type OperationCorrespondence, type OperationReceiptCondition, type ReceiptCoverageReader, reconcileCoverage } from './coverage-reconciliation.js';
 import type { ExplorationGroup, ExplorationGroupDecision, ExplorationGroupResolution } from './types.js';
 import { canonical, contextKey, hash, id, now, timeout, clone as structuredClone, defer, sleep } from './util.js';
 import type { ControlReviewTargetCorrespondenceReader, EngineOptions, InteractionAdapter, InteractionDriver, Persistence } from './ports.js';
@@ -239,7 +239,16 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         // The new contract can narrow an existing global rejection. It must
         // not replace the established identity policy of unblocked samples.
         const scope=identityIssue&&scopedIdentity?portable.identityConflictScope:undefined;
-        const conflict=scope?receiptIdentityConflict(scope,action,before,hypotheses):identityIssue;
+        let operationReference:CorrespondenceHint|undefined;
+        if(scope?.operationTarget){
+          const reader=this.adapter.createOperationCorrespondenceHintReader?.(before)
+            ||((control:O['controls'][number],kind:string)=>this.adapter.operationCorrespondenceHint?.(control,kind,before));
+          operationReference=reader(target,action.kind);
+          if(!operationReference?.requiresUniqueTarget||operationReference.key!==scope.operationTarget.referenceKey
+            ||operationReference.policy!==scope.operationTarget.referencePolicy
+            ||before.controls.filter(c=>reader(c,action.kind)?.key===operationReference!.key).length!==1)return unavailable('source_operation_reference_unverified');
+        }
+        const conflict=scope?receiptIdentityConflict(scope,action,before,hypotheses,operationReference):identityIssue;
         if(conflict)return unavailable(conflict);
         return {...result,conditionVerified:true,status:'portable',reason:'portable_operation_sample',policy:portable.policy,conditionKey:portable.key,
           evidence:[...result.evidence,...portable.evidence,...scope?[`identity-conflict-scope:${hash({observationId:before.id,...scope})}`]:[]]};

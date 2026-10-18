@@ -19,7 +19,7 @@ const alias = (from: string, to: string): IdentityHypothesis => pending({ id: `a
   provisionalIdentityId: from, candidateIds: [to], revisions: [{ identityId: to, source: 'fixture', evidence: [], at }] });
 
 function fixture(options: { scoped?: boolean; scope?: Scope | null; portable?: boolean; instanceRetained?: boolean;
-  customBrowser?: boolean; configure?: (records: Records) => void } = {}) {
+  customBrowser?: boolean; operationReference?:{key:string;policy:string;requiresUniqueTarget?:boolean}; configure?: (records: Records) => void } = {}) {
   const store = new MemoryStore();
   const observation = (id: string): CounterObservation => ({
     id, sessionId: 'session', capturedAt: at, instanceScope: 'fixture-lifetime', count: 0,
@@ -49,6 +49,7 @@ function fixture(options: { scoped?: boolean; scope?: Scope | null; portable?: b
   class Adapter extends CounterAdapter {
     get receiptIdentityScope() { return options.scoped === false ? undefined : policy; }
     correspondenceCase = sample;
+    operationCorrespondenceHint = (control:CounterObservation['controls'][number]) => control.localId==='target'&&options.operationReference?{...options.operationReference,evidence:[],invalidatedBy:['changed-operation']}:undefined;
     override createDriver(): never { throw Error('Receipt queries must not create a driver'); }
   }
   const adapter: InteractionAdapter<CounterObservation> = options.customBrowser
@@ -184,4 +185,16 @@ it.each(['dirty', 'unknown'])('preserves the %s gate before scoped sampling', ga
   if (gate === 'unknown') f.store.put('attempt', { ...f.attempt, id: 'unsettled', status: 'unknown', afterId: undefined });
   f.put.mockClear();
   rejected(f, gate === 'dirty' ? 'dirty_session' : 'unknown_execution_outcome'); expect(f.sample).not.toHaveBeenCalled();
+});
+
+it('requires a separately revalidated unique operation reference before an instance target can use the receipt scope',()=>{
+ const reference={key:'native-operation',policy:'captured-native-operation',requiresUniqueTarget:true};
+ const setup=(fault?:string)=>fixture({operationReference:fault==='missing'?undefined:fault==='changed'?{...reference,key:'different'}:fault==='nonunique'?{...reference,requiresUniqueTarget:false}:reference,
+  scope:{policy,localIds:['target','mode'],operationTarget:{referenceKey:reference.key,referencePolicy:reference.policy}},
+  configure:r=>{r.before.controls[0].identityScope='instance';r.action.target={kind:'instance',instanceScope:r.before.instanceScope!,instanceId:'target-instance',evidence:['captured current instance']};
+   if(fault==='wrong-instance')r.action.target.instanceId='other';
+   if(fault==='same-target-pending')r.hypotheses.push(pending({candidateIds:['target-identity']}));}});
+ const f=setup();try{expect(f.query()).toMatchObject({conditionVerified:true,status:'portable',identityAuthorized:false,replayAuthorized:false,currentExecution:false});expect(f.put).not.toHaveBeenCalled();}finally{f.store.close();}
+ for(const fault of ['missing','changed','nonunique'])rejected(setup(fault),'source_operation_reference_unverified');
+ rejected(setup('wrong-instance'),'source_target_not_unique');rejected(setup('same-target-pending'),'identity_pending');
 });
