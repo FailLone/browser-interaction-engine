@@ -1,0 +1,89 @@
+{
+  "status": "local_program_path_proven_not_OKX_acceptance",
+  "attempts": [
+    {
+      "kind": "hover",
+      "label": "Information menu",
+      "status": "succeeded",
+      "risk": "unknown",
+      "effectsAssessment": "not-assessed",
+      "repetitionSource": null,
+      "beforeId": "82e22b3c-8719-40d0-9794-783c77c91159",
+      "afterId": "bf8356bb-71db-4ae9-a11d-bd4a6f965e24"
+    },
+    {
+      "kind": "click",
+      "label": "Overview",
+      "status": "succeeded",
+      "risk": "interface",
+      "effectsAssessment": null,
+      "repetitionSource": null,
+      "beforeId": "5f20ba27-941a-419b-bc76-770db7d3e236",
+      "afterId": "090263d8-dae6-46ed-b43c-fc32a60ad121"
+    },
+    {
+      "kind": "history",
+      "label": "Return to observed page",
+      "status": "succeeded",
+      "risk": "interface",
+      "effectsAssessment": null,
+      "repetitionSource": null,
+      "beforeId": "32a790fd-9e50-49a2-8290-15dd418a2b70",
+      "afterId": "70dfa6b9-b6c7-4492-861b-1a4b6bed92de"
+    },
+    {
+      "kind": "hover",
+      "label": "Information menu",
+      "status": "succeeded",
+      "risk": "unknown",
+      "effectsAssessment": "not-assessed",
+      "repetitionSource": {
+        "sessionId": "400824f1-cb01-42f7-a2b9-18fb8d37a4ee",
+        "attemptId": "032f80e0-8143-415e-bee3-7c65b952212b"
+      },
+      "beforeId": "8334efe1-9b22-4ef9-8f13-75517af54330",
+      "afterId": "36443337-70a1-40aa-9fc4-47c1e309c8ba"
+    },
+    {
+      "kind": "click",
+      "label": "Details",
+      "status": "succeeded",
+      "risk": "interface",
+      "effectsAssessment": null,
+      "repetitionSource": null,
+      "beforeId": "20b89c03-1f88-4678-ba58-6c8b4bebbcc8",
+      "afterId": "5b1b60df-ebd1-4c50-ba67-47b67b9bdfd3"
+    },
+    {
+      "kind": "history",
+      "label": "Return to observed page",
+      "status": "succeeded",
+      "risk": "interface",
+      "effectsAssessment": null,
+      "repetitionSource": null,
+      "beforeId": "7d4e3c2f-9172-4382-ae92-a534b4a27d54",
+      "afterId": "c80c9769-660d-428a-a720-7d208c5969fd"
+    }
+  ],
+  "modelsConfigured": false,
+  "modelDecisions": 0,
+  "overallStatus": "configuration_required",
+  "overallReason": "CONFIGURATION_REQUIRED",
+  "fallbackObserved": true,
+  "focusedTests": {
+    "passed": 71,
+    "suites": 10,
+    "additionalOfflineCasePassed": true
+  },
+  "typecheck": "root and core passed",
+  "intermediateCorrections": [
+    "The captured no-form sentinel is document, not an empty string.",
+    "The first Vite route fixture mounted middleware after HTML fallback; moved it to configureServer so destination pages are actually distinct.",
+    "React development props are frozen; stale-evidence fixture now replaces the own data-property value and asserts the mutation applied."
+  ],
+  "auditorsUnchanged": {
+    "scripts/local-loop-audit.ts": "6f1d6cf2e56306e166c3ed87988a04ddda52fb0158fc772a7a58940bf15fe367",
+    "scripts/finite-okx-audit.ts": "f835dbcc33fe1df52eaf5968f67cf719cb4182bbed7f9fc8d944832491bf670b",
+    "scripts/okx-plugin-loop-acceptance.ts": "58ab041cdb3c64af2ef4d7d8340e0a8fe670b47cef2ef8d2556f9cbdc13555cf"
+  }
+}

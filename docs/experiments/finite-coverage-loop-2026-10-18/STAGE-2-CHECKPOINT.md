@@ -1,3 +1,7 @@
+# Latest implementation: explicit program navigation ready for frozen evaluation
+
+Program-first public navigation is implemented; local real-browser delegated/native menus now execute with no configured model. Source/target-bounded necessary hover repetition continues a newly revealed second child after navigation/return. Effects remain unknown, no classification or interface-risk certificate is fabricated, and canvas/semantic duties remain incomplete. See STAGE-2-PROBE-CONTRACT.md and evidence/stage2-program-navigation.72 distinct focused tests and both typechecks pass. Original full local+confirmation and realOKX evaluation on this new freeze are still required. Do not use the prior0dbfe0d local gates for this product change.
+
 # Current method correction — program-first bounded exploration
 
 Coordination message from chat 01a14aca-ea79-7a91-90ad-1997f869a7d4 on 2026-10-18 reports the user's correction: ordinary authorized exploration should run in the program first, with JEV/LLM used only for concrete unresolved cases. This direction is consistent with the active goal; it does not replace its full acceptance gates. Do not continue treating proof that a hover will be useful, or a semantic review of every page control, as mandatory before an authorized bounded observation.

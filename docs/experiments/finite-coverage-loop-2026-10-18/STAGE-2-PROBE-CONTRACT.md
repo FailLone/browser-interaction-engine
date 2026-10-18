@@ -1,3 +1,21 @@
+# Implemented explicit program navigation (real OKX still unproved)
+
+The following implementation supersedes the earlier design checkpoint below. Caller coverage contracts may opt into `programNavigation: public-navigation-v1` together with explicit observed-ui execution. Scope roots, route predicates, operation kinds and exclusions remain unchanged and are checked at dispatch. Unknown non-domain operations remain rejected; previously established interface operations retain their existing policy.
+
+The domain consists of current native HTTP(S) hyperlinks to authorized destinations, native details summary toggles in a navigation/header landmark, and captured own-event hover/focus observation candidates in such a landmark. Form-owned/editable targets, submissions, pointer-only/inherited/descendant event evidence and out-of-scope destinations do not gain authority. The program path currently proves delegated hover and native summary cases; it does not claim complete framework event discovery.
+
+A captured tentative hover becomes a supported **browser observation operation**, with its original event facts plus explicit bounded-observation authority. Its risk stays unknown, effects stay not-assessed, replayable stays false, and no semantic classification/review is created. Finite receipt validation proves that this bounded sample actually executed; it does not certify a useful interface change or any business outcome. Unknown classification, effect, canvas and other duties continue to block overall completion.
+
+The existing scheduler performs deterministic region/group/current-occurrence setup, then selects current authorized actions and verified recovery before semantic review. Only when this program pass has no current action or verified recovery does it request model fallback. Non-domain operation fallback still uses the existing interface-effect/external-write review instead of treating supported native activation as authorization. A model failure leaves independently executable program work unaffected because it has already had a turn.
+
+Necessary repetition has separate explicit authorization. SDK source/target correspondence, actual successful original receipt, current availability and target readiness must all pass. Both source and current session must still authorize the bounded program domain. This exception neither marks the action generally replayable nor changes unknown effects; absent that opt-in the original unassessed-action repetition veto remains. The plugin's retained unfinished-child requirement and one-progress/repetition scheduling remain intact.
+
+The OKX protocol is version3: identical scope, 240s/80 count,210s cooperative stop and strict auditor; modes program-only/program-model/legacy-model. The external guard retains its original URL/action/prohibited-business rules and additionally checks explicit bounded program authority for unknown-risk actions. It never relabels unknown risk as interface. Capture start/end timing is now logged.
+
+Evidence: evidence/stage2-program-navigation. A real React delegated menu, actual navigation to distinct information pages and guarded repeated hover continued another original child with no configured models. Native summary and no-effect/disabled/offline cases pass. Scope, form, stale-event and dependent-canvas cases reject. These are local evidence, not an OKX acceptance claim.
+
+---
+
 # Bounded observation authority — design checkpoint, not yet implemented
 
 The metadata-only diagnostic falsified the previous admission hypothesis. Actual own React event metadata and a controlled hidden panel did not make the real model predict a useful interface effect. Requiring that prediction before observing the result is not a sound exploration prerequisite. The subsequent coordinated method correction prioritizes a program loop over adding another model approval.

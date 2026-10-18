@@ -154,6 +154,8 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** Opt-in finite UI execution coverage, without asserting business effects. */
   requiresDispatchWitness?(observation: O, session: Session<S>): boolean;
   observedUICoverage?(action: ActionCandidate, observation: O, session: Session<S>): boolean;
+  /** Separate explicit authority for a freshly matched bounded repetition; never a generic replay grant. */
+  boundedRepetitionAuthorized?(action: ActionCandidate, current: O, session: Session<S>, source: ActionCandidate, before: O, sourceSession: Session<S>): boolean;
   submissionAuthorized?(action: ActionCandidate, observation: O, session: Session<S>): boolean;
   testPredicate(predicate: Predicate, observation: O): 'pass' | 'fail' | 'unknown';
   replayMatches(candidate: ActionCandidate, recorded: ActionCandidate): boolean;

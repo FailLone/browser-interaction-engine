@@ -19,6 +19,8 @@ export interface ReviewContext {
   priorityActionIds?:readonly string[];
   /** Yield only after a complete review unit; prepared host batches must flush first. */
   reviewQuotaReached?():boolean;
+  /** Dispatch/recovery must exhaust current program work before semantic fallback. */
+  deferSemanticReview?:boolean;
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
   assess(purpose:string,state:unknown,checks:NonNullable<ModelRequest['checks']>):Promise<{values:Record<string,boolean|null>;decision:Decision}>;
   refresh(decision:Decision,key:string):Promise<boolean>;
@@ -71,6 +73,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // Caller authority already determines membership. Group exact current SDK
   // instances without asking a model to accept that scope again. This changes
   // grouping only: classification, operation and probe risk keep their policy.
+  const programNavigation=!!task.coverageContract?.programNavigation;
   const contractRegions=!!task.coverageContract&&!!c.programApply;
   const programRegions=observedUI||contractRegions;
   const done=(key:string)=>round.reviewed.includes(key);const mark=(key:string)=>round.reviewed.push(key);
@@ -168,7 +171,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // and group preparation before it. Do not yield halfway through that setup:
   // its sources would not yet have durable identity/owner evidence. Difficult
   // semantic reviews still yield to independently executable work at the quota.
-  const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&(observedUI&&pendingOccurrence||!c.allowIndependentActionYield&&(pendingOccurrence||readClassification().controls.some(item=>item.needsClassification&&allRelevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))));
+  const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&(observedUI&&pendingOccurrence||!c.deferSemanticReview&&!c.allowIndependentActionYield&&(pendingOccurrence||readClassification().controls.some(item=>item.needsClassification&&allRelevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))));
   if(!finiteNeedsReview&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
   if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
@@ -254,6 +257,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   if(observedUI){
     const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
     if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
+    if(c.deferSemanticReview){retainBeforeYield();return false;}
     // Exhaust bounded observation supplied by the SDK before asking a model to
     // interpret a weak candidate. This never dispatches an interaction.
     if(!focused&&!boundary){
@@ -343,7 +347,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   }
   const control=readOperations();
   for(const item of control.controls.filter(i=>i.needsReview&&relevantIds.has(i.control.localId))) {
-    if(observedUI){
+    if(observedUI&&!programNavigation){
       const key=`operation-description:${unresolvedPurposeKey(o,item,task.revision)}`;if(done(key))continue;
       // Only describe operations already suggested by captured own-node evidence.
       // Names or descendant controls cannot invent an operation type or target.

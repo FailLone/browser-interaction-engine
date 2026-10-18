@@ -1,5 +1,5 @@
 import { ExplorationDecisionReuse } from './exploration-decision-reuse.js';
-import {executionBoundaryFailure,progressDependencies} from '@interaction/adapter-playwright';
+import {executionBoundaryFailure,progressDependencies,programNavigationDependencies,prepareProgramNavigation} from '@interaction/adapter-playwright';
 import { Interventions } from './interventions.js';
 import { canonical, clone, hash, now } from '@interaction/core';
 import { interventionResponseSchema, continuationSchema, type InterventionResponseInput, type InterventionResponseRecord, type ContinueExplorationInput, type ContinuationRecord } from '@interaction/adapter-playwright';
@@ -743,7 +743,9 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     return 'changed';
   }
   protected override prepareActions(actions: ActionCandidate[], observation: Observation) {
-    const reviewed = this.purposeReviews.apply(actions, observation);
+    const session=this.session(observation.sessionId);
+    const prepared=session.options.executionPolicy==='observed-ui'?prepareProgramNavigation(actions,observation,session.options.executionBoundary):actions;
+    const reviewed = this.purposeReviews.apply(prepared, observation);
     this.classifications.reconcile(observation, reviewed);
     return this.classifications.apply(reviewed, observation);
   }
@@ -767,7 +769,8 @@ export class BrowserEngine extends CoreEngine<Observation, SessionOptions> {
     const boundaryFailure=executionBoundaryFailure((material?.session||this.session(observation.sessionId)).options.executionBoundary,action,observation);
     if(boundaryFailure)throw new EngineError('ACTION_OUTSIDE_EXECUTION_BOUNDARY',boundaryFailure,{observationId:observation.id,actionId:action.id,purpose});
     if(observation.coveragePolicy==='finite-ui-v1'){
-      const unresolved=(material||this.validationMaterial(observation)).dependencyControls;
+      const currentMaterial=material||this.validationMaterial(observation);
+      const unresolved=programNavigationDependencies(currentMaterial.session.options.executionBoundary,action,observation,currentMaterial.dependencyControls);
       // A bounded SDK probe is intended to gather this target's missing purpose;
       // it still cannot bypass another dependent review or an unknown subtree.
       const dependencies=progressDependencies(observation,action,action.source==='external-probe'?unresolved.filter(c=>c.localId!==action.localId):unresolved);

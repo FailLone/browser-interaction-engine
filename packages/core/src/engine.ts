@@ -312,11 +312,12 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     const result:RepetitionAssessment={repeatable:false,reason:proof.reason,conditionKey:proof.conditionKey||hash({source:input.source,reason:proof.reason,context:current.context}),evidence:[...proof.evidence],source:input.source,target:{sessionId,observationId:input.observationId,actionId:input.actionId},dispatchRevalidationRequired:true};
     if(!proof.equivalent)return result;
     const attempt=this.owned<ActionAttempt>('attempt',input.source.attemptId,input.source.sessionId),action=this.owned<ActionCandidate>('action',input.actionId,sessionId);
-    if(attempt.effectsAssessment==='not-assessed'||!attempt.action.replayable){result.reason='source_not_replayable';return result;}
-    if(!action.replayable){result.reason='current_action_not_replayable';return result;}
+    const bounded=attempt.executionProfile==='observed-ui-exploration'&&this.adapter.boundedRepetitionAuthorized?.(action,current,this.session(sessionId),attempt.action,this.observation(attempt.sessionId,attempt.beforeId),this.session(attempt.sessionId));
+    if(!bounded&&(attempt.effectsAssessment==='not-assessed'||!attempt.action.replayable)){result.reason='source_not_replayable';return result;}
+    if(!bounded&&!action.replayable){result.reason='current_action_not_replayable';return result;}
     const readiness=this.actionAvailability(sessionId,current.id).actions.find(a=>a.actionId===action.id);
     if(!readiness?.executable||this.adapter.explorationTargetReady&&!this.adapter.explorationTargetReady(action,current)){result.reason='current_action_not_ready';return result;}
-    result.repeatable=true;result.reason='verified_replayable_operation';result.evidence.push(`replayable-attempt:${attempt.id}`);return result;
+    result.repeatable=true;result.reason=bounded?'caller_authorized_bounded_repetition':'verified_replayable_operation';result.evidence.push(`${bounded?'bounded-repetition-source':'replayable-attempt'}:${attempt.id}`);return result;
   }
   private correspondenceReader() {
     const retainedCoverage=this.retainedReceiptCoverageReader();

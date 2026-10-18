@@ -1,3 +1,4 @@
+import {programNavigationDependencies} from '@interaction/browser';
 import {coverageLedger} from './coverage-ledger.js';
 import {contractOperationAllowed,contractProposalError,contractExecutionBoundary,observedContractRoots} from './coverage-contract.js';
 import {progressDependencies,unresolvedDependencyControls} from './progress-dependencies.js';
@@ -65,7 +66,7 @@ export class ExplorerPlugin {
   tasks(){return this.store.tasks();}
   view(id:string){const task=this.store.task(id);return {task,decisions:this.store.decisions(id),events:this.store.events(id)};}
   create(input:unknown) {
-    const x=createTaskSchema.parse(input);if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,evidenceBudget:x.evidenceBudget,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
+    const x=createTaskSchema.parse(input);if(x.coverageContract?.programNavigation&&x.sessionOptions.executionPolicy!=='observed-ui')throw new ExplorerError('PROGRAM_NAVIGATION_REQUIRES_EXPLICIT_OBSERVED_UI');if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,evidenceBudget:x.evidenceBudget,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
     if(x.coverageContract){if(x.coverageMode!=='all')throw new ExplorerError('CONTRACT_REQUIRES_ALL');if((x.coverageContract.roots.some(scope=>scope.landmark)||x.coverageContract.routes?.some(route=>route.scope.landmark))&&x.sessionOptions.coveragePolicy!=='finite-ui-v1')throw new ExplorerError('STRUCTURAL_SCOPE_REQUIRES_FINITE_POLICY');task.coverageContract={...structuredClone(x.coverageContract),roots:x.coverageContract.roots.map(scope=>({...scope,url:scope.url||x.url}))};}
     this.persist(task);this.event(task,'task.created',{goal:task.goal,coverageContract:task.coverageContract});return task;
   }
@@ -1253,7 +1254,7 @@ export class ExplorerPlugin {
       selectionView?.close();selectionView=undefined;
     }
   }
-  private async step(task:Task,round:Round,signal:AbortSignal):Promise<boolean> {
+  private async step(task:Task,round:Round,signal:AbortSignal,semanticFallback=false):Promise<boolean> {
     const sid=round.sessionId,o=this.host.observation(sid);this.assert(task,signal);
     // Caller route predicates authorize only scopes on this fresh observed URL.
     // They never prescribe navigation, merge states or settle retained duties.
@@ -1277,7 +1278,7 @@ export class ExplorerPlugin {
     const dependencies=new Map<string,ReturnType<typeof progressDependencies>>();
     const canProgress=(action:ActionCandidate)=>{
       if(o.coveragePolicy!=='finite-ui-v1')return true;
-      let result=dependencies.get(action.id);if(!result){result=progressDependencies(o,action,unresolvedControls);dependencies.set(action.id,result);}return result.allowed;
+      let result=dependencies.get(action.id);if(!result){result=progressDependencies(o,action,programNavigationDependencies(task.coverageContract&&contractExecutionBoundary(task.coverageContract),action,o,unresolvedControls));dependencies.set(action.id,result);}return result.allowed;
     };
     const reviewTarget=reviewSelection&&reviewSelection.kind!=='current'
       ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
@@ -1285,6 +1286,7 @@ export class ExplorerPlugin {
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
       reviewQuotaReached:()=>task.usage.modelRequests-modelRequestsBefore>=2,
+      deferSemanticReview:!!task.coverageContract?.programNavigation&&!semanticFallback,
       allowIndependentActionYield:(round.consecutiveReviewSteps??0)>=2,
       priorityActionIds:reviewTarget?.currentActionId?[reviewTarget.currentActionId]:undefined,
       allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),
@@ -1577,6 +1579,10 @@ export class ExplorerPlugin {
       this.gap(task,'checkpoint_unverified',{url:o.url});
       if(o.boundaries?.length&&!this.capabilities().boundaryExit)this.gap(task,'missing_capability:boundaryExitReview',{url:o.url});
       return true; // One newly consumed route condition is finite scheduling progress.
+    }
+    if(task.coverageContract?.programNavigation&&!semanticFallback){
+      this.event(task,'model.fallback_needed',{reason:'no_current_program_action_or_verified_recovery',observationId:o.id,unknownDutiesRetained:true});
+      return this.step(task,round,signal,true);
     }
     return false;
   }
@@ -1920,7 +1926,7 @@ export class ExplorerPlugin {
     const availability=this.host.actionAvailability(o.sessionId,o.id),actions=this.host.actions(o.sessionId,o.id);
     const unresolvedControls=o.coveragePolicy==='finite-ui-v1'?unresolvedDependencyControls(this.host,o):[];
     const ready=actions.filter(a=>permitted(a,o,availability)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&includesScope(task.plan,a,o)
-      &&(o.coveragePolicy!=='finite-ui-v1'||progressDependencies(o,a,unresolvedControls).allowed));
+      &&(o.coveragePolicy!=='finite-ui-v1'||progressDependencies(o,a,programNavigationDependencies(task.coverageContract&&contractExecutionBoundary(task.coverageContract),a,o,unresolvedControls)).allowed));
     const completed=completedOperations(this.host,task,o,ready);
     const pendingActions=ready.filter(a=>this.freshAction(task,round,a,o,completed.has(a))&&remaining.some(i=>i.scope.kind&&!i.reason.startsWith('missing_capability:')&&i.reason!=='unknown_action_outcome'&&matches(i.scope,a,o)
       &&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(a,o))));

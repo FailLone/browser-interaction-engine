@@ -33,7 +33,7 @@ export const routeURLSchema=z.object({
   pathnamePattern:z.string().min(2).max(512).refine(value=>{try{return value.startsWith('^')&&value.endsWith('$')&&!!new RegExp(value);}catch{return false;}},'Use an anchored pathname expression'),
 }).strict();
 export const sessionSchema = z.object({
-  executionBoundary:z.object({version:z.literal(1),allowedOperations:z.array(z.string().min(1)).min(1).max(30),
+  executionBoundary:z.object({programNavigation:z.literal('public-navigation-v1').optional(),version:z.literal(1),allowedOperations:z.array(z.string().min(1)).min(1).max(30),
     urls:z.array(z.union([z.object({url:z.url(),match:z.enum(['exact','origin-path'])}).strict(),routeURLSchema.extend({match:z.literal('route')})])).min(1).max(200),
     exclusions:z.array(z.object({landmark:z.enum(['banner','navigation']).optional(),url:z.url().optional(),region:z.string().optional(),label:z.string().optional(),role:z.string().optional(),stableKey:z.string().optional(),targetBinding:z.string().optional(),kind:z.string().optional(),value:z.union([z.string(),z.boolean(),z.number()]).optional()}).strict()).max(100),
   }).strict().optional(),

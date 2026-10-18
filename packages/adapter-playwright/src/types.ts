@@ -218,6 +218,8 @@ export interface ContextRule { key: string; selector: string; attribute?: string
 export interface MatchRule { role?: string; name?: string; stableKey?: string; kind?: ActionKind; urlIncludes?: string }
 export type BrowserURLRule = {url:string;match:'exact'|'origin-path'} | {origin:string;pathnamePattern:string;match:'route'};
 export interface BrowserExecutionBoundary {
+  /** Explicit bounded navigation authority; effects remain unassessed. */
+  programNavigation?:'public-navigation-v1';
   version:1; allowedOperations:string[];
   urls:BrowserURLRule[];
   exclusions:{url?:string;region?:string;landmark?:'banner'|'navigation';label?:string;role?:string;stableKey?:string;targetBinding?:string;kind?:string;value?:string|boolean|number}[];

@@ -5,6 +5,7 @@ export type { ScrollProbeOptions } from './scroll-probe.js';
 import { hasReviewedDismissal } from './boundary-exit.js';
 import { nativeFormScope } from './dependencies.js';
 import { canonical, id, EngineError, type InteractionAdapter, type EvidenceStore, type Predicate, type InteractionScope } from '@interaction/core';
+import {programNavigationAllowed} from './execution-boundary.js';
 import { BrowserAdapter } from './browser.js';
 import { observableCanonical, compareObservations, browserStateGrouping } from './model.js';
 import { sessionSchema } from './schema.js';
@@ -23,7 +24,7 @@ import { decisionScopes } from './decision-scopes.js';
 import type { ActionCandidate, Control, EngineHooks, Observation, Session, SessionOptions } from './types.js';
 export * from './types.js';
 export { createOwnerDependencyCodec } from './owner-dependency-codec.js';
-export {executionBoundaryFailure,executionURLAllowed} from './execution-boundary.js';
+export {executionBoundaryFailure,executionURLAllowed,programNavigationAllowed,programNavigationProbe,programNavigationDependencies,prepareProgramNavigation} from './execution-boundary.js';
 export {progressDependencies} from './progress-dependencies.js';
 export type { OwnerDependencyCodec, OwnerDependencyBuilder } from './owner-dependency-codec.js';
 export * from './boundary-exit.js';
@@ -43,7 +44,12 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   requiresDispatchWitness(o:Observation,session:Session):boolean {return o.coveragePolicy==='finite-ui-v1'&&session.options.coveragePolicy==='finite-ui-v1';}
   observedUICoverage(action:ActionCandidate,o:Observation,session:Session):boolean {
     return o.coveragePolicy==='finite-ui-v1'&&session.options.coveragePolicy==='finite-ui-v1'&&session.options.executionPolicy==='observed-ui'
-      &&action.source==='dom-actions-v2'&&action.basis?.status==='supported'&&!action.basis.evidence.some(e=>'reviewId' in e.facts||'sourceReviewId' in e.facts)&&(action.risk==='unknown'||action.risk==='submission'&&this.submissionAuthorized(action,o,session));
+      &&(action.source==='dom-actions-v2'||action.source==='program-navigation-observation'&&programNavigationAllowed(session.options.executionBoundary,action,o))&&action.basis?.status==='supported'&&!action.basis.evidence.some(e=>'reviewId' in e.facts||'sourceReviewId' in e.facts)&&(action.risk==='unknown'||action.risk==='submission'&&this.submissionAuthorized(action,o,session));
+  }
+  boundedRepetitionAuthorized(action:ActionCandidate,current:Observation,session:Session,source:ActionCandidate,before:Observation,sourceSession:Session):boolean {
+    return session.options.executionPolicy==='observed-ui'&&sourceSession.options.executionPolicy==='observed-ui'
+      &&programNavigationAllowed(session.options.executionBoundary,action,current)
+      &&programNavigationAllowed(sourceSession.options.executionBoundary,source,before);
   }
   submissionAuthorized(action:ActionCandidate,o:Observation,session:Session):boolean {
     const authorization=session.options.localSimulation;

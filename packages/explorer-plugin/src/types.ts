@@ -14,6 +14,8 @@ export interface ScopeExclusion { scope: Scope; instruction: string }
 /** Caller-owned coverage authority. Model proposals cannot replace these roots,
  * remove exclusions, or grant additional operation kinds. Not a safety review. */
 export interface CoverageContract {
+  /** Opt in to mechanically bounded public navigation without effect certification. */
+  programNavigation?:'public-navigation-v1';
   version:1; mode:'exhaustive'|'targeted'; roots:Scope[];
   exclusions:ScopeExclusion[]; allowedOperations:string[];
   /** Authorization equality only; never navigation-state or receipt equality. */
