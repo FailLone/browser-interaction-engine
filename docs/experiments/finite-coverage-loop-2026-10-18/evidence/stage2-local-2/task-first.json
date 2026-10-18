@@ -1,0 +1,1510 @@
+{
+  "id": "d5c8c12c-94b9-41ca-b82a-eb985a8eb4e2",
+  "goal": "Explore all reachable interface controls and conditional branches on this local test page, including local simulated submissions. Use only one finite sample per free input: 1 for numeric inputs, sample for text inputs. Do not treat changing read-only content as new work.",
+  "url": "http://127.0.0.1:53470/?defects=off",
+  "coverageMode": "all",
+  "evidenceBudget": {
+    "maxBytes": 1073741824,
+    "maxObservations": 1000
+  },
+  "createdAt": "2026-10-18T01:26:31.409Z",
+  "updatedAt": "2026-10-18T01:26:36.908Z",
+  "revision": 2,
+  "status": "paused",
+  "budget": {
+    "rounds": 3,
+    "actions": 80,
+    "durationMs": 240000,
+    "modelRequests": 300
+  },
+  "usage": {
+    "rounds": 1,
+    "actions": 1,
+    "durationMs": 5478,
+    "modelRequests": 2
+  },
+  "sessionOptions": {
+    "coveragePolicy": "finite-ui-v1",
+    "localSimulation": {
+      "url": "http://127.0.0.1:53470/?defects=off"
+    },
+    "executionPolicy": "observed-ui",
+    "headless": true,
+    "maxDepth": 30,
+    "settleMs": 50,
+    "observeTimeoutMs": 3000,
+    "actionTimeoutMs": 5000,
+    "maxActions": 80
+  },
+  "sampleExcluded": [],
+  "exhaustive": false,
+  "scheduling": {
+    "version": 1,
+    "localSelections": 1,
+    "routes": {},
+    "legacyUnmappedRouteKeys": [],
+    "selection": {
+      "itemId": "1b6fd49d-1c7e-498c-9e60-44fae43c0ae8",
+      "kind": "current",
+      "actionId": "cbac35b2-c96b-42c9-8d8f-46a2e5be45d6",
+      "source": {
+        "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+        "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+      }
+    },
+    "cursor": "1b6fd49d-1c7e-498c-9e60-44fae43c0ae8"
+  },
+  "intent": {
+    "version": 1,
+    "mode": "exhaustive",
+    "source": "llm",
+    "boundary": "current-page",
+    "url": "http://127.0.0.1:53470/?defects=off",
+    "exclusions": []
+  },
+  "obligations": {
+    "version": 1,
+    "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+    "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+    "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+    "entries": [
+      {
+        "itemId": "f0242135-89e0-47f8-b11f-d295e189f87d",
+        "groupId": "f0242135-89e0-47f8-b11f-d295e189f87d",
+        "state": "authority",
+        "reason": "task_scope_authority",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27"
+      },
+      {
+        "itemId": "1b6fd49d-1c7e-498c-9e60-44fae43c0ae8",
+        "groupId": "1b6fd49d-1c7e-498c-9e60-44fae43c0ae8",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "cbac35b2-c96b-42c9-8d8f-46a2e5be45d6",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "cbac35b2-c96b-42c9-8d8f-46a2e5be45d6"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "0a1bfd45-e079-4987-a78d-0c524465d281",
+        "groupId": "0a1bfd45-e079-4987-a78d-0c524465d281",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "7b8dfa33-a235-4b81-bd2d-607c2882af64",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "7b8dfa33-a235-4b81-bd2d-607c2882af64"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "73b08ee3-09d9-4880-810a-7294b04bed58",
+        "groupId": "73b08ee3-09d9-4880-810a-7294b04bed58",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "62b06ee7-51eb-46aa-8022-4efd4c8144af",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "62b06ee7-51eb-46aa-8022-4efd4c8144af"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "65cc84e0-740e-45f8-985e-e3184478fe48",
+        "groupId": "65cc84e0-740e-45f8-985e-e3184478fe48",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "92c540bd-89e5-470b-a0db-609a9a7bbb3a",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "92c540bd-89e5-470b-a0db-609a9a7bbb3a"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "8282290b-dcc8-4f29-ab69-2db033ee054e",
+        "groupId": "8282290b-dcc8-4f29-ab69-2db033ee054e",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "2e39fa30-02a3-4f77-8908-d3b1bffc632a",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "2e39fa30-02a3-4f77-8908-d3b1bffc632a"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "6004801e-7040-498c-87dc-94eff23c0a87",
+        "groupId": "6004801e-7040-498c-87dc-94eff23c0a87",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "400cb3a5-177e-4b37-98ba-fb81829f655b",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "400cb3a5-177e-4b37-98ba-fb81829f655b"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "e498f1ff-2067-4eee-86e5-2e2437a9ffde",
+        "groupId": "e498f1ff-2067-4eee-86e5-2e2437a9ffde",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "3ecda686-f576-4b0e-9fba-8ee9749c0f1f",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "3ecda686-f576-4b0e-9fba-8ee9749c0f1f"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "534a14e9-4f13-4557-a2b0-eca28cd75e8f",
+        "groupId": "534a14e9-4f13-4557-a2b0-eca28cd75e8f",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "460e0376-9939-4f2b-8400-2f214024a124",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "460e0376-9939-4f2b-8400-2f214024a124"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "015f62c4-0da8-4463-a3ca-24281ea1d6b1",
+        "groupId": "015f62c4-0da8-4463-a3ca-24281ea1d6b1",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "68f995c1-6bb5-4f2b-b00e-b8e8749a3fe5",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "68f995c1-6bb5-4f2b-b00e-b8e8749a3fe5"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "e39b20d2-24a8-4e76-b72d-61a11306ffc2",
+        "groupId": "e39b20d2-24a8-4e76-b72d-61a11306ffc2",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "da2eb999-90bc-4254-848d-787d9d759bc4",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "da2eb999-90bc-4254-848d-787d9d759bc4"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "09cb6930-e9e2-497b-b5a7-c20f558e2696",
+        "groupId": "09cb6930-e9e2-497b-b5a7-c20f558e2696",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "bd0db2b1-9262-4b6f-8ffc-74d06d957088",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "bd0db2b1-9262-4b6f-8ffc-74d06d957088"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "fff39dde-0837-4613-a9f1-a91288e98c5d",
+        "groupId": "fff39dde-0837-4613-a9f1-a91288e98c5d",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "c8b695f0-a28b-4a3b-82a9-02a3cb204fab",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "c8b695f0-a28b-4a3b-82a9-02a3cb204fab"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "a2b987d4-2aec-4fd2-9126-a646bbb86801",
+        "groupId": "a2b987d4-2aec-4fd2-9126-a646bbb86801",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "d8e5bd16-3901-4179-bd98-a0b8fb5b1525",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "d8e5bd16-3901-4179-bd98-a0b8fb5b1525"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "f9f50717-adc2-465d-9c4c-77351ace9969",
+        "groupId": "f9f50717-adc2-465d-9c4c-77351ace9969",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "1805c876-9b74-45fa-a285-e6b90987733b",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "1805c876-9b74-45fa-a285-e6b90987733b"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      },
+      {
+        "itemId": "6af620f2-ef7a-459a-8ff6-f3f73bc253fa",
+        "groupId": "6af620f2-ef7a-459a-8ff6-f3f73bc253fa",
+        "state": "active",
+        "reason": "sdk_current_target_equivalent",
+        "conditionVersion": "43cf5fab58f2b1b03f59a0d679c0fc1ae970dd52f5448f7a64e7ba315d0eea27",
+        "currentActionId": "be8226e6-8eb5-45be-bd09-5c50aa33927d",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "actionId": "be8226e6-8eb5-45be-bd09-5c50aa33927d"
+        },
+        "correspondence": {
+          "policy": "browser-controls-correspondence-v2",
+          "evidence": [
+            "captured-stable-key",
+            "semantic-ancestor-scope/v1",
+            "local-field-description/v1",
+            "One operation sample per encountered control, target constraints, option and declared context",
+            "Target-region operation reference only; active boundaries and dispatch permission are checked separately",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Caller-selected finite-ui-v1: control, operation, input sample, constraints/options and target activation mode",
+            "Other captured selectors are retained condition-combination evidence, not proven independent or covered",
+            "Unknown JavaScript dependencies, free-input combinations and all business-state combinations remain unproved",
+            "Matching observed URL, boundary stack, native form and semantic binding; passive text excluded",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd",
+            "observation:98aea481-b074-40a1-a256-b56295ace8dd"
+          ],
+          "invalidatedBy": [
+            "observation-or-review-change",
+            "nonunique-correspondence",
+            "changed-operation-conditions",
+            "changed-declared-context"
+          ]
+        }
+      }
+    ],
+    "counts": {
+      "rows": 16,
+      "active": 15,
+      "waiting": 0,
+      "unreachable": 0,
+      "aliases": 0,
+      "superseded": 0,
+      "resolved": 0,
+      "excluded": 0,
+      "authority": 1,
+      "unresolved": 15,
+      "unresolvedGroups": 15
+    }
+  },
+  "reason": "user_paused",
+  "plan": [
+    {
+      "title": "穷尽当前页面已发现的交互",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off"
+      },
+      "prerequisites": [],
+      "completion": "Audit every discovered in-scope operation and retain unresolved coverage gaps",
+      "required": true,
+      "reason": "program_exhaustive_root",
+      "dispatchScope": true,
+      "id": "f0242135-89e0-47f8-b11f-d295e189f87d",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+          "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+        }
+      ],
+      "attempts": [
+        {
+          "roundId": "d151d06a-73e1-43c2-925d-3d7712b8d38f",
+          "outcome": "succeeded",
+          "evidence": {
+            "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+            "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+            "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+          }
+        }
+      ],
+      "resolvedBy": {
+        "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+        "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+        "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+      }
+    },
+    {
+      "title": "select Trading pair",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Trading pair",
+        "role": "combobox",
+        "stableKey": "id:pair",
+        "targetBinding": "browser-target-binding:v1:eaa5dbde2469de6d0dd9115e80f8d68627ceca2fbbeb0e16cb622908129f1374",
+        "kind": "select",
+        "value": "BTC/USDT"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "249a375f0011444961d2c8350cd6e286af95ddb23c4ab5d1bfa3742d523cfd85",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "1b6fd49d-1c7e-498c-9e60-44fae43c0ae8",
+      "status": "succeeded",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+          "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+        }
+      ],
+      "attempts": [
+        {
+          "roundId": "d151d06a-73e1-43c2-925d-3d7712b8d38f",
+          "outcome": "succeeded",
+          "evidence": {
+            "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+            "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+            "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+          }
+        }
+      ],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "cbac35b2-c96b-42c9-8d8f-46a2e5be45d6"
+      },
+      "resolvedBy": {
+        "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+        "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+        "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+      },
+      "conditionCompletion": {
+        "policy": "operation-receipt-completion-v1",
+        "status": "verified",
+        "reason": "portable_operation_sample",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+          "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+        },
+        "retainedSourcesRequired": true
+      }
+    },
+    {
+      "title": "select Trading pair",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Trading pair",
+        "role": "combobox",
+        "stableKey": "id:pair",
+        "targetBinding": "browser-target-binding:v1:eaa5dbde2469de6d0dd9115e80f8d68627ceca2fbbeb0e16cb622908129f1374",
+        "kind": "select",
+        "value": "ETH/USDT"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "e486928a951ab866b4ccce8d7b1e97997a30aace73c806bf02be7a8d26efd750",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "0a1bfd45-e079-4987-a78d-0c524465d281",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "7b8dfa33-a235-4b81-bd2d-607c2882af64"
+      }
+    },
+    {
+      "title": "click Order type",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Order type",
+        "role": "button",
+        "stableKey": "id:order-type",
+        "targetBinding": "browser-target-binding:v1:f37cfaba4620b14f7527369e956ec56794ba7322b12c88f6396272c7e78d748f",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "065d228d433bc1f206b735f88e5aa3b87cd36280e4d0bd9fbf9387406f821446",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "73b08ee3-09d9-4880-810a-7294b04bed58",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "62b06ee7-51eb-46aa-8022-4efd4c8144af"
+      }
+    },
+    {
+      "title": "fill Price",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Price",
+        "role": "spinbutton",
+        "stableKey": "id:price",
+        "targetBinding": "browser-target-binding:v1:09836ba42ca449a44ae478ea098ee58abfe82578b9450adc9274b83dca792237",
+        "kind": "fill",
+        "value": "1"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "0e575c93b8d6480795746ea172bd0399fba9efec32a3fb39a594c591a4332d36",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "65cc84e0-740e-45f8-985e-e3184478fe48",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "92c540bd-89e5-470b-a0db-609a9a7bbb3a"
+      }
+    },
+    {
+      "title": "fill Amount",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Amount",
+        "role": "spinbutton",
+        "stableKey": "id:amount",
+        "targetBinding": "browser-target-binding:v1:373d08cc04744a34b3661a8a986a1c86e6fa982a659d8ef074316a7b8714ac03",
+        "kind": "fill",
+        "value": "1"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "d38536e820b2bcad917d947e4a597c8bb1a35844dcf62cc2e28aa863adc87a2b",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "8282290b-dcc8-4f29-ab69-2db033ee054e",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "2e39fa30-02a3-4f77-8908-d3b1bffc632a"
+      }
+    },
+    {
+      "title": "select Amount unit",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Amount unit",
+        "role": "combobox",
+        "stableKey": "id:unit",
+        "targetBinding": "browser-target-binding:v1:ad9a5ffff64707b53a4bc25c24b3225ed4d6fb3db14e1863d0e2066dcc09f497",
+        "kind": "select",
+        "value": "USDT"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "fa872d8053bf35aa1f5c0ca091c8ac3959f1ca1665b7f0bf3842b352ee62f21f",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "6004801e-7040-498c-87dc-94eff23c0a87",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "400cb3a5-177e-4b37-98ba-fb81829f655b"
+      }
+    },
+    {
+      "title": "select Amount unit",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Amount unit",
+        "role": "combobox",
+        "stableKey": "id:unit",
+        "targetBinding": "browser-target-binding:v1:ad9a5ffff64707b53a4bc25c24b3225ed4d6fb3db14e1863d0e2066dcc09f497",
+        "kind": "select",
+        "value": "Base asset"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "da796564432435300e0cbdbfe710c4c310eeaf4a5536445eb6bcc6863002e150",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "e498f1ff-2067-4eee-86e5-2e2437a9ffde",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "3ecda686-f576-4b0e-9fba-8ee9749c0f1f"
+      }
+    },
+    {
+      "title": "check Post only",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Post only",
+        "role": "checkbox",
+        "stableKey": "id:post-only",
+        "targetBinding": "browser-target-binding:v1:4f659cd3c551ff00dd6df561dba000fa09d8bf01d7ae1fb81834bb1dc503f0c4",
+        "kind": "check",
+        "value": true
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "482646d97d5d3363cbc34b74c3a6c3c016a4d29b264b00f30f398786e5f450ac",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "534a14e9-4f13-4557-a2b0-eca28cd75e8f",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "460e0376-9939-4f2b-8400-2f214024a124"
+      }
+    },
+    {
+      "title": "click Other settings",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Other settings",
+        "role": "button",
+        "stableKey": "id:settings",
+        "targetBinding": "browser-target-binding:v1:f37cfaba4620b14f7527369e956ec56794ba7322b12c88f6396272c7e78d748f",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "8e1d518d7ec3a2324c3e957eb90a3ad906731dcab42f15db64aaee7ce853abcb",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "015f62c4-0da8-4463-a3ca-24281ea1d6b1",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "68f995c1-6bb5-4f2b-b00e-b8e8749a3fe5"
+      }
+    },
+    {
+      "title": "click Submit test order",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Order form",
+        "label": "Submit test order",
+        "role": "button",
+        "stableKey": "id:submit",
+        "targetBinding": "browser-target-binding:v1:f37cfaba4620b14f7527369e956ec56794ba7322b12c88f6396272c7e78d748f",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "e8eac25c2ab92468bb2ac1c0ed6b02ab8c2adb42028ca56e48c2fe4c52d28f74",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "e39b20d2-24a8-4e76-b72d-61a11306ffc2",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "da2eb999-90bc-4254-848d-787d9d759bc4"
+      }
+    },
+    {
+      "title": "click Rebuild inputs",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Test controls",
+        "label": "Rebuild inputs",
+        "role": "button",
+        "stableKey": "id:rebuild",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "9a719d9a1bb61e81d77d661f480c54067c76db5f882e0b9f1d48401f909bb617",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "09cb6930-e9e2-497b-b5a7-c20f558e2696",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "bd0db2b1-9262-4b6f-8ffc-74d06d957088"
+      }
+    },
+    {
+      "title": "click Duplicate controls",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Test controls",
+        "label": "Duplicate controls",
+        "role": "button",
+        "stableKey": "id:duplicate",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "a064a6850268cb60b8898094a8d84d2024663862eaba28df8d55eb28588bf31e",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "fff39dde-0837-4613-a9f1-a91288e98c5d",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "c8b695f0-a28b-4a3b-82a9-02a3cb204fab"
+      }
+    },
+    {
+      "title": "click Quick Market",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Test controls",
+        "label": "Quick Market",
+        "role": "button",
+        "stableKey": "id:quick-market",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "e4aadb0dc2426a000d4a9fa968d55d08eaf05402df4b811cf70f6380ba438786",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "a2b987d4-2aec-4fd2-9126-a646bbb86801",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "d8e5bd16-3901-4179-bd98-a0b8fb5b1525"
+      }
+    },
+    {
+      "title": "click Reset interface",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Test controls",
+        "label": "Reset interface",
+        "role": "button",
+        "stableKey": "id:reset-interface",
+        "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+        "kind": "click"
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "f54e050c9f6570385f2c3e9e48e6a230a42d219721ed705cdf428eff01019d32",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "f9f50717-adc2-465d-9c4c-77351ace9969",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "1805c876-9b74-45fa-a285-e6b90987733b"
+      }
+    },
+    {
+      "title": "check Background refresh",
+      "scope": {
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "region": "Test controls",
+        "label": "Background refresh",
+        "role": "checkbox",
+        "stableKey": "id:background",
+        "targetBinding": "browser-target-binding:v1:6c33bcb3b9a37188444e26dc4ee85bff9eb0f601acc7cd117e485352bbc24614",
+        "kind": "check",
+        "value": true
+      },
+      "prerequisites": [],
+      "completion": "Successful action with a subsequent observation",
+      "required": true,
+      "reason": "observed_in_scope",
+      "operationConditionKey": "2c2054a87b149bbefe785d08344dbf4fbb6b06d24f5036a553207522b960b0da",
+      "operationConditionPolicy": "browser-operation-key-v3",
+      "dispatchScope": false,
+      "id": "6af620f2-ef7a-459a-8ff6-f3f73bc253fa",
+      "status": "pending",
+      "evidence": [
+        {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        }
+      ],
+      "attempts": [],
+      "operationAvailability": {
+        "reason": "operation_not_executed",
+        "source": {
+          "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd"
+        },
+        "actionId": "be8226e6-8eb5-45be-bd09-5c50aa33927d"
+      }
+    }
+  ],
+  "rounds": [
+    {
+      "id": "d151d06a-73e1-43c2-925d-3d7712b8d38f",
+      "number": 1,
+      "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+      "startedAt": "2026-10-18T01:26:32.257Z",
+      "status": "paused",
+      "actions": 1,
+      "stack": [
+        {
+          "checkpointId": "edf6a5d7-1690-48f0-8820-8572a97a4a11",
+          "observationId": "98aea481-b074-40a1-a256-b56295ace8dd",
+          "stateId": "92b7900c2f5371c0d7f7f8720454eb2f036fd3629596b215f9b68f0933f763e3",
+          "used": [],
+          "path": [],
+          "remaining": [
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Trading pair",
+              "role": "combobox",
+              "stableKey": "id:pair",
+              "targetBinding": "browser-target-binding:v1:eaa5dbde2469de6d0dd9115e80f8d68627ceca2fbbeb0e16cb622908129f1374",
+              "kind": "select",
+              "value": "ETH/USDT"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Order type",
+              "role": "button",
+              "stableKey": "id:order-type",
+              "targetBinding": "browser-target-binding:v1:f37cfaba4620b14f7527369e956ec56794ba7322b12c88f6396272c7e78d748f",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Price",
+              "role": "spinbutton",
+              "stableKey": "id:price",
+              "targetBinding": "browser-target-binding:v1:09836ba42ca449a44ae478ea098ee58abfe82578b9450adc9274b83dca792237",
+              "kind": "fill",
+              "value": "1"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Amount",
+              "role": "spinbutton",
+              "stableKey": "id:amount",
+              "targetBinding": "browser-target-binding:v1:373d08cc04744a34b3661a8a986a1c86e6fa982a659d8ef074316a7b8714ac03",
+              "kind": "fill",
+              "value": "1"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Amount unit",
+              "role": "combobox",
+              "stableKey": "id:unit",
+              "targetBinding": "browser-target-binding:v1:ad9a5ffff64707b53a4bc25c24b3225ed4d6fb3db14e1863d0e2066dcc09f497",
+              "kind": "select",
+              "value": "USDT"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Amount unit",
+              "role": "combobox",
+              "stableKey": "id:unit",
+              "targetBinding": "browser-target-binding:v1:ad9a5ffff64707b53a4bc25c24b3225ed4d6fb3db14e1863d0e2066dcc09f497",
+              "kind": "select",
+              "value": "Base asset"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Post only",
+              "role": "checkbox",
+              "stableKey": "id:post-only",
+              "targetBinding": "browser-target-binding:v1:4f659cd3c551ff00dd6df561dba000fa09d8bf01d7ae1fb81834bb1dc503f0c4",
+              "kind": "check",
+              "value": true
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Other settings",
+              "role": "button",
+              "stableKey": "id:settings",
+              "targetBinding": "browser-target-binding:v1:f37cfaba4620b14f7527369e956ec56794ba7322b12c88f6396272c7e78d748f",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Order form",
+              "label": "Submit test order",
+              "role": "button",
+              "stableKey": "id:submit",
+              "targetBinding": "browser-target-binding:v1:f37cfaba4620b14f7527369e956ec56794ba7322b12c88f6396272c7e78d748f",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Test controls",
+              "label": "Rebuild inputs",
+              "role": "button",
+              "stableKey": "id:rebuild",
+              "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Test controls",
+              "label": "Duplicate controls",
+              "role": "button",
+              "stableKey": "id:duplicate",
+              "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Test controls",
+              "label": "Quick Market",
+              "role": "button",
+              "stableKey": "id:quick-market",
+              "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Test controls",
+              "label": "Reset interface",
+              "role": "button",
+              "stableKey": "id:reset-interface",
+              "targetBinding": "browser-target-binding:v1:3e7fc9de14b1b44639fc77c09dbf0d02fdb83e5a75bf191e78366c514dfb01ac",
+              "kind": "click"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "region": "Test controls",
+              "label": "Background refresh",
+              "role": "checkbox",
+              "stableKey": "id:background",
+              "targetBinding": "browser-target-binding:v1:6c33bcb3b9a37188444e26dc4ee85bff9eb0f601acc7cd117e485352bbc24614",
+              "kind": "check",
+              "value": true
+            }
+          ]
+        }
+      ],
+      "entryPath": [
+        {
+          "url": "http://127.0.0.1:53470/?defects=off",
+          "region": "Order form",
+          "label": "Trading pair",
+          "role": "combobox",
+          "stableKey": "id:pair",
+          "targetBinding": "browser-target-binding:v1:eaa5dbde2469de6d0dd9115e80f8d68627ceca2fbbeb0e16cb622908129f1374",
+          "kind": "select",
+          "value": "BTC/USDT"
+        }
+      ],
+      "reentries": [],
+      "tried": [
+        "249a375f0011444961d2c8350cd6e286af95ddb23c4ab5d1bfa3742d523cfd85"
+      ],
+      "reviewed": [
+        "9aec4d833d766bc6821c64c585c544a96c3a279fdcfd910bc05bf5b50afb0a8b",
+        "group:c66ba4f3-78a2-407b-9981-b5baf8ae84a9:1",
+        "group:35e38e15-66c2-451f-8a98-5a9e6b7a933e:1",
+        "group:9babdd2b-01d0-4605-9d53-7d33faf274fa:1",
+        "9294f4e22e3fb9dc6275c60133714b3903bfde5614a9c3454d3acc4ff43eb51e"
+      ],
+      "noProgress": 0,
+      "policyVersion": "program-first-v7",
+      "position": {
+        "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+        "observationId": "c3ecc55c-5a0f-4661-b727-c96816640bcc",
+        "instanceScope": "9969cf91-8b50-4ae5-8265-02daa2ba1530",
+        "url": "http://127.0.0.1:53470/?defects=off",
+        "contextKey": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "boundaryKeys": []
+      },
+      "consecutiveReviewSteps": 1,
+      "lastProgress": "935c3e5a2dc13392bb3f66cef0d30d1ecebd049f77bbf6d3ac903cf18236b973",
+      "entryRoutes": [
+        {
+          "entry": {
+            "url": "http://127.0.0.1:53470/?defects=off",
+            "region": "Order form",
+            "label": "Trading pair",
+            "role": "combobox",
+            "stableKey": "id:pair",
+            "targetBinding": "browser-target-binding:v1:eaa5dbde2469de6d0dd9115e80f8d68627ceca2fbbeb0e16cb622908129f1374",
+            "kind": "select",
+            "value": "BTC/USDT"
+          },
+          "targets": [
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "label": "Price",
+              "role": "spinbutton",
+              "stableKey": "id:price"
+            },
+            {
+              "url": "http://127.0.0.1:53470/?defects=off",
+              "label": "Amount",
+              "role": "spinbutton",
+              "stableKey": "id:amount"
+            }
+          ],
+          "context": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "evidence": {
+            "sessionId": "40d14b06-f438-4a19-bc5f-55de07258d8a",
+            "beforeId": "98aea481-b074-40a1-a256-b56295ace8dd",
+            "observationId": "512f63bd-44be-494f-a197-79c707550e90",
+            "attemptId": "b7179857-480d-4e49-bceb-2dab6382f185"
+          },
+          "sourceConditionKey": "249a375f0011444961d2c8350cd6e286af95ddb23c4ab5d1bfa3742d523cfd85",
+          "sourcePolicy": {
+            "replayable": true,
+            "risk": "interface",
+            "basisKey": "a99bde82b78ae4d5f062bd7b8c098e19d318c7fb79af1bd93114b3f873face56",
+            "executionProfile": "observed-ui-exploration"
+          },
+          "expected": {
+            "url": "http://127.0.0.1:53470/?defects=off",
+            "boundaryKeys": [],
+            "boundaryConditionKey": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      ]
+    }
+  ]
+}
