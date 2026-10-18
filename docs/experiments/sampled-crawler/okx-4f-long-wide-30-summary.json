@@ -1,0 +1,395 @@
+{
+  "elapsedMs": 333717,
+  "actions": 200,
+  "states": 130,
+  "onEntryPage": 76,
+  "inOverlay": 25,
+  "failed": 7,
+  "byTier": {
+    "overlay": 25,
+    "body": 56,
+    "in-page-disclosure": 59,
+    "chrome": 34,
+    "navigate": 26
+  },
+  "maxPerClass": 1,
+  "backtracks": 20,
+  "judge": {
+    "questions": 72,
+    "cacheHits": 0,
+    "answeredByJev": 51,
+    "answeredByLlm": 0,
+    "uncertain": 21,
+    "unavailable": 0,
+    "yes": 46,
+    "no": 5,
+    "jevProbabilities": [
+      0,
+      5,
+      3,
+      9,
+      4,
+      0,
+      4,
+      5,
+      9,
+      33
+    ],
+    "jev": {
+      "calls": 47,
+      "failures": 0,
+      "judgments": 72,
+      "inputTokens": 37216,
+      "outputTokens": 1419,
+      "costUsd": 0.0015630719999999998,
+      "unpricedCalls": 0,
+      "elapsedMs": 29149,
+      "byPurpose": {
+        "crawler-interactive": {
+          "calls": 17,
+          "costUsd": 0.0006765359999999999
+        },
+        "crawler-effect": {
+          "calls": 30,
+          "costUsd": 0.000886536
+        }
+      }
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "elapsedMs": 0,
+      "byPurpose": {}
+    }
+  },
+  "models": {
+    "jev": {
+      "calls": 47,
+      "failures": 0,
+      "judgments": 72,
+      "inputTokens": 37216,
+      "outputTokens": 1419,
+      "costUsd": 0.0015630719999999998,
+      "unpricedCalls": 0,
+      "avgMs": 620,
+      "elapsedMs": 29149
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "avgMs": 0,
+      "elapsedMs": 0
+    }
+  },
+  "weakControlsConfirmed": 38,
+  "inputs": {
+    "classes": 8,
+    "kinds": {
+      "search:structure": 2,
+      "number:structure": 1,
+      "text:jev": 5
+    },
+    "filled": [
+      {
+        "label": "Search",
+        "purpose": "existing",
+        "value": "USD",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "normal",
+        "value": "100",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "boundary",
+        "value": "999999999",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "zero",
+        "value": "0",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "invalid",
+        "value": "abc",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "existing",
+        "value": "USD",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "$BTC is at ¥540,598.17 right now – find out #BTC why here:@o",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Test input",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Test input",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": false
+      },
+      {
+        "label": "$BTC is at $80,871.8 right now – find out #BTC why here:@okx",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": true
+      }
+    ]
+  },
+  "hovers": 13,
+  "modeGroups": {
+    "sampled": 17,
+    "flat": 11
+  },
+  "coverage": {
+    "pages": [
+      {
+        "page": "https://www.okx.com/convert/usd-to-btc",
+        "classesSeen": 123,
+        "classesExecuted": 68,
+        "classCoverage": 0.55,
+        "listClasses": 16,
+        "textBlocksSeen": 548,
+        "textBlocksRevealedByActions": 297
+      },
+      {
+        "page": "https://www.okx.com/convert",
+        "classesSeen": 52,
+        "classesExecuted": 8,
+        "classCoverage": 0.15,
+        "listClasses": 8,
+        "textBlocksSeen": 177,
+        "textBlocksRevealedByActions": 29
+      },
+      {
+        "page": "https://www.okx.com/markets/prices",
+        "classesSeen": 102,
+        "classesExecuted": 2,
+        "classCoverage": 0.02,
+        "listClasses": 10,
+        "textBlocksSeen": 158,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/markets/rankings/spot/hot-crypto",
+        "classesSeen": 50,
+        "classesExecuted": 8,
+        "classCoverage": 0.16,
+        "listClasses": 7,
+        "textBlocksSeen": 118,
+        "textBlocksRevealedByActions": 14
+      },
+      {
+        "page": "https://www.okx.com/convert/btc-to-usd",
+        "classesSeen": 71,
+        "classesExecuted": 6,
+        "classCoverage": 0.08,
+        "listClasses": 5,
+        "textBlocksSeen": 322,
+        "textBlocksRevealedByActions": 77
+      },
+      {
+        "page": "https://www.okx.com/convert/pkr-to-btc",
+        "classesSeen": 71,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 7,
+        "textBlocksSeen": 254,
+        "textBlocksRevealedByActions": 6
+      },
+      {
+        "page": "https://www.okx.com/price/bitcoin-btc",
+        "classesSeen": 117,
+        "classesExecuted": 37,
+        "classCoverage": 0.32,
+        "listClasses": 13,
+        "textBlocksSeen": 364,
+        "textBlocksRevealedByActions": 72
+      },
+      {
+        "page": "https://www.okx.com/price",
+        "classesSeen": 53,
+        "classesExecuted": 13,
+        "classCoverage": 0.25,
+        "listClasses": 9,
+        "textBlocksSeen": 321,
+        "textBlocksRevealedByActions": 173
+      },
+      {
+        "page": "https://www.okx.com/convert/btc-to-cny",
+        "classesSeen": 68,
+        "classesExecuted": 6,
+        "classCoverage": 0.09,
+        "listClasses": 5,
+        "textBlocksSeen": 250,
+        "textBlocksRevealedByActions": 1
+      },
+      {
+        "page": "https://www.okx.com/convert/cny-to-btc",
+        "classesSeen": 67,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 6,
+        "textBlocksSeen": 247,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/price/ethereum-eth",
+        "classesSeen": 96,
+        "classesExecuted": 15,
+        "classCoverage": 0.16,
+        "listClasses": 13,
+        "textBlocksSeen": 277,
+        "textBlocksRevealedByActions": 12
+      },
+      {
+        "page": "https://www.okx.com/price/united-stables-u",
+        "classesSeen": 70,
+        "classesExecuted": 8,
+        "classCoverage": 0.11,
+        "listClasses": 4,
+        "textBlocksSeen": 180,
+        "textBlocksRevealedByActions": 3
+      },
+      {
+        "page": "https://www.okx.com/price/usd-coin-usdc",
+        "classesSeen": 75,
+        "classesExecuted": 4,
+        "classCoverage": 0.05,
+        "listClasses": 8,
+        "textBlocksSeen": 231,
+        "textBlocksRevealedByActions": 1
+      },
+      {
+        "page": "https://www.okx.com/price/tether-usdt",
+        "classesSeen": 89,
+        "classesExecuted": 8,
+        "classCoverage": 0.09,
+        "listClasses": 10,
+        "textBlocksSeen": 260,
+        "textBlocksRevealedByActions": 13
+      },
+      {
+        "page": "https://www.okx.com/price/solana-sol",
+        "classesSeen": 84,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 12,
+        "textBlocksSeen": 252,
+        "textBlocksRevealedByActions": 1
+      },
+      {
+        "page": "https://www.okx.com/convert/btc-to-try",
+        "classesSeen": 70,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 6,
+        "textBlocksSeen": 257,
+        "textBlocksRevealedByActions": 6
+      }
+    ],
+    "statesPerMinute": [
+      25,
+      40,
+      66,
+      93,
+      123,
+      130
+    ],
+    "lastNewStateAtMs": 327001
+  },
+  "lists": {
+    "classes": 42,
+    "membersSeen": 1433,
+    "executed": 26
+  },
+  "pages": 16,
+  "findings": {},
+  "inputClassification": {
+    "calls": 5,
+    "failures": 0,
+    "judgments": 5,
+    "inputTokens": 2710,
+    "outputTokens": 260,
+    "costUsd": 0.00011381999999999999,
+    "unpricedCalls": 0,
+    "elapsedMs": 3298,
+    "byPurpose": {
+      "crawler-input-kind": {
+        "calls": 5,
+        "costUsd": 0.00011381999999999999
+      }
+    }
+  }
+}
