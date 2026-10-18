@@ -12,7 +12,7 @@ export const initialTaskSchema = z.discriminatedUnion('mode',[
   z.object({mode:z.literal('unsupported'),reason:z.string().trim().min(1)}).strict(),
 ]);
 export const budgetSchema=z.object({rounds:z.number().int().min(1).max(100).default(3),actions:z.number().int().min(1).max(10000).default(300),durationMs:z.number().int().min(100).max(86400000).default(1800000),modelRequests:z.number().int().min(1).max(10000).default(300)});
-export const coverageContractSchema=z.object({programNavigation:z.literal('public-navigation-v1').optional(),version:z.literal(1),mode:z.enum(['exhaustive','targeted']),
+export const coverageContractSchema=z.object({programNavigation:z.literal('public-navigation-v1').optional(),noticePreferences:z.array(z.string().trim().min(1)).max(50).optional(),version:z.literal(1),mode:z.enum(['exhaustive','targeted']),
   urlMatching:z.enum(['exact','origin-path']).optional(),
   routes:z.array(routeURLSchema.extend({scope:scopeSchema.omit({url:true})})).max(100).optional(),
   roots:z.array(scopeSchema).min(1).max(100),

@@ -8,10 +8,10 @@ import {ExplorerPlugin,ExplorerStore} from '@interaction/explorer-plugin';
 import {explorerFixture} from './explorer-plugin-helpers.js';
 import {pageOf} from './helpers.js';
 
-async function delegatedFixture(reveals=true){
+async function delegatedFixture(reveals=true,initialPopup=false){
  mkdirSync(resolve('.data'),{recursive:true});const dir=mkdtempSync(resolve('.data/program-menu-')),site=join(dir,'site');mkdirSync(site);
  writeFileSync(join(site,'index.html'),'<!doctype html><html><head><title>Navigation fixture</title></head><body><div id="root"></div><script type="module" src="/menu.jsx"></script></body></html>');
- writeFileSync(join(site,'menu.jsx'),`import React from 'react';import {createRoot} from 'react-dom/client';function App(){const [open,setOpen]=React.useState(false);return <><header><nav><div id="menu" tabIndex={0} aria-label="Information menu" aria-expanded={open} aria-controls="links" onMouseEnter={()=>{${reveals?'setOpen(true)':''}}} onMouseLeave={()=>setOpen(false)} style={{position:'relative',width:220,padding:20,cursor:'pointer'}}>Information<div id="links" hidden={!open} style={{position:'absolute',top:'100%',left:0,width:220,background:'white',padding:10}}><a href="/overview">Overview</a><br/><a href="/details">Details</a></div></div></nav></header><main><canvas/><div tabindex="0" aria-label="Unresolved unrelated">Unknown</div></main></>};createRoot(document.getElementById('root')).render(<App/>);`);
+ writeFileSync(join(site,'menu.jsx'),`import React from 'react';import {createRoot} from 'react-dom/client';function App(){const [open,setOpen]=React.useState(false);const [notice,setNotice]=React.useState(${initialPopup}&&sessionStorage.getItem('skipNotice')!=='true');return <>{notice&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',zIndex:10}}><div role="dialog" aria-modal="true" tabIndex={0} aria-label="Service notice" style={{position:'absolute',left:300,top:150,width:400,padding:30,background:'white'}}><button type="button" role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Read notice</button><div tabIndex={0}>Unresolved notice container<label><input type="checkbox" onChange={e=>sessionStorage.setItem("skipNotice",String(e.target.checked))}/>Do not show again</label><button type="button" onClick={()=>{throw Error('Unauthorized notice action')}}>Continue</button></div><button type="button" onClick={()=>setNotice(false)}>Close</button></div></div>}<header><nav><div id="menu" tabIndex={0} aria-label="Information menu" aria-expanded={open} aria-controls="links" onMouseEnter={()=>{${reveals?'setOpen(true)':''}}} onMouseLeave={()=>setOpen(false)} style={{position:'relative',width:220,padding:20,cursor:'pointer'}}>Information<div id="links" hidden={!open} style={{position:'absolute',top:'100%',left:0,width:220,background:'white',padding:10}}><a href="/overview">Overview</a><br/><a href="/details">Details</a></div></div></nav></header><main>{${reveals}&&<button role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Unrelated view</button>}<canvas/><div tabindex="0" aria-label="Unresolved unrelated">Unknown</div></main></>};createRoot(document.getElementById('root')).render(<App/>);`);
  const pages=(req:any,res:any,next:()=>void)=>{if(['/overview','/details'].includes(req.url||'')){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><title>Overview</title></head><body><h1>Public overview</h1><canvas/></body></html>');}else next();};
  const server=await createServer({configFile:false,root:site,plugins:[{name:'fixture-public-pages',configureServer(server){server.middlewares.use(pages);}}],server:{host:'127.0.0.1',port:0},logLevel:'silent'});await server.listen();
  const url=server.resolvedUrls!.local[0],host=new BrowserEngine({persistence:new SqliteStore(join(dir,'engine'))});
@@ -19,13 +19,15 @@ async function delegatedFixture(reveals=true){
 }
 const contract=(url:string)=>({version:1 as const,mode:'exhaustive' as const,programNavigation:'public-navigation-v1' as const,roots:[{url}],routes:[{origin:new URL(url).origin,pathnamePattern:'^/(overview|details)$',scope:{}}],exclusions:[],allowedOperations:['click','hover','focus','history']});
 
-it('opens a real delegated menu and navigates to its newly revealed child with no configured models',async()=>{
- const f=await delegatedFixture(),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+it.each([false,true,'preference'] as const)('opens a real delegated menu and resumes its original child with no configured models (initial popup: %s)',async initialPopup=>{
+ const f=await delegatedFixture(true,!!initialPopup),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
  try{
-  const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:0,observeTimeoutMs:500},budget:{rounds:1,actions:10,durationMs:30000}});
+  const task=plugin.create({url:f.url,coverageContract:{...contract(f.url),...(initialPopup==='preference'?{noticePreferences:['Do not show again'],allowedOperations:[...contract(f.url).allowedOperations,'check']}:{})},sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:0,observeTimeoutMs:500},budget:{rounds:1,actions:14,durationMs:30000}});
   plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),sid=final.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt');
-  expect(attempts.slice(0,2).map(a=>[a.action.kind,a.status]),JSON.stringify({reason:final.reason,events:store.events(task.id).slice(-5)})).toEqual([['hover','succeeded'],['click','succeeded']]);
-  const [hover,navigation]=attempts;expect(hover.action.source).toBe('program-navigation-observation');expect(hover.action.risk).toBe('unknown');expect(hover.effectsAssessment).toBe('not-assessed');
+  if(initialPopup){expect(attempts.find(a=>a.action.kind==='click')?.action.label,JSON.stringify({reason:final.reason,attempts})).toBe('Read notice');expect(attempts[0].status).toBe('succeeded');expect(attempts.some(a=>a.action.label==='Continue')).toBe(false);expect(attempts.filter(a=>a.action.kind==='check')).toHaveLength(initialPopup==='preference'?1:0);if(initialPopup==='preference'){expect(attempts.findIndex(a=>a.action.kind==='check')).toBeGreaterThan(attempts.findIndex(a=>a.action.label==='Read notice'));expect(attempts.findIndex(a=>a.action.label==='Close')).toBeGreaterThan(attempts.findIndex(a=>a.action.kind==='check'));expect(attempts.filter(a=>a.action.label==='Close')).toHaveLength(1);expect(f.host.observation(sid,attempts.find(a=>a.action.kind==='check').afterId).controls.find(c=>c.name==='Do not show again')?.checked).toBe(true);expect(final.plan.some(i=>i.required&&i.status!=='succeeded'&&i.scope.label==='Continue')).toBe(true);}expect(final.status).not.toBe('configuration_required');}
+  const navigationAttempts=attempts.filter(a=>a.action.boundary?.intent!=='exit'&&a.action.kind!=='check'&&a.action.label!=='Read notice');
+  expect(navigationAttempts.slice(0,2).map(a=>[a.action.kind,a.status]),JSON.stringify({reason:final.reason,events:store.events(task.id).slice(-5)})).toEqual([['hover','succeeded'],['click','succeeded']]);
+  const [hover,navigation]=navigationAttempts;expect(hover.action.source).toBe('program-navigation-observation');expect(hover.action.risk).toBe('unknown');expect(hover.effectsAssessment).toBe('not-assessed');
   expect(f.host.observation(sid,hover.beforeId).controls.find(c=>c.name==='Overview')?.visible).not.toBe(true);
   expect(f.host.observation(sid,hover.afterId).controls.find(c=>c.name==='Overview')?.visible).toBe(true);
   expect(f.host.observation(sid,navigation.afterId).url).toBe(new URL('/overview',f.url).href);
@@ -33,9 +35,8 @@ it('opens a real delegated menu and navigates to its newly revealed child with n
   expect(attempts.some(a=>a.action.kind==='hover'&&a.repetitionSource&&a.status==='succeeded')).toBe(true);
   expect(store.decisions(task.id)).toEqual([]);expect(final.status).not.toBe('completed');
   expect(final.plan.some(i=>i.required&&i.reason==='missing_capability:UNSUPPORTED_CANVAS')).toBe(true);
-  expect(store.events(task.id).some(e=>e.type==='model.fallback_needed')).toBe(true);
   const repeated=attempts.find(a=>a.repetitionSource)!;expect(repeated.action.replayable).toBe(false);expect(repeated.effectsAssessment).toBe('not-assessed');
-  writeFileSync(resolve('.data/stage2-program-navigation-proof.json'),JSON.stringify({diagnosticOnly:true,notOKXAcceptance:true,task:final,attempts,events:store.events(task.id),observations:f.host.list(sid,'observation'),decisions:store.decisions(task.id)},null,2));
+  writeFileSync(resolve(initialPopup==='preference'?'.data/program-first/preference-chain-proof.json':initialPopup?'.data/program-first/popup-chain-proof.json':'.data/stage2-program-navigation-proof.json'),JSON.stringify({diagnosticOnly:true,notOKXAcceptance:true,task:final,attempts,events:store.events(task.id),observations:f.host.list(sid,'observation'),decisions:store.decisions(task.id)},null,2));
  }finally{await plugin.close();await f.close();}
 });
 
@@ -55,7 +56,7 @@ it.each(['disabled','offline'] as const)('does not repeat a no-effect observatio
   const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true},budget:{rounds:1,actions:5,durationMs:15000}});
   plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
   expect(attempts.map(a=>a.action.kind),final.reason).toEqual(['hover']);expect(attempts[0].effectsAssessment).toBe('not-assessed');expect(final.status).not.toBe('completed');
-  expect(final.plan.some(i=>i.required&&i.status!=='succeeded')).toBe(true);
+  expect(final.plan.some(i=>i.required&&i.status!=='succeeded')).toBe(true);expect(final.status).not.toBe('configuration_required');expect(store.events(task.id).some(e=>e.type==='model.fallback_needed')).toBe(true);
   const decisions=store.decisions(task.id);if(mode==='disabled')expect(decisions).toEqual([]);else {expect(decisions.length).toBeGreaterThan(0);expect(decisions.every(d=>!d.answer)).toBe(true);const events=store.events(task.id);expect(events.findIndex(e=>e.type==='action.dispatch')).toBeLessThan(events.findIndex(e=>e.type==='decision.requested'));}
  }finally{await plugin.close();await f.close();}
 });
@@ -89,4 +90,29 @@ it('revalidates current event evidence instead of retaining a program observatio
   await expect(f.host.execute(s.id,a.id,'stale-program-event',undefined,{observationId:o.id,profile:'observed-ui-exploration'})).rejects.toMatchObject({code:'STALE_OBSERVATION'});
   expect(f.host.session(s.id).actionCount).toBe(0);expect(f.host.list(s.id,'attempt')).toEqual([]);
  }finally{await f.close();}
+});
+
+it.each(['unlisted','outside','form','blocked'] as const)('does not expand notice preference authority to %s controls',async mode=>{
+ const checkbox='<input id="preference" type="checkbox" aria-label="Do not show again">';
+ const body=mode==='outside'?checkbox:`<div role="dialog" aria-modal="true" tabindex="0">${mode==='form'?`<form>${checkbox}</form>`:checkbox}</div>`;
+ const f=await explorerFixture(body);
+ try{
+  const s=await f.host.createSession({url:f.url,headless:true,coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',executionBoundary:{version:1,programNavigation:'public-navigation-v1',noticePreferences:mode==='unlisted'?[]:['Do not show again'],urls:[{url:f.url,match:'exact'}],allowedOperations:['check'],exclusions:[]}});
+  if(mode==='blocked'){await pageOf(f.host).evaluate(()=>{const cover=document.createElement('div');Object.assign(cover.style,{position:'fixed',inset:'0',zIndex:'1000',background:'white'});document.body.append(cover);});await f.host.observe(s.id);}
+  const o=f.host.observation(s.id),a=f.host.actions(s.id).find(a=>a.kind==='check')!;
+  await expect(f.host.execute(s.id,a.id,`forbidden-${mode}`,undefined,{observationId:o.id,profile:'observed-ui-exploration'})).rejects.toHaveProperty('code');
+  expect(await pageOf(f.host).locator('#preference').isChecked()).toBe(false);expect(f.host.list(s.id,'attempt')).toEqual([]);
+ }finally{await f.close();}
+});
+
+it('finishes executable inner-modal work beyond the background quota, retains blocked duties and exits outward without models',async()=>{
+ const children=Array.from({length:5},(_,i)=>`<button role="tab" onclick="this.disabled=true">Inner ${i}</button>`).join('');
+ const f=await explorerFixture(`<button role="tab" onclick="this.disabled=true">Background</button><div id="outer" role="dialog" aria-modal="true" aria-label="Outer notice" tabindex="0" style="position:fixed;inset:40px;background:white"><button role="tab" onclick="this.disabled=true">Outer work</button><button onclick="document.querySelector('#outer').remove()">Close outer</button><div id="inner" role="dialog" aria-modal="true" aria-label="Inner notice" tabindex="0" style="position:fixed;inset:80px;background:white;z-index:10">${children}<button disabled>Unavailable</button><button onclick="window.unapproved=true">Unapproved</button><button onclick="document.querySelector('#inner').remove()">Close inner</button></div></div>`),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+ try{
+  const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:0,observeTimeoutMs:500},budget:{rounds:1,actions:12,durationMs:20000}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
+  expect(attempts.map(a=>a.action.label),final.reason).toEqual(['Inner 0','Inner 1','Inner 2','Inner 3','Inner 4','Close inner','Outer work','Close outer','Background']);
+  expect(attempts.every(a=>a.status==='succeeded')).toBe(true);expect(store.decisions(task.id)).toEqual([]);
+  expect(final.plan.some(i=>i.required&&i.scope.label==='Unapproved'&&i.status!=='succeeded')).toBe(true);expect(final.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
 });

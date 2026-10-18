@@ -16,6 +16,8 @@ export interface ScopeExclusion { scope: Scope; instruction: string }
 export interface CoverageContract {
   /** Opt in to mechanically bounded public navigation without effect certification. */
   programNavigation?:'public-navigation-v1';
+  /** Caller-authorized exact accessible names of native notice checkboxes to check on once. */
+  noticePreferences?:string[];
   version:1; mode:'exhaustive'|'targeted'; roots:Scope[];
   exclusions:ScopeExclusion[]; allowedOperations:string[];
   /** Authorization equality only; never navigation-state or receipt equality. */

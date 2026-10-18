@@ -1,3 +1,5 @@
+import {programNavigationAllowed} from '@interaction/browser';
+import {contractExecutionBoundary} from './coverage-contract.js';
 import { isUnfinished, schedulableObligation } from './plan-state.js';
 import { reusableClassifications } from './classification-reuse.js';
 import { z } from 'zod';
@@ -255,6 +257,14 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   const material=readExploration(),scopes=focused?[]:pendingScopes(false);
   const retained=retainGroups(scopes);if(retained){await retained;return true;}
   if(observedUI){
+    // Do not make unrelated occurrence preparation a prerequisite for a current
+    // authorized navigation. The selected target must already be unambiguous;
+    // all other identity/semantic duties keep their original retained sources.
+    if(programNavigation&&c.deferSemanticReview){
+      const pendingIds=new Set(host.list<IdentityHypothesis>(sid,'hypothesis').filter(h=>h.status==='pending').map(h=>h.id));
+      const readyNavigation=(a:ActionCandidate)=>{const target=o.controls.find(x=>x.localId===a.localId);return !!target&&(!target.hypothesisId||!pendingIds.has(target.hypothesisId))&&programNavigationAllowed(contractExecutionBoundary(task.coverageContract!),a,o);};
+      if(c.hasPendingAction(readyNavigation,true)){retainBeforeYield();return false;}
+    }
     const hypothesis=host.list<IdentityHypothesis>(sid,'hypothesis').find(h=>h.status==='pending'&&!done(`identity:${h.id}`)&&o.controls.some(x=>x.hypothesisId===h.id&&relevantIds.has(x.localId)));
     if(hypothesis){mark(`identity:${hypothesis.id}`);await c.programApply!({type:'resolveIdentity',hypothesisId:hypothesis.id,identityId:hypothesis.provisionalIdentityId,source:'explorer-program',evidence:[`observation:${o.id}`,'Keep current occurrence independent'],guard:{observationId:o.id,revision:hypothesis.revisions.length}},'independent_current_occurrence');return true;}
     if(c.deferSemanticReview){retainBeforeYield();return false;}

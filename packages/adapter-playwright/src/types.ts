@@ -220,6 +220,8 @@ export type BrowserURLRule = {url:string;match:'exact'|'origin-path'} | {origin:
 export interface BrowserExecutionBoundary {
   /** Explicit bounded navigation authority; effects remain unassessed. */
   programNavigation?:'public-navigation-v1';
+  /** Caller-authorized exact accessible names of native notice checkboxes to check on once. */
+  noticePreferences?:string[];
   version:1; allowedOperations:string[];
   urls:BrowserURLRule[];
   exclusions:{url?:string;region?:string;landmark?:'banner'|'navigation';label?:string;role?:string;stableKey?:string;targetBinding?:string;kind?:string;value?:string|boolean|number}[];

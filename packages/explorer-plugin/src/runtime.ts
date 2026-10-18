@@ -1314,7 +1314,9 @@ export class ExplorerPlugin {
       // Keep them out of completion's bookkeeping for successfully used inputs.
       const reason=(error as {code?:string}).code||'REVIEW_INTERRUPTED';
       for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned'))this.router.mark(d,signal.aborted?'cancelled':reason.includes('STALE')?'stale':'rejected',reason);
-      throw error;
+      if(task.coverageContract?.programNavigation&&semanticFallback&&(reason==='CONFIGURATION_REQUIRED'||reason.startsWith('PROVIDER_')||reason==='JEV_TEMPORARILY_UNAVAILABLE')){
+        this.event(task,'model.fallback_unavailable',{reason,observationId:o.id,unknownDutiesRetained:true});
+      }else throw error;
     }
     this.assert(task,signal,o.id);
     const snapshot=this.host.explorationSnapshot(sid,o.id,{includeHistoryAudit:false}),{actions,availability}=snapshot;
@@ -1367,20 +1369,29 @@ export class ExplorerPlugin {
         const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||item||prerequisite;
         if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
       }else{
-        const targets=this.entryTargets(task,action,o).sort((a,b)=>(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
+        const targets=this.entryTargets(task,action,o).sort((a,b)=>Number(b.id===arrived)-Number(a.id===arrived)||(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
         const target=this.reentryTarget(task,action,o,targets,true);
         if(target&&byId.has(target.item.id))reentries.push({itemId:target.item.id,kind:'reentry',actionId:action.id,source:target.item.evidence.find(ref=>!ref.attemptId)});
       }
     }
     const locality=(choice:ObligationSelection)=>{const path=byId.get(choice.itemId)?.prerequisites||[];let shared=0;while(shared<path.length&&shared<round.entryPath.length&&digest(path[shared])===digest(round.entryPath[shared]))shared++;return shared;};
     const closing=(choice:ObligationSelection)=>{const action=actions.find(a=>a.id===choice.actionId);return o.coveragePolicy==='finite-ui-v1'&&action?.kind==='click'&&o.controls.find(c=>c.localId===action.localId)?.expanded===true?1:0;};
-    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||closing(a)-closing(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    // Keep work in the current revealed branch together. Authorization is not
+    // priority: a child link can precede a background tab, while local controls
+    // in that same branch precede navigation, preferences and its exit.
+    const departure=(choice:ObligationSelection)=>{const a=actions.find(a=>a.id===choice.actionId)!;return this.currentExit(a,o)?3:navigationTarget(a,o)?2:a.source==='program-notice-preference'?1:closing(choice);};
+    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||departure(a)-departure(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
-    if(inPlace.length){local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));}
+    // Finite fresh work inside the current scope is continuous, even across the
+    // ordinary background fairness quota. Global time/action budgets still bind.
+    const scopedChoice=task.coverageContract?.programNavigation&&local.find(choice=>!!o.boundaries?.length||locality(choice)>0);
     // Finish the selected recovered child once before fairness sends us away.
     // Its current target was just projected; reservation changes the selection
     // to current, so this exception never resets or renews the ordinary quota.
     const arrivedChoice=arrivedTarget&&local.find(choice=>choice.itemId===arrived&&choice.actionId===arrivedTarget.currentActionId);
+    // A return can reach the source page without reopening its transient child.
+    // Continue the selected child's already verified entry before a new batch.
+    const arrivedReentry=reentries.find(choice=>choice.itemId===arrived);
     // Once current boundary work is done, use its already admissible local exit
     // before spending a remote recovery turn. Keep the fairness counter: the
     // next observation rebuilds candidates and resumes ordinary scheduling.
@@ -1392,7 +1403,7 @@ export class ExplorerPlugin {
     }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&!arrivedChoice&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!scopedChoice&&!reentries.length&&(!local.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal);
       // Even a short async selection has a final microtask boundary. Check it
@@ -1403,7 +1414,7 @@ export class ExplorerPlugin {
     }
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
-    const selection=boundaryExit||arrivedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const selection=boundaryExit||arrivedChoice||arrivedReentry||scopedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
@@ -1582,6 +1593,10 @@ export class ExplorerPlugin {
     }
     if(task.coverageContract?.programNavigation&&!semanticFallback){
       this.event(task,'model.fallback_needed',{reason:'no_current_program_action_or_verified_recovery',observationId:o.id,unknownDutiesRetained:true});
+      if(!this.router.providers.jev&&!this.router.providers.llm){
+        this.event(task,'model.fallback_unavailable',{reason:'optional_models_not_configured',observationId:o.id,unknownDutiesRetained:true});
+        return false;
+      }
       return this.step(task,round,signal,true);
     }
     return false;
@@ -1951,6 +1966,10 @@ export class ExplorerPlugin {
       blockers:availability.actions.filter(a=>!a.executable).map(a=>({actionId:a.actionId,blockers:a.blockers})),executionAuthorized:false});
     if(stalled||unisolatedUnknownOutcome||permanent&&!independent){task.status='blocked';task.reason=permanent?'capability_or_unknown_outcome':'no_new_evidence';this.persist(task);return true;}
     if(hostTimeLimit){const s=this.host.session(round.sessionId);this.event(task,'round.session_limit',{reason:'host_time_limit',elapsedMs:s.elapsedMs,maxDurationMs:s.options.maxDurationMs,remaining:remaining.map(i=>i.id),unknownOutcomesRetained:true,totalBudgetUnchanged:true});this.persist(task);return false;}
+    if(task.coverageContract?.programNavigation&&!independent&&!hostTimeLimit){
+      task.status='blocked';task.reason='no_executable_work';
+      this.event(task,'plan.retained',{reason:task.reason,remaining:remaining.map(i=>i.id),unknownDutiesRetained:true,modelRequired:false});this.persist(task);return true;
+    }
     const semanticGaps=remaining.filter(i=>['classification_unresolved','operation_basis_unconfirmed','INPUT_REQUIRED','input_sample_required','target_not_observed'].includes(i.reason));
     if(!semanticGaps.length){this.event(task,'plan.retained',{reason:'known_observation_obligations',remaining:remaining.map(i=>i.id),modelRequired:false});this.persist(task);return false;}
     const followupState={goal:task.goal||'Explore all discovered interactions within the current page boundary and preserve unresolved gaps',unfinished:semanticGaps,observation:{url:o.url,regions:o.regions.map(r=>({label:r.label,role:r.role})),controls:o.controls.map(c=>({label:c.name,role:c.role})),actions:this.host.actions(round.sessionId).map(a=>scopeFor(a,o))}};

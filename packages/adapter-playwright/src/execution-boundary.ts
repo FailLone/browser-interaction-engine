@@ -29,15 +29,25 @@ export function executionBoundaryFailure(boundary:BrowserExecutionBoundary|undef
  if(target&&!executionURLAllowed(boundary,target))return 'destination_outside_execution_boundary';
  // Reset and recorded-entry navigation have an explicit URL without a DOM node.
  if(['recovery-reset','recovery-entry'].includes(action.source)&&!executionURLAllowed(boundary,typeof action.value==='string'?action.value:o.url))return 'recovery_outside_execution_boundary';
- if(boundary.programNavigation&&action.risk==='unknown'&&!programNavigationCandidate(action,o))return 'unassessed_operation_outside_program_navigation';
+ if(boundary.programNavigation&&action.kind==='check'&&!noticePreferenceCandidate(boundary,action,o))return 'preference_not_authorized';
+ if(boundary.programNavigation&&action.risk==='unknown'&&!programNavigationCandidate(action,o,boundary))return 'unassessed_operation_outside_program_navigation';
 }
 
 /** A bounded operation domain, not a claim about the handler's effects or useful result.
  * Labels, descendant handlers and pointer styling cannot create membership. */
-function programNavigationCandidate(action:ActionCandidate,o:Observation):boolean {
+function noticePreferenceCandidate(boundary:BrowserExecutionBoundary,action:ActionCandidate,o:Observation):boolean {
+ const c=o.controls.find(c=>c.localId===action.localId),active=o.overlays?.at(-1);
+ return action.kind==='check'&&action.value===true&&!!c&&c.tag==='input'&&c.role==='checkbox'
+  &&c.checked===false&&boundary.noticePreferences?.includes(c.name)===true&&!c.formOwner&&!c.editable
+  &&!!active&&['modal','dialog'].includes(active.kind)&&active.controlIds.includes(c.localId)
+  &&c.actionBasis?.check?.status==='supported'&&c.actionBasis.check.evidence.some(e=>e.rule==='native-checkable/v1'&&e.facts.type==='checkbox');
+}
+function programNavigationCandidate(action:ActionCandidate,o:Observation,boundary?:BrowserExecutionBoundary):boolean {
  const targets=o.controls.filter(c=>c.localId===action.localId),c=targets.length===1?targets[0]:undefined;
  if(!c||action.observationId!==o.id||!c.instanceId||o.controls.filter(target=>target.instanceId===c.instanceId).length!==1||c.editable||c.formOwner||(c.form&&c.form!=='document')
-   ||['input','textarea','select'].includes(c.tag)||action.risk==='submission')return false;
+   ||action.risk==='submission')return false;
+ if(boundary&&noticePreferenceCandidate(boundary,action,o))return true;
+ if(['input','textarea','select'].includes(c.tag))return false;
  const attributes=c.reviewBinding?.attributes||{};
  if(action.kind==='click'&&action.basis?.status==='supported'){
   if(c.tag==='a'&&attributes.href!==undefined&&attributes.download===undefined
@@ -54,7 +64,7 @@ function programNavigationCandidate(action:ActionCandidate,o:Observation):boolea
 }
 /** Same current contract predicate for plugin selection, SDK dispatch and external guards. */
 export function programNavigationAllowed(boundary:BrowserExecutionBoundary|undefined,action:ActionCandidate,o:Observation):boolean {
- return boundary?.programNavigation==='public-navigation-v1'&&programNavigationCandidate(action,o)&&!executionBoundaryFailure(boundary,action,o);
+ return boundary?.programNavigation==='public-navigation-v1'&&programNavigationCandidate(action,o,boundary)&&!executionBoundaryFailure(boundary,action,o);
 }
 /** Current facts for one probe; never persisted as an ordinary action or review. */
 export function programNavigationProbe(c:Control,o:Observation,kind:'hover'|'focus'):ActionCandidate {
@@ -70,6 +80,7 @@ export function programNavigationDependencies(boundary:BrowserExecutionBoundary|
  if(!programNavigationAllowed(boundary,action,o))return unresolved;
  return unresolved.filter(c=>{
   if(c.hypothesisId)return true;
+  if(c.localId===action.localId)return false;
   const native={...programNavigationProbe(c,o,'hover'),kind:'click',source:'dom',basis:c.actionBasis?.click};
   return !programNavigationAllowed(boundary,native,o)&&!(['hover','focus'] as const).some(kind=>programNavigationAllowed(boundary,programNavigationProbe(c,o,kind),o));
  });
@@ -80,7 +91,9 @@ export function programNavigationDependencies(boundary:BrowserExecutionBoundary|
 export function prepareProgramNavigation(actions:ActionCandidate[],o:Observation,boundary:BrowserExecutionBoundary|undefined):ActionCandidate[] {
  if(!boundary?.programNavigation)return actions;
  return actions.map(action=>{
-  if(action.risk!=='unknown'||action.excluded||!['hover','focus'].includes(action.kind))return action;
+  if(action.excluded)return action;
+  if(action.kind==='check'&&programNavigationAllowed(boundary,action,o))return {...action,risk:'unknown',replayable:false,source:'program-notice-preference'};
+  if(action.risk!=='unknown'||!['hover','focus'].includes(action.kind))return action;
   const candidate:ActionCandidate={...action,source:'program-navigation-observation',replayable:false,
    basis:{status:'supported',evidence:[...(action.basis?.evidence||[]),{source:'caller-navigation-contract',rule:'bounded-observation/v1',facts:{kind:action.kind,effects:'unknown',coverageGranted:false}}]}};
   return programNavigationAllowed(boundary,candidate,o)?candidate:action;

@@ -22,7 +22,7 @@ export function contractOperationAllowed(contract:CoverageContract|undefined,act
   return !executionBoundaryFailure(contractExecutionBoundary(contract),action,o)&&!contract.exclusions.some(ex=>matches(ex.scope,action,o));
 }
 export function contractExecutionBoundary(contract:CoverageContract):BrowserExecutionBoundary {
- return {version:1,...(contract.programNavigation?{programNavigation:contract.programNavigation}:{}),allowedOperations:[...contract.allowedOperations],urls:[...[...new Set(contract.roots.flatMap(scope=>scope.url?[scope.url]:[]))].map(url=>({url,match:contract.urlMatching||'exact' as const})),...(contract.routes||[]).map(({origin,pathnamePattern})=>({origin,pathnamePattern,match:'route' as const}))],exclusions:contract.exclusions.map(ex=>({...ex.scope}))};
+ return {version:1,...(contract.programNavigation?{programNavigation:contract.programNavigation}:{}),...(contract.noticePreferences?{noticePreferences:[...contract.noticePreferences]}:{}),allowedOperations:[...contract.allowedOperations],urls:[...[...new Set(contract.roots.flatMap(scope=>scope.url?[scope.url]:[]))].map(url=>({url,match:contract.urlMatching||'exact' as const})),...(contract.routes||[]).map(({origin,pathnamePattern})=>({origin,pathnamePattern,match:'route' as const}))],exclusions:contract.exclusions.map(ex=>({...ex.scope}))};
 }
 
 /** Bind authority only to an actually observed URL. Does not navigate, complete

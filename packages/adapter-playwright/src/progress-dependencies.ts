@@ -2,6 +2,21 @@ import type {ActionCandidate,Control,Observation} from './types.js';
 import {historyTarget} from './navigation.js';
 import {hasReviewedDismissal} from './boundary-exit.js';
 
+/** Pure structural containment is not an operation prerequisite. Keep this
+ * unknown in the coverage ledger; do not classify it or infer its JS behavior.
+ * Own handlers, incomplete ancestry, forms and explicit control relationships
+ * still need their separate evidence before a descendant can run. */
+function structuralAncestor(container:Control,target:Control,o:Observation) {
+ const ancestry=container.domAncestry,attributes=container.reviewBinding?.attributes||{};
+ return !!target.domAncestry?.complete&&target.domAncestry.documentId===o.documentId
+  &&target.domAncestry.instanceIds.includes(container.instanceId)
+  &&!!ancestry?.complete&&ancestry.documentId===o.documentId&&!container.hypothesisId
+  &&!container.formOwner&&(!container.form||container.form==='document')&&!container.editable
+  &&!Object.keys(container.actionBasis||{}).length
+  &&(container.interactionHints||[]).every(h=>['tabindex/v1','pointer-cursor/v1','empty-handler-body/v1'].includes(h.rule))
+  &&!['form','for','aria-controls','aria-owns','aria-activedescendant'].some(key=>attributes[key]!==undefined);
+}
+
 /** Additional finite UI scheduling gate. Never overrides SDK executability,
  * current hit testing, review revocation, critical gaps or receipt conditions.
  * DOM independence is not a claim about unobserved JavaScript/business effects. */
@@ -25,7 +40,7 @@ export function progressDependencies(o:Observation,action:ActionCandidate,unreso
  const target=current[0],ancestry=target.domAncestry;
  if(!target.visible||!target.enabled||target.readiness)block('target_not_ready',target.localId);
  if(o.boundaries?.length&&action.boundary?.key!==o.boundaries.at(-1)?.key)block('outside_active_boundary',target.localId);
- if(['click','hover'].includes(action.kind)&&target.actionable?.hitTarget!==true)block('target_hit_unproved',target.localId);
+ if(['click','hover','check'].includes(action.kind)&&target.actionable?.hitTarget!==true)block('target_hit_unproved',target.localId);
  const ancestryKnown=ancestry?.complete&&ancestry.documentId===o.documentId;
  for(const gap of o.gaps.filter(g=>!g.critical&&(g.code.startsWith('UNSUPPORTED_')||g.code.endsWith('_UNSUPPORTED')))){
    const scope=gap.coverageScope,ref=scope?.rootInstanceId||gap.reference||gap.code;
@@ -38,6 +53,8 @@ export function progressDependencies(o:Observation,action:ActionCandidate,unreso
    if(other.localId===target.localId){block('target_review_unresolved',other.localId);continue;}
    const ancestors=other.domAncestry;
    if(!ancestryKnown||!ancestors?.complete||ancestors.documentId!==o.documentId){block('review_dependency_unproved',other.localId);continue;}
+   if(action.basis?.status==='supported'&&structuralAncestor(other,target,o)
+     &&!target.classificationBinding?.references?.some(ref=>ref.missing||ref.ambiguous||ref.targetInstanceId===other.instanceId)){independent.push(`structural_container:${other.localId}`);continue;}
    const sharedForm=target.formOwner?.instanceId&&target.formOwner.instanceId===other.formOwner?.instanceId;
    const references=[...(target.classificationBinding?.references||[]),...(other.classificationBinding?.references||[])];
    if(ancestry!.instanceIds.includes(other.instanceId)||ancestors.instanceIds.includes(target.instanceId)||sharedForm
