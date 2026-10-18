@@ -1,0 +1,389 @@
+{
+  "accepted": false,
+  "revision": "3698f05",
+  "elapsedMs": 213204,
+  "actions": 5,
+  "strictChains": 0,
+  "calls": {
+    "jev": 76,
+    "llm": 2
+  },
+  "finite": {
+    "total": 193,
+    "verified": 3,
+    "remaining": 190
+  },
+  "purposes": {
+    "control-classification": 28,
+    "classification-clarification": 1,
+    "control-risk": 14,
+    "probe-risk": 34,
+    "operation-clarification": 1
+  },
+  "programReviews": {
+    "contract_region_partition": 2,
+    "independent_current_target": 10
+  },
+  "commands": [
+    [
+      "browser.navigation",
+      null
+    ],
+    [
+      "browser.dispatch",
+      "关闭"
+    ],
+    [
+      "browser.dispatch",
+      "1 小时"
+    ],
+    [
+      "browser.dispatch",
+      "1 周"
+    ],
+    [
+      "browser.dispatch",
+      "1 月"
+    ]
+  ],
+  "headerProbeEvidence": [
+    {
+      "decisionId": "afc9375a-aeb8-462f-82a3-08efccd24639",
+      "control": "跳转至主要内容",
+      "answer": {
+        "interface_hover": 0.1,
+        "external_hover": 0.04,
+        "interface_focus": 0.46,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": false,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "118e38d7-c36d-4b89-8aee-913f79d6c161",
+      "control": "下载 App。菜单包括二维码和其他下载选项。",
+      "answer": {
+        "interface_hover": 0.16,
+        "external_hover": 0.04,
+        "interface_focus": 0.51,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "d745ad41-f640-43df-950e-5c4d1bd05aca",
+      "control": "获取帮助或关注我们的社交媒体",
+      "answer": {
+        "interface_hover": 0.15,
+        "external_hover": 0.04,
+        "interface_focus": 0.47,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "279b77d1-b13e-45c6-a60b-18b3dbb2c0ad",
+      "control": "交易",
+      "answer": {
+        "interface_hover": 0.35,
+        "external_hover": 0.05,
+        "interface_focus": 0.54,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "7158afab-4552-4cba-b1fa-1ad366adf9c4",
+      "control": "机构客户",
+      "answer": {
+        "interface_hover": 0.31,
+        "external_hover": 0.05,
+        "interface_focus": 0.54,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "d9515174-ca0d-4cd8-bdb6-b6c4c7191faa",
+      "control": "新手学院",
+      "answer": {
+        "interface_hover": 0.3,
+        "external_hover": 0.05,
+        "interface_focus": 0.53,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "b1ed138e-d767-4595-b4ac-d736e664e510",
+      "control": "更多",
+      "answer": {
+        "interface_hover": 0.32,
+        "external_hover": 0.05,
+        "interface_focus": 0.58,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "196529ce-b0b3-4d0e-8c3b-ee5fd47cee53",
+      "control": "",
+      "answer": {
+        "interface_hover": 0.25,
+        "external_hover": 0.05,
+        "interface_focus": 0.4,
+        "external_focus": 0.06
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "ec67df20-219e-4b25-933d-96611476ca25",
+      "control": "",
+      "answer": {
+        "interface_hover": 0.3,
+        "external_hover": 0.05,
+        "interface_focus": 0.53,
+        "external_focus": 0.06
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "ffd459c3-1ddd-4404-b3f2-b8bda80cf10a",
+      "control": "",
+      "answer": {
+        "interface_hover": 0.27,
+        "external_hover": 0.04,
+        "interface_focus": 0.51,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "e1a2cdc1-91a1-4bf9-8ebe-4868a1e18e31",
+      "control": "",
+      "answer": {
+        "interface_hover": 0.29,
+        "external_hover": 0.05,
+        "interface_focus": 0.51,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    },
+    {
+      "decisionId": "f5eb6b07-9469-4468-a221-d228c33d9170",
+      "control": "",
+      "answer": {
+        "interface_hover": 0.3,
+        "external_hover": 0.04,
+        "interface_focus": 0.54,
+        "external_focus": 0.05
+      },
+      "resolution": {
+        "source": "program",
+        "value": {
+          "interface_hover": null,
+          "external_hover": false,
+          "interface_focus": null,
+          "external_focus": false
+        },
+        "reason": "evidence_missing",
+        "policy": "evidence-gate",
+        "policyVersion": "program-first-v7",
+        "bounds": {
+          "low": 0.1,
+          "high": 0.9
+        }
+      },
+      "status": "cancelled"
+    }
+  ],
+  "outcome": "Budgeted failed evaluation; no chain, all remaining duties retained. No external blocker established.",
+  "diagnosis": [
+    "Caller-owned grouping eliminated region model calls (two SDK-grounded structural partitions).",
+    "Ten individual current-occurrence resolutions still each recaptured, consuming substantial time.",
+    "All assessed header probes remained unknown for positive interface effect; no actual header probe was issued.",
+    "Complete captured subtree of one menu container includes a collapsed child button and navigation panel, but parent has only pointer-cursor hint and no supported own action. Descendant controls must not be promoted to an automatic parent operation.",
+    "More time alone is not proven sufficient; inspect evidence interpretation and own-target probe admission before merely optimizing batching."
+  ],
+  "next": [
+    "Keep raw failed run unchanged.",
+    "Evaluate complete captured probe evidence offline without execution permission; any future semantic probe clarification must use the existing effect/evidence gates and preserve uncertain negatives.",
+    "Consider batching only unique current independent identity resolutions, preserving per-source guards, all-or-nothing validation and fresh preflight; no historical identity merging.",
+    "Any new product requires fresh complete local acceptance plus independent confirmation before another bounded OKX run."
+  ]
+}
