@@ -11,10 +11,17 @@ export interface EvidenceRef { sessionId: string; observationId: string; attempt
 /** Exact semantic constraints; no old session control IDs or arbitrary selectors. */
 export interface Scope { stableKey?: string; /** Captured semantic owner/binding hint; never an identity or coverage grant. */ targetBinding?: string; url?: string; region?: string; label?: string; role?: string; kind?: string; value?: string | boolean | number }
 export interface ScopeExclusion { scope: Scope; instruction: string }
+/** Caller-owned coverage authority. Model proposals cannot replace these roots,
+ * remove exclusions, or grant additional operation kinds. Not a safety review. */
+export interface CoverageContract {
+  version:1; mode:'exhaustive'|'targeted'; roots:Scope[];
+  exclusions:ScopeExclusion[]; allowedOperations:string[];
+}
 /** Executable task meaning, separate from natural-language intent and the changing coverage ledger. */
 export type TaskIntent =
   | { version:1; mode:'exhaustive'; source:'default'|'jev'|'llm'; boundary:'current-page'; url:string; exclusions:ScopeExclusion[] }
   | { version:1; mode:'targeted'; source:'llm'|'user' }
+  | { version:1; mode:'contract'; source:'user'; contract:CoverageContract }
   | { version:1; mode:'unsupported'; source:'jev'|'llm'; reason:string };
 export interface ReviewSourceProofs {
   policy:'review-source-completion-v1';scopeKey:string;
@@ -88,6 +95,8 @@ export interface Round {
   evidenceRefreshes?: string[];
   /** No repeated LLM interpretation of the same target and evidence within a round. */
   semanticReviews?: string[];
+  /** A bounded review preference. Preserved across restart; not execution authority. */
+  consecutiveReviewSteps?:number;
   /** Unresolved purpose evidence only. These entries never carry an execution grant. */
   unresolvedPurposeReviews?: Record<string,{decisionId:string;observationId:string}>;
   /** A freshly observed boundary visit may need its own exit despite historical coverage. */
@@ -136,6 +145,7 @@ export interface Task {
   exhaustive: false;
   /** Absent on historical tasks; their saved scopes remain authoritative. */
   intent?: TaskIntent;
+  coverageContract?:CoverageContract;
   /** Only a user setting permits representative sampling. Missing on older tasks means all. */
   coverageMode?: 'all' | 'representative';
   /** Explicit user acceptance of observed noncritical unsupported content; never tested coverage. */

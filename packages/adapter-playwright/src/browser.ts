@@ -53,6 +53,13 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
   const w = window as any;
   const tracker = w.__interactionEvidenceTracker ??= { documentId: crypto.randomUUID(), ids: new WeakMap(), counter: 0 };
   const instance = (el: Element) => { if (!tracker.ids.has(el)) tracker.ids.set(el, `${tracker.documentId}:${++tracker.counter}`); return tracker.ids.get(el) as string; };
+  const ancestryCache=new WeakMap<Element,NonNullable<Control['domAncestry']>>();
+  const ancestry=(el:Element)=>{
+    const saved=ancestryCache.get(el);if(saved)return saved;
+    const instanceIds:string[]=[];let parent=el.parentElement;
+    while(parent&&instanceIds.length<64){instanceIds.push(instance(parent));parent=parent.parentElement;}
+    const result={documentId:tracker.documentId as string,instanceIds,complete:!parent};ancestryCache.set(el,result);return result;
+  };
   const live = liveCollector?.(instance, liveEpoch);
   const clean = (s: string | null | undefined) => (s || '').replace(/\s+/g, ' ').trim().slice(0, 500);
   const label = (el: Element) => {
@@ -381,7 +388,7 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
       ...(list ? { list: { instanceId: instance(list), role: list.tagName === 'SELECT' ? 'select' : 'listbox', label: label(list), selector: selector(list) } } : {}),
       ...(purposeBinding ? { purposeBinding } : {}),
       reviewAttributes: Object.fromEntries(Array.from(el.attributes).filter(a => /^data-(?!testid)|^name$/.test(a.name)).map(a => [a.name, a.value])),
-      reviewBinding, reviewReuseBinding, ...(structuralItem ? { structuralItem } : {}),
+      reviewBinding, reviewReuseBinding, domAncestry:ancestry(el), ...(structuralItem ? { structuralItem } : {}),
       ...(!Object.values(capabilities.actionBasis).some(b => b.status === 'supported') ? { classificationBinding: classificationBinding(el) } : {}),
       region: regionKey(el.closest(regionSelector)), regionInstanceId: instance(el.closest(regionSelector) || body || document.documentElement), form: regionKey(el.closest('form')), formOwner: formOwner(el), selector: selector(el), rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '', displayedText: clean(el.textContent),
@@ -410,14 +417,16 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     ...(scanPlan ? { supplement: { requestId: scanPlan.requestId, targetId: scanPlan.targetId, budget: scanPlan.budget, status: scanRoot ? 'active' : 'invalidated', ...(!scanRoot ? { reason: 'scan_root_changed' } : {}) } } : {}) };
   // Returned only to the host for hashing; the full topology is not retained in observations.
   const discoveryTopology = elements.map(el => [instance(el), el.parentElement ? instance(el.parentElement) : '', el.tagName]);
-  const gaps: { code: string; message: string; selector?: string; reference?: string; critical?: boolean }[] = [];
+  const gaps: (Gap & {selector?:string})[] = [];
+  const coverageScope=(el:Element):NonNullable<Gap['coverageScope']>=>({version:'dom-subtree-v1',documentId:tracker.documentId,rootInstanceId:instance(el),ancestorInstanceIds:ancestry(el).instanceIds,
+    affectedControlIds:controls.filter((_control,index)=>el.contains(all[index])).map(control=>control.localId),complete:ancestry(el).complete&&all.length===controls.length});
   if(structuralScan.limits.templatesTruncated||structuralScan.limits.collectionsTruncated||structuralScan.limits.rowWindowsTruncated)gaps.push({code:'STRUCTURAL_LIST_SCAN_TRUNCATED',reference:'discovery:structural',message:`Repeated-record discovery: ${structuralScan.limits.templatesTruncated} limited templates, ${structuralScan.limits.rowWindowsTruncated} partial sibling windows; collection limit reached: ${structuralScan.limits.collectionsTruncated}`});
   for (const omission of structuralScan.limits.omissions) gaps.push({ code: 'STRUCTURAL_DISCOVERY_LIMIT', selector: omission.rowSelector || omission.ownerSelector, reference: `discovery:${omission.ownerId}:${omission.rowId || ''}:${omission.kind}`, message: `${omission.kind}: limit ${omission.limit}, observed at least ${omission.observed}; inspect discoveryScan for the exact owner and bounded supplementation target` });
   if (!body) gaps.push({ code: 'DOM_ROOT_UNAVAILABLE', message: 'Document body is absent; the page may be navigating or rebuilding', critical: true });
   if (document.readyState === 'loading') gaps.push({ code: 'DOCUMENT_LOADING', message: 'Document parsing is still in progress', critical: true });
-  for (const el of document.querySelectorAll('iframe,canvas,input[type=file]')) gaps.push({ code: `UNSUPPORTED_${el.tagName === 'INPUT' ? 'FILE_INPUT' : el.tagName}`, message: `${el.tagName} internals are outside V0.1 coverage`, selector: selector(el) });
-  for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el) });
-  for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector });
+  for (const el of document.querySelectorAll('iframe,canvas,input[type=file]')) gaps.push({ code: `UNSUPPORTED_${el.tagName === 'INPUT' ? 'FILE_INPUT' : el.tagName}`, message: `${el.tagName} internals are outside V0.1 coverage`, selector: selector(el),coverageScope:coverageScope(el) });
+  for (const el of elements) if (el.shadowRoot) gaps.push({ code: 'UNSUPPORTED_SHADOW_DOM', message: 'Shadow root contents were not collected', selector: selector(el),coverageScope:coverageScope(el) });
+  for (const c of controls) if (c.tag === 'input' && ['color', 'range'].includes(c.constraints.type)) gaps.push({ code: 'UNSUPPORTED_INPUT_TYPE', message: `No V0.1 operation for input type ${c.constraints.type}`, selector: c.selector,coverageScope:coverageScope(all[controls.indexOf(c)]) });
   if (firstOmitted) gaps.push({ code: 'SIGNAL_SCAN_TRUNCATED', selector: selector(firstOmitted), reference: 'discovery:signal', message: `${discoveryScan.signal.omitted} elements outside the current bounded signal scan; first omission at document index ${firstOmittedIndex}. Semantic selectors are collected separately` });
   gaps.push({ code: 'EVENT_LISTENER_COVERAGE', message: 'Delegated and addEventListener handlers are not enumerated. Handler purpose and business effects are unknown; focus and appearance alone do not establish an operation.' });
   if (all.length > controls.length) gaps.push({ code: 'TRUNCATED', message: `${all.length - controls.length} controls omitted`, critical: true });

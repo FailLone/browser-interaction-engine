@@ -11,7 +11,16 @@ export const initialTaskSchema = z.discriminatedUnion('mode',[
   z.object({mode:z.literal('unsupported'),reason:z.string().trim().min(1)}).strict(),
 ]);
 export const budgetSchema=z.object({rounds:z.number().int().min(1).max(100).default(3),actions:z.number().int().min(1).max(10000).default(300),durationMs:z.number().int().min(100).max(86400000).default(1800000),modelRequests:z.number().int().min(1).max(10000).default(300)});
+export const coverageContractSchema=z.object({version:z.literal(1),mode:z.enum(['exhaustive','targeted']),
+  roots:z.array(scopeSchema).min(1).max(100),
+  exclusions:z.array(z.object({scope:scopeSchema,instruction:z.string().trim().min(1)}).strict()).max(100),
+  allowedOperations:z.array(z.enum(['click','fill','select','check','scroll','press','hover','focus','navigate','history','dismiss'])).min(1).max(11),
+}).strict().superRefine((value,ctx)=>{
+  if(value.mode==='exhaustive'&&value.roots.some(root=>Object.keys(root).some(key=>key!=='url')))ctx.addIssue({code:'custom',message:'Exhaustive roots must cover whole declared pages; restricted roots require targeted mode'});
+  if(value.mode==='targeted'&&value.roots.some(root=>!Object.keys(root).some(key=>key!=='url')))ctx.addIssue({code:'custom',message:'Targeted roots must identify a region, control or operation'});
+});
 export const createTaskSchema = z.object({goal:z.string().trim().max(20000).default(''),url:z.url().refine(v=>['http:','https:'].includes(new URL(v).protocol)),
+  coverageContract:coverageContractSchema.optional(),
   coverageMode:z.enum(['all','representative']).default('all'),
   budget:budgetSchema.prefault({}),
   evidenceBudget:z.object({maxBytes:z.number().int().min(1024*1024).max(16*1024**3).default(1024**3),maxObservations:z.number().int().min(10).max(10000).default(1000)}).strict().prefault({}),

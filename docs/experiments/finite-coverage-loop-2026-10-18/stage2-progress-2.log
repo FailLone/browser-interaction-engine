@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/explorer-progress-dependencies.test.ts (4 tests) 7629ms
+   ✓ bounds a canvas gap to captured DOM while preserving unknown contents and SDK obstruction checks  621ms
+   ✓ holds an unresolved ancestor, shared form or missing ancestry while allowing a disjoint reviewed native control  527ms
+   ✓ executes an independent DOM task but keeps the canvas obligation and overall coverage incomplete  1929ms
+   ✓ gives a ready action a turn before reviewing every independent unknown, then resumes review  4551ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  09:01:02
+   Duration  8.92s (transform 677ms, setup 0ms, collect 1.14s, tests 7.63s, environment 0ms, prepare 39ms)
+

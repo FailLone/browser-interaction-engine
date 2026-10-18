@@ -13,6 +13,8 @@ export interface ReviewContext {
   allowLocalActionYield?:boolean;
   /** One freshly bound selected child can continue after recovery at the local quota. */
   allowPriorityActionYield?:boolean;
+  /** Caller has checked current dependency independence and spent review quota. */
+  allowIndependentActionYield?:boolean;
   /** Current SDK-corresponding child actions. Ordering only; never execution permission. */
   priorityActionIds?:readonly string[];
   choose(purpose:string,instructions:string,state:unknown,options:Record<string,unknown>,constraints?:ChoiceConstraints):Promise<{value:string;decision:Decision}>;
@@ -154,7 +156,7 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   };
   for(const focused of priorityIds.size?[true,false]:[false]) {
   const relevantIds=focused?priorityControls:allRelevantIds;
-  const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&(readClassification().controls.some(item=>item.needsClassification&&allRelevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))
+  const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&!c.allowIndependentActionYield&&(readClassification().controls.some(item=>item.needsClassification&&allRelevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))
     ||o.controls.some(x=>x.hypothesisId&&allRelevantIds.has(x.localId)&&host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===x.hypothesisId&&h.status==='pending')));
   if(!finiteNeedsReview&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}

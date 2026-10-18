@@ -1,9 +1,13 @@
 import type { Control as CoreControl, Observation as CoreObservation, Session as CoreSession, EngineHooks as CoreHooks, HookContext as CoreHookContext, ControlIdentity as CoreIdentity } from '@interaction/core';
-import type { ID, Context, ActionKind, ActionBasis, ActionEvidence, Gap, Json, InteractionComponent } from '@interaction/core';
+import type { ID, Context, ActionKind, ActionBasis, ActionEvidence, Gap as CoreGap, Json, InteractionComponent } from '@interaction/core';
 import type { BrowserEvidenceManifest, EvidenceOptions } from './evidence-types.js';
 export * from './evidence-types.js';
 export * from '@interaction/core';
 export interface Rect { x: number; y: number; width: number; height: number }
+export interface Gap extends CoreGap {
+  /** Current captured DOM scope only; no claim about hidden JS dependencies. */
+  coverageScope?:{version:'dom-subtree-v1';documentId:string;rootInstanceId:string;ancestorInstanceIds:string[];affectedControlIds:string[];complete:boolean};
+}
 export interface Region { key: string; instanceId?: string; label: string; role: string; selector: string; parentKey?: string; rect: Rect; text: string }
 export interface Overlay { key: string; name: string; kind: 'modal' | 'dialog' | 'popover' | 'menu' | 'listbox'; selector: string; parentKey?: string; parentRegion: string; evidence: string[]; controlIds: string[]; exitControlIds: string[] }
 /** Browser navigation evidence; not a claim that the page/business state is equal. */
@@ -98,6 +102,8 @@ export interface ScrollContainer {
   left: number; top: number; maxLeft: number; maxTop: number; width: number; height: number;
 }
 export interface Control extends CoreControl {
+  /** Current document ancestry for dependency checks, never portable identity. */
+  domAncestry?:{documentId:string;instanceIds:string[];complete:boolean};
   /** Actual native HTML readOnly property. Missing in legacy observations;
    * aria-readonly alone never proves a noneditable native output. */
   nativeReadOnly?: boolean;

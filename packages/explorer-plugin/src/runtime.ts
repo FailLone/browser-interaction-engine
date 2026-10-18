@@ -1,4 +1,6 @@
 import {coverageLedger} from './coverage-ledger.js';
+import {contractOperationAllowed,contractProposalError} from './coverage-contract.js';
+import {progressDependencies} from './progress-dependencies.js';
 import { isSuperseded, isUnfinished, schedulableObligation, boundOperationCondition, schedulingOperationCondition, operationSchedulingAliases } from './plan-state.js';
 import { observedPosition, reconcileRecoveryPosition, routeAttempt } from './navigation-state.js';
 import { projectObligations, recoveryConditionVersion, recoveryRouteConditionVersion, recoveryRouteKey, recordRouteRetry, retainRouteFailureCondition, routeRetryEligibility, releaseRouteRetriesForVerifiedRecovery } from './obligation-lifecycle.js';
@@ -64,7 +66,8 @@ export class ExplorerPlugin {
   view(id:string){const task=this.store.task(id);return {task,decisions:this.store.decisions(id),events:this.store.events(id)};}
   create(input:unknown) {
     const x=createTaskSchema.parse(input);if(!x.goal&&x.coverageMode!=='all')throw new ExplorerError('EXHAUSTIVE_REQUIRES_ALL');const task:Task={id:randomUUID(),goal:x.goal,url:x.url,coverageMode:x.coverageMode,evidenceBudget:x.evidenceBudget,createdAt:now(),updatedAt:now(),revision:0,status:'idle',budget:x.budget,usage:{rounds:0,actions:0,durationMs:0,modelRequests:0},sessionOptions:x.sessionOptions,plan:[],rounds:[],sampleExcluded:[],exhaustive:false};
-    this.persist(task);this.event(task,'task.created',{goal:task.goal});return task;
+    if(x.coverageContract){if(x.coverageMode!=='all')throw new ExplorerError('CONTRACT_REQUIRES_ALL');task.coverageContract={...structuredClone(x.coverageContract),roots:x.coverageContract.roots.map(scope=>({...scope,url:scope.url||x.url}))};}
+    this.persist(task);this.event(task,'task.created',{goal:task.goal,coverageContract:task.coverageContract});return task;
   }
   owner(sessionId?:string){const a=this.active;return a&&(!sessionId||a.task.rounds.some(r=>r.sessionId===sessionId))?a.task.id:undefined;}
   start(id:string) {
@@ -98,6 +101,7 @@ export class ExplorerPlugin {
   async takeover(sessionId:string){const owner=this.owner(sessionId);if(owner)await this.pause(owner);}
   revise(id:string,input:{goal?:string;items?:unknown[];itemIds?:string[];coverageMode?:'all'|'representative'},supplement=false) {
     if(this.owner()===id)throw new ExplorerError('PAUSE_REQUIRED');const state=this.store.taskState(id),task=state.task;const previous={revision:task.revision,goal:task.goal,coverageMode:task.coverageMode,intent:structuredClone(task.intent),plan:structuredClone(task.plan)};
+    if(task.coverageContract)throw new ExplorerError('CONTRACT_REVISION_REQUIRES_NEW_TASK');
     if(supplement&&input.itemIds?.some(id=>task.plan.some(item=>item.id===id&&(isSuperseded(item)||item.conditionMigration?.status==='split'))))throw new ExplorerError('SUPERSEDED_SCOPE_SELECT_CHILDREN');
     if(input.coverageMode)task.coverageMode=z.enum(['all','representative']).parse(input.coverageMode);
     if(supplement)task.coverageMode='all'; // Explicitly selected gaps must not be sampled out again.
@@ -369,6 +373,7 @@ export class ExplorerPlugin {
     const targets=o.controls.filter(c=>c.localId===localId),actions=this.host.actions(o.sessionId);
     const control=targets.length===1?targets[0]:undefined;
     if(!control||!control.visible||!control.enabled)throw new ExplorerError('PROBE_TARGET_UNAVAILABLE');
+    if(task.coverageContract&&(!task.coverageContract.allowedOperations.includes(kind)||task.coverageContract.exclusions.some(ex=>controlInScope(ex.scope,control,o,actions))))throw new ExplorerError('PROBE_OUTSIDE_CONTRACT');
     if(task.plan.some(i=>!i.required&&i.reason==='user_excluded'&&controlInScope(i.scope,control,o,actions))||
       !task.plan.some(i=>i.required&&i.dispatchScope===true&&isUnfinished(i)&&[i.scope,...i.prerequisites].some(s=>controlInScope(s,control,o,actions))))throw new ExplorerError('PROBE_OUTSIDE_SCOPE');
     const scope=scopeForControl(control,o),round=task.rounds.at(-1)!,entryPath=this.pathResolver(round,o)(scope,localId);
@@ -588,6 +593,13 @@ export class ExplorerPlugin {
     this.syncUsage(task);this.event(task,'action.verified',{decisionId:task.pendingDispatch?.decisionId,requestId:attempt.requestId,actionId:attempt.action.id,attemptId:attempt.id,status:attempt.status,beforeId:attempt.beforeId,afterId:attempt.afterId,effectsAssessment:attempt.effectsAssessment});
   }
   private async initializePlan(task:Task,signal:AbortSignal,o:Observation) {
+    if(task.coverageContract){
+      const contract=task.coverageContract;this.rewriteTask(task);
+      task.intent={version:1,mode:'contract',source:'user',contract:structuredClone(contract)};
+      task.plan=[...contract.roots.map(scope=>this.newItem({title:'Caller coverage boundary',scope,prerequisites:[],completion:'Verify every discovered in-scope obligation; preserve unknowns',required:true,reason:'caller_contract_root'})),
+        ...contract.exclusions.map(ex=>({...this.newItem({title:ex.instruction,scope:ex.scope,prerequisites:[],completion:'Caller exclusion; no tested coverage',required:false,reason:'user_excluded'},false),status:'excluded' as const}))];
+      this.persist(task);this.event(task,'plan.contract_initialized',{contract,plan:task.plan,modelAuthority:false});return;
+    }
     let decision:Decision|undefined,routing:Decision|undefined;
     let intent:z.infer<typeof initialTaskSchema>={mode:'exhaustive',boundary:'current-page',exclusions:[]};
     if(task.goal.trim()) {
@@ -1245,17 +1257,28 @@ export class ExplorerPlugin {
     // A completed one-shot goal with no remaining children does not become a monitor.
     if(task.plan.length&&!task.plan.some(i=>i.required&&isUnfinished(i)))return false;
     const reviewSelection=task.scheduling?.selection;
+    const interpretations=this.host.controlInterpretationSnapshot(sid,o.id);
+    const unresolvedIds=new Set([...interpretations.classifications.controls.filter(c=>c.needsClassification).map(c=>c.control.localId),
+      ...interpretations.operations.controls.filter(c=>c.needsReview).map(c=>c.control.localId),
+      ...o.controls.filter(c=>c.hypothesisId&&this.host.list<IdentityHypothesis>(sid,'hypothesis').some(h=>h.id===c.hypothesisId&&h.status==='pending')).map(c=>c.localId)]);
+    const unresolvedControls=o.controls.filter(c=>unresolvedIds.has(c.localId));
+    const dependencies=new Map<string,ReturnType<typeof progressDependencies>>();
+    const canProgress=(action:ActionCandidate)=>{
+      if(o.coveragePolicy!=='finite-ui-v1')return true;
+      let result=dependencies.get(action.id);if(!result){result=progressDependencies(o,action,unresolvedControls);dependencies.set(action.id,result);}return result.allowed;
+    };
     const reviewTarget=reviewSelection&&reviewSelection.kind!=='current'
       ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
     try { const reviewed=await reviewNext({host:this.host,task,observation:o,
+      allowIndependentActionYield:(round.consecutiveReviewSteps??0)>=2,
       priorityActionIds:reviewTarget?.currentActionId?[reviewTarget.currentActionId]:undefined,
       allowPriorityActionYield:!!reviewTarget&&(reviewTarget.reason==='current_target_observed'||!!reviewTarget.source&&!!reviewTarget.correspondence),
       // At the local quota, review current material before fairness can send us
       // elsewhere. Reviewing does not reserve an action or reset the quota.
       allowLocalActionYield:(task.scheduling?.localSelections??0)<localSelectionLimit,
       hasPendingAction:(filter?: (action:ActionCandidate)=>boolean,freshOnly=false)=>{
-        const availability=this.host.actionAvailability(sid,o.id),actions=this.host.actions(sid).filter(a=>(!filter||filter(a))&&!this.navigationIsUnverified(task,a,o)&&permitted(a,o,availability)&&includesScope(task.plan,a,o));
+        const availability=this.host.actionAvailability(sid,o.id),actions=this.host.actions(sid).filter(a=>(!filter||filter(a))&&canProgress(a)&&contractOperationAllowed(task.coverageContract,a,o)&&!this.navigationIsUnverified(task,a,o)&&permitted(a,o,availability)&&includesScope(task.plan,a,o));
         const completed=completedOperations(this.host,task,o,actions);
         return actions.some(a=>this.freshAction(task,round,a,o,completed.has(a))||!freshOnly&&this.neededEntry(task,round,a,o));
       },
@@ -1268,7 +1291,7 @@ export class ExplorerPlugin {
       unchanged:previous=>this.event(task,'review.unchanged',{...previous,reason:'unchanged_unresolved_evidence',executionAuthorized:false}),
       unresolvedReview:rejected=>unresolvedReviews.push(rejected),
       apply:(d,cmd)=>this.apply(task,signal,o,d,cmd),probe:(d,localId,kind)=>this.probe(task,signal,o,d,localId,kind),retain:groups=>this.retainScopes(task,signal,o,groups),gap:(reason,scope,required,prerequisites)=>{this.gap(task,reason,scope,required,prerequisites);}});for(const d of this.store.decisions(task.id,decisionCursor).filter(d=>d.status==='returned')){this.router.mark(d,'applied','used_in_review');this.router.effect(d,'review-input',{purpose:d.purpose,selected:d.resolution?.value??d.answer?.value,selectionSource:d.resolution?.source||d.actor,executionAuthorized:false});}
-      if(unresolvedReviews.length&&this.host.observation(sid).id===o.id)await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host,{rejected:unresolvedReviews}));if(reviewed)return true; } catch(error) {
+      if(unresolvedReviews.length&&this.host.observation(sid).id===o.id)await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host,{rejected:unresolvedReviews}));if(reviewed){round.consecutiveReviewSteps=Math.min(2,(round.consecutiveReviewSteps??0)+1);return true;} } catch(error) {
       round.reviewed.splice(reviewedBefore);
       for(const key of Object.keys(round.unresolvedPurposeReviews||{}))if(!unresolvedBefore.has(key))delete round.unresolvedPurposeReviews![key];
       // Prepared answers have no host effect if a later member aborts the pass.
@@ -1281,7 +1304,7 @@ export class ExplorerPlugin {
     const snapshot=this.host.explorationSnapshot(sid,o.id,{includeHistoryAudit:false}),{actions,availability}=snapshot;
     const completed=completedOperations(this.host,task,o,[...actions,...snapshot.operationCandidates]),fresh=new Set<string>();
     const eligible=actions.filter(a=>{
-      if(this.navigationIsUnverified(task,a,o)||!permitted(a,o,availability)||!includesScope(task.plan,a,o))return false;
+      if(!canProgress(a)||!contractOperationAllowed(task.coverageContract,a,o)||this.navigationIsUnverified(task,a,o)||!permitted(a,o,availability)||!includesScope(task.plan,a,o))return false;
       if(this.freshAction(task,round,a,o,completed.has(a))){fresh.add(a.id);return true;}
       return this.neededEntry(task,round,a,o);
     });
@@ -1375,6 +1398,7 @@ export class ExplorerPlugin {
       // The host has already established mechanical executability. Traversal order
       // is scheduling policy, not a semantic question or a functionality verdict.
       const action=selectedAction,selectedReentry=selection?.kind==='reentry'||this.neededEntry(task,round,action,o),revision=task.revision;
+      if(o.coveragePolicy==='finite-ui-v1')this.event(task,'progress.dependencies',{actionId:action.id,observationId:o.id,...dependencies.get(action.id),coverageGranted:false,scopeUnchanged:true});
       if(selection?.kind==='current'&&reentries.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:reentries.map(choice=>{const action=actions.find(action=>action.id===choice.actionId);return {actionId:choice.actionId,itemId:choice.itemId,label:action?.label,kind:action?.kind};}),retainedInPlan:true,executionAuthorized:false});
       this.event(task,'action.selected',{reason:selectedReentry?'unfinished_target_route':'obligation_order',selectionPolicy:selection?.kind==='current'?'ready_local_preference':'finite_local_batch',selectedItemId:selection!.itemId,actionId:action.id,label:action.label,kind:action.kind,scope:decisionScope(scopeFor(action,o)),reentry:selectedReentry,candidateCount:local.length+reentries.length,sourceObservationId:o.id,dispatchRevalidationRequired:true});
       this.assert(task,signal,o.id,revision);
@@ -1408,6 +1432,7 @@ export class ExplorerPlugin {
       if(frame&&sameObservedState(this.host.observation(sid,frame.observationId),o))frame.remaining=[...new Map([...frame.remaining,...remaining].map(scope=>[digest(scope),scope])).values()];
       else round.stack.push({checkpointId:checkpoint.id,observationId:o.id,stateId:o.stateId,used:[],path:[...round.entryPath],remaining:[...new Map(remaining.map(scope=>[digest(scope),scope])).values()]});
       this.assert(task,signal,o.id,revision);
+      if(!contractOperationAllowed(task.coverageContract,action,o))throw new ExplorerError('ACTION_OUTSIDE_CONTRACT');
       const entryPath=this.pathForAction(round,action,o);
       const reentry=selectedReentry||this.neededEntry(task,round,action,o);
       const repetition=reentry?this.reentryPermission(task,round,action,o):undefined;
@@ -1428,7 +1453,7 @@ export class ExplorerPlugin {
       if(reentryItem){schedule.selection={itemId:reentryItem.id,kind:'reentry',actionId:action.id,source:reentryItem.evidence.find(ref=>!ref.attemptId)};schedule.cursor=reentryItem.id;}
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.persist(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
-      try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
+      try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});round.consecutiveReviewSteps=0;this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
       if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete task.pendingDispatch;this.persist(task);
       if(action.kind==='dismiss') {
         const result=this.host.list<BoundaryExitResult>(sid,'boundary-exit-result').find(r=>r.attemptId===attempt.id);this.event(task,'boundary.exit_verified',{attemptId:attempt.id,result});
@@ -1442,6 +1467,8 @@ export class ExplorerPlugin {
       const path=pathFor(scopeFor(action,o),action.localId);
       if(this.navigationIsUnverified(task,action,o)){this.gap(task,'unknown_action_outcome',scopeFor(action,o),true,path);continue;}
       if(this.wasTried(task,round,action,o))continue;
+      const dependency=dependencies.get(action.id);
+      if(dependency&&!dependency.allowed){this.gap(task,'execution_dependency_unproved',scopeFor(action,o),true,path);this.event(task,'progress.blocked',{actionId:action.id,observationId:o.id,blockers:dependency.blockers,retained:true,coverageGranted:false});continue;}
       if(!permitted(action,o,availability)){const gap=unexecutedAction(action,availability);this.gap(task,gap.reason,scopeFor(action,o),gap.required,path);}
     }
     if(recovery) {
@@ -1886,6 +1913,8 @@ export class ExplorerPlugin {
       this.assert(task,signal,o.id);this.router.mark(followup.decision,'applied');
       // Enrich existing obligations; the model cannot silently discard a failed obligation or enlarge the user's selected scope.
       for(const proposed of followup.value.items) {
+        const error=task.coverageContract&&contractProposalError(task.coverageContract,proposed);
+        if(error){this.event(task,'plan.contract_proposal_rejected',{scope:proposed.scope,reason:error,decisionId:followup.decision.id,coverageUnchanged:true});continue;}
         const matched=remaining.find(i=>i.title===proposed.title&&digest(i.scope)===digest(proposed.scope));
         if(matched){this.changedPlan(task,matched);matched.prerequisites=proposed.prerequisites;matched.completion=proposed.completion;matched.reason=proposed.reason;}
         else {const item=this.newItem({...proposed,required:false},false);item.status='untested';item.reason=`proposed_followup: ${proposed.reason}`;this.appendPlan(task,item);}
@@ -1912,7 +1941,7 @@ export class ExplorerPlugin {
         const control=o.controls.find(c=>c.localId===action.localId);
         const review=action.basis?.status!=='supported'&&control&&(facts.classifications.includes(control.localId)?'classification_unresolved':facts.operations.includes(control.localId)?'operation_basis_unconfirmed':undefined);
         if(review){recordGap(review,scopeForControl(control!,o),path);continue;}
-        const gap=unexecutedAction(action,availability);
+        const gap=contractOperationAllowed(task.coverageContract,action,o)?unexecutedAction(action,availability):{reason:'operation_not_authorized_by_contract',required:true};
         this.gap(task,gap.reason,scope,gap.required,path,false,o,keyFor(action,o),operationScopes.get(digest(scope))===1?action.id:undefined,normalizationHost,index,normalizer);
       }
       const controls=new Set(o.controls.filter(c=>c.visible&&c.enabled&&inScope(item.scope,c)&&!task.plan.some(excluded=>excluded.reason==='user_excluded'&&inScope(excluded.scope,c))).map(c=>c.localId));

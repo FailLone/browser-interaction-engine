@@ -12,7 +12,7 @@ export function coverageLedger(host:ExplorerHost,task:Task) {
  const condition=receiptConditionReader(host),complete=operationSourceCompletion(host,undefined,condition);
  const proofs=new Map<string,boolean>();const checked=condition.many(attempts);attempts.forEach((a,index)=>proofs.set(a.id,checked[index].conditionVerified));
  type Combination={key:string;conditions:unknown;sources:{sessionId:string;observationId:string}[];operations:Record<string,{scope:ReturnType<typeof scopeFor>;observed:string[];executed:{attemptId:string;observationId:string;verified:boolean}[];status:'observed_not_executed'|'execution_evidence_only'}>};
- const combinations=new Map<string,Combination>(),gaps:{sessionId:string;observationId:string;code:string;critical:boolean;message:string}[]=[];
+ const combinations=new Map<string,Combination>(),gaps:{sessionId:string;observationId:string;code:string;critical:boolean;message:string;reference?:string;coverageScope?:Observation['gaps'][number]['coverageScope']}[]=[];
  for(const round of task.rounds)for(const o of host.list<Observation>(round.sessionId,'observation')){
   const conditions={url:o.url,context:o.context,boundaries:(o.boundaries||[]).map(b=>({name:b.name,region:b.region})),
    controls:o.controls.filter(c=>c.checked!=null||c.expanded!=null||c.pressed!=null||c.tag==='select'||c.editable).map(c=>({reference:browserControlBindingKey(c,o),key:c.stableKey,tag:c.tag,role:c.role,name:c.label||c.name,visible:c.visible,enabled:c.enabled,checked:c.checked,expanded:c.expanded,pressed:c.pressed,selected:c.selected,value:c.editable?c.value:undefined,constraints:c.constraints})).sort((a,b)=>digest(a).localeCompare(digest(b)))};
@@ -24,7 +24,7 @@ export function coverageLedger(host:ExplorerHost,task:Task) {
    for(const a of actual.filter(a=>a.action.localId===action.localId&&a.action.kind===action.kind&&digest(a.action.value??null)===digest(action.value??null)&&a.status==='succeeded'))if(!entry.executed.some(e=>e.attemptId===a.id))entry.executed.push({attemptId:a.id,observationId:o.id,verified:proofs.get(a.id)===true});
    if(entry.executed.length)entry.status='execution_evidence_only';row.operations[operation]=entry;
   }
-  for(const g of o.gaps)gaps.push({sessionId:o.sessionId,observationId:o.id,code:g.code,critical:g.critical===true,message:g.message});combinations.set(key,row);
+  for(const g of o.gaps)gaps.push({sessionId:o.sessionId,observationId:o.id,code:g.code,critical:g.critical===true,message:g.message,reference:g.reference,coverageScope:g.coverageScope});combinations.set(key,row);
  }
  const obligations=task.plan.filter(i=>i.required&&!!i.scope.kind).map(i=>{
   const relatedIds=i.coverageResolvedBy?.relatedItemIds||[],related=relatedIds.map(id=>task.plan.find(row=>row.id===id));
@@ -35,13 +35,13 @@ export function coverageLedger(host:ExplorerHost,task:Task) {
    discovery:i.evidence.filter(e=>!e.attemptId),completion:i.resolvedBy,completionAssessment:i.conditionCompletion,relatedCoverage:i.coverageResolvedBy,
    receiptReferences:[...material.evidence,...material.attempts.flatMap(a=>a.evidence?[a.evidence]:[]),...material.resolvedBy?[material.resolvedBy]:[]].filter(ref=>!!ref.attemptId)};
  });
- return {version:1,policy:task.sessionOptions.coveragePolicy||'legacy-source-conditions',taskId:task.id,
+ return {version:1,policy:task.sessionOptions.coveragePolicy||'legacy-source-conditions',taskId:task.id,coverageContract:task.coverageContract,
   claim:'Finite observed UI operation samples only; neither all condition combinations nor business effects are certified',
   finite:{obligations,total:obligations.length,verified:obligations.filter(i=>i.verified).length,remaining:obligations.filter(i=>!i.verified).map(i=>i.itemId)},
   conditionCombinations:{policy:'observed-condition-combinations-v1',exhaustive:false,rows:[...combinations.values()],count:combinations.size,
    meaning:'Exact observed conditions with actual before-frame execution evidence. Untested combinations and causal independence remain unproved.'},
   unknownDependencies:{status:'unproved',categories:['unobserved JavaScript dependencies','unobserved condition combinations','unbounded free-input values','unassessed business effects'],observations:gaps},
-  blockers:task.plan.filter(i=>i.required&&!['succeeded','superseded'].includes(i.status)).map(i=>({itemId:i.id,scope:i.scope,status:i.status,reason:i.reason})),
+  blockers:task.plan.filter(i=>i.required&&!['succeeded','superseded'].includes(i.status)).map(i=>({itemId:i.id,scope:i.scope,status:i.status,reason:i.reason,evidence:i.evidence})),
   unsuccessfulExecutions:attempts.filter(a=>a.status!=='succeeded').map(a=>({attemptId:a.id,status:a.status,reason:a.reason})),
   recovery:attempts.filter(a=>a.purpose==='recovery'||a.repetitionSource).map(a=>({attemptId:a.id,status:a.status,repetitionSource:a.repetitionSource,purpose:a.purpose}))};
 }
