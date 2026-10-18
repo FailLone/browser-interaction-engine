@@ -1,3 +1,9 @@
+# 2026-10-18 source update
+
+The historical notes below describe the earlier independent implementation. The current explorer now translates selected Crawljax fragment traversal algorithms at `a9e14583e85569f6a7775fa6391c13cf53b3fd6d`. It has one fragment traversal strategy; the earlier quota/sample-ranking scheduler is retained only in Git history and frozen experiments. See [implementation and deliberate deviations](experiments/broader-ui-exploration-2026-10-18/FRAGMENT-TRAVERSAL.md) and [Apache license/attribution](third-party/crawljax/README.md). The historical statements that no code was translated do not describe this new port.
+
+---
+
 # Exploration refactor: source references and boundaries
 
 Reviewed 2026-10-16. This work reuses established design ideas in the existing TypeScript architecture. No upstream implementation has been copied, translated or vendored, and no additional crawler framework is installed. The Java/Selenium graph and fragment implementations are closely coupled to their own browser, event, DOM and visual comparison models; copying a small-looking method would import those assumptions without their surrounding invariants.

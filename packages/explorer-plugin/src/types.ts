@@ -136,6 +136,10 @@ export interface ScopeMigrationIndex {
   sources:Record<string,{sessionId:string;observationId:string;examinedKeys:number;matches:{stableKey:string;scope:Scope;key:string}[]}>;
 }
 export interface Task {
+  /** Separate reversible exploration projection; never completion evidence. */
+  fragmentTraversal?:import('./fragment-traversal.js').FragmentTraversalLedger;
+  /** Only explicit user scope revision invalidates fragment sampling authority. */
+  fragmentAuthorityEpoch?:number;
   id: string; goal: string; url: string; createdAt: string; updatedAt: string; revision: number;
   scopeMigrationIndex?:ScopeMigrationIndex;
   /** Bounded optional interpretation, never execution or coverage authority. */

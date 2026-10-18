@@ -1,8 +1,9 @@
+const localSelectionLimit=4; // Historical saved metadata; the strategy must ignore it.
 import { EventEmitter } from 'node:events';
 import { expect, it, vi } from 'vitest';
 import { exitCandidateKey, type ActionAttempt, type ActionCandidate, type BoundaryExitCandidate, type Observation } from '@interaction/browser';
 import { ExplorerPlugin, type ExplorerHost, type ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
-import { localSelectionLimit, type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
+import { type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
 
 // Review decisions are outside this scheduling regression. All candidate
 // availability, uniqueness, freshness, scope and run-entry unknown gates below
@@ -34,6 +35,8 @@ function fixture() {
     boundaryState: () => ({ verified: false }), recoveryAssessment: (sid: string) => ({ observationId: observation.id,
       unknownAttempts: (attempts.get(sid) || []).filter(a => a.status === 'unknown') }),
     actionAvailability: availability,
+    controlInterpretationSnapshot:()=>({actions,classifications:{controls:[]},operations:{controls:[]},nonInteractive:[],retainedClassifications:[]}),
+    regionReviewMaterial:()=>({enabled:false}),explorationReviewMaterial:()=>({groups:[]}),
     explorationSnapshot: () => ({ actions, operationCandidates: actions, availability: availability() }),
     createCheckpoint: effect(), reachCheckpoint: effect(), reachExplorationTarget: effect(), returnToObservedSource: effect(),
     execute: effect(), observe: effect(), createSession: effect() } as unknown as ExplorerHost;
@@ -82,9 +85,10 @@ function fixture() {
   }
   async function select() {
     const revalidationsBefore = remoteRevalidate.mock.calls.length;
-    await expect(runtime.step(task, round, new AbortController().signal)).rejects.toBe(selected);
-    const choice = events.filter(e => e.type === 'obligation.selected').at(-1)!.data as ObligationSelection;
-    expect(remoteRevalidate.mock.calls.length - revalidationsBefore).toBe(Number(choice.kind === 'recovery' || choice.kind === 'inspect'));
+    const cursor=events.length;
+    try{await runtime.step(task, round, new AbortController().signal);}catch(error){expect(error).toBe(selected);}
+    const choice = events.slice(cursor).filter(e => e.type === 'obligation.selected').at(-1)?.data as ObligationSelection|undefined;
+    expect(remoteRevalidate.mock.calls.length - revalidationsBefore).toBe(Number(choice?.kind === 'recovery' || choice?.kind === 'inspect'));
     return choice;
   }
   function noEffects() {
@@ -104,14 +108,14 @@ it('uses an admissible active boundary exit before a remote turn at the local li
     // grants neither successful exit nor coverage and does not reset fairness.
     f.observation.boundaries = []; f.observation.id = 'after-exit';
     const work = f.add('Work'); f.replaceActions([work]);
-    expect(await f.select()).toMatchObject({ kind: 'recovery', itemId: 'remote', routeKey: 'strict-route' });
-    expect(f.remote).toHaveBeenCalledOnce(); f.noEffects();
+    expect(await f.select()).toMatchObject({ kind: 'current', actionId:work.id });
+    expect(f.remote).not.toHaveBeenCalled(); f.noEffects();
     expect(f.task.plan.every(row => row.status === 'pending' && !row.resolvedBy)).toBe(true);
   } finally { await f.plugin.close(); }
 });
 
 it.each(['no active boundary', 'different boundary', 'missing overlay', 'mismatched overlay', 'nonmember', 'blocked', 'nonexit', 'duplicate', 'already tried', 'excluded'] as const)(
-  'does not give exit priority to %s candidates', async variant => {
+  'keeps SDK availability separate from old exit quota priority for %s candidates', async variant => {
     const f = fixture(); try {
       const close = f.add('Close', variant !== 'nonexit');
       if (variant === 'no active boundary') f.observation.boundaries = [];
@@ -123,8 +127,9 @@ it.each(['no active boundary', 'different boundary', 'missing overlay', 'mismatc
       if (variant === 'duplicate') f.replaceActions([close, { ...close, id: 'duplicate-close' }]);
       if (variant === 'already tried') f.round.tried.push(f.runtime.attemptKey(f.round, close, f.observation));
       if (variant === 'excluded') f.task.plan.push({ ...item('user-exclusion', { url, kind: 'click', label: 'Close' }), required: false, status: 'excluded', reason: 'user_excluded' });
-      expect(await f.select()).toMatchObject({ kind: 'recovery', itemId: 'remote' });
-      expect(f.remote).toHaveBeenCalledOnce(); f.noEffects();
+      if(['blocked','duplicate','already tried','excluded'].includes(variant))expect(await f.select()).toBeUndefined();
+      else expect(await f.select()).toMatchObject({kind:'current',actionId:close.id});
+      expect(f.remote).not.toHaveBeenCalled();f.noEffects();
     } finally { await f.plugin.close(); }
   });
 
@@ -149,11 +154,11 @@ it.each(['Escape', 'reviewed dismissal'] as const)('keeps the existing control-f
   } finally { await f.plugin.close(); }
 });
 
-it.each([0, localSelectionLimit])('keeps in-place work ahead of exits and retains ordinary remote fairness at count %i', async count => {
+it.each([0, localSelectionLimit])('keeps fresh in-place work ahead of exits regardless of obsolete saved count %i', async count => {
   const f = fixture(); try {
     f.add('Close', true); const work = f.add('Work'); f.task.scheduling!.localSelections = count;
-    expect(await f.select()).toMatchObject(count === 0 ? { kind: 'current', actionId: work.id } : { kind: 'recovery', itemId: 'remote' });
-    expect(f.remote).toHaveBeenCalledTimes(count === 0 ? 0 : 1); f.noEffects();
+    expect(await f.select()).toMatchObject({ kind: 'current', actionId: work.id });
+    expect(f.remote).not.toHaveBeenCalled(); f.noEffects();
   } finally { await f.plugin.close(); }
 });
 

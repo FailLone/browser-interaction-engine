@@ -1,7 +1,7 @@
 import type { Control, RegionCandidate } from './types.js';
 
 /** Serialized into the page. Structural suggestions only; no label/class-name business rules. */
-export function collectRegionCandidates(controls: Control[], elements: Element[], instance: (el: Element) => string, selector: (el: Element) => string): RegionCandidate[] {
+export function collectRegionCandidates(controls: Control[], elements: Element[], instance: (el: Element) => string, selector: (el: Element) => string, collectFragments=false): RegionCandidate[] {
   const clean = (s: string | null | undefined) => (s || '').replace(/\s+/g, ' ').trim().slice(0, 160);
   const byId = new Map(controls.filter(c => c.visible).map(c => [c.instanceId, c]));
   const elementById = new Map(elements.map(el => [instance(el), el]));
@@ -120,5 +120,39 @@ export function collectRegionCandidates(controls: Control[], elements: Element[]
   for (const c of result) c.parentId = result.filter(p => p.id !== c.id && p.controlIds.length > c.controlIds.length && c.controlIds.every(id => p.controlIds.includes(id))).sort((a,b) => a.controlIds.length - b.controlIds.length)[0]?.id;
   for (const c of result) { const source=reuseSources.get(c.id)!; c.reuseBinding=reusable(source.el,source.ids,source.facts,source.heading); }
   for (const c of result) c.suggested = !result.some(other => other.parentId === c.id);
+  if(collectFragments){
+    // Region parentId means membership containment; use actual DOM ancestry here.
+    // Bounds decline a fragment: truncated trees must never be matched.
+    let remainingNodes=2048,remainingBytes=196608,roots=0;
+    const semantic='header,nav,main,footer,aside,form,[role=navigation],[role=dialog],[role=region]';
+    for(const c of [...result].sort((a,b)=>Number(!!b.suggested)-Number(!!a.suggested))){
+      if(roots>=32||remainingNodes<=0||remainingBytes<=0)break;
+      roots++;
+      const root=reuseSources.get(c.id)!.el,nodes:NonNullable<RegionCandidate['fragment']>['nodes']=[];
+      const walker=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT);let el:Element|null=root,complete=true;
+      const paths=new Map<Element,string>([[root,'.']]);
+      while(el){
+        if(nodes.length>=256||remainingNodes<=0||el.shadowRoot||el.matches('iframe,object,embed,canvas')){complete=false;break;}
+        const parent=el.parentElement,path=el===root?'.':`${paths.get(parent!)}/${el.tagName.toLowerCase()}[${[...parent!.children].filter(s=>s.tagName===el!.tagName).indexOf(el)+1}]`;
+        paths.set(el,path);
+        const attributes=Object.fromEntries([...el.attributes].filter(a=>a.name!=='style').map(a=>[a.name,a.value]));
+        if(el instanceof HTMLAnchorElement&&el.hasAttribute('href'))attributes.href=el.href;
+        if(el instanceof HTMLInputElement&&['checkbox','radio'].includes(el.type))attributes['@checked']=String(el.checked);
+        if(el instanceof HTMLSelectElement)attributes['@selected']=JSON.stringify([...el.selectedOptions].map(o=>o.value));
+        const text=[...el.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent||'').join(' ').replace(/\s+/g,' ').trim();
+        remainingNodes--;
+        if(text.length>8192||JSON.stringify(attributes).length>8192){complete=false;break;}
+        nodes.push({instanceId:instance(el),path,tag:el.tagName.toLowerCase(),attributes,text});
+        el=walker.nextNode() as Element|null;
+      }
+      if(!complete)continue;
+      const owners=[];for(let p:Element|null=root;p;p=p.parentElement)if(p===root||p.matches(semantic))owners.push({tag:p.tagName.toLowerCase(),role:p.getAttribute('role'),id:p.id,label:p.getAttribute('aria-label'),labelledby:p.getAttribute('aria-labelledby')});
+      const parents=result.filter(other=>other.id!==c.id&&reuseSources.get(other.id)!.el.contains(root));
+      const parent=parents.find(p=>!parents.some(q=>q!==p&&reuseSources.get(p.id)!.el.contains(reuseSources.get(q.id)!.el)));
+      const fragment={policy:'host-dom-fragment/v1' as const,parentId:parent?.id,owner:JSON.stringify(owners),nodes};
+      const bytes=JSON.stringify(fragment).length*2;if(bytes>remainingBytes)continue;
+      c.fragment=fragment;remainingBytes-=bytes;
+    }
+  }
   return result;
 }

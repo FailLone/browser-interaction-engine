@@ -161,6 +161,9 @@ export interface RegionCandidate {
   basis: 'heading' | 'semantic' | 'layout' | 'document'; suggested?: boolean; binding: Json; evidence: ActionEvidence[];
   /** Bounded, instance-independent evidence; absent means no reusable partition proof. */
   reuseBinding?: Json;
+  /** Ordered DOM evidence, not visual equality, identity or coverage. */
+  fragment?: {policy:'host-dom-fragment/v1';parentId?:string;owner:string;
+    nodes:{instanceId:string;path:string;tag:string;attributes:Record<string,string>;text:string}[]};
 }
 export interface StructuralListCandidate {
   ownerInstanceId:string; ownerSelector:string; label:string; template:string; binding:Json;

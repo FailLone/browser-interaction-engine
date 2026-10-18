@@ -185,3 +185,5 @@ export * from './inspection-contract.js';
 export * from './exploration-decision-reuse.js';
 
 export {routeURLSchema} from './schema.js';
+
+export * from './fragment-projection.js';

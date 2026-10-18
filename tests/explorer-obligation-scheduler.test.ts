@@ -1,6 +1,7 @@
+const localSelectionLimit=4; // Historical metadata used by migration checks.
 import { expect, it } from 'vitest';
 import type { PlanItem, Task } from '@interaction/explorer-plugin';
-import { bindScheduledRoute, initialSchedule, localSelectionLimit, orderedObligations, reserveObligation, routeDebtAllows, selectObligation, unfinishedObligations } from '../packages/explorer-plugin/src/obligation-scheduler.js';
+import { bindScheduledRoute, initialSchedule, orderedObligations, reserveObligation, routeDebtAllows, selectFragmentWork, unfinishedObligations } from '../packages/explorer-plugin/src/obligation-scheduler.js';
 
 function item(id:string,extra:Partial<PlanItem>={}):PlanItem {
   return {id,title:id,scope:{url:'https://fixture.test/',kind:'click',label:id},prerequisites:[],completion:'Actual execution',status:'pending',required:true,dispatchScope:false,reason:'operation_not_executed',evidence:[],attempts:[],...extra};
@@ -15,23 +16,21 @@ it('rotates unfinished conditions independently from browser frames and complete
   expect(orderedObligations(plan,JSON.parse(JSON.stringify(schedule))).map(i=>i.id)).toEqual(['B','C','root']);
 });
 
-it('gives a persistent remote target a turn after a bounded stream of new local conditions',()=>{
-  let schedule=initialSchedule({});const remote={itemId:'retained',kind:'recovery' as const};
-  for(let i=0;i<localSelectionLimit;i++){
+it('keeps new local work ahead of retained work across serialization, ignoring historical quota metadata',()=>{
+  let schedule=initialSchedule({});schedule.localSelections=localSelectionLimit;
+  const remote={itemId:'retained',kind:'recovery' as const};
+  for(let i=0;i<20;i++){
     const current={itemId:`new-${i}`,kind:'current' as const,actionId:`observed-${i}`};
-    expect(selectObligation(schedule,[current],[remote])).toEqual(current);
+    expect(selectFragmentWork({boundaryActive:false,current:[{selection:current,untried:true}],remote:[remote]}).selection).toEqual(current);
     reserveObligation(schedule,current);schedule=JSON.parse(JSON.stringify(schedule));
   }
-  expect(selectObligation(schedule,[{itemId:'another-new',kind:'current'}],[remote])).toEqual(remote);
-  reserveObligation(schedule,remote);
-  expect(schedule.localSelections).toBe(0);
-  expect(selectObligation(schedule,[{itemId:'ready',kind:'current'}],[remote])?.itemId).toBe('ready');
+  expect(selectFragmentWork({boundaryActive:false,current:[],remote:[remote]}).selection).toEqual(remote);
+  expect(schedule.localSelections).toBe(localSelectionLimit);
 });
 
-it('does not stop ready local work when no admissible remote route exists',()=>{
-  const schedule=initialSchedule({});schedule.localSelections=localSelectionLimit;
-  expect(selectObligation(schedule,[{itemId:'ready',kind:'current'}],[])?.itemId).toBe('ready');
-  expect(selectObligation(schedule,[],[])).toBeUndefined();
+it('does not stop unmapped fresh work when no admissible remote route exists',()=>{
+  expect(selectFragmentWork({boundaryActive:false,current:[{selection:{itemId:'ready',kind:'current'},untried:true}],remote:[]}).selection?.itemId).toBe('ready');
+  expect(selectFragmentWork({boundaryActive:false,current:[],remote:[]}).selection).toBeUndefined();
 });
 
 it('a failed selected target does not stay at the head after serialization',()=>{

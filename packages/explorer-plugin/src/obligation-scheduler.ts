@@ -22,16 +22,17 @@ export interface ObligationSelection {
   actionId?:string; source?:EvidenceRef; routeKey?:string;
 }
 export interface ObligationSchedule {
-  version:1; cursor?:string; localSelections:number;
+  version:1; cursor?:string;
+  /** Ignored historical metadata; no current strategy uses an action quota. */
+  localSelections?:number;
   selection?:ObligationSelection;
   routes:Record<string,ScheduledRoute>;
   /** Old opaque retry keys must be associated before any new route can spend a budget. */
   legacyUnmappedRouteKeys:string[];
   deferred?:Record<string,{conditionVersion:string;reason:string}>;
 }
-export const localSelectionLimit=4;
 export function initialSchedule(task:Pick<Task,'routeRetries'>):ObligationSchedule {
-  return {version:1,localSelections:0,routes:{},legacyUnmappedRouteKeys:Object.keys(task.routeRetries?.routes||{})};
+  return {version:1,routes:{},legacyUnmappedRouteKeys:Object.keys(task.routeRetries?.routes||{})};
 }
 export function unfinishedObligations(plan:PlanItem[]):PlanItem[] {
   return plan.filter(item=>item.required&&isUnfinished(item)&&schedulableObligation(item));
@@ -47,14 +48,8 @@ export function orderedObligations(plan:PlanItem[],schedule:ObligationSchedule):
   return [...rotated.filter(item=>!!item.scope.kind||!!item.scope.label||!!item.scope.stableKey),
     ...rotated.filter(item=>!item.scope.kind&&!item.scope.label&&!item.scope.stableKey)];
 }
-/** Ready in-place work has a bounded preference; a failed remote target advances
- * the same cursor as a successful one. Neither prices nor restart reset it. */
-export function selectObligation(schedule:ObligationSchedule,current:ObligationSelection[],remote:ObligationSelection[]):ObligationSelection|undefined {
-  return current.length&&(!remote.length||schedule.localSelections<localSelectionLimit)?current[0]:remote[0]||current[0];
-}
 export function reserveObligation(schedule:ObligationSchedule,selection:ObligationSelection):void {
   schedule.selection={...selection};schedule.cursor=selection.itemId;
-  schedule.localSelections=selection.kind==='current'?Math.min(localSelectionLimit,schedule.localSelections+1):0;
 }
 export function bindScheduledRoute(schedule:ObligationSchedule,key:string,route:ScheduledRoute):void {
   schedule.routes[key]=route;
@@ -64,47 +59,19 @@ export function routeDebtAllows(schedule:ObligationSchedule,key:string):boolean 
   return !!schedule.routes[key]||!schedule.legacyUnmappedRouteKeys.length;
 }
 
-/** Exploration order only. Conditions and target correspondence remain intact;
- * this prevents changing selector combinations from starving unseen controls.
- * Matching display names alone never share this priority hint. */
-export function operationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem)=>number {
-  const key=(item:PlanItem)=>JSON.stringify(Object.entries(item.scope).sort(([a],[b])=>a.localeCompare(b)));
-  const successes=new Map<string,number>();
-  for(const item of plan)if(item.scope.kind&&item.scope.stableKey&&item.status==='succeeded'
-    &&item.conditionCompletion?.status==='verified'&&item.resolvedBy?.attemptId){const k=key(item);successes.set(k,(successes.get(k)||0)+1);}
-  return item=>item.scope.kind&&item.scope.stableKey?(successes.get(key(item))||0):0;
-}
-
-/** Program traversal hint for already sampled operations, including successful
- * no-effect observations whose source duties correctly remain unresolved.
- * A captured target binding can group rebuilt instances for ordering only;
- * every item/source/condition and all actual execution gates remain separate. */
-export function programOperationSamplePriority(plan:readonly PlanItem[]):(item:PlanItem)=>number {
-  const key=(item:PlanItem)=>{
-    if(!item.scope.kind||!item.scope.targetBinding&&!item.scope.stableKey)return;
-    const {stableKey,url,...scope}=item.scope;
-    let origin=url;try{if(url)origin=new URL(url).origin;}catch{/* Keep malformed sources separate. */}
-    return JSON.stringify(Object.entries(item.scope.targetBinding?{...scope,origin}:item.scope).sort(([a],[b])=>a.localeCompare(b)));
-  };
-  const attempts=new Map<string,Set<string>>(),verified=operationSamplePriority(plan);
-  for(const item of plan){const k=key(item);if(!k)continue;const seen=attempts.get(k)||new Set<string>();
-    for(const attempt of item.attempts)if(attempt.outcome==='succeeded'&&attempt.evidence?.attemptId)seen.add(attempt.evidence.attemptId);
-    attempts.set(k,seen);
-  }
-  return item=>Math.max(verified(item),attempts.get(key(item)||'')?.size||0);
-}
-
-/** Program exploration has no per-page action quota. These are already admitted
- * candidates: this function only chooses work and cannot authorize dispatch.
- * A sampled operation remains pending and can run after retained work is tried.
- */
-export function selectProgramWork(input:{
+/** Unified fragment exploration: current fresh work precedes retained routes.
+ * Candidates without a mapping remain ordinary fresh candidates. No quota,
+ * mode switch, identity authority or coverage inference is supplied here. */
+export function selectFragmentWork(input:{
   boundaryActive:boolean;
   continuation?:ObligationSelection;
   current:{selection:ObligationSelection;untried:boolean}[];
   remote:ObligationSelection[];
 }):{selection?:ObligationSelection;reason:string;needsRecovery:boolean} {
-  if(input.boundaryActive)return {selection:input.current[0]?.selection,reason:'active_boundary',needsRecovery:false};
+  if(input.boundaryActive){
+    const local=[...input.current.map(c=>c.selection),...input.remote.filter(c=>c.kind==='reentry'&&c.actionId)];
+    return {selection:local.find(c=>c===input.continuation)||local[0],reason:'active_boundary',needsRecovery:false};
+  }
   if(input.continuation)return {selection:input.continuation,reason:'selected_route_continuation',needsRecovery:false};
   const fresh=input.current.find(candidate=>candidate.untried);
   if(fresh)return {selection:fresh.selection,reason:'untried_current_candidate',needsRecovery:false};

@@ -1,9 +1,10 @@
+const localSelectionLimit=4; // Historical saved metadata; the strategy must ignore it.
 import { EventEmitter } from 'node:events';
 import { expect, it, vi } from 'vitest';
 import { hash } from '@interaction/core';
 import type { ActionAttempt, ActionCandidate, Observation, OperationReceiptCondition } from '@interaction/browser';
 import { ExplorerPlugin, type Decision, type ExplorerHost, type ExplorerStore, type PlanItem, type Round, type Scope, type Task } from '@interaction/explorer-plugin';
-import { localSelectionLimit, type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
+import { type ObligationSelection } from '../packages/explorer-plugin/src/obligation-scheduler.js';
 import { recordRouteRetry } from '../packages/explorer-plugin/src/obligation-lifecycle.js';
 import { digest, keyFor, matches, navigationTarget, scopeFor, schedulingKeyFor } from '../packages/explorer-plugin/src/policy.js';
 
@@ -46,10 +47,10 @@ function fixture(count = localSelectionLimit, continueDispatch = false) {
     preconditions: { visible: true, enabled: true, identityResolved: true, context: current.context }, boundary: { key: 'modal', intent: 'interact' },
   };
   const actions = [action], events: Event[] = [], decisions: Decision[] = [], attempts = new Map<string, ActionAttempt[]>();
-  let needsClassification = true, blockingBoundaryExit = false;
+  let needsClassification = true, blockingBoundaryExit = false, localAvailable=true;
   const effect = () => vi.fn(async () => { throw Error('Browser effects are forbidden by this fixture'); });
   const availability = () => ({ sessionId: current.sessionId, observationId: current.id, revision: 'availability',
-    actions: actions.map(a => ({ actionId: a.id, executable: true, blockers: [] })) });
+    actions: actions.map(a => ({ actionId: a.id, executable: localAvailable, blockers: [] })) });
   const classifications = () => ({ sessionId: current.sessionId, observationId: current.id,
     controls: [{ control: dialog, actions: [], classifications: [], needsClassification }] });
   const operations = () => ({ sessionId: current.sessionId, observationId: current.id,
@@ -115,14 +116,15 @@ function fixture(count = localSelectionLimit, continueDispatch = false) {
       expect(host[name]).not.toHaveBeenCalled();
   };
   return { host, store, plugin, task, round, review, events, decisions, attempts, choose, remote, revalidate, step, retained, noBrowserEffects,
+    blockLocal: () => {localAvailable=false;}, unblockLocal: () => {localAvailable=true;},
     clearClassification: () => { needsClassification = false; },
     race: () => { race = true; }, blockExit: () => { blockingBoundaryExit = true; },
     run: () => runtime.run(task, new AbortController().signal) as Promise<void> };
 }
 
-it('reviews the current dialog at the fairness limit, then keeps the remote turn and historical work available', async () => {
+it('reviews when local execution is unavailable, then prefers fresh work while retaining remote duties', async () => {
   const f = fixture(); try {
-    const before = f.retained();
+    const before = f.retained();f.blockLocal();
     expect(await f.step()).toBe(true);
     expect(f.choose).toHaveBeenCalledOnce();
     expect(f.host.command).toHaveBeenCalledWith('current-session', { type: 'classifyControls', classification: {
@@ -130,10 +132,9 @@ it('reviews the current dialog at the fairness limit, then keeps the remote turn
         reason: 'Selected container', evidence: ['explorer-decision:decision-0'] }] } });
     expect(f.remote).not.toHaveBeenCalled(); expect(f.task.scheduling!.localSelections).toBe(localSelectionLimit);
     expect(f.retained()).toEqual(before); expect(f.task.usage.actions).toBe(0); f.noBrowserEffects();
-    // The host now supplies reviewed current material. The unchanged fairness
-    // counter must still select remote work; stop at its final revalidation.
-    await expect(f.step()).rejects.toBe(remoteSelected);
-    expect(f.remote).toHaveBeenCalledOnce(); expect(f.revalidate).toHaveBeenCalledOnce();
+    f.unblockLocal();
+    await expect(f.step()).rejects.toBe(localSelected);
+    expect(f.remote).not.toHaveBeenCalled(); expect(f.revalidate).not.toHaveBeenCalled();
     expect(f.choose).toHaveBeenCalledOnce(); expect(f.host.command).toHaveBeenCalledOnce();
     expect(f.task.scheduling!.localSelections).toBe(localSelectionLimit); expect(f.retained()).toEqual(before); f.noBrowserEffects();
   } finally { await f.plugin.close(); }
@@ -152,7 +153,7 @@ it.each([0, localSelectionLimit - 1])('keeps the ordinary local-action handoff b
 
 it('rejects current-observation changes before applying a fairness-limit review', async () => {
   const f = fixture(); try {
-    const before = f.retained(); f.race();
+    const before = f.retained(); f.blockLocal(); f.race();
     await expect(f.step()).rejects.toMatchObject({ code: 'STALE_DECISION' });
     expect(f.choose).toHaveBeenCalledOnce(); expect(f.decisions[0].status).toBe('stale');
     expect(f.round.reviewed).toEqual([]); expect(f.host.command).not.toHaveBeenCalled(); expect(f.remote).not.toHaveBeenCalled();
@@ -244,7 +245,7 @@ function reentryDispatchFixture(outcome: 'succeeded' | 'unknown' | 'no-attempt',
 it('retains the real child before a fresh prerequisite dispatch without transferring its entry receipt or resetting fairness', async () => {
   const f = reentryDispatchFixture('succeeded'); try {
     expect(await f.step()).toBe(true);
-    f.assertDispatchBinding(f.first, 2);
+    f.assertDispatchBinding(f.first, 1);
     expect(f.events.find(e => e.type === 'obligation.selected')?.data).toMatchObject({ itemId: f.entry.id, kind: 'current' });
     expect(f.recorded).toHaveBeenCalledOnce(); expect(f.entry.attempts).toHaveLength(1);
     expect(f.task.pendingDispatch).toBeUndefined();
@@ -254,7 +255,7 @@ it('retains the real child before a fresh prerequisite dispatch without transfer
 it('keeps an unknown prerequisite attached to the entry while the child remains only a scheduling hint', async () => {
   const f = reentryDispatchFixture('unknown'); try {
     await expect(f.step()).rejects.toMatchObject({ code: 'UNKNOWN_DISPATCH_REQUIRES_REVIEW' });
-    f.assertDispatchBinding(f.first, 2);
+    f.assertDispatchBinding(f.first, 1);
     expect(f.task.pendingDispatch?.itemIds).toEqual([f.entry.id]);
     expect(f.entry.attempts).toEqual([expect.objectContaining({ outcome: 'unknown', evidence: expect.objectContaining({ attemptId: 'new-entry-attempt' }) })]);
     expect(f.attempts.get(f.round.sessionId)?.[0].status).toBe('unknown');
@@ -264,7 +265,7 @@ it('keeps an unknown prerequisite attached to the entry while the child remains 
 it('rolls back child selection and fairness when a fresh prerequisite produces no attempt', async () => {
   const f = reentryDispatchFixture('no-attempt'); try {
     await expect(f.step()).rejects.toBe(f.rejection);
-    f.assertDispatchBinding(f.first, 2);
+    f.assertDispatchBinding(f.first, 1);
     expect(f.task.scheduling).toEqual(f.priorSchedule); expect(f.task.pendingDispatch).toBeUndefined();
     expect(f.recorded).not.toHaveBeenCalled(); expect(f.entry.attempts).toEqual([]);
   } finally { await f.plugin.close(); }
@@ -273,7 +274,7 @@ it('rolls back child selection and fairness when a fresh prerequisite produces n
 it('preserves the selected reentry child when several children share the same entry', async () => {
   const f = reentryDispatchFixture('succeeded', true); try {
     expect(await f.step()).toBe(true);
-    f.assertDispatchBinding(f.second, 0);
+    f.assertDispatchBinding(f.second, 1);
     expect(f.events.find(e => e.type === 'obligation.selected')?.data).toMatchObject({ itemId: f.second.id, kind: 'reentry' });
     expect(f.recorded).toHaveBeenCalledOnce(); expect(f.entry.attempts).toHaveLength(1);
   } finally { await f.plugin.close(); }
