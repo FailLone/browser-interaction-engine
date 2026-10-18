@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/runtime-event-evidence.test.ts (5 tests) 7062ms
+   ✓ captures only unique own event data properties as tentative evidence without invoking handlers or getters  925ms
+   ✓ rejects a stale event target when its own current handler metadata disappears before dispatch  762ms
+   ✓ invalidates native operation review and reuse when captured runtime metadata changes (list=false)  1125ms
+   ✓ invalidates native operation review and reuse when captured runtime metadata changes (list=true)  1125ms
+   ✓ keeps runtime handler purpose unknown under interface-only exploration while independent work executes  3124ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  10:21:07
+   Duration  8.31s (transform 634ms, setup 0ms, collect 1.10s, tests 7.06s, environment 0ms, prepare 36ms)
+

@@ -2,6 +2,8 @@ import {it,expect} from 'vitest';
 import {ExplorerPlugin,ExplorerStore} from '@interaction/explorer-plugin';
 import {explorerFixture,fakeProviders} from './explorer-plugin-helpers.js';
 import {pageOf} from './helpers.js';
+import {controlReviewConditions,controlReviewKey,controlReuseConditions} from '../packages/adapter-playwright/src/control-review.js';
+import {purposeConditions} from '../packages/adapter-playwright/src/purpose-review.js';
 
 const metadataHtml=`<div id="own" tabindex="0">Own target</div>
 <div id="parent" tabindex="0">Parent<div id="child" tabindex="0">Child</div></div>
@@ -50,6 +52,26 @@ it('rejects a stale event target when its own current handler metadata disappear
   expect(f.host.session(s.id).actionCount).toBe(0);
   expect(f.host.observation(s.id,o.id).controls.find(c=>c.localId===target.localId)?.actionBasis?.hover?.status).toBe('tentative');
   expect(f.host.observation(s.id).controls.find(c=>c.selector==='#own')?.actionBasis?.hover).toBeUndefined();
+ }finally{await f.close();}
+});
+
+it.each([false,true])('invalidates native operation review and reuse when captured runtime metadata changes (list=%s)',async inList=>{
+ const f=await explorerFixture(`${inList?'<div role="listbox" aria-label="Choices">':''}<button id="native" type="button">Native</button>${inList?'</div>':''}<script>document.getElementById("native").__reactProps$fixture={onClick(){},onMouseLeave(){}};</script>`);
+ try{
+  const s=await f.host.createSession({url:f.url,headless:true}),o=f.host.observation(s.id),target=o.controls.find(c=>c.selector==='#native')!;
+  const before=controlReviewKey(controlReviewConditions(target,o,'click')!),reuse=controlReuseConditions(target,o,'click');
+  const action=f.host.actions(s.id).find(a=>a.localId===target.localId&&a.kind==='click')!,purpose=inList?purposeConditions(action,target,o):undefined;
+  if(inList)expect(purpose).toBeDefined();else expect(reuse).toBeDefined();
+  await f.host.command(s.id,{type:'reviewControls',review:{observationId:o.id,source:'explicit-fixture-review',reviews:[{localId:target.localId,kind:'click',risk:'interface',replayable:false,reason:'Explicit fixture review; metadata must remain bound',evidence:[`observation:${o.id}`]}]}});
+  expect(f.host.list<any>(s.id,'control-review').some(r=>r.status==='active')).toBe(true);
+  await pageOf(f.host).evaluate(()=>{delete (document.getElementById('native') as any).__reactProps$fixture.onMouseLeave;});
+  const after=await f.host.observe(s.id),current=after.controls.find(c=>c.selector==='#native')!;
+  expect(current.actionBasis?.click?.status).toBe('supported');
+  expect(controlReviewKey(controlReviewConditions(current,after,'click')!)).not.toBe(before);
+  if(inList)expect(purposeConditions(action,current,after)).not.toEqual(purpose);
+  else expect(controlReuseConditions(current,after,'click')).not.toEqual(reuse);
+  expect(f.host.list<any>(s.id,'control-review').every(r=>r.status==='invalidated')).toBe(true);
+  expect(f.host.list(s.id,'attempt')).toHaveLength(0);
  }finally{await f.close();}
 });
 

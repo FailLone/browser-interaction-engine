@@ -1,0 +1,15 @@
+{
+  "revision": "87ab6eb",
+  "source": "git archive",
+  "aliases": {
+    "@interaction/adapter-playwright": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/adapter-playwright/src/index.ts",
+    "@interaction/storage-retained": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/storage-retained/src/index.ts",
+    "@interaction/core": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/core/src/index.ts",
+    "@interaction/browser": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/browser/src/index.ts",
+    "@interaction/storage-sqlite": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/storage-sqlite/src/index.ts",
+    "@interaction/explorer-plugin": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/explorer-plugin/src/index.ts",
+    "@interaction/rules": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/rules/src/index.ts",
+    "@interaction/storage-memory": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/storage-memory/src/index.ts",
+    "@interaction/client": "/Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline/packages/client/src/index.ts"
+  }
+}

@@ -1,0 +1,21 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ✓ tests/purpose-reuse.test.ts (11 tests) 10554ms
+   ✓ reuses one purpose judgment while executing every list item independently after an all decision  1328ms
+   ✓ keeps purpose reuse independent of pending, sample and defer traversal decisions  1030ms
+   ✓ reuses for newly revealed matching members, but not changed structures, unrelated lists or submission actions  574ms
+   ✓ rejects dispatch after the current node or its dispatch attributes change, without granting historical identity  674ms
+   ✓ invalidates reuse on business context change and does not reactivate it when the context returns  700ms
+   ✓ invalidates list-owner reconstruction and document reload, and refuses unknown business context  1630ms
+   ✓ retains disabled, excluded and occluded target checks after accepting a group purpose  766ms
+   ✓ serves review material and durable records over HTTP, rejects stale input, and revokes already prepared actions  1258ms
+   ✓ retains purpose records across restart but invalidates them before use in a new browser document  788ms
+   ✓ supersedes an earlier purpose judgment so revoking its replacement cannot resurrect it  676ms
+   ✓ reuses a native-select purpose across values but detects a changed associated form endpoint before dispatch  1128ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  10:21:44
+   Duration  11.88s (transform 609ms, setup 0ms, collect 1.16s, tests 10.55s, environment 0ms, prepare 37ms)
+

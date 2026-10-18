@@ -386,9 +386,15 @@ function collectDOM(overlayCollector: typeof collectOverlays, actionCollector: t
     const nestedLists = scroll ? el.querySelectorAll('[role=listbox]') : [];
     const list = el.tagName === 'SELECT' ? el : el.closest('[role=listbox]') || (nestedLists.length === 1 ? nestedLists[0] : undefined);
     const boundForm = (el as HTMLInputElement).form;
+    // Bind every captured runtime hint used to interpret this target, including
+    // native controls whose HTML action basis itself does not change. The same
+    // binding participates in review invalidation, reuse and live preflight.
+    const runtimeEvents=capabilities.interactionHints.filter(h=>h.source==='runtime-metadata');
     const purposeBinding = list ? { attributes: Object.fromEntries(['type', 'role', 'href', 'target', 'form', 'formaction', 'formmethod', 'formtarget', 'aria-controls', 'aria-haspopup'].filter(k => el.hasAttribute(k)).map(k => [k, el.getAttribute(k)!])),
+      ...(runtimeEvents.length?{runtimeEvents}:{}),
       ...(boundForm ? { form: { instanceId: instance(boundForm), action: boundForm.action, method: boundForm.method, target: boundForm.target } } : {}) } : undefined;
     const reviewBinding = { parentInstanceId: instance(el.parentElement || document.documentElement),
+      ...(runtimeEvents.length?{runtimeEvents}:{}),
       attributes: Object.fromEntries(['type','role','name','href','target','src','alt','title','form','formaction','formmethod','formtarget','aria-label','aria-labelledby','aria-describedby','aria-controls','aria-haspopup','popovertarget','popovertargetaction','command','commandfor','contenteditable','onclick','onchange','oninput','onkeydown','onmouseenter','onmouseover','onpointerenter'].filter(k=>el.hasAttribute(k)).map(k=>[k,el.getAttribute(k)!])),
       ...(boundForm ? {form:{instanceId:instance(boundForm),action:boundForm.action,method:boundForm.method,target:boundForm.target}} : {}) };
     // No node IDs or geometry in this projection. Missing/bounded evidence cannot

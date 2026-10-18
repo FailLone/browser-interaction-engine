@@ -1,0 +1,76 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine/.data/runtime-event-baseline
+
+ ❯ tests/control-review-target.test.ts (40 tests | 1 failed | 39 skipped) 17ms
+   ↓ verifies historical review conditions after 0 boundary exits with rebuilt same-name hidden modes
+   ↓ verifies historical review conditions after 2 boundary exits with rebuilt same-name hidden modes
+   ↓ verifies an instance-bound navigation review source after two exits into rebuilt hypothesis modes without granting replay
+   ↓ verifies an instance-bound navigation review source after two exits into rebuilt portable modes without granting replay
+   ↓ replays a recorded Trade disclosure after Close across instance-bound and rebuilt navigation modes (intermediate historical arrival: false)
+   ↓ replays a recorded Trade disclosure after Close across instance-bound and rebuilt navigation modes (intermediate historical arrival: true)
+   ↓ stops at the entry zero-step prefix when every recorded Trade result differs from the review goal
+   ↓ does not replay a Trade path whose recorded result cannot restore an externally changed checkpoint mode
+   ↓ stops after 1 existing boundary exits at current review material, without whole-page replay
+   ↓ stops after 2 existing boundary exits at current review material, without whole-page replay
+   ↓ keeps current reviewability separate from changed nonlocal A/B conditions
+   ↓ binds negative waiting to raw mode facts even when another missing mode prevents equivalence
+   ↓ settles only the same recorded occurrence when missing branches prevent historical equivalence
+   ↓ reports the first portable selector rejection 'selector_state_missing' while preserving reflexive review proof
+   ↓ reports the first portable selector rejection 'selector_unstable' while preserving reflexive review proof
+   ↓ reports the first portable selector rejection 'selector_identity_hypothesis' while preserving reflexive review proof
+   ↓ reports the first portable selector rejection 'selector_instance_bound' while preserving reflexive review proof
+   ↓ reports the first portable selector rejection 'selector_record_key_missing' while preserving reflexive review proof
+   ↓ reports the first portable selector rejection 'selector_binding_duplicate' while preserving reflexive review proof
+   ↓ reports the first portable selector rejection 'selector_limit_exceeded' while preserving reflexive review proof
+   ↓ keeps source and current condition diagnostics separate without changing available keys or evidence
+   ↓ reports unavailable historical review conditions for 'review_classification_material_incomp…' without weakening the current proof
+   ↓ reports unavailable historical review conditions for 'review_boundary_name_missing' without weakening the current proof
+   ↓ reports unavailable historical review conditions for 'review_boundary_overlay_missing' without weakening the current proof
+   ↓ reports unavailable historical review conditions for 'review_rule_version_incompatible' without weakening the current proof
+   ↓ passes portable condition diagnostics through SDK self queries without authorizing historical recovery
+   ↓ compares complete v7 and v8 review conditions without migrating strict checkpoints or merging A/B
+   ↓ requires historical A conditions and uses an existing safe local restoration instead of accepting current B
+   ↓ stops historical review recovery with unknown branch evidence without performing actions
+   ↓ does not reset negative navigation waiting for passive component prices but does for selected modes
+   × shares document projections across target keys without changing captured facts 16ms
+     → expected { controls: 5, components: 1 } to deeply equal { controls: 1, components: 1 }
+   ↓ rejects incomplete competitors and changed owners without trusting names or shared keys
+   ↓ rejects a stale live review target and never labels it arrived
+   ↓ blocks a retained unknown after restart before driver attachment or new material can change its result
+   ↓ queries historical record batches once per observation without mutation or full action/history reads
+   ↓ shares retained mode trees across review targets and rebuilds evidence for the next batch
+   ↓ keeps legacy review adapters compatible and fails closed on a broken batch reader
+   ↓ preserves an adapter callback override in its inherited batch reader
+   ↓ does not publish partial success when adapter evidence cannot be consumed
+   ↓ stops remaining recorded replay steps when review arrival verification requests resolution
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/control-review-target.test.ts > shares document projections across target keys without changing captured facts
+AssertionError: expected { controls: 5, components: 1 } to deeply equal { controls: 1, components: 1 }
+
+- Expected
++ Received
+
+  {
+    "components": 1,
+-   "controls": 1,
++   "controls": 5,
+  }
+
+ ❯ tests/control-review-target.test.ts:480:17
+    478|   const read=createBrowserControlReviewMaterialKey(o);
+    479|   expect(targets.map(read)).toEqual(expected);expect(targets.map(read)…
+    480|   expect(reads).toEqual({controls:1,components:1});expect(before).toEq…
+       |                 ^
+    481| });
+    482| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 39 skipped (40)
+   Start at  10:24:52
+   Duration  960ms (transform 451ms, setup 0ms, collect 795ms, tests 17ms, environment 0ms, prepare 37ms)
+

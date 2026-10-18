@@ -1,0 +1,169 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/finite-coverage-loop/browser-interaction-engine
+
+ ❯ tests/control-review-target.test.ts (40 tests | 1 failed) 358ms
+   ✓ verifies historical review conditions after 0 boundary exits with rebuilt same-name hidden modes 32ms
+   ✓ verifies historical review conditions after 2 boundary exits with rebuilt same-name hidden modes 25ms
+   ✓ verifies an instance-bound navigation review source after two exits into rebuilt hypothesis modes without granting replay 29ms
+   ✓ verifies an instance-bound navigation review source after two exits into rebuilt portable modes without granting replay 29ms
+   ✓ replays a recorded Trade disclosure after Close across instance-bound and rebuilt navigation modes (intermediate historical arrival: false) 49ms
+   ✓ replays a recorded Trade disclosure after Close across instance-bound and rebuilt navigation modes (intermediate historical arrival: true) 58ms
+   ✓ stops at the entry zero-step prefix when every recorded Trade result differs from the review goal 29ms
+   ✓ does not replay a Trade path whose recorded result cannot restore an externally changed checkpoint mode 27ms
+   ✓ stops after 1 existing boundary exits at current review material, without whole-page replay 7ms
+   ✓ stops after 2 existing boundary exits at current review material, without whole-page replay 10ms
+   ✓ keeps current reviewability separate from changed nonlocal A/B conditions 1ms
+   ✓ binds negative waiting to raw mode facts even when another missing mode prevents equivalence 1ms
+   ✓ settles only the same recorded occurrence when missing branches prevent historical equivalence 1ms
+   ✓ reports the first portable selector rejection 'selector_state_missing' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_unstable' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_identity_hypothesis' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_instance_bound' while preserving reflexive review proof 1ms
+   ✓ reports the first portable selector rejection 'selector_record_key_missing' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_binding_duplicate' while preserving reflexive review proof 0ms
+   ✓ reports the first portable selector rejection 'selector_limit_exceeded' while preserving reflexive review proof 2ms
+   ✓ keeps source and current condition diagnostics separate without changing available keys or evidence 1ms
+   ✓ reports unavailable historical review conditions for 'review_classification_material_incomp…' without weakening the current proof 0ms
+   ✓ reports unavailable historical review conditions for 'review_boundary_name_missing' without weakening the current proof 0ms
+   ✓ reports unavailable historical review conditions for 'review_boundary_overlay_missing' without weakening the current proof 0ms
+   ✓ reports unavailable historical review conditions for 'review_rule_version_incompatible' without weakening the current proof 0ms
+   ✓ passes portable condition diagnostics through SDK self queries without authorizing historical recovery 2ms
+   ✓ compares complete v7 and v8 review conditions without migrating strict checkpoints or merging A/B 1ms
+   ✓ requires historical A conditions and uses an existing safe local restoration instead of accepting current B 9ms
+   ✓ stops historical review recovery with unknown branch evidence without performing actions 4ms
+   ✓ does not reset negative navigation waiting for passive component prices but does for selected modes 1ms
+   × shares document projections across target keys without changing captured facts 6ms
+     → expected { controls: 5, components: 1 } to deeply equal { controls: 1, components: 1 }
+   ✓ rejects incomplete competitors and changed owners without trusting names or shared keys 0ms
+   ✓ rejects a stale live review target and never labels it arrived 3ms
+   ✓ blocks a retained unknown after restart before driver attachment or new material can change its result 7ms
+   ✓ queries historical record batches once per observation without mutation or full action/history reads 3ms
+   ✓ shares retained mode trees across review targets and rebuilds evidence for the next batch 3ms
+   ✓ keeps legacy review adapters compatible and fails closed on a broken batch reader 2ms
+   ✓ preserves an adapter callback override in its inherited batch reader 0ms
+   ✓ does not publish partial success when adapter evidence cannot be consumed 2ms
+   ✓ stops remaining recorded replay steps when review arrival verification requests resolution 11ms
+ ✓ tests/finite-coverage-contract.test.ts (11 tests) 10932ms
+   ✓ keeps finite operation obligations stable across unrelated selectors but retains constraints and target disclosure branches  622ms
+   ✓ binds symmetric controls to distinct document instances, never ordinal or label identity  515ms
+   ✓ allows explicitly scoped local simulation while preserving submission risk and refusing other URLs  1898ms
+   ✓ keeps anonymous native target references stable through sibling deletion, addition and reordering, but not replacement  1544ms
+   ✓ abstracts only native passive readouts and preserves navigation guards, controls, page and boundaries  546ms
+   ✓ does not manufacture an operation from an exact empty handler while retaining opaque or nonempty handlers  501ms
+   ✓ rejects unknown, failed, missing dispatch, wrong-instance and incomplete finite receipts without changing actual outcome  852ms
+   ✓ finite sampling does not turn a revoked reviewed operation into native coverage  1177ms
+   ✓ does not use the finite switch to erase a missing anonymous-target condition witness  918ms
+   ✓ reports sampled obligations separately from observed combinations and unproved dependencies  1119ms
+   ✓ persists current classification proof for a newly retained review source before leaving the scene  1239ms
+ ✓ tests/control-review-reuse.test.ts (19 tests) 15495ms
+   ✓ offers opted-in purposes after A→B→A without reactivating the old review or approving exploration depth  1774ms
+   ✓ rejects changed href instead of transplanting a same-named purpose  551ms
+   ✓ rejects changed label instead of transplanting a same-named purpose  567ms
+   ✓ rejects changed target-data instead of transplanting a same-named purpose  547ms
+   ✓ rejects changed ancestor-data instead of transplanting a same-named purpose  532ms
+   ✓ rejects changed ancestor-label instead of transplanting a same-named purpose  535ms
+   ✓ rejects changed handler instead of transplanting a same-named purpose  542ms
+   ✓ rejects changed parent instead of transplanting a same-named purpose  551ms
+   ✓ rejects changed url instead of transplanting a same-named purpose  651ms
+   ✓ rejects changed context instead of transplanting a same-named purpose  556ms
+   ✓ requires explicit opt-in and a known context, and refuses ordinary reuse for lists, exits and submissions  1163ms
+   ✓ validates the complete batch and current observation before creating any copies  681ms
+   ✓ checks live structural evidence both at reuse and again before dispatch  1034ms
+   ✓ checks associated form endpoints across documents and preserves input constraints  1053ms
+   ✓ serves reuse over HTTP and revokes an entire provenance chain without reviving older grants  1074ms
+   ✓ retains opt-in evidence across storage restart but still requires a fresh explicit reuse decision  849ms
+   ✓ permits explicit reuse for a rebuilt node but not a second indistinguishable live target  760ms
+   ✓ keeps caller exclusions and disabled/occluded target checks after reuse  1064ms
+   ✓ rejects missing bounded evidence and sources from another session  1009ms
+ ✓ tests/control-reviews.test.ts (22 tests) 23730ms
+   ✓ publishes deduplicated materials and executes a durable reviewed custom control without rewriting its observation  750ms
+   ✓ runs bounded control hooks before caller action policy and keeps independent scope gates  304ms
+   ✓ does not persist a late control hook result  5441ms
+   ✓ publishes queryable requests for the final caller policy and requests again after revocation  516ms
+   ✓ does not record an approval when its live preflight finishes after the hook deadline  5566ms
+   ✓ atomically rejects stale, duplicate, invisible and malformed reviews  428ms
+   ✓ invalidates replace conditions before dispatch and never revives an old judgment  641ms
+   ✓ invalidates href conditions before dispatch and never revives an old judgment  655ms
+   ✓ invalidates parent conditions before dispatch and never revives an old judgment  640ms
+   ✓ invalidates handler conditions before dispatch and never revives an old judgment  638ms
+   ✓ invalidates url conditions before dispatch and never revives an old judgment  629ms
+   ✓ invalidates context conditions before dispatch and never revives an old judgment  657ms
+   ✓ supports sampled inputs while preserving constraints, availability and native submission risk  729ms
+   ✓ binds associated form endpoints and refuses a judgment with unknown declared context  808ms
+   ✓ checks changed read-only target bindings without blocking unrelated actions  682ms
+   ✓ keeps reviewed field validation scoped while checking dependent control bindings (sameForm=false)  575ms
+   ✓ keeps reviewed field validation scoped while checking dependent control bindings (sameForm=true)  530ms
+   ✓ uses a sourced current exit, verifies its result and expires the boundary-bound review  605ms
+   ✓ supports reviewed hover without clicking and preserves occlusion and explicit exclusions  848ms
+   ✓ replaces and revokes queued judgments without resurrecting earlier approvals or erasing execution  766ms
+   ✓ serves review materials, records and revocation over HTTP with session isolation  474ms
+   ✓ keeps SQLite review history across restart but invalidates grants for the new browser document  847ms
+ ✓ tests/explorer-progress-dependencies.test.ts (6 tests) 14662ms
+   ✓ bounds a canvas gap to captured DOM while preserving unknown contents and SDK obstruction checks  574ms
+   ✓ holds an unresolved ancestor, shared form or missing ancestry while allowing a disjoint reviewed native control  508ms
+   ✓ executes an independent DOM task but keeps the canvas obligation and overall coverage incomplete  1917ms
+   ✓ gives a ready action a turn before reviewing every independent unknown, then resumes review  4628ms
+   ✓ continues another native task after a session limit while retaining the canvas completeness blocker  2553ms
+   ✓ establishes distinct current occurrences before yielding, without turning pending identity snapshots into completion sources  4480ms
+ ✓ tests/explorer-coverage-contract.test.ts (8 tests) 11442ms
+   ✓ persists caller roots and exclusions without asking a model to replace the task  1957ms
+   ✓ retains a forbidden operation as required untested coverage while allowing another operation  2333ms
+   ✓ grounds header scope in captured structure without model-selected labels or unrelated page work  2068ms
+   ✓ keeps interface-only operation and probe uncertainty after caller-authorized structural grouping  2645ms
+   ✓ materializes a caller route on real arrival and keeps the original root and exact URL evidence  2433ms
+ ✓ tests/runtime-event-evidence.test.ts (5 tests) 7027ms
+   ✓ captures only unique own event data properties as tentative evidence without invoking handlers or getters  912ms
+   ✓ rejects a stale event target when its own current handler metadata disappears before dispatch  896ms
+   ✓ invalidates native operation review and reuse when captured runtime metadata changes (list=false)  1083ms
+   ✓ invalidates native operation review and reuse when captured runtime metadata changes (list=true)  1090ms
+   ✓ keeps runtime handler purpose unknown under interface-only exploration while independent work executes  3045ms
+ ✓ tests/action-evidence.test.ts (6 tests) 4577ms
+   ✓ separates native/declared capabilities, weak hints and current actionability  554ms
+   ✓ never automatically clicks the modal text container and preserves its identity  1060ms
+   ✓ never automatically clicks the handler-modal text container and preserves its identity  1042ms
+   ✓ retains tentative operations in events/frontier, skips DFS and allows an explicit non-replayable probe  668ms
+   ✓ revalidates operation evidence when a handler disappears before execution  469ms
+   ✓ accepts an external action judgment with evidence without rewriting the original observation  746ms
+ ✓ tests/explorer-identity-review-progress.test.ts (1 test) 4565ms
+   ✓ counts finite current-occurrence resolution as real review progress under interface-only policy  4564ms
+ ✓ tests/execution-boundary.test.ts (5 tests) 4262ms
+   ✓ enforces the persisted boundary for SDK commands, probes and recovery validation  608ms
+   ✓ applies local capability dependency checks to actual SDK dispatch, without granting ancestor coverage  892ms
+   ✓ checks caller operations during real SDK recovery with a retained canvas (history authorized: true)  1542ms
+   ✓ checks caller operations during real SDK recovery with a retained canvas (history authorized: false)  1219ms
+ ✓ tests/explorer-review-recovery.test.ts (18 tests) 2330ms
+   ✓ keeps an absent target unverified after a real native return rather than granting checkpoint coverage  924ms
+   ✓ public start keeps a denied generic review pending while a later page executes fresh work  1351ms
+ ✓ tests/explorer-target-review.test.ts (13 tests) 21ms
+ ✓ tests/explorer-review-ledger-sources.test.ts (21 tests) 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/control-review-target.test.ts > shares document projections across target keys without changing captured facts
+AssertionError: expected { controls: 5, components: 1 } to deeply equal { controls: 1, components: 1 }
+
+- Expected
++ Received
+
+  {
+    "components": 1,
+-   "controls": 1,
++   "controls": 5,
+  }
+
+ ❯ tests/control-review-target.test.ts:480:17
+    478|   const read=createBrowserControlReviewMaterialKey(o);
+    479|   expect(targets.map(read)).toEqual(expected);expect(targets.map(read)…
+    480|   expect(reads).toEqual({controls:1,components:1});expect(before).toEq…
+       |                 ^
+    481| });
+    482| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 12 passed (13)
+      Tests  1 failed | 174 passed (175)
+   Start at  10:21:32
+   Duration  106.28s (transform 813ms, setup 0ms, collect 5.05s, tests 99.42s, environment 1ms, prepare 429ms)
+

@@ -133,9 +133,9 @@ export interface Control extends CoreControl {
   /** Observed semantic list owner. Similarity is a scheduling hint, not shared business behavior. */
   list?: { instanceId: string; role: string; label: string; selector: string };
   /** Dispatch-related DOM facts used to bound an external purpose judgment. */
-  purposeBinding?: { attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  purposeBinding?: { attributes: Record<string, string>; runtimeEvents?: ActionEvidence[]; form?: { instanceId: string; action: string; method: string; target: string } };
   /** Exact control-review binding, independent of list-purpose similarity. */
-  reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string } };
+  reviewBinding?: { parentInstanceId: string; attributes: Record<string, string>; runtimeEvents?: ActionEvidence[]; form?: { instanceId: string; action: string; method: string; target: string } };
   /** Conservative structural evidence for explicitly reusing a purpose in a new document. */
   reviewReuseBinding?: { ancestors: { tag: string; selector: string; attributes: Record<string, string>; label: string }[] };
   /** Bounded subtree evidence for classifying weak candidates; truncation prevents negative classification. */
