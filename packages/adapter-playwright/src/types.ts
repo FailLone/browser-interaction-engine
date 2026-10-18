@@ -92,8 +92,10 @@ export type OwnerDependencySnapshot = OwnerDependencies | CompactOwnerDependenci
  * evidence; this is neither portable identity nor permission to execute. */
 export interface NavigationScopeSnapshot {
   rootId: string; controlIds: string[]; complete: boolean; reasons: string[];
-  binding?: { markup: string; ancestors: {id:string;tag:string;attributes:Record<string,string>}[];
-    references: {id:string;instanceId:string;markup:string}[] };
+  blockedControlIds: string[];
+  binding?: { baseURI:string;markup: string; ancestors: {id:string;tag:string;attributes:Record<string,string>}[];
+    references: {id:string;status:'unique'|'missing'|'ambiguous';instanceId?:string;markup?:string}[];
+    fields: {instanceId:string;value:string;checked?:boolean;indeterminate?:boolean;selected?:string[];formId:string|null;labelIds:string[]}[] };
 }
 /** Last bounded DOM sample immediately before a native control command. This
  * binds retained source evidence to a dispatch, not an atomic input transaction

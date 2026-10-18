@@ -2,8 +2,8 @@ import {createServer} from 'node:http';
 import {expect,it} from 'vitest';
 import {act,pageOf,testEngine} from './helpers.js';
 
-async function fixture(options:{authorized?:boolean;missingReference?:boolean;changingNavigation?:boolean}={}) {
- const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end(`<nav aria-label="Public navigation" aria-describedby="${options.missingReference?'absent':'description'}"><button id="open" aria-expanded="false" onclick="this.setAttribute('aria-expanded','true');document.querySelector('#links').hidden=false">Open local menu</button><div id="links" hidden><a href="/details">Details</a></div></nav><p id="description">Information</p><form><input id="live" aria-label="Live data"></form><script>setInterval(()=>{document.querySelector('#live').value=String(Date.now());${options.changingNavigation?"document.querySelector('#open').setAttribute('data-clock',String(Date.now()));":''}},10)</script>`);});
+async function fixture(options:{authorized?:boolean;missingReference?:boolean;changingNavigation?:boolean;independentUnknown?:boolean}={}) {
+ const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end(`<nav aria-label="Public navigation" aria-describedby="${options.missingReference?'absent':'description'}"><button id="open" aria-expanded="false" onclick="this.setAttribute('aria-expanded','true');document.querySelector('#links').hidden=false">Open local menu</button><div id="links" hidden><a href="/details">Details</a></div>${options.independentUnknown?'<input id="search" aria-label="Search" value="unchanged"><button aria-controls="missing-panel">Unresolved neighbor</button>':''}</nav><p id="description">Information</p><form><input id="live" aria-label="Live data"></form><script>setInterval(()=>{document.querySelector('#live').value=String(Date.now());${options.changingNavigation?"document.querySelector('#open').setAttribute('data-clock',String(Date.now()));":''}},10)</script>`);});
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const url=`http://127.0.0.1:${(server.address() as any).port}/`;
  const f=await testEngine(url,{contextRules:[],exploration:'controls',settleMs:100,observeTimeoutMs:900,
   ...(options.authorized===false?{}:{executionBoundary:{version:1,programNavigation:'public-navigation-v1',urls:[{match:'route',origin:new URL(url).origin,pathnamePattern:'^/.*$'}],allowedOperations:['click','hover','history'],exclusions:[]}})});
@@ -27,6 +27,20 @@ it.each(['no-contract','missing-reference','changing-navigation'] as const)('doe
   const o=f.engine.observation(f.sessionId);expect(o.gaps.some(g=>g.critical)).toBe(true);
   expect(f.engine.actions(f.sessionId).some(a=>a.label==='Open local menu')).toBe(false);
   expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(0);
+ }finally{await f.close();}
+});
+
+it('retains a missing neighbor reference and complete native field evidence without blocking independent navigation',async()=>{
+ const f=await fixture({independentUnknown:true});try{
+  const o=f.engine.observation(f.sessionId),scope=o.navigationScopes!.find(s=>s.complete)!;
+  expect(scope.binding!.references).toContainEqual({id:'missing-panel',status:'missing'});
+  expect(scope.binding!.fields.some(field=>field.value==='unchanged')).toBe(true);
+  expect(o.controls.find(c=>c.name==='Unresolved neighbor')?.readiness?.status).toBe('unstable');
+  expect(o.controls.find(c=>c.name==='Open local menu')?.readiness).toBeUndefined();
+  expect((await act(f.engine,f.sessionId,'Open local menu')).status).toBe('succeeded');
+  const current=f.engine.observation(f.sessionId),action=f.engine.actions(f.sessionId).find(a=>a.label==='Open local menu')!;
+  await pageOf(f.engine).evaluate(()=>{(document.querySelector('#search') as HTMLInputElement).value='changed property only';});
+  expect(await (f.engine as any).driver.preflight(current,action)).toBe('stale');
  }finally{await f.close();}
 });
 

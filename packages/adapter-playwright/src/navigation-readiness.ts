@@ -3,34 +3,42 @@ import {interactionProjection} from './exploration.js';
 import type {Control,Observation,NavigationScopeSnapshot} from './types.js';
 
 /** Browser-side, bounded and inert. Only explicit navigation containers qualify.
- * Missing references, forms, embedded content or bounds leave the scope unknown. */
+ * Unresolved references block their dependent subtree, while full lookups remain
+ * in evidence. Native fields are captured even when not retained as controls. */
 export function collectNavigationScopes(controls:Control[],instance:(el:Element)=>string):NavigationScopeSnapshot[] {
  const result:NavigationScopeSnapshot[]=[],refs=new Set(['for','aria-labelledby','aria-describedby','aria-controls','aria-owns','aria-activedescendant','aria-details','aria-errormessage','headers','list','form','popovertarget','commandfor']);
  const encoder=new TextEncoder();let remaining=196608;
  for(const root of [...document.querySelectorAll('nav,[role="navigation"]')].slice(0,8)){
   const rootId=instance(root),members=controls.filter(c=>c.instanceId===rootId||c.domAncestry?.complete&&c.domAncestry.instanceIds.includes(rootId));
   if(!members.length)continue;
-  const scope:NavigationScopeSnapshot={rootId,controlIds:members.map(c=>c.localId),complete:false,reasons:[]};result.push(scope);
-  const ancestors:NonNullable<NavigationScopeSnapshot['binding']>['ancestors']=[],references:NonNullable<NavigationScopeSnapshot['binding']>['references']=[];
-  const trees=[root],seen=new Set<Element>(),lookups=new Set<string>();let nodes=0;
+  const scope:NavigationScopeSnapshot={rootId,controlIds:members.map(c=>c.localId),blockedControlIds:[],complete:false,reasons:[]};result.push(scope);
+  const ancestors:NonNullable<NavigationScopeSnapshot['binding']>['ancestors']=[],references:NonNullable<NavigationScopeSnapshot['binding']>['references']=[],fields:NonNullable<NavigationScopeSnapshot['binding']>['fields']=[];
+  const trees=[root],seen=new Set<Element>(),lookups=new Map<string,Element|undefined>(),blocked=new Set<string>();let nodes=0;
+  const associate=(target:Element,id:string)=>{if(!root.contains(target)&&!trees.includes(target)){trees.push(target);references.push({id,status:'unique',instanceId:instance(target),markup:target.outerHTML});}};
   for(let el=root.parentElement;el;el=el.parentElement){if(ancestors.length>=64){scope.reasons.push('ancestry_bound');break;}ancestors.push({id:instance(el),tag:el.tagName,attributes:Object.fromEntries([...el.attributes].map(a=>[a.name,a.value]))});}
   const scan=(el:Element)=>{
    if(seen.has(el))return;seen.add(el);if(++nodes>512){scope.reasons.push('node_bound');return;}
-   if(el.matches('input,select,textarea,form,iframe,object,embed,canvas')||el.shadowRoot){scope.reasons.push('non_navigation_dependency');return;}
+   if(el.matches('iframe,object,embed,canvas')||el.shadowRoot){scope.reasons.push('non_navigation_dependency');return;}
+   if(el instanceof HTMLInputElement||el instanceof HTMLTextAreaElement||el instanceof HTMLSelectElement){
+    const labels=[...el.labels||[]];fields.push({instanceId:instance(el),value:el.value,formId:el.form?instance(el.form):null,labelIds:labels.map(instance),
+      ...(el instanceof HTMLInputElement?{checked:el.checked,indeterminate:el.indeterminate}:{}),...(el instanceof HTMLSelectElement?{selected:[...el.selectedOptions].map(o=>o.value)}:{})});
+    if(el.form)associate(el.form,`native-form:${instance(el)}`);for(const label of labels)associate(label,`native-label:${instance(el)}:${instance(label)}`);
+   }
    for(const attribute of el.attributes)if(refs.has(attribute.name))for(const token of attribute.value.split(/\s+/).filter(Boolean)){
-    if(lookups.has(token))continue;lookups.add(token);
-    if(lookups.size>64){scope.reasons.push('reference_bound');return;}
-    const matches=document.querySelectorAll(`#${CSS.escape(token)}`);
-    if(matches.length!==1){scope.reasons.push('unresolved_reference');continue;}
-    const target=matches[0];if(!root.contains(target)&&!trees.includes(target)){trees.push(target);references.push({id:token,instanceId:instance(target),markup:target.outerHTML});}
+    if(!lookups.has(token)){
+      if(lookups.size>=64){scope.reasons.push('reference_bound');return;}
+      const matches=document.querySelectorAll(`#${CSS.escape(token)}`),target=matches.length===1?matches[0]:undefined;lookups.set(token,target);
+      if(target)associate(target,token);else references.push({id:token,status:matches.length?'ambiguous':'missing'});
+    }
+    if(!lookups.get(token))for(const control of members)if(!root.contains(el)||control.instanceId===instance(el)||control.domAncestry?.instanceIds.includes(instance(el)))blocked.add(control.localId);
    }
   };
   for(let el=root.parentElement;el;el=el.parentElement){scan(el);if(scope.reasons.length)break;}
   for(let i=0;i<trees.length&&!scope.reasons.length;i++){const tree=trees[i];scan(tree);for(const el of tree.querySelectorAll('*')){scan(el);if(scope.reasons.length)break;}}
   if(scope.reasons.length)continue;
-  const binding={markup:root.outerHTML,ancestors,references},bytes=encoder.encode(JSON.stringify(binding)).length;
+  const binding={baseURI:document.baseURI,markup:root.outerHTML,ancestors,references,fields},bytes=encoder.encode(JSON.stringify(binding)).length;
   if(bytes>remaining){scope.reasons.push('byte_bound');continue;}remaining-=bytes;
-  scope.binding=binding;scope.complete=true;
+  scope.blockedControlIds=[...blocked];scope.binding=binding;scope.complete=true;
  }
  return result;
 }

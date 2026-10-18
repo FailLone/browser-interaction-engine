@@ -629,7 +629,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         const result=dependencyProjections(view);
         for(const scope of view.navigationScopes||[])if(scope.complete&&scope.binding){
           const key=navigationScopeProjection(view,scope);
-          for(const localId of scope.controlIds){const target=view.controls.find(c=>c.localId===localId);if(target&&!result.has(target.instanceId))result.set(target.instanceId,key);}
+          for(const localId of scope.controlIds){const target=view.controls.find(c=>c.localId===localId);if(target&&!scope.blockedControlIds.includes(localId)&&!result.has(target.instanceId))result.set(target.instanceId,key);}
         }
         projections.set(view,result);
       }
