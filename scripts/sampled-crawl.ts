@@ -3,7 +3,7 @@
 // Model plugin and goal mode use the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { GoalRelevance, ModelJudge, SampledCrawler, defaultPolicy, metered, planGoal } from '@interaction/crawler';
+import { GoalRelevance, ModelJudge, SampledCrawler, defaultChecks, defaultPolicy, metered, planGoal } from '@interaction/crawler';
 import { BrowserAdapter, PlaywrightAdapter } from '@interaction/adapter-playwright';
 import { MemoryEvidenceStore } from '@interaction/storage-memory';
 import { providersFromEnv } from '@interaction/explorer-plugin';
@@ -11,6 +11,7 @@ import { providersFromEnv } from '@interaction/explorer-plugin';
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
 const durationMs = Number(process.argv[4] || 240000);
+// Optional UI checks as a side observation (not an acceptance target): CRAWL_CHECKS=1.
 // Optional anchored pathname pattern for other in-scope pages (same origin as the entry).
 const scope = process.argv[5] || undefined;
 const policy = defaultPolicy(url);
@@ -38,7 +39,7 @@ if (goal) {
   console.log('goal plan', JSON.stringify(plan));
 }
 const crawler = new SampledCrawler({
-  url, durationMs, policy, judge, relevance, inputJudge,
+  url, durationMs, policy, judge, relevance, inputJudge, maxActions: 2000, ...(process.env.CRAWL_CHECKS ? { checks: defaultChecks } : {}),
   log: event => {
     appendFileSync(join(out, 'events.jsonl'), JSON.stringify(event) + '\n');
     const t = (event.at / 1000).toFixed(1);

@@ -65,6 +65,12 @@ test('crawls the entry page: modal first, lists sampled, out-of-scope links skip
   expect(labels).not.toContain('Other page');
   expect(actions.every(a => a.url.startsWith(base))).toBe(true);
   expect(summary.onEntryPage).toBe(summary.actions);
+  // Coverage: the tab panel's text was revealed by an action; most seen classes were executed.
+  const page = summary.coverage.pages[0];
+  expect(page.textBlocksRevealedByActions).toBeGreaterThan(0);
+  expect(page.classesExecuted).toBeGreaterThan(0);
+  expect(page.classCoverage).toBeGreaterThan(0.5);
+  expect(summary.coverage.statesPerMinute.at(-1)).toBe(summary.states);
   // Optional UI checks run on each new state and report each issue once.
   const findings = [...crawler.findings.values()];
   expect(findings.filter(f => f.rule === 'broken-image')).toHaveLength(1);

@@ -164,6 +164,7 @@ export class SampledCrawler {
         filled: actions.filter(a => a.step.kind === 'fill').map(a => ({ label: a.step.label, purpose: a.step.purpose, value: a.step.value?.slice(0, 20), outcome: a.outcome, newState: a.newState })) },
       hovers: actions.filter(a => a.step.kind === 'hover').length,
       modeGroups: { sampled: this.sampledModeGroups.size, flat: this.flatModeGroups.size },
+      coverage: this.coverageReport(),
       goal: this.options.relevance && { plan: this.options.relevance.plan, jevCalls: this.options.relevance.calls, prunedClasses: this.pruned.size },
       lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
         executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0) },
@@ -189,9 +190,44 @@ export class SampledCrawler {
     return !pages || pages.has(pagePath(url)) || pages.size < this.options.pageSamples;
   }
 
+  /**
+   * Coverage per page: every actionable component class ever seen (visible), and
+   * every text block ever shown, versus what was executed / revealed by actions.
+   */
+  private readonly coverage = new Map<string, { seen: Set<string>; text: Set<string>; initialText: Set<string> }>();
+
+  private observeCoverage(s: Snapshot) {
+    const page = pagePath(s.url);
+    let row = this.coverage.get(page);
+    const blocks = textBlocks(s.text || '');
+    if (!row) { row = { seen: new Set(), text: new Set(), initialText: new Set(blocks) }; this.coverage.set(page, row); }
+    for (const c of s.controls) if (c.visible && (c.actions.length || this.confirmed.has(controlClass(c)))) for (const kind of kindsFor(c, this.confirmed)) row.seen.add(`${kind}|${controlClass(c)}`);
+    for (const b of blocks) row.text.add(b);
+  }
+
+  /** Per-page coverage and the discovery curve (new states per minute). */
+  coverageReport() {
+    const executed = new Map<string, Set<string>>();
+    for (const e of this.events) if (e.type === 'action' && e.outcome !== 'failed') {
+      const set = executed.get(pagePath(e.url)) || new Set(); set.add(e.step.kind === 'fill' ? e.step.classKey.slice(0, e.step.classKey.lastIndexOf('|')) : e.step.classKey); executed.set(pagePath(e.url), set);
+    }
+    const pages = [...this.coverage.entries()].map(([page, row]) => {
+      const done = executed.get(page) || new Set();
+      const sampledLists = [...row.seen].filter(k => k.includes('|list:')).length;
+      const executedClasses = [...row.seen].filter(k => done.has(k)).length;
+      return { page, classesSeen: row.seen.size, classesExecuted: executedClasses, classCoverage: row.seen.size ? +(executedClasses / row.seen.size).toFixed(2) : 0, listClasses: sampledLists,
+        textBlocksSeen: row.text.size, textBlocksRevealedByActions: [...row.text].filter(t => !row.initialText.has(t)).length };
+    });
+    const minutes = Math.max(1, Math.ceil(this.now() / 60000));
+    const curve = Array.from({ length: minutes }, (_, m) => [...this.states.values()].filter(st => st.firstSeenAt < (m + 1) * 60000).length);
+    const last = [...this.states.values()].reduce((t, st) => Math.max(t, st.firstSeenAt), 0);
+    return { pages, statesPerMinute: curve, lastNewStateAtMs: last };
+  }
+
   private async visit(s: Snapshot) {
     const template = pageTemplate(s.url), pages = this.templatePages.get(template) || new Set<string>();
     pages.add(pagePath(s.url)); this.templatePages.set(template, pages);
+    this.observeCoverage(s);
     const key = stateKey(s);
     if (this.states.has(key)) return false;
     const overlay = activeOverlay(s);
@@ -479,4 +515,9 @@ function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | und
   }), { calls: 0, failures: 0, judgments: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, unpricedCalls: 0, avgMs: 0, elapsedMs: 0 });
   const withAvg = (t: ReturnType<typeof sum>) => ({ ...t, avgMs: t.calls ? Math.round(t.elapsedMs / t.calls) : 0 });
   return { jev: withAvg(sum(jev)), llm: withAvg(sum(llm)) };
+}
+
+/** Visible text split into comparable blocks, live numbers masked, tiny fragments dropped. */
+function textBlocks(text: string) {
+  return [...new Set(text.split(/\n+/).map(line => maskVolatile(line, 200)).filter(line => line.length >= 3))];
 }
