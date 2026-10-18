@@ -1,0 +1,18 @@
+{
+  "productCommit": "af499ec529e29f49680c400ffb537c9f3349a289",
+  "purpose": "Post-integration exact storage parity; no live browser running",
+  "files": [
+    {
+      "path": ".data/broader-ui/storage-prep/production-bench-4.log",
+      "archive": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/production-bench-4-production-bench-4.log.gz",
+      "sha256": "a6a279608b0c07a0cc1506d48fd5d4dc489866370b00150fa8fc3402d36276b1",
+      "bytes": 1217
+    },
+    {
+      "path": ".data/broader-ui/storage-prep/production-bench-4/results.json",
+      "archive": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/production-bench-4-results.json.gz",
+      "sha256": "edea8587c3dd854a2042210dd7c0b52409e845e17a195cb8dbe5c0307a9938d0",
+      "bytes": 33120
+    }
+  ]
+}

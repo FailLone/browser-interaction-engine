@@ -1,0 +1,124 @@
+{
+  "purpose": "First-stage shared storage plus policy-v2 control, failed strict acceptance",
+  "path": ".data/broader-ui/shared-narrow-1",
+  "revision": "af499ec529e29f49680c400ffb537c9f3349a289",
+  "sourceDiffBytes": 0,
+  "elapsedMs": 217753,
+  "commands": 13,
+  "accepted": false,
+  "reason": "strict_pending_child_reentry_not_established",
+  "chains": [],
+  "summary": {
+    "run": "/Users/xietian/.codex/worktrees/broader-ui-exploration/browser-interaction-engine/.data/broader-ui/shared-narrow-1",
+    "policy": "guarded-host-fragments/v2",
+    "fragmentCount": 126,
+    "mappingCount": 0,
+    "actualAccessEvents": 5,
+    "accessWithoutLoggedSucceededReceipt": [],
+    "uniqueProjectedPrunedCandidates": 2,
+    "uniquePropagatedPrunedCandidates": 0,
+    "observationsWithPruning": 3,
+    "registration": {
+      "calls": 24,
+      "totalMs": 1413.495915000005,
+      "p50Ms": 72.22916600000099,
+      "p95Ms": 86.73662499999773,
+      "maxMs": 97.39724999999999
+    },
+    "accessRecording": {
+      "calls": 5,
+      "totalMs": 147.6737089999806,
+      "p50Ms": 28.65216700000019,
+      "p95Ms": 32.31970900000306,
+      "maxMs": 32.31970900000306
+    },
+    "cumulativeMappedActionObservations": 603,
+    "cumulativeUnmappedActionObservations": 4596,
+    "rootBytes": 197,
+    "auditLedgerBytes": 5914736,
+    "ledgerBytes": 5914736,
+    "bounded": false,
+    "pending": 1209,
+    "projectedPrunedPending": 7,
+    "requiredRestoreDispatches": 1,
+    "limitations": [
+      "Projection counts include observations and are not dispatches avoided or verified coverage.",
+      "Unmapped actions remain in the same strategy; unknown duties remain pending.",
+      "Timing categories can overlap, especially access recording and registration.",
+      "No browser or original-DB mutation is performed by this report."
+    ]
+  },
+  "storage": {
+    "root": {
+      "storageVersion": 2,
+      "policy": "guarded-host-fragments/v2",
+      "rootKey": "c6d8b447-c171-4f62-ae8d-56ff7ac1d088",
+      "epoch": 846,
+      "authority": "64617e39be1f277f264c7903ad80c1f721da71867f3d3001b5bd88dec4314dfd"
+    },
+    "records": {
+      "fragments": 126,
+      "classes": 264,
+      "candidates": 264,
+      "edges": 0,
+      "events": 5,
+      "revocations": 0,
+      "states": 6,
+      "obligations": 49
+    },
+    "cache": {
+      "entries": 677,
+      "bytes": 7794784,
+      "limit": 8388608
+    }
+  },
+  "archives": [
+    {
+      "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/shared-narrow-1-protocol.json.gz",
+      "sha256": "fcdd828abb4b493217de8ee3617dbb6c7a0f8f56ad28623da0f846544f1376cd",
+      "bytes": 3119
+    },
+    {
+      "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/shared-narrow-1-source.json.gz",
+      "sha256": "5fde6d7170dc5c26d76495b06c594d038ca4b23c0e30298ecce3d05252fba135",
+      "bytes": 59080
+    },
+    {
+      "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/shared-narrow-1-source.diff.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/shared-narrow-1-result.json.gz",
+      "sha256": "62fa5603e045c4808445a842e453e465a97eebd32856eaca4f83488ea34ec29c",
+      "bytes": 1098585
+    },
+    {
+      "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/shared-narrow-1-fragment-summary.json.gz",
+      "sha256": "57f2e4ac0cc1e7cd9e87a9f3e10e39fb15dd8d1cc5e4123c95796e2623d8bd94",
+      "bytes": 1379
+    },
+    {
+      "path": "docs/experiments/broader-ui-exploration-2026-10-18/evidence/shared-narrow-1-fragment-storage.json.gz",
+      "sha256": "db0dfa86af0ba799c47827cb7d03bffd7851e71ebf839f6cfde188370786e8da",
+      "bytes": 386
+    }
+  ],
+  "closedFiles": [
+    {
+      "path": ".data/broader-ui/shared-narrow-1/explorer.sqlite",
+      "bytes": 10907648,
+      "sha256": "1e51985e9afcb859a23b6de67a1b8af8fb2852dd8d38d126def8e847786da0fb"
+    },
+    {
+      "path": ".data/broader-ui/shared-narrow-1/engine/engine.sqlite",
+      "bytes": 28258304,
+      "sha256": "128a293465a837c806e70b8db3806375957cf204dd83f31a812e106443caf7a3"
+    },
+    {
+      "path": ".data/broader-ui/shared-narrow-1/engine/evidence/.coordination/lock.sqlite",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
