@@ -1,0 +1,420 @@
+{
+  "productCommit": "1fde4056b7d1e05ca3b8363c622acc565f56974c",
+  "archives": [
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-diagnosis-run2/result.json",
+      "file": "evidence/diagnosis.json.gz",
+      "rawBytes": 1506826,
+      "rawSHA256": "cbb38ee0be2c1eebe3900f8793a947c81089d422d5671518d482f7e20931daf5",
+      "archiveSHA256": "1e99a52388fc373dd47074fb0e72a69a515a9bb2052308ef9fba929cbdb3d9a0"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-comparison.json",
+      "file": "evidence/comparison.json.gz",
+      "rawBytes": 14213,
+      "rawSHA256": "3fa5948cdee980d2c6b0739400ce1104620a3e3a35a08b9fd809afc5828ecc2b",
+      "archiveSHA256": "4c8875ad4879389a3f11068686961516bb3891212f2be1b0342eb63338bce157"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-comparison-manifest.json",
+      "file": "evidence/comparison-manifest.json.gz",
+      "rawBytes": 819,
+      "rawSHA256": "1a8c923382f3fcc567758360e7a1afa2a4226642559f46027a6f70567a3afe18",
+      "archiveSHA256": "fa3941da492b8869a8b5c19b99466eaff35f1200ac95d66c6a45cd2e8e5721bf"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-focused-final.json",
+      "file": "evidence/focused-final.json.gz",
+      "rawBytes": 28824,
+      "rawSHA256": "938d11976c1413f24f4dc16b8fa5f5c28999d4ce6957ebb91a8077e7ad91546b",
+      "archiveSHA256": "562550d08bfc3d3980cfa2cdee81a6c38ea0dda220a7a8c25d273eea3e9eb692"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-focused-final.log",
+      "file": "evidence/focused-final.log.gz",
+      "rawBytes": 140,
+      "rawSHA256": "b1d0a237e716f8a29b328165699891462d4413a637e1eb603aa5635cab221afc",
+      "archiveSHA256": "47012b2950ea515500c19ba85595730189e1fa2a6e7f2c8992b491ce226a3e65"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-typecheck-final.log",
+      "file": "evidence/typecheck-final.log.gz",
+      "rawBytes": 182,
+      "rawSHA256": "17b0adc82769f832b3e2bef5c9aa8457891baa6d2d4ce425b37007a88a45989a",
+      "archiveSHA256": "10075ec84a9bdb869b5703f9d689aa134966411aa001fb95a60a418244e5e160"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-251.json",
+      "file": "evidence/original-251.json.gz",
+      "rawBytes": 583305,
+      "rawSHA256": "8978f96e7012a1e10498ab3d9f60c560c47a486bb7703a9f30392b63e509861b",
+      "archiveSHA256": "d68f7e9b2ed953df44d3bc0d4fc17b297df122d42ad519670d6ce51f7913624f"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-251.log",
+      "file": "evidence/original-251.log.gz",
+      "rawBytes": 139,
+      "rawSHA256": "361a8ae4a0145620229862d5298b15d9104dcce6dd462d67e338932832ad2027",
+      "archiveSHA256": "966dcd534b54fb29ecfb3a73819c81efbea982d67284d5382bb4571fe8d278f7"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-251-comparison.json",
+      "file": "evidence/original-251-comparison.json.gz",
+      "rawBytes": 7034,
+      "rawSHA256": "aa39a09b73e7ddb7d98c9a2f4f23d83057ddb377913776c76e0f6bd3f1780887",
+      "archiveSHA256": "168103cc39b0b1a613b916a102a19c1f3f2185a4bf2b23c20768dbf3b1557dcc"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/offline-acceptance-harness/manifest.json",
+      "file": "evidence/offline-harness-manifest.json.gz",
+      "rawBytes": 722,
+      "rawSHA256": "e3b2f7eb8ade0d44dfde5288bb96f450c8ad7166ef16c2540fe73066c02aef25",
+      "archiveSHA256": "3f5c89b27191210faaab98463b1ff95c92509fec2a69126490d2329e14229ae7"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-before-delayed/result.json",
+      "file": "evidence/before-delayed.json.gz",
+      "rawBytes": 250525,
+      "rawSHA256": "bb2c488ec8c3570a31a925d9e6d0128710ccdb8e16abefc5a63422a7e93e8220",
+      "archiveSHA256": "a19cf402c17eeec770b4d1c558d608f038e7736b4cd699222634dda4cbd539ed"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-before-live/result.json",
+      "file": "evidence/before-live.json.gz",
+      "rawBytes": 250379,
+      "rawSHA256": "723046f46e9d7de1143a47ccbd079a8c4b4b5dbdeb17bb39b215f9e46988e202",
+      "archiveSHA256": "96a9adbae8a9a34aadb8690cee46fbc96620e3bf8dd996cba5f348adcda82896"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-before-mixed/result.json",
+      "file": "evidence/before-mixed.json.gz",
+      "rawBytes": 262541,
+      "rawSHA256": "7fedaf3b52590de455dd25d5d5136938476c6d1211da1e0b9639b89d06ac5670",
+      "archiveSHA256": "03e697279044c3acd29ed20b437e5b22d5d469e98b74081bf6b64322c9216eb1"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-before-never/result.json",
+      "file": "evidence/before-never.json.gz",
+      "rawBytes": 277672,
+      "rawSHA256": "15e2c982505c4999ac64c76fdd49ea7bb96582735639b5b0e33106a26e3a7c29",
+      "archiveSHA256": "577fa82dd41f9beea2f01801ae68c0288916db7053622c21d87d7bf6c1cb6181"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-after-delayed/result.json",
+      "file": "evidence/after-delayed.json.gz",
+      "rawBytes": 272713,
+      "rawSHA256": "3c5fcdf571d5e192d75f884abfee45794c8948981969a7c14741412d24a23e66",
+      "archiveSHA256": "93884f5114b85a5f8056de063f2669bc73b5d65a5182ac8357d37961e1120910"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-after-live/result.json",
+      "file": "evidence/after-live.json.gz",
+      "rawBytes": 271087,
+      "rawSHA256": "8ee6d92dab8d3e05bd77d6193c07824fc22e794ec41acb34a00881b5a762ea10",
+      "archiveSHA256": "75a0461183af706cd3ed56e15e1abda32d5dbb23f14e90ca178efe9c67e56f90"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-after-mixed/result.json",
+      "file": "evidence/after-mixed.json.gz",
+      "rawBytes": 276101,
+      "rawSHA256": "5f3926564775d41964d56ddc645fb50e8b6cf4d9300bc79077a2a3cff2728ac4",
+      "archiveSHA256": "0f274374daccda4692ad9a34769b869c8841bc33d04982dbcf4732779c27cc69"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-frozen-after-never/result.json",
+      "file": "evidence/after-never.json.gz",
+      "rawBytes": 307157,
+      "rawSHA256": "d61e11542128945d87f2e49e924a45de784afb15394fd6ee0b028e0132586131",
+      "archiveSHA256": "fcb98490effbc843621983dad6a39c12c8f502c0fffb960ac527fbcddfc7f80b"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/result.json",
+      "file": "evidence/original-local-result.json.gz",
+      "rawBytes": 8545,
+      "rawSHA256": "10cfffcca96001b81ff14c578e461fbd2786d6aeead462db5d36737e791b14cd",
+      "archiveSHA256": "1e47aeddb4585aa49ffd8acd3ae651b1978916118f34165d65cfb4a17e77764e"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/audit.json",
+      "file": "evidence/original-local-audit.json.gz",
+      "rawBytes": 8300,
+      "rawSHA256": "ce85a45c5ba528f296722929dae218cf1336157332b70d3edd73b3ee70e071a7",
+      "archiveSHA256": "1d783cf123e43030d7c3629eba918affd2aec50768ad886c534042f0da33a321"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/coverage-ledger.json",
+      "file": "evidence/original-local-coverage-ledger.json.gz",
+      "rawBytes": 527287,
+      "rawSHA256": "a22ac2e1b3e77b3128e2effbcb783625081c2b5af4309aa4476abd04f4d0f2d1",
+      "archiveSHA256": "56bb3613e3a4c17551a2a78ff7dd8e0aa43006f217306c95fbff87df5cc1b08d"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/timeline.jsonl",
+      "file": "evidence/original-local-timeline.jsonl.gz",
+      "rawBytes": 1537742,
+      "rawSHA256": "3564a2da8309062dd9c596298491059c93fa8cdf7c3bd7ee87aaccb18862e419",
+      "archiveSHA256": "934da5b94be4432540a4b3fb3833fbc4e552692330287fc9c8062b1a1a7873c2"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/protocol.json",
+      "file": "evidence/original-local-protocol.json.gz",
+      "rawBytes": 1485,
+      "rawSHA256": "4cd527ef824e00087679340e772aa488135332d38b8234ef37959da32a6542d2",
+      "archiveSHA256": "230fb907ea5c7f625f4e120c3d24a46cc15d3187f5b4bdef69f2623856539e94"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/source.json",
+      "file": "evidence/original-local-source.json.gz",
+      "rawBytes": 61489,
+      "rawSHA256": "1dbf0925967df628d7da7e27470d80387292e7c4e3c33561053efd41ce2a2c9b",
+      "archiveSHA256": "8fb26db3c96192e09e5ae2ceb65357e0f7503472b132669854fadd67ac0a8725"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/source.diff",
+      "file": "evidence/original-local-source.diff.gz",
+      "rawBytes": 0,
+      "rawSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSHA256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/task-first.json",
+      "file": "evidence/original-local-task-first.json.gz",
+      "rawBytes": 69075,
+      "rawSHA256": "d7bca350d482ea5f47977697f3a70ec30d7694af3c480fba2f4cb528dbe36e7c",
+      "archiveSHA256": "52fa21133367fe0093083555a0c4843907acbc1d3a7ee7633830c3b1e01d217a"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/task-restart.json",
+      "file": "evidence/original-local-task-restart.json.gz",
+      "rawBytes": 220884,
+      "rawSHA256": "385317ee3358d1f965d38839dbed41c7b8a3a06936d76472d3c50ee39ec813b4",
+      "archiveSHA256": "ae5db5167174e279e2c00b0db5970ad0ee95575e37a834024105342f99401ebe"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/offline-answers.jsonl",
+      "file": "evidence/original-local-offline-answers.jsonl.gz",
+      "rawBytes": 640,
+      "rawSHA256": "89be43132d92f46c8e69d829d6fdc2f4cc4b847f6858f88500951b9d964df9c7",
+      "archiveSHA256": "6194403e7cc9dd3b83f86e0065bf16d4e0367d2b97ff44789ae2908ee93d62dc"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/offline-cursors.json",
+      "file": "evidence/original-local-offline-cursors.json.gz",
+      "rawBytes": 110,
+      "rawSHA256": "c523efb8fc78e4887d5d19d06b5cad0a68e85d5c58d5b1b92702683279731cc2",
+      "archiveSHA256": "d656c8d841ab633cef7f25b86825c8a65ffc7256ffb63f41c7ac2d8eb45e8d46"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-baseline-1.log",
+      "file": "evidence/development-async-readiness-baseline-1.log.gz",
+      "rawBytes": 4712,
+      "rawSHA256": "d524e99b019f313794af44b4b7a2435380b29c94884c7237cd57d54efb83f594",
+      "archiveSHA256": "d2589f006c2fe6467fac09aed5b198a0eeeeb900cabff99e97765c1f11561584",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-1.log",
+      "file": "evidence/development-async-readiness-delayed-1.log.gz",
+      "rawBytes": 1742,
+      "rawSHA256": "aec2543e7f8b75b3eb2cd08541b5804899d6fcc2d01af206e03dcda2f4ad277e",
+      "archiveSHA256": "fb77dc7957588b893b8809a71c5019e806805b7d94d5038a316222dd87d985e3",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-2.log",
+      "file": "evidence/development-async-readiness-delayed-2.log.gz",
+      "rawBytes": 6196,
+      "rawSHA256": "d7de2600f7e4ebbf060e7cfe525b7a7febbe64ade52de9bcaa8684f7494edbde",
+      "archiveSHA256": "02e65d2077a56ab5b12b4ba80c17f5a3f061d67398d61360706db1b68d1a449f",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-3.log",
+      "file": "evidence/development-async-readiness-delayed-3.log.gz",
+      "rawBytes": 11255,
+      "rawSHA256": "bfb4db7bb4ac41eec3b9746e6b8c5ec0f926bdf69a8527a5f1b6aab5f7f3179a",
+      "archiveSHA256": "634ddac831d6d8d2fd74ffdfddfeba72ead153c63f8e14826457a03c1398b6f4",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-4.log",
+      "file": "evidence/development-async-readiness-delayed-4.log.gz",
+      "rawBytes": 6529,
+      "rawSHA256": "0b0db7f501ae4f74d9f61cbf10ae7a1974358e7af6c55a4a229db0d43d115a19",
+      "archiveSHA256": "20715787ea4c306d325901bb9182bb9b2f40d638792fa847742358184a319ca0",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-5.log",
+      "file": "evidence/development-async-readiness-delayed-5.log.gz",
+      "rawBytes": 4536,
+      "rawSHA256": "ee5eaf6e8327b4d432c05d1e5fcfadf5fb7e6aac39c50329ba5ee49e8bf3bf69",
+      "archiveSHA256": "9bea3604c3027f0abe458c9928c2aae36af81968f8df66170bc669f7322b7ebb",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-6.log",
+      "file": "evidence/development-async-readiness-delayed-6.log.gz",
+      "rawBytes": 3402,
+      "rawSHA256": "fc9d521680e0d590ca82dc009128b24bf88fac49acfd1b4a99d5c48583225075",
+      "archiveSHA256": "2fbc067ce652225448477c6db3356adb44b53bd616c97d8480283dfe2c49f493",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-7.log",
+      "file": "evidence/development-async-readiness-delayed-7.log.gz",
+      "rawBytes": 3836,
+      "rawSHA256": "10f46ec234795689c98532947781ea9f79447efb54861f4924066fd748ec4f78",
+      "archiveSHA256": "93ed978e270ff6a40682c8625b2748697d718bb3ddbf0c0dc60328ae9bb851c6",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-live-1.log",
+      "file": "evidence/development-async-readiness-live-1.log.gz",
+      "rawBytes": 4671,
+      "rawSHA256": "ae7d238742f7d4ea372bc24b019da5913e64d4a5ee432517672adfdca9b520e5",
+      "archiveSHA256": "05e0a0a498148482e692db5c2a9a71bf75264019e4c05a860ba28a432cf1a0bc",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-never-1.log",
+      "file": "evidence/development-async-readiness-never-1.log.gz",
+      "rawBytes": 5877,
+      "rawSHA256": "3e88621d3dc158880a1309e50d134de512d63d80e5bff045cee206b75d966e5f",
+      "archiveSHA256": "b8ca8a396ed828e2e33dccf49aae9f27ee344a77d05d157e5f1e7f69b1018104",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-never-2.log",
+      "file": "evidence/development-async-readiness-never-2.log.gz",
+      "rawBytes": 7745,
+      "rawSHA256": "c21b99e1fddc5d3c187705426a56ba263b37cdd2fb97c581c09846f132d9977d",
+      "archiveSHA256": "3cd94f75a30e28028459757916e50a7e9691cd2d6d4dc3894c341eadcaa1c22d",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-never-3.log",
+      "file": "evidence/development-async-readiness-never-3.log.gz",
+      "rawBytes": 8164,
+      "rawSHA256": "1756aa58055b9bcab381263d8c09465f7b09eb5b9026bbe8dd3230f1b5d68ad1",
+      "archiveSHA256": "e672ee7e3bd9eb3f326aaa77e87d0a9d5be89de2eb701798a9cf42722d34597e",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-baseline-1/result.json",
+      "file": "evidence/development-async-readiness-baseline-1-result.json.gz",
+      "rawBytes": 259383,
+      "rawSHA256": "cc44fcf87dcb1e3a7c7dd792a6f90f6f6f10384936c13d8f249c83e2faee43dc",
+      "archiveSHA256": "429ba4d96147bd165660cfdaca55ad54a322552de296727cbeec6318f88e9926",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-2/result.json",
+      "file": "evidence/development-async-readiness-delayed-2-result.json.gz",
+      "rawBytes": 405177,
+      "rawSHA256": "041f4d33a1d1f3a637fe495fbae1d4cf1a4fe2f40e22d4e24dc3eef727629e4f",
+      "archiveSHA256": "96ea6f8d7e403c3c262382b601747f18fcbe5430e1d44709019b3af938954137",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-3/result.json",
+      "file": "evidence/development-async-readiness-delayed-3-result.json.gz",
+      "rawBytes": 556709,
+      "rawSHA256": "0318eb0188ffed5e8352467f58ff5afb6ebbe043e2351d855b8de14cdf6553f4",
+      "archiveSHA256": "19f6c71a177ddebf39550b64845272865cfceb9d88bebcfdcca5718f62420a58",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-4/result.json",
+      "file": "evidence/development-async-readiness-delayed-4-result.json.gz",
+      "rawBytes": 419452,
+      "rawSHA256": "9b6e78b1783a94444541e434e15a1ccbd6e28cf80d800e8fdfe4eef3e2ffbc7e",
+      "archiveSHA256": "0379dfa68659d4ec895365653dfc74676ac405fd77346303d8bfeb01d189b65d",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-5/result.json",
+      "file": "evidence/development-async-readiness-delayed-5-result.json.gz",
+      "rawBytes": 412821,
+      "rawSHA256": "7aa90853e992672cdf8300a508b03932aa5a6c954cdbe43d97bf9ba02359e84b",
+      "archiveSHA256": "ad02b3084cbb1a39f9a6cd3a50b2d605ced046245ef3e6ea7d0997cf77b303d4",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-6/result.json",
+      "file": "evidence/development-async-readiness-delayed-6-result.json.gz",
+      "rawBytes": 233931,
+      "rawSHA256": "1414a63a67a93f7c6d18ca8c7d63603b1685d0178f381361cc5324c69d61a9d2",
+      "archiveSHA256": "f8ac2f26b59d10f57890925d175f45fc532f3ec8be081b65cc91a4ba1851f509",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-delayed-7/result.json",
+      "file": "evidence/development-async-readiness-delayed-7-result.json.gz",
+      "rawBytes": 269068,
+      "rawSHA256": "a73ae99835cc63f40dc94a7c0e26e29823a72f9f009c4c18acbb14cac963fe61",
+      "archiveSHA256": "c243814dd79d11755aaa153d89675dad1e5ad4b221289d6f302f986557c3e5a4",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-live-1/result.json",
+      "file": "evidence/development-async-readiness-live-1-result.json.gz",
+      "rawBytes": 270574,
+      "rawSHA256": "da25a407e70c07b3653d2adb307bb37eda05682b7d562a0d0d1f2e59b2779f17",
+      "archiveSHA256": "c09798417b892413e05888a8799581b2842090bcd5043d7392d968bf4f8025f5",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-never-1/result.json",
+      "file": "evidence/development-async-readiness-never-1-result.json.gz",
+      "rawBytes": 238034,
+      "rawSHA256": "ef0fbaf0e88589d90ccb83cd24803ece27dc8bf3c11cfafc9785d1c3eecba3ea",
+      "archiveSHA256": "592d31b26523458e79a93ca18578c275b765da04b57ed44fb1a1a082f02127e6",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-never-2/result.json",
+      "file": "evidence/development-async-readiness-never-2-result.json.gz",
+      "rawBytes": 266627,
+      "rawSHA256": "ab6625ccea9272d6edbf0e998281df1bb4377b4a8e9ce154abbddcd58afa32e4",
+      "archiveSHA256": "a496b8ad1ebac9fe56fb42091c503d0ffd27c91624dff2534fc6352e1f77ef6d",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/async-readiness-never-3/result.json",
+      "file": "evidence/development-async-readiness-never-3-result.json.gz",
+      "rawBytes": 304890,
+      "rawSHA256": "fce3468f536b246ecc2ea053e4d713623d7d2e0fdb0cfefec0ce009f16c27528",
+      "archiveSHA256": "00b99f67dde56f72ac6bf696ee8c1ae91b21018e36a23b62ebee2e12757574c3",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-focused-initial.log",
+      "file": "evidence/development-readiness-focused-initial.log.gz",
+      "rawBytes": 3667,
+      "rawSHA256": "5d3e0e758c3c60310fd50fe4e8c34b67bda4e1f14b1d35e8bd7596d1947a4a2f",
+      "archiveSHA256": "1df647e932531d638e2a9e15f1584e3557e24cd63eade00fdcd00e653fc7e85c",
+      "stage": "development-only; not frozen acceptance"
+    },
+    {
+      "source": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-focused-3.log",
+      "file": "evidence/development-readiness-focused-3.log.gz",
+      "rawBytes": 10304,
+      "rawSHA256": "b1f90062c9fae90332da56357f486497b919f62dbfcb8a1172b78e88612779b9",
+      "archiveSHA256": "5d85b0fe0a3e8a25e721675ad994432e544e33903d276fea6cfe9250cfe214bc",
+      "stage": "development-only; not frozen acceptance"
+    }
+  ],
+  "retainedClosedDatabases": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/engine/engine.sqlite",
+      "bytes": 4206592,
+      "sha256": "80f27d441956e99cf32e8db135d72317e3496947e296a5e3a90451dfcf97d1cc"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/async-region-readiness/browser-interaction-engine/.data/readiness-original-local-1/explorer.sqlite",
+      "bytes": 1945600,
+      "sha256": "2ba6a7256257a840899c3d6c8eb0a4591e844d6e52c467f4d3121a01be5e2017"
+    }
+  ]
+}
