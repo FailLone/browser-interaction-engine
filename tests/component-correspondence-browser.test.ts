@@ -12,9 +12,9 @@ import {scopeFor,schedulingKeyFor} from '../packages/explorer-plugin/src/policy.
 import {ExplorerPlugin,ExplorerStore,providersFromEnv,type PlanItem} from '@interaction/explorer-plugin';
 import {writeFileSync,mkdirSync} from 'node:fs';
 
-async function fixture(durable=false,generated=false,nested=false,identityFixture=false){
+async function fixture(durable=false,generated=false,nested=false,identityFixture=false,keyed=false){
  let version=0,variant="content";
- const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end(`<!doctype html><title>Catalog</title><header><nav aria-label="Catalog navigation"><ul aria-label="Categories"><li data-record="${variant==='record'?'other':'catalog'}"><a href="${variant==='destination'?'/catalog?account=other':'/catalog'}">Catalog</a><details ${variant==='mode'?'open':''}><summary ${generated?`id="more-${version}" aria-controls="contents-${version}"`:''}>More information</summary><div ${generated?`id="contents-${variant==='broken-reference'?'missing':version}"`:''}><p>${version&&variant!=='ids'?'Updated catalog description':'Catalog description'}</p>${nested?`<details><summary>Alpha</summary><p>${identityFixture?(version?'Owner account: B-200. Different customer record.':'Owner account: A-100. Original customer record.'):(version?'Updated Alpha information':'Alpha information')}</p></details>`:'<a href="/alpha">Alpha</a>'}<a href="/beta">Beta</a>${version&&variant!=='ids'?'<a href="/gamma">Gamma</a>':''}</div></details></li><li><a href="/help">Help</a><details><summary>Support information</summary><p>Contact options</p><a href="/contact">Contact</a></details></li></ul></nav></header>`.replace(generated?/<\/?(?:ul|li)\b[^>]*>/g:/$^/g,''));});
+ const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end(`<!doctype html><title>Catalog</title><header><nav aria-label="Catalog navigation"><ul aria-label="Categories"><li data-record="${variant==='record'?'other':'catalog'}"><a href="${variant==='destination'?'/catalog?account=other':'/catalog'}">Catalog</a><details ${variant==='mode'?'open':''}><summary ${generated?`id="more-${version}" aria-controls="contents-${version}"`:''}>More information</summary><div ${generated?`id="contents-${variant==='broken-reference'?'missing':version}"`:''}><p>${version&&variant!=='ids'?'Updated catalog description':'Catalog description'}</p>${nested?`<details ${keyed?'data-component-key="alpha-details"':''}><summary>Alpha</summary><p>${identityFixture?(version?'Owner account: B-200. Different customer record.':'Owner account: A-100. Original customer record.'):(version?'Updated Alpha information':'Alpha information')}</p></details>`:'<a href="/alpha">Alpha</a>'}<a href="/beta">Beta</a>${version&&variant!=='ids'?'<a href="/gamma">Gamma</a>':''}</div></details></li><li><a href="/help">Help</a><details><summary>Support information</summary><p>Contact options</p><a href="/contact">Contact</a></details></li></ul></nav></header>`.replace(generated?/<\/?(?:ul|li)\b[^>]*>/g:/$^/g,''));});
  await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${(server.address() as any).port}/`;
  const directory=resolve(`.data/component-correspondence/cold-browser-${Date.now()}`),engine=new BrowserEngine({persistence:durable?new SqliteStore(directory):new MemoryStore()});
  const options={url,headless:true,coveragePolicy:'finite-ui-v1' as const,executionPolicy:'observed-ui' as const,settleMs:25,observeTimeoutMs:500,exploration:'controls' as const,listExploration:'all' as const,
@@ -69,11 +69,11 @@ it.each(['record','destination','mode','broken-reference'])('rejects changed %s 
  }finally{await f.close();}
 });
 
-it.each([false,true,'identity','exhausted'])('the plugin completes the original child with changed material=%s',async(changed)=>{
- const f=await fixture(false,false,true,changed==='identity'),store=new ExplorerStore(':memory:');
+it.each([false,true,'identity','exhausted','keyed','keyed-control'])('the plugin verifies or preserves the original child with changed material=%s',async(changed)=>{
+ const f=await fixture(false,false,true,changed==='identity',String(changed).startsWith('keyed')),store=new ExplorerStore(':memory:');
  const real=process.env.COMPONENT_REAL_PROVIDER==='1';let questions=0;
  const configured=real?providersFromEnv():undefined;
- const providers=!changed?{}:real?(changed==='identity'?{jev:configured!.jev}:configured!):{jev:{name:'offline',model:'fixture',decide:async(request:any)=>{questions++;expect(request.purpose).toBe('component-correspondence');return {value:changed!=='identity',probability:changed==='identity'?.02:.99,model:'offline'};}}};
+ const providers=!changed||changed==='keyed-control'?{}:real?(changed==='identity'?{jev:configured!.jev}:configured!):{jev:{name:'offline',model:'fixture',decide:async(request:any)=>{questions++;expect(request.purpose).toBe('component-correspondence');return {value:changed!=='identity',probability:changed==='identity'?.02:.99,model:'offline'};}}};
  const plugin=new ExplorerPlugin(f.engine,store,providers);
  try{
   const entry=target(f,f.session.id);await f.engine.execute(f.session.id,entry.id,'discover-original-child',undefined,{profile:'observed-ui-exploration',observationId:entry.observationId});
@@ -88,9 +88,9 @@ it.each([false,true,'identity','exhausted'])('the plugin completes the original 
   const final=store.task(task.id),item=final.plan.find(i=>i.id===original.id),events=store.events(task.id),decisions=store.decisions(task.id);
   mkdirSync('.data/component-correspondence',{recursive:true});writeFileSync(`.data/component-correspondence/plugin-${real?'real':'offline'}-proof-${Date.now()}.json`,JSON.stringify({final,events,decisions,questions,componentQuestions:[...store.fragmentRecords.rows(task.id,'componentQuestions')]},null,2));
   expect(item?.scope).toEqual(original.scope);expect(item?.operationConditionKey).toBe(original.operationConditionKey);
-  if(changed==='identity'||changed==='exhausted'){expect(item?.status).toBe('unresolved');expect(item?.attempts).toHaveLength(0);expect(item?.resolvedBy).toBeUndefined();if(changed==='identity')expect(decisions[0]?.answer?.probability).toBeLessThan(.9);else{expect(decisions).toEqual([]);expect(final.plan.some(i=>i.id!==original.id&&i.scope.label==='Alpha'&&i.status==='succeeded')).toBe(true);}}
+  if(changed==='identity'||changed==='exhausted'||changed==='keyed-control'){expect(item?.status).toBe('unresolved');expect(item?.attempts).toHaveLength(0);expect(item?.resolvedBy).toBeUndefined();if(changed==='identity')expect(decisions[0]?.answer?.probability).toBeLessThan(.9);else{expect(decisions).toEqual([]);expect(final.plan.some(i=>i.id!==original.id&&i.scope.label==='Alpha'&&i.status==='succeeded')).toBe(true);}}
   else {expect(item?.status,JSON.stringify({reason:final.reason,item,decisions})).toBe('succeeded');expect(item?.resolvedBy?.attemptId).toBeDefined();expect(item?.conditionCompletion?.status).toBe('verified');}
-  expect(events.some(e=>e.type==='component.correspondence_recorded')).toBe(changed===true);if(!real)expect(questions).toBe(changed&&changed!=='exhausted'?1:0);if(!changed)expect(decisions).toEqual([]);
+  expect(events.some(e=>e.type==='component.correspondence_recorded')).toBe(changed===true||changed==='keyed');if(!real)expect(questions).toBe(changed&&changed!=='exhausted'&&changed!=='keyed-control'?1:0);if(!changed)expect(decisions).toEqual([]);
  }finally{await plugin.close();store.close();await f.close();}
 });
 
@@ -98,5 +98,32 @@ it('rebinds complete local generated IDs and IDREFs without a model question',as
  const f=await fixture(false,true);try{const source=target(f,f.session.id),before=f.engine.observation(f.session.id);f.change('ids');await f.engine.stop(f.session.id);
   const next=await f.engine.createSession(f.options),action=target(f,next.id),current=f.engine.observation(next.id);
   const material=f.engine.componentCorrespondenceMaterial(next.id,{observationId:current.id,actionId:action.id,source:{sessionId:before.sessionId,observationId:before.id,actionId:source.id}});expect(material.status).toBe('same');
+ }finally{await f.close();}
+});
+
+it('relocates a complete component after its absolute DOM path moves within the same owner',async()=>{
+ const f=await fixture();try{
+  const source=target(f,f.session.id),before=f.engine.observation(f.session.id),old=before.controls.find(c=>c.localId===source.localId)!;
+  const page=(f.engine as any).driver.page;
+  await page.evaluate(()=>{const nav=document.querySelector('nav')!,wrapper=document.createElement('div');nav.parentElement!.append(wrapper);wrapper.append(nav);});
+  await f.engine.observe(f.session.id);const action=target(f,f.session.id),current=f.engine.observation(f.session.id),control=current.controls.find(c=>c.localId===action.localId)!;
+  expect(control.selector).not.toBe(old.selector);
+  const input={observationId:current.id,actionId:action.id,source:{sessionId:before.sessionId,observationId:before.id,actionId:source.id}};
+  expect(f.engine.componentCorrespondenceMaterial(f.session.id,input).status).toBe('same');
+  expect(f.engine.explorationTargetCorrespondences(f.session.id,{observationId:current.id,requests:[input]}).results[0].equivalent).toBe(true);
+  expect((await f.engine.execute(f.session.id,action.id,'moved-component',undefined,{profile:'observed-ui-exploration',observationId:current.id})).status).toBe('succeeded');
+ }finally{await f.close();}
+});
+
+it('refuses to choose the first of two same-name records',async()=>{
+ const f=await fixture();try{
+  const source=target(f,f.session.id),before=f.engine.observation(f.session.id),page=(f.engine as any).driver.page;
+  await page.evaluate(()=>{const record=document.querySelector('li')!;record.parentElement!.append(record.cloneNode(true));});
+  await f.engine.observe(f.session.id);const current=f.engine.observation(f.session.id),actions=f.engine.actions(f.session.id).filter(a=>a.label==='More information'&&a.kind==='click');
+  expect(current.controls.filter(c=>c.name==='More information')).toHaveLength(2);expect(actions).toHaveLength(2);
+  for(const action of actions){const input={observationId:current.id,actionId:action.id,source:{sessionId:before.sessionId,observationId:before.id,actionId:source.id}};
+   expect(f.engine.componentCorrespondenceMaterial(f.session.id,input).status).toBe('unavailable');
+   expect(f.engine.explorationTargetCorrespondences(f.session.id,{observationId:current.id,requests:[input]}).results[0].equivalent).toBe(false);}
+  expect(f.engine.list(f.session.id,'attempt')).toEqual([]);
  }finally{await f.close();}
 });

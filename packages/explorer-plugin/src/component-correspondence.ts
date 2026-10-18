@@ -37,10 +37,14 @@ export function componentOpportunities(host:ExplorerHost,task:Task,o:Observation
         for(const action of candidates){
           const input={observationId:o.id,actionId:action.id,source:{...ref,actionId:old[0].id}},pair=digest(input);
           if(seen.has(pair))continue;seen.add(pair);
+          // Filter complete uncertain material before the more expensive SDK
+          // correspondence query. Exact/conflicting/unavailable pairs cannot
+          // become model work and need no duplicate target proof here.
+          const material=host.componentCorrespondenceMaterial(o.sessionId,input);
+          if(material.status!=='uncertain')continue;
           const proof=host.explorationTargetCorrespondences(o.sessionId,{observationId:o.id,requests:[{actionId:action.id,source:input.source}]}).results[0];
           if(proof?.equivalent)continue;
-          const material=host.componentCorrespondenceMaterial(o.sessionId,input);
-          if(material.status==='uncertain')result.push({itemId:item.id,input,material,action});
+          result.push({itemId:item.id,input,material,action});
         }
         break;
       }catch{/* Absent source is missing evidence, not a model question. */}
