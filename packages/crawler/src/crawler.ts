@@ -43,7 +43,9 @@ export type CrawlEvent =
 
 interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string; relevance?: number }
 
-const TIERS = ['overlay', 'body', 'in-page-disclosure', 'navigate', 'chrome'] as const;
+// Everything that stays on the current page (including site-chrome menus) runs
+// before any navigation; otherwise the entry page's own UI waits behind other pages.
+const TIERS = ['overlay', 'body', 'in-page-disclosure', 'chrome', 'navigate'] as const;
 
 /**
  * Crawljax-style sampled crawler: abstract states, action classes sampled k
@@ -230,7 +232,7 @@ export class SampledCrawler {
         if (classKey.includes('|list:')) { const seen = this.listMembers.get(classKey) || new Set(); seen.add(`${pagePath(s.url)}|${c.name}`); this.listMembers.set(classKey, seen); }
         if (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey)) continue;
         const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover';
-        const tierName = scope ? 'overlay' : c.landmark ? 'chrome' : where === 'navigate' ? 'navigate' : disclosure ? 'in-page-disclosure' : 'body';
+        const tierName = scope ? 'overlay' : where === 'navigate' ? 'navigate' : c.landmark ? 'chrome' : disclosure ? 'in-page-disclosure' : 'body';
         const relevance = applyGoal ? this.options.relevance : undefined;
         // An open overlay must still be handled even when its contents are off-goal.
         if (relevance && !scope && !relevance.relevant(classKey)) continue;

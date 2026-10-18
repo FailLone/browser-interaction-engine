@@ -1,0 +1,25 @@
+{
+  "elapsedMs": 42440,
+  "actions": 34,
+  "states": 20,
+  "onEntryPage": 34,
+  "inOverlay": 5,
+  "failed": 1,
+  "byTier": {
+    "overlay": 5,
+    "body": 9,
+    "in-page-disclosure": 7,
+    "chrome": 13,
+    "navigate": 0
+  },
+  "maxPerClass": 1,
+  "backtracks": 2,
+  "weakControlsConfirmed": 0,
+  "lists": {
+    "classes": 11,
+    "membersSeen": 88,
+    "executed": 8
+  },
+  "pages": 1,
+  "findings": {}
+}
