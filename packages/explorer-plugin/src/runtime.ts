@@ -1369,7 +1369,7 @@ export class ExplorerPlugin {
         const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||item||prerequisite;
         if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
       }else{
-        const targets=this.entryTargets(task,action,o).sort((a,b)=>Number(b.id===arrived)-Number(a.id===arrived)||(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
+        const targets=this.entryTargets(task,action,o).sort((a,b)=>(task.coverageContract?.programNavigation?Number(b.id===arrived)-Number(a.id===arrived):0)||(targetOrder.get(a.id)??Infinity)-(targetOrder.get(b.id)??Infinity));
         const target=this.reentryTarget(task,action,o,targets,true);
         if(target&&byId.has(target.item.id))reentries.push({itemId:target.item.id,kind:'reentry',actionId:action.id,source:target.item.evidence.find(ref=>!ref.attemptId)});
       }
@@ -1380,18 +1380,23 @@ export class ExplorerPlugin {
     // priority: a child link can precede a background tab, while local controls
     // in that same branch precede navigation, preferences and its exit.
     const departure=(choice:ObligationSelection)=>{const a=actions.find(a=>a.id===choice.actionId)!;return this.currentExit(a,o)?3:navigationTarget(a,o)?2:a.source==='program-notice-preference'?1:closing(choice);};
-    local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||departure(a)-departure(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    if(task.coverageContract?.programNavigation)local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||locality(b)-locality(a)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||departure(a)-departure(b)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
+    else local.sort((a,b)=>Number(b.itemId===arrived)-Number(a.itemId===arrived)||closing(a)-closing(b)||samplePriority(byId.get(a.itemId)!)-samplePriority(byId.get(b.itemId)!)||locality(b)-locality(a)||(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     const inPlace=local.filter(choice=>{const action=actions.find(action=>action.id===choice.actionId)!;return action.boundary?.intent!=='exit'&&!navigationTarget(action,o);});
-    // Finite fresh work inside the current scope is continuous, even across the
-    // ordinary background fairness quota. Global time/action budgets still bind.
-    const scopedChoice=task.coverageContract?.programNavigation&&local.find(choice=>!!o.boundaries?.length||locality(choice)>0);
+    if(!task.coverageContract?.programNavigation&&inPlace.length)local.splice(0,local.length,...local.filter(choice=>choice.itemId===arrived||inPlace.includes(choice)));
+    // Modal work remains exclusive. A transient branch keeps its turn over
+    // background controls, but at the local quota it may take a ready child
+    // navigation and retain the remaining branch for a later verified return.
+    const scoped=task.coverageContract?.programNavigation?local.filter(choice=>!!o.boundaries?.length||locality(choice)>0):[];
+    const scopedDeparture=!o.boundaries?.length&&schedule.localSelections>=localSelectionLimit&&scoped.find(choice=>!!navigationTarget(actions.find(a=>a.id===choice.actionId)!,o));
+    const scopedChoice=scopedDeparture||scoped[0];
     // Finish the selected recovered child once before fairness sends us away.
     // Its current target was just projected; reservation changes the selection
     // to current, so this exception never resets or renews the ordinary quota.
     const arrivedChoice=arrivedTarget&&local.find(choice=>choice.itemId===arrived&&choice.actionId===arrivedTarget.currentActionId);
     // A return can reach the source page without reopening its transient child.
     // Continue the selected child's already verified entry before a new batch.
-    const arrivedReentry=reentries.find(choice=>choice.itemId===arrived);
+    const arrivedReentry=task.coverageContract?.programNavigation&&reentries.find(choice=>choice.itemId===arrived);
     // Once current boundary work is done, use its already admissible local exit
     // before spending a remote recovery turn. Keep the fairness counter: the
     // next observation rebuilds candidates and resumes ordinary scheduling.
@@ -1403,7 +1408,7 @@ export class ExplorerPlugin {
     }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!scopedChoice&&!reentries.length&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!local.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal);
       // Even a short async selection has a final microtask boundary. Check it
@@ -1426,6 +1431,7 @@ export class ExplorerPlugin {
       // is scheduling policy, not a semantic question or a functionality verdict.
       const action=selectedAction,selectedReentry=selection?.kind==='reentry'||this.neededEntry(task,round,action,o),revision=task.revision;
       if(o.coveragePolicy==='finite-ui-v1')this.event(task,'progress.dependencies',{actionId:action.id,observationId:o.id,...dependencies.get(action.id),coverageGranted:false,scopeUnchanged:true});
+      if(selection===scopedDeparture)this.event(task,'branch.local_quota',{itemId:selection!.itemId,actionId:action.id,localSelections:schedule.localSelections,limit:localSelectionLimit,retainedPending:pending.filter(item=>item.id!==selection!.itemId).map(item=>item.id),coverageGranted:false});
       if(selection?.kind==='current'&&reentries.length)this.event(task,'action.priority',{reason:'fresh_work_before_reentry',sourceObservationId:o.id,deferred:reentries.map(choice=>{const action=actions.find(action=>action.id===choice.actionId);return {actionId:choice.actionId,itemId:choice.itemId,label:action?.label,kind:action?.kind};}),retainedInPlan:true,executionAuthorized:false});
       this.event(task,'action.selected',{reason:selectedReentry?'unfinished_target_route':'obligation_order',selectionPolicy:selection?.kind==='current'?'ready_local_preference':'finite_local_batch',selectedItemId:selection!.itemId,actionId:action.id,label:action.label,kind:action.kind,scope:decisionScope(scopeFor(action,o)),reentry:selectedReentry,candidateCount:local.length+reentries.length,sourceObservationId:o.id,dispatchRevalidationRequired:true});
       this.assert(task,signal,o.id,revision);
