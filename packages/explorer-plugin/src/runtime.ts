@@ -575,7 +575,7 @@ export class ExplorerPlugin {
       // to this item's retained source can associate the actual receipt; the
       // original scope/key stay unchanged and all sources must still complete.
       const rebound=item.dispatchScope===false&&((condition&&condition!==operationKey())||!matches(item.scope,attempt.action,source()))
-        &&sourcesCompleted.associate(item,attempt);
+        &&sourcesCompleted.associate(item,attempt,task.pendingDispatch?.sessionId===attempt.sessionId&&task.pendingDispatch.requestId===attempt.requestId&&task.pendingDispatch.observationId===attempt.beforeId&&task.pendingDispatch.actionId===attempt.action.id?task.pendingDispatch.sourceAssociations?.[item.id]:undefined);
       if(condition&&condition!==operationKey()&&!rebound)continue;
       this.changedPlan(task,item);
       if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
@@ -1499,7 +1499,11 @@ export class ExplorerPlugin {
       // to the originally selected kind. Neither entry success nor this hint
       // proves arrival, identity correspondence or completion of the child.
       if(reentryItem){schedule.selection={itemId:reentryItem.id,kind:'reentry',actionId:action.id,source:reentryItem.evidence.find(ref=>!ref.attemptId)};schedule.cursor=reentryItem.id;}
-      const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id};
+      const association=operationSourceCompletion(this.host),sourceAssociations:NonNullable<NonNullable<Task['pendingDispatch']>['sourceAssociations']>={};
+      for(const item of items)if(item.dispatchScope===false&&(boundOperationCondition(item)!==keyFor(action,o)||!matches(item.scope,action,o))){
+        const binding=association.prepareAssociation(item,action);if(binding)sourceAssociations[item.id]=binding;
+      }
+      const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id,...Object.keys(sourceAssociations).length?{sourceAssociations}:{}};
       const attemptKey=this.attemptKey(round,action,o);round.tried.push(attemptKey);this.persist(task);this.event(task,'action.scheduled',{requestId,actionId:action.id,label:action.label,kind:action.kind,purpose,itemIds:items.map(i=>i.id)});this.event(task,'action.dispatch',{requestId,actionId:action.id,purpose});
       try {const attempt=await this.host.execute(sid,action.id,requestId,undefined,{observationId:o.id,...(repetition?{repetitionSource:repetition.source}:{}),profile:this.host.session(sid).options.executionPolicy==='observed-ui'?'observed-ui-exploration':'interface-exploration'});round.consecutiveReviewSteps=0;this.recordOutcome(task,attempt,items.map(i=>i.id));if(attempt.status==='succeeded'&&attempt.afterId)this.trackTransition(task,round,o,this.host.observation(sid,attempt.afterId),scopeFor(action,o),entryPath,attempt);
       if(attempt.status==='unknown'||attempt.status==='executing')throw new ExplorerError('UNKNOWN_DISPATCH_REQUIRES_REVIEW');delete round.returnedSource;delete task.pendingDispatch;this.persist(task);
@@ -1637,7 +1641,24 @@ export class ExplorerPlugin {
       this.event(task,'navigation.return_required',{beforeId:before.id,afterId:after.id,checkpointId:frame?.checkpointId,acceptedUrl:before.url,observedUrl:after.url,scopeExpanded:false});
     }
     const route=(!transition.exited.length||transition.entered.length||transition.navigated)?capturedRoute(entry,before,after,transition.revealedControlIds,attempt):undefined;
-    if(route){const routes=round.entryRoutes??=[];if(!routes.some(old=>routeKey(old)===routeKey(route)))routes.push(route);}
+    if(route){
+      const routes=round.entryRoutes??=[];if(!routes.some(old=>routeKey(old)===routeKey(route)))routes.push(route);
+      if(task.coverageContract?.programNavigation){
+        // Retain discovery at the actual reveal receipt, before region/review
+        // preparation can replace the current observation. Later captures may
+        // add evidence, but cannot supply this missing original route source.
+        const candidates=this.host.operationCoverageCandidates(after.sessionId,after.id),scopes=candidates.map(a=>scopeFor(a,after));
+        const retained:string[]=[];
+        for(let i=0;i<candidates.length;i++){
+          const action=candidates[i],scope=scopes[i];
+          if(!route.targets.some(target=>routeMatches(target,scope))||includesScope(task.plan,action,after)!=='target'
+            ||scopes.filter(other=>digest(other)===digest(scope)).length!==1)continue;
+          const item=this.gap(task,'observed_in_scope',scope,true,[...entryPath,entry],false,after,keyFor(action,after),action.id);
+          retained.push(item.id);
+        }
+        if(retained.length)this.event(task,'branch.children_retained',{itemIds:retained,source:route.evidence,executionAuthorized:false,coverageGranted:false},after.id);
+      }
+    }
     // A newly revealed branch descends from the route to its own entry control,
     // not from every independent disclosure visited before it.
     if(transition.navigated||transition.entered.length)round.entryPath=[...entryPath,entry];

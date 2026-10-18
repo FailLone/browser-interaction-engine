@@ -254,9 +254,26 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
   /** Match observed operation targets without inventing historical execution or coverage. */
   explorationTargetCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:ExplorationTargetReference}[]}) {
     const current=this.observation(sessionId);
-    if(current.id!==input.observationId)throw new EngineError('STALE_OBSERVATION','Target correspondence requires the current observation');
+    const historical=current.id!==input.observationId,dispatches=new Map<string,string>();
+    if(historical){
+      // A retained before-frame can describe an arrival that actually dispatched.
+      // It cannot authorize another dispatch or make an unexecuted stale target
+      // current. Require the exact durable, condition-verified execution receipt.
+      const attempts=this.store.list<ActionAttempt>('attempt',sessionId),condition=this.receiptConditionReader();
+      for(const request of input.requests){
+        const receipt=attempts.find(a=>a.sessionId===sessionId&&a.beforeId===input.observationId&&a.action.id===request.actionId
+          &&a.action.observationId===input.observationId&&a.status==='succeeded'&&!!a.afterId&&condition(sessionId,{attemptId:a.id}).conditionVerified);
+        if(!receipt)throw new EngineError('STALE_OBSERVATION','Historical target correspondence requires its exact verified dispatch receipt');
+        dispatches.set(request.actionId,receipt.id);
+      }
+      if(!input.requests.length)throw new EngineError('STALE_OBSERVATION','Target correspondence requires the current observation');
+    }
     const read=this.correspondenceReader();
-    return {sessionId,observationId:input.observationId,results:input.requests.map(request=>read(sessionId,{...request,observationId:input.observationId}) as ExplorationTargetCorrespondence)};
+    return {sessionId,observationId:input.observationId,results:input.requests.map(request=>{
+      const result=read(sessionId,{...request,observationId:input.observationId}) as ExplorationTargetCorrespondence;
+      if(historical)result.evidence.push(`recorded-target-dispatch:${dispatches.get(request.actionId)}`);
+      return result;
+    })};
   }
   private recordedControlReviewCorrespondence(sessionId:string,input:{observationId:string;localId:string;source:ControlReviewTargetReference},current:O|undefined,source:O|undefined,reader?:ControlReviewTargetCorrespondenceReader<O>|null):ControlReviewTargetCorrespondence {
       const result:ControlReviewTargetCorrespondence={targetMatched:false,reviewable:false,sourceEquivalent:'unknown',reason:'review_target_evidence_unavailable',evidence:[],

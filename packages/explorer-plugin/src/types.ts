@@ -1,4 +1,5 @@
 import type { ActionAttempt, BrowserEngine, SessionOptions } from '@interaction/browser';
+import type { DispatchSourceAssociation } from './operation-source-completion.js';
 import type { NavigationPosition } from './navigation-state.js';
 import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecycle.js';
 import type { ObligationSchedule } from './obligation-scheduler.js';
@@ -146,7 +147,7 @@ export interface Task {
   /** Per-session retained artifacts; no protected evidence is discarded to make room. */
   evidenceBudget?: {maxBytes:number;maxObservations:number};
   sampleExcluded: string[];
-  pendingDispatch?: { sessionId:string; requestId:string; decisionId?:string; itemIds:string[]; observationId:string } &
+  pendingDispatch?: { sourceAssociations?:Record<string,DispatchSourceAssociation>; sessionId:string; requestId:string; decisionId?:string; itemIds:string[]; observationId:string } &
     ({actionId:string;probe?:never}|{actionId?:never;probe:{localId:string;kind:'hover'|'focus';scope:Scope}});
   /** Isolated navigation failures remain unresolved and must never be replayed by later rounds. */
   unverifiedNavigations?: {sourceUrl:string;targetUrl:string;evidence:EvidenceRef}[];

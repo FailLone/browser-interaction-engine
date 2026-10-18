@@ -89,6 +89,19 @@ it('attributes an actual unknown outcome without turning it into condition compl
   expect(f.attempt.status).toBe('unknown');expect(f.host.operationReceiptConditions).not.toHaveBeenCalled();
 });
 
+it('binds the current SDK proof before dispatch and restores attribution after navigation without changing completion requirements',()=>{
+  const f=fixture(),saved=operationSourceCompletion(f.host).prepareAssociation(f.item,f.current.a)!;
+  expect(saved).toBeDefined();
+  vi.mocked(f.host.explorationTargetCorrespondences!).mockImplementation(()=>{throw Error('STALE_OBSERVATION');});
+  const restarted=JSON.parse(JSON.stringify(saved)),complete=operationSourceCompletion(f.host,f.attempt);
+  expect(complete.associate(f.item,f.attempt)).toBe(false);
+  expect(complete.associate(f.item,f.attempt,restarted)).toBe(true);
+  expect(complete.associate(f.item,{...f.attempt,action:{...f.attempt.action,label:'different command'}},restarted)).toBe(false);
+  expect(complete.associate(f.item,f.attempt,{...restarted,proof:{...restarted.proof,source:{...restarted.proof.source,observationId:'other-source'}}})).toBe(false);
+  f.append();expect(complete(f.item)).toBe(true);
+  f.revoked.add(f.attempt.id);expect(operationSourceCompletion(f.host)(f.item)).toBe(false);
+});
+
 it.each(['missing','unknown','executing'] as const)('keeps a previously referenced %s receipt blocking attribution and completion',status=>{
   const f=fixture();f.append(f.second);if(status==='missing')f.attempts.splice(f.attempts.indexOf(f.second),1);else f.second.status=status;
   const complete=operationSourceCompletion(f.host,f.attempt);expect(complete.associate(f.item,f.attempt)).toBe(false);expect(complete(f.item)).toBe(false);

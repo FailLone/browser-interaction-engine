@@ -1,8 +1,10 @@
-import type { ActionAttempt, ActionCandidate, Observation } from '@interaction/browser';
+import type { ActionAttempt, ActionCandidate, Observation, ExplorationTargetCorrespondence } from '@interaction/browser';
 import type { ExplorerHost, PlanItem, Task } from './types.js';
-import { controlInScope, keyFor, matches, schedulingKeyFor } from './policy.js';
+import { controlInScope, digest, keyFor, matches, schedulingKeyFor } from './policy.js';
 import { boundOperationCondition, validOperationSchedulingNormalization } from './plan-state.js';
 import {receiptConditionReader} from './receipt-condition.js';
+
+export interface DispatchSourceAssociation { actionKey:string; proof:ExplorationTargetCorrespondence }
 
 /** A retry budget is not coverage. Only a retained receipt checked against the
  * host ledger can exempt the exact observed candidate from another audit gap.
@@ -81,38 +83,45 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
   /** Attribution of one actual attempt to a program-derived child, not success
    * or permission. Original scope/condition apply to the retained source only;
    * SDK correspondence must freshly bind its uniquely mapped current action. */
-  const associate=(item:PlanItem,attempt:ActionAttempt):boolean=>{
+  const bind=(item:PlanItem,attempt:Pick<ActionAttempt,'sessionId'|'beforeId'|'action'>,saved?:DispatchSourceAssociation):DispatchSourceAssociation|undefined=>{
     try{
       const condition=boundOperationCondition(item),query=host.explorationTargetCorrespondences;
       if(!query||!condition||!item.scope.kind||!item.required
         ||item.dispatchScope!==false&&item.conditionLineage?.kind!=='condition'
         ||['succeeded','excluded','superseded'].includes(item.status)||['split','invalidated'].includes(item.conditionMigration?.status||'')
-        ||!['browser-operation-key-v2','browser-operation-key-v3'].includes(item.operationConditionPolicy||''))return false;
-      const collected=collect(item);if(!collected||!collected.sources.size)return false;
+        ||!['browser-operation-key-v2','browser-operation-key-v3'].includes(item.operationConditionPolicy||''))return undefined;
+      const collected=collect(item);if(!collected||!collected.sources.size)return undefined;
       const before=readSource(attempt.sessionId,attempt.beforeId),actual=attempt.action;
       const candidates=before.actions.filter(a=>a.id===actual.id&&a.sessionId===attempt.sessionId&&a.observationId===attempt.beforeId);
-      if(actual.sessionId!==attempt.sessionId||actual.observationId!==attempt.beforeId||candidates.length!==1)return false;
+      if(actual.sessionId!==attempt.sessionId||actual.observationId!==attempt.beforeId||candidates.length!==1)return undefined;
       const target=candidates[0];
       if(target.localId!==actual.localId||target.controlId!==actual.controlId||target.kind!==actual.kind||target.risk!==actual.risk
-        ||JSON.stringify(target.value)!==JSON.stringify(actual.value))return false;
+        ||JSON.stringify(target.value)!==JSON.stringify(actual.value))return undefined;
       const legacy=item.operationConditionPolicy==='browser-operation-key-v2'&&!validOperationSchedulingNormalization(item);
-      let associated=false;
+      let associated:DispatchSourceAssociation|undefined;
       for(const ref of collected.sources.values()){
         const {observation,actions}=readSource(ref.sessionId,ref.observationId);
         const originals=actions.filter(a=>a.sessionId===ref.sessionId&&a.observationId===ref.observationId&&matches(item.scope,a,observation)
           &&(legacy?keyFor(a,observation):schedulingKeyFor(a,observation))===condition);
         if(originals.length!==1)continue;
         const source={...ref,actionId:originals[0].id};
-        const result=query.call(host,attempt.sessionId,{observationId:attempt.beforeId,requests:[{actionId:actual.id,source}]});
+        if(saved&&saved.actionKey!==digest(actual))return;
+        const result=saved?{sessionId:saved.proof.target.sessionId,observationId:saved.proof.target.observationId,results:[saved.proof]}
+          :query.call(host,attempt.sessionId,{observationId:attempt.beforeId,requests:[{actionId:actual.id,source}]});
         const proof=result?.results?.[0];
         if(result?.sessionId===attempt.sessionId&&result.observationId===attempt.beforeId&&result.results.length===1
           &&proof?.equivalent&&proof.identityAuthorized===false&&proof.replayAuthorized===false&&proof.currentExecution===false
           &&proof.target.sessionId===attempt.sessionId&&proof.target.observationId===attempt.beforeId&&proof.target.actionId===actual.id
-          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.observationId&&proof.source.actionId===source.actionId)associated=true;
+          &&proof.source.sessionId===source.sessionId&&proof.source.observationId===source.observationId&&proof.source.actionId===source.actionId)associated={actionKey:digest(actual),proof:structuredClone(proof)};
       }
       return associated;
-    }catch{return false;}
+    }catch{return undefined;}
   };
+  // A current-only SDK query must run before dispatch. Its immutable source
+  // binding can attribute the later receipt, including after process restart;
+  // completion below still revalidates every source against the actual receipt.
+  const prepareAssociation=(item:PlanItem,action:ActionCandidate)=>bind(item,{sessionId:action.sessionId,beforeId:action.observationId,action});
+  const associate=(item:PlanItem,attempt:ActionAttempt,saved?:DispatchSourceAssociation)=>!!bind(item,attempt,saved);
   const complete=(item:PlanItem):boolean=>{
     try {
       // Old hosts retain their original per-reference lazy single-query path.
@@ -150,5 +159,5 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
     for(const item of items){try{const collected=collect(item);if(collected)candidates.push(...collected.receipts.values());}catch{/* The item retains its normal evidence-unavailable result. */}}
     try{condition.many(candidates);}catch{/* Per-item reads retain the original fail-closed boundary. */}
   };
-  return Object.assign(complete,{prepare,associate});
+  return Object.assign(complete,{prepare,associate,prepareAssociation});
 }

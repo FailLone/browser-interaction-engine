@@ -13,7 +13,7 @@ BrowserAdapter.prototype.start=async function(){log('browser.navigation',{number
 BrowserAdapter.prototype.execute=async function(action,control){
  const number=count(),url=this.page!.url(),href=control?.tag==='a'?await this.page!.locator(control.selector).getAttribute('href'):undefined;
  const forbidden=/登录|注册|登陆|购买|卖出|买入|下单|确认交易|身份认证|居住|地区|国家|log\s*in|sign\s*(in|up)|place order|buy now|sell now|verify identity|country|residen/i.test(action.label||'');
- const allowedCheck=action.kind==='check'&&action.value===true&&control?.tag==='input'&&control.role==='checkbox'&&protocol.coverageContract.noticePreferences.includes(control.name)&&control.form==='document'&&engine.observation(action.sessionId).overlays?.at(-1)?.controlIds.includes(control.localId);
+ const allowedCheck=action.kind==='check'&&action.value===true&&control?.checked===false&&control?.tag==='input'&&control.role==='checkbox'&&protocol.coverageContract.noticePreferences.includes(control.name)&&control.form==='document'&&engine.observation(action.sessionId).overlays?.at(-1)?.controlIds.includes(control.localId);
  const denied=!allowed(url)||!['click','check','hover','focus','scroll','history','press','dismiss'].includes(action.kind)||action.kind==='check'&&!allowedCheck||action.risk!=='interface'||forbidden||!!href&&!allowed(new URL(href,url).href)||action.kind==='press'&&!['Escape','Tab'].includes(String(action.value));
  log('browser.dispatch',{number,action,control,guardAllowed:!denied});if(denied){log('scope.dispatch_refused',{number,actionId:action.id,reason:'outside_public_navigation_authorization'});throw Error('OUTSIDE_PUBLIC_NAVIGATION_SCOPE');}
  log('dom.before',{number,actionId:action.id,inventory:await this.page!.evaluate(inventory)});
@@ -22,6 +22,6 @@ BrowserAdapter.prototype.execute=async function(action,control){
 const persistence=new SqliteStore(join(dir,'engine')),engine=new BrowserEngine({persistence});
 let sid:string|undefined;
 const timer=setTimeout(()=>{log('window.cooperative_stop',{reason:'reserve_final_durable_audit'});if(sid)void engine.pause(sid);},Math.max(1,JSON.parse(readFileSync(budgetPath,'utf8')).began+210000-Date.now()));
-try{const s=await engine.createSession({url:protocol.entry,headless:true,settleMs:200,observeTimeoutMs:5000,actionTimeoutMs:8000,maxActions:80,maxDepth:30,maxDurationMs:210000});sid=s.id;writeFileSync(join(dir,'session-id'),sid);await engine.explore(sid);await engine.waitForIdle();}
+try{const s=await engine.createSession({url:protocol.entry,headless:true,settleMs:200,observeTimeoutMs:protocol.observeTimeoutMs,actionTimeoutMs:8000,maxActions:80,maxDepth:30,maxDurationMs:210000});sid=s.id;writeFileSync(join(dir,'session-id'),sid);await engine.explore(sid);await engine.waitForIdle();}
 catch(error){log('worker.error',{error:String(error)});}
 finally{clearTimeout(timer);if(sid){writeFileSync(join(dir,'session-final.json'),JSON.stringify(engine.session(sid),null,2));writeFileSync(join(dir,'attempts.json'),JSON.stringify(engine.list(sid,'attempt'),null,2));writeFileSync(join(dir,'events.json'),JSON.stringify(persistence.events(sid),null,2));writeFileSync(join(dir,'frontier.json'),JSON.stringify(engine.list(sid,'frontier'),null,2));log('worker.settled',{status:engine.session(sid).status,reason:engine.session(sid).stopReason});}await engine.close();}

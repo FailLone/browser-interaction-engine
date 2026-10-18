@@ -8,6 +8,20 @@ type Node = Tree['nodes'][number];
 const idrefs=new Set(['for','aria-labelledby','aria-describedby','aria-controls','aria-owns','aria-activedescendant','aria-details','aria-errormessage','headers','list','form']);
 const row=(n:Pick<Node,'tag'|'attributes'>)=>n.tag==='li'||['listitem','row','option','treeitem'].includes(n.attributes.role)||'data-row-key' in n.attributes||'data-item-key' in n.attributes;
 const semanticOwner=(n:Pick<Node,'tag'|'attributes'>)=>['nav','ul','ol'].includes(n.tag)||['navigation','menu','menubar','list'].includes(n.attributes.role);
+export const nativeNavigationAttributes=(attributes:Record<string,string>)=>Object.fromEntries(Object.entries(attributes).filter(([key])=>key!=='class'&&key!=='style'));
+/** Native destination correspondence has a local semantic navigation boundary.
+ * Presentation remains in raw evidence and live hit/visibility checks; it is not
+ * the identity of an HTTP navigation operation. Keep every other attribute,
+ * handler hint, IDREF, sibling, text and declared mode/context constraint. */
+function operationOwner(owner:Control) {
+  const ancestors=owner.reviewReuseBinding!.ancestors;
+  const boundary=ancestors.findIndex(n=>n.tag==='nav'||n.attributes.role==='navigation'||n.attributes.role==='menubar');
+  const node=(n:Node):Node=>({...n,attributes:nativeNavigationAttributes(n.attributes)});
+  const tree=owner.classificationBinding!;
+  return {...owner,reviewBinding:{...owner.reviewBinding!,attributes:nativeNavigationAttributes(owner.reviewBinding!.attributes)},
+    reviewReuseBinding:{...owner.reviewReuseBinding!,ancestors:(boundary>=0?ancestors.slice(0,boundary+1):ancestors).map(n=>({...n,attributes:nativeNavigationAttributes(n.attributes)}))},
+    classificationBinding:{...tree,nodes:tree.nodes.map(node),references:tree.references?.map(r=>({...r,...r.target?{target:{...r.target,nodes:r.target.nodes.map(node)}}:{}}))}};
+}
 const anchor=(c:Control)=>c.stableKey||c.identityContext?.scope||c.identityContext?.binding||c.label
   ?canonical({tag:c.tag,role:c.role,name:c.label||c.name,key:c.stableKey,scope:c.identityContext?.scope,binding:c.identityContext?.binding,form:formBinding(c)}):undefined;
 
@@ -78,7 +92,7 @@ export function nativeNavigationOperationReader(o:Observation) {
     }
     const destinations=new Map<string,string>();
     for(const n of nodes.values())if(n.tag==='a'&&'href' in n.attributes){const c=instances.get(n.instanceId)?.[0],value=c&&destination(c,n);if(!value)return;destinations.set(n.instanceId,value);}
-    const projection=classificationCorrespondenceConditions(owner,o);if(!projection)return;
+    const projection=classificationCorrespondenceConditions(operationOwner(owner),o);if(!projection)return;
     const result={key:hash({owner:key,conditions:projection.conditionKey}),nodes,destinations};models.set(owner,result);return result;
   };
   return (target:Control):CorrespondenceHint|undefined=>{
@@ -101,10 +115,10 @@ export function nativeNavigationOperationReader(o:Observation) {
         return !!(ref?.target?.text.trim()||internal&&instances.get(internal.instanceId)?.[0]?.name.trim());
       })));
     if(!named)return;
-    return {key:`browser-native-navigation:v1:${hash({owner:tree.key,destination:value,tag:target.tag,role:target.role,name:target.name,label:target.label,
-      attributes:target.reviewBinding?.attributes,context:target.identityContext&&{scope:target.identityContext.scope,binding:target.identityContext.binding}})}`,
-      policy:'browser-native-navigation-v1',requiresUniqueTarget:true,
-      evidence:['complete-semantic-navigation-owner','complete-classification-subtree','captured-idref-topology','unique-native-navigation-destination','operation-reference-not-control-identity'],
+    return {key:`browser-native-navigation:v2:${hash({owner:tree.key,destination:value,tag:target.tag,role:target.role,name:target.name,label:target.label,
+      attributes:nativeNavigationAttributes(target.reviewBinding?.attributes||{}),context:target.identityContext&&{scope:target.identityContext.scope,binding:target.identityContext.binding}})}`,
+      policy:'browser-native-navigation-v2',requiresUniqueTarget:true,
+      evidence:['complete-semantic-navigation-owner','complete-classification-subtree','captured-idref-topology','unique-native-navigation-destination','native-navigation-landmark-scope','presentation-revalidated-at-dispatch','operation-reference-not-control-identity'],
       invalidatedBy:['changed-owner-or-subtree','changed-or-missing-idref','nonunique-navigation-destination','changed-navigation-attributes','changed-operation-conditions','changed-declared-context']};
   };
 }

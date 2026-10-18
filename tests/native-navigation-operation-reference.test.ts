@@ -56,12 +56,12 @@ function fixture(externalLabel=false) {
 it('proves only the native navigation operation across rebuilt li instances, including portable target conditions and all modes',()=>{
   const f=fixture(),original=structuredClone([f.before.observation,f.current.observation,f.source,f.target]);
   const beforeHint=browserOperationCorrespondenceHint(f.before.target,'click',f.before.observation),currentHint=browserOperationCorrespondenceHint(f.current.target,'click',f.current.observation);
-  expect(beforeHint).toMatchObject({policy:'browser-native-navigation-v1',requiresUniqueTarget:true});expect(currentHint?.key).toBe(beforeHint?.key);
+  expect(beforeHint).toMatchObject({policy:'browser-native-navigation-v2',requiresUniqueTarget:true});expect(currentHint?.key).toBe(beforeHint?.key);
   expect(browserPortableBranchConditions(f.source,f.before.observation)?.policy).toBe('browser-branch-conditions-v4');
   expect(browserTargetConditions(f.source,f.before.observation)).toEqual(browserTargetConditions(f.target,f.current.observation));
   const put=vi.spyOn(f.store,'put'),event=vi.spyOn(f.store,'event');
   expect(f.query().results[0]).toMatchObject({equivalent:true,identityAuthorized:false,replayAuthorized:false,currentExecution:false});
-  expect(f.operation()).toMatchObject({equivalent:true,policy:'browser-native-navigation-operation-v1',identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  expect(f.operation()).toMatchObject({equivalent:true,policy:'browser-native-navigation-operation-v2',identityAuthorized:false,replayAuthorized:false,currentExecution:false});
   expect([f.before.observation,f.current.observation,f.source,f.target]).toEqual(original);expect(f.target.replayable).toBe(false);expect(f.target.target?.kind).toBe('instance');
   expect(put).not.toHaveBeenCalled();expect(event).not.toHaveBeenCalled();expect(f.adapter.createDriver).not.toHaveBeenCalled();f.store.close();
 });
@@ -70,8 +70,24 @@ it('supports a named ul with complete external IDREF evidence without requiring 
   const f=fixture(true);expect(f.query().results[0]).toMatchObject({equivalent:true});f.store.close();
 });
 
-it.each(['destination','target','download','owner','owner-attributes','target-attributes','subtree-attributes','truncated','missing-idref','ambiguous-idref','nested-unresolved-idref','empty-owner-label','duplicate-destination','unobserved-rival','duplicate-owner','broken-parent','hypothesis','non-native','unknown'] as const)('refuses incomplete, changed or ambiguous navigation facts: %s',change=>{
-  const f=fixture(true),c=f.current.target,owner=f.current.owner,node=f.current.nodes['link-a'];expect(f.operation().equivalent).toBe(true);
+it('keeps native destination correspondence across hover presentation and outside-landmark document metadata, without changing raw identities',()=>{
+  const f=fixture();
+  for(const x of [f.before,f.current]){x.observation.coveragePolicy='finite-ui-v1';x.owner.reviewReuseBinding!.ancestors.push({tag:'body',selector:'body',attributes:{'data-overlay-depth':'0'},label:''});}
+  const c=f.current.target,n=f.current.nodes['link-a'];
+  n.attributes.class=c.reviewBinding!.attributes.class='hover-highlight';n.attributes.style=c.reviewBinding!.attributes.style='color: red';
+  f.current.owner.reviewReuseBinding!.ancestors.at(-1)!.attributes={'data-overlay-depth':'1'};
+  f.save();const raw=structuredClone([f.before.observation,f.current.observation]);
+  expect(f.query().results[0],JSON.stringify({result:f.query().results[0],before:browserOperationCorrespondenceHint(f.before.target,'click',f.before.observation),after:browserOperationCorrespondenceHint(f.current.target,'click',f.current.observation)})).toMatchObject({equivalent:true,identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  expect(f.operation()).toMatchObject({equivalent:true,policy:'browser-native-navigation-operation-v2'});
+  expect(f.before.target.stableKey).not.toBe(f.current.target.stableKey);
+  expect([f.before.observation,f.current.observation]).toEqual(raw);
+  // Business/mode data on the navigation target remains exact.
+  n.attributes['data-mode']=c.reviewBinding!.attributes['data-mode']='changed';f.save();
+  expect(f.query().results[0].equivalent).toBe(false);f.store.close();
+});
+
+it.each((['destination','target','download','owner','owner-attributes','target-attributes','subtree-attributes','truncated','missing-idref','ambiguous-idref','nested-unresolved-idref','empty-owner-label','duplicate-destination','unobserved-rival','duplicate-owner','broken-parent','hypothesis','non-native','unknown','aria','readiness','context'] as const).flatMap(change=>[false,true].map(finite=>[finite,change] as const)))('refuses incomplete, changed or ambiguous navigation facts (finite=%s): %s',(finite,change)=>{
+  const f=fixture(true),c=f.current.target,owner=f.current.owner,node=f.current.nodes['link-a'];if(finite){f.before.observation.coveragePolicy=f.current.observation.coveragePolicy='finite-ui-v1';f.save();}expect(f.operation().equivalent).toBe(true);
   if(change==='destination'){node.attributes.href=c.reviewBinding!.attributes.href='/different';c.identityContext!.binding=JSON.stringify([['link-destination','https://navigation.fixture.invalid/different','']]);c.actionBasis!.click.evidence[0].facts.href='/different';f.target.basis=structuredClone(c.actionBasis!.click);}
   if(change==='target'){node.attributes.target=c.reviewBinding!.attributes.target='_blank';c.identityContext!.binding=JSON.stringify([['link-destination','https://navigation.fixture.invalid/trade/a','_blank']]);}
   if(change==='download')node.attributes.download='report.csv';
@@ -94,6 +110,9 @@ it.each(['destination','target','download','owner','owner-attributes','target-at
   if(change==='hypothesis')c.hypothesisId='pending';
   if(change==='non-native'){c.actionBasis!.click.status='tentative';f.target.basis=structuredClone(c.actionBasis!.click);}
   if(change==='unknown')f.attempt.status='unknown';
+  if(change==='aria')node.attributes['aria-expanded']=c.reviewBinding!.attributes['aria-expanded']='true';
+  if(change==='readiness')c.readiness={status:'unstable',reason:'changing target'};
+  if(change==='context')f.current.observation.context={account:{status:'known',value:'changed',source:'test'}};
   f.save();expect(f.operation().equivalent).toBe(false);if(change!=='unknown')expect(f.query().results[0].equivalent).toBe(false);f.store.close();
 });
 

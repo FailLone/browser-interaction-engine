@@ -5,7 +5,7 @@ import { readonlyReadout, observableCanonical } from './model.js';
 import { constrain } from './policy.js';
 import { ruleMatches, signature, formBinding } from './util.js';
 import { browserBranchConditions, browserPortableBranchConditions } from './branch-conditions.js';
-import { nativeNavigationOperationReader, nativeNavigationOperationReference } from './native-navigation.js';
+import { nativeNavigationAttributes, nativeNavigationOperationReader, nativeNavigationOperationReference } from './native-navigation.js';
 
 /** Opaque compatibility keys remain readable by existing consumers. They are hints, not identities. */
 export function browserControlCorrespondence(c: Control): CorrespondenceHint | undefined {
@@ -156,15 +156,17 @@ function controlCaseProjection(action:ActionCandidate,o:Observation,portable:boo
   };
   const c = o.controls.find(c => c.identityId === action.controlId && c.localId === action.localId);
   if (!c || o.gaps.some(g => g.critical)) return;
-  if(portable&&o.coveragePolicy==='finite-ui-v1'&&(c.hypothesisId||c.identityScope==='instance'))return;
+  const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
+  // Instance identity remains local. Only the separately verified complete
+  // native navigation reference can carry this operation across documents.
+  if(portable&&o.coveragePolicy==='finite-ui-v1'&&(c.hypothesisId||c.identityScope==='instance'&&!native))return;
   const branch = sourceConditions?(portable?browserPortableBranchConditions(action,o):browserBranchConditions(action,o)):undefined;if(sourceConditions&&!branch)return;
   const identityConflictScope=portable&&branch?{policy:'captured-operation-controls-v1' as const,localIds:branch.identityLocalIds}:undefined;
-  const native=portable&&browserOperationCorrespondenceHint(c,action.kind,o);
   if(native&&action.basis?.status==='supported'&&action.basis.evidence.some(e=>e.source==='html'&&e.rule==='hyperlink/v1'&&e.facts.href===c.reviewBinding?.attributes.href)) {
     const {valid:_valid,...constraints}=c.constraints,{instanceId:_instance,...form}=c.reviewBinding?.form||{};
     return {key:hash({url:o.url,reference:native.key,branch:branch?.key,boundary:o.regions.filter(r=>r.key===c.region).map(r=>({label:r.label,role:r.role})),
-      readOnly:c.readOnly,constraints,options:c.options,attributes:c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
-      policy:native.policy==='browser-native-navigation-v1'?'browser-native-navigation-operation-v1':'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
+      readOnly:c.readOnly,constraints,options:c.options,attributes:native.policy==='browser-native-navigation-v2'?nativeNavigationAttributes(c.reviewBinding?.attributes||{}):c.reviewBinding?.attributes,form,formOwner:formBinding(c),basis:action.basis,risk:action.risk}),
+      policy:native.policy==='browser-native-navigation-v2'?'browser-native-navigation-operation-v2':'browser-native-record-link-operation-v2',identityConflictScope,evidence:[...native.evidence,...branch?.evidence||[],'Same native navigation operation; displayed text remains retained observation evidence']};
   }
   // Review record IDs identify evidence, not a new operation. Preserve the
   // reviewed DOM conditions and risk; dispatch still validates the exact review.

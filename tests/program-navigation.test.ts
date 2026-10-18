@@ -7,11 +7,12 @@ import {SqliteStore} from '@interaction/storage-sqlite';
 import {ExplorerPlugin,ExplorerStore} from '@interaction/explorer-plugin';
 import {explorerFixture} from './explorer-plugin-helpers.js';
 import {pageOf} from './helpers.js';
+import {bindGuardedReentryRoute} from '../scripts/okx-plugin-loop-acceptance.js';
 
-async function delegatedFixture(reveals=true,initialPopup=false,changingDestination=false,dualEntry=false){
+async function delegatedFixture(reveals=true,initialPopup=false,changingDestination=false,dualEntry=false,recordRows=false){
  mkdirSync(resolve('.data'),{recursive:true});const dir=mkdtempSync(resolve('.data/program-menu-')),site=join(dir,'site');mkdirSync(site);
  writeFileSync(join(site,'index.html'),'<!doctype html><html><head><title>Navigation fixture</title></head><body><div id="root"></div><script type="module" src="/menu.jsx"></script></body></html>');
- writeFileSync(join(site,'menu.jsx'),`import React from 'react';import {createRoot} from 'react-dom/client';function App(){const [open,setOpen]=React.useState(false);const [notice,setNotice]=React.useState(${initialPopup}&&sessionStorage.getItem('skipNotice')!=='true');return <>{notice&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',zIndex:10}}><div role="dialog" aria-modal="true" tabIndex={0} aria-label="Service notice" style={{position:'absolute',left:300,top:150,width:400,padding:30,background:'white'}}><button type="button" role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Read notice</button><div tabIndex={0}>Unresolved notice container<label><input type="checkbox" onChange={e=>sessionStorage.setItem("skipNotice",String(e.target.checked))}/>Do not show again</label><button type="button" onClick={()=>{throw Error('Unauthorized notice action')}}>Continue</button></div><button type="button" onClick={()=>setNotice(false)}>Close</button></div></div>}<header><nav><div id="menu" ${dualEntry?'role="button" onClick={()=>setOpen(true)}':''} tabIndex={0} aria-label="Information menu" aria-expanded={open} aria-controls="links" onMouseEnter={()=>{${reveals?'setOpen(true)':''}}} onMouseLeave={()=>setOpen(false)} style={{position:'relative',width:220,padding:20,cursor:'pointer'}}>Information<div id="links" hidden={!open} style={{position:'absolute',top:'100%',left:0,width:220,background:'white',padding:10}}><a href="/overview">Overview</a><br/><a href="/details">Details</a></div></div></nav></header><main>{${reveals}&&<button role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Unrelated view</button>}<canvas/><div tabindex="0" aria-label="Unresolved unrelated">Unknown</div></main></>};createRoot(document.getElementById('root')).render(<App/>);`);
+ writeFileSync(join(site,'menu.jsx'),`import React from 'react';import {createRoot} from 'react-dom/client';function App(){const [open,setOpen]=React.useState(false);const [notice,setNotice]=React.useState(${initialPopup}&&sessionStorage.getItem('skipNotice')!=='true');return <>{notice&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',zIndex:10}}><div role="dialog" aria-modal="true" tabIndex={0} aria-label="Service notice" style={{position:'absolute',left:300,top:150,width:400,padding:30,background:'white'}}><button type="button" role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Read notice</button><div tabIndex={0}>Unresolved notice container<label><input type="checkbox" onChange={e=>sessionStorage.setItem("skipNotice",String(e.target.checked))}/>Do not show again</label><button type="button" onClick={()=>{throw Error('Unauthorized notice action')}}>Continue</button></div><button type="button" onClick={()=>setNotice(false)}>Close</button></div></div>}<header><nav>${recordRows?'<div tabIndex={0} aria-label="Navigation owner">':''}<div id="menu" ${dualEntry?'role="button" onClick={()=>setOpen(true)}':''} tabIndex={0} aria-label="Information menu" aria-expanded={open} aria-controls="links" onMouseEnter={()=>{${reveals?'setOpen(true)':''}}} onMouseLeave={()=>setOpen(false)} style={{position:'relative',width:220,padding:20,cursor:'pointer'}}>Information<div id="links" hidden={!open} style={{position:'absolute',top:'100%',left:0,width:220,background:'white',padding:10}}>${recordRows?'<ul aria-label="Information pages"><li><a href="/overview" onMouseEnter={e=>e.currentTarget.className="highlight"}>Overview</a></li><li><a href="/details" onMouseEnter={e=>e.currentTarget.className="highlight"}>Details</a></li></ul>':'<a href="/overview">Overview</a><br/><a href="/details">Details</a>'}</div></div>${recordRows?'</div>':''}</nav></header><main>{${reveals}&&<button role="tab" onClick={e=>{e.currentTarget.disabled=true}}>Unrelated view</button>}<canvas/><div tabindex="0" aria-label="Unresolved unrelated">Unknown</div></main></>};createRoot(document.getElementById('root')).render(<App/>);`);
  const pages=(req:any,res:any,next:()=>void)=>{if(['/overview','/details'].includes(req.url||'')){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><title>Overview</title></head><body><h1>Public overview</h1><canvas></canvas>'+(changingDestination?'<form><input aria-label="Changing quote" id="changing"></form><script>setInterval(()=>document.querySelector("#changing").value=String(Date.now()),10)</script>':'')+'</body></html>');}else next();};
  const server=await createServer({configFile:false,root:site,plugins:[{name:'fixture-public-pages',configureServer(server){server.middlewares.use(pages);}}],server:{host:'127.0.0.1',port:0},logLevel:'silent'});await server.listen();
  const url=server.resolvedUrls!.local[0],host=new BrowserEngine({persistence:new SqliteStore(join(dir,'engine'))});
@@ -36,6 +37,34 @@ it('continues the original recorded entry after native source return before a fr
   const child=attempts.find(a=>a.id===original.resolvedBy?.attemptId);expect(child?.action.label).toBe('Details');expect(child?.status).toBe('succeeded');
   expect(child.id).not.toBe(entry.id);expect(original.conditionCompletion?.status).toBe('verified');
   expect(store.decisions(task.id)).toEqual([]);expect(final.status).not.toBe('completed');
+ }finally{await plugin.close();await f.close();}
+});
+
+it('retains the real reveal source and continues a rebuilt list child after later preparation observations',async()=>{
+ const f=await delegatedFixture(true,false,true,true,true),store=new ExplorerStore(':memory:'),plugin=new ExplorerPlugin(f.host,store,{});
+ try{
+  const task=plugin.create({url:f.url,coverageContract:contract(f.url),sessionOptions:{coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',headless:true,settleMs:120,observeTimeoutMs:800},budget:{rounds:1,actions:14,durationMs:30000}});
+  plugin.start(task.id);await plugin.waitForIdle(task.id);
+  const final=store.task(task.id),sid=final.rounds[0].sessionId,attempts=f.host.list<any>(sid,'attempt'),events=store.events(task.id);
+  writeFileSync(resolve('.data/program-first/list-chain-diagnostic.json'),JSON.stringify({task:final,attempts,events,observations:f.host.list(sid,'observation')}));
+  const planned=events.find(e=>e.type==='branch.reentry_planned')!,proposal=planned?.data as any;
+  expect(proposal,final.reason).toBeDefined();
+  const original=final.plan.find(i=>i.id===proposal.itemId)!;
+  const scheduled=events.find(e=>e.sequence>planned.sequence&&e.type==='action.scheduled'&&(e.data as any).purpose==='prerequisite')!;
+  const entry=attempts.find(a=>a.requestId===(scheduled.data as any).requestId)!;
+  const binding=bindGuardedReentryRoute(original,{planned:proposal,sequence:planned.sequence,sessionId:planned.sessionId,observationId:planned.observationId},sid,entry.action.id,entry.beforeId,{observation:f.host.observation.bind(f.host),actions:f.host.actions.bind(f.host),interactionTransition:f.host.interactionTransition.bind(f.host),attempt:(_sid,id)=>attempts.find(a=>a.id===id)});
+  expect(binding).toMatchObject({available:true});
+  if(!binding.available)throw Error(binding.reason);
+  expect(original.status,JSON.stringify({reason:final.reason,original,attempts:attempts.map(a=>({kind:a.action.kind,label:a.action.label,status:a.status}))})).toBe('succeeded');
+  const child=attempts.find(a=>a.id===original.resolvedBy?.attemptId)!;
+  expect(child.id).not.toBe(entry.id);expect(child.action.kind).toBe('click');expect(original.conditionCompletion?.status).toBe('verified');
+  expect(f.host.explorationTargetCorrespondences(sid,{observationId:child.beforeId,requests:[{actionId:child.action.id,source:binding.binding.source}]}).results[0]).toMatchObject({equivalent:true,identityAuthorized:false,replayAuthorized:false,currentExecution:false});
+  const source=f.host.observation(sid,proposal.route.at(-1).evidence.observationId),current=f.host.observation(sid,child.beforeId);
+  const old=source.controls.find(c=>c.name===child.action.label&&c.tag==='a')!,fresh=current.controls.find(c=>c.localId===child.action.localId)!;
+  expect(old.identityScope).toBe('instance');expect(fresh.identityScope).toBe('instance');expect(old.stableKey).not.toBe(fresh.stableKey);expect(source.documentId).not.toBe(current.documentId);
+  expect(original.evidence.some(e=>e.observationId!==source.id&&!e.attemptId)).toBe(true);
+  expect(events.some(e=>e.type==='branch.children_retained'&&(e.data as any).itemIds.includes(original.id))).toBe(true);
+  expect(store.decisions(task.id)).toEqual([]);
  }finally{await plugin.close();await f.close();}
 });
 
