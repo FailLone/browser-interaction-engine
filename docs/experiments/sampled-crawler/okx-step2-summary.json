@@ -1,0 +1,33 @@
+{
+  "elapsedMs": 72100,
+  "actions": 49,
+  "states": 24,
+  "onEntryPage": 49,
+  "inOverlay": 7,
+  "failed": 1,
+  "byTier": {
+    "overlay": 7,
+    "body": 17,
+    "in-page-disclosure": 7,
+    "navigate": 0,
+    "chrome": 18
+  },
+  "maxPerClass": 1,
+  "backtracks": 3,
+  "judge": {
+    "jev": 7,
+    "llm": 24,
+    "cached": 19,
+    "unavailable": 0,
+    "yes": 19,
+    "no": 5
+  },
+  "weakControlsConfirmed": 19,
+  "lists": {
+    "classes": 9,
+    "membersSeen": 83,
+    "executed": 6
+  },
+  "pages": 1,
+  "findings": {}
+}

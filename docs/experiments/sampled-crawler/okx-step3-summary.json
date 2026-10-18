@@ -1,0 +1,64 @@
+{
+  "elapsedMs": 49648,
+  "actions": 12,
+  "states": 10,
+  "onEntryPage": 9,
+  "inOverlay": 5,
+  "failed": 0,
+  "byTier": {
+    "overlay": 5,
+    "body": 4,
+    "in-page-disclosure": 2,
+    "navigate": 1,
+    "chrome": 0
+  },
+  "maxPerClass": 1,
+  "backtracks": 6,
+  "judge": {
+    "jev": 2,
+    "llm": 19,
+    "cached": 19,
+    "unavailable": 0,
+    "yes": 17,
+    "no": 2
+  },
+  "weakControlsConfirmed": 17,
+  "goal": {
+    "plan": {
+      "goal": "测试兑换计算器：切换法币和加密货币、查看汇率图表的不同时间范围",
+      "allowedPaths": [
+        "^/convert/[a-z0-9]+-to-[a-z0-9]+$"
+      ],
+      "focus": [
+        "amount input",
+        "from currency selector",
+        "to currency selector",
+        "swap direction control",
+        "exchange rate display",
+        "chart time range tabs",
+        "price chart"
+      ],
+      "tasks": [
+        "Open the entry page /convert/usd-to-btc and record the displayed USD to BTC exchange rate.",
+        "Enter a test amount in the amount input and verify the converted BTC value updates accordingly.",
+        "Open the from-currency selector, choose a different fiat currency, and confirm the displayed pair and rate refresh.",
+        "Open the to-currency selector, choose a different cryptocurrency, and confirm the displayed pair and rate refresh.",
+        "Return the from and to selectors to USD and BTC to restore the baseline pair.",
+        "Click the 1h time range tab on the price chart and confirm the chart renders and the range label updates.",
+        "Click the 1W time range tab and confirm the chart changes to the weekly view.",
+        "Click the 1M time range tab and confirm the chart changes to the monthly view.",
+        "Click the 1Y time range tab and confirm the chart changes to the yearly view.",
+        "Verify the exchange rate display remains consistent with the selected currency pair and entered amount after all changes."
+      ]
+    },
+    "jevCalls": 6,
+    "prunedClasses": 45
+  },
+  "lists": {
+    "classes": 13,
+    "membersSeen": 170,
+    "executed": 4
+  },
+  "pages": 2,
+  "findings": {}
+}

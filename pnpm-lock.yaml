@@ -183,6 +183,9 @@ importers:
       '@interaction/adapter-playwright':
         specifier: workspace:*
         version: link:../adapter-playwright
+      '@interaction/explorer-plugin':
+        specifier: workspace:*
+        version: link:../explorer-plugin
       '@interaction/storage-memory':
         specifier: workspace:*
         version: link:../storage-memory

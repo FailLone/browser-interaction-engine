@@ -1,25 +1,47 @@
 // Run the sampled crawler against a real page and write events + summary.
-// Usage: tsx --conditions=development scripts/sampled-crawl.ts OUT_DIR [URL] [DURATION_MS]
+// Usage: tsx --conditions=development scripts/sampled-crawl.ts OUT_DIR [URL] [DURATION_MS] [PATH_PATTERN] [GOAL]
+// Model plugin and goal mode use the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SampledCrawler, defaultPolicy } from '@interaction/crawler';
+import { GoalRelevance, ModelJudge, SampledCrawler, defaultPolicy, planGoal } from '@interaction/crawler';
+import { BrowserAdapter, PlaywrightAdapter } from '@interaction/adapter-playwright';
+import { MemoryEvidenceStore } from '@interaction/storage-memory';
+import { providersFromEnv } from '@interaction/explorer-plugin';
 
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
 const durationMs = Number(process.argv[4] || 240000);
 // Optional anchored pathname pattern for other in-scope pages (same origin as the entry).
-const scope = process.argv[5];
+const scope = process.argv[5] || undefined;
 const policy = defaultPolicy(url);
 if (scope) policy.allowedPaths.push(new RegExp(scope));
 mkdirSync(out, { recursive: true });
+// Optional model plugin: configured through the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
+const providers = providersFromEnv();
+const judge = providers.jev || providers.llm ? new ModelJudge({ jev: providers.jev, llm: providers.llm }) : undefined;
+console.log('model judge', judge ? `jev=${providers.jev?.model ?? 'none'} llm=${providers.llm?.model ?? 'none'}` : 'not configured');
+// Goal mode: the LLM plans scope from the entry page's controls; JEV prunes off-goal actions.
+const goal = process.argv[6];
+let relevance: GoalRelevance | undefined;
+if (goal) {
+  if (!providers.llm || !providers.jev) throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
+  const adapter = new BrowserAdapter(new PlaywrightAdapter().parseOptions({ url, headless: true }), new MemoryEvidenceStore());
+  await adapter.start(); await adapter.page!.waitForTimeout(1500);
+  const dom = await adapter.readDOM(false, false); await adapter.close();
+  const plan = await planGoal(providers.llm, goal, url, dom.controls.filter(c => c.visible));
+  for (const pattern of plan.allowedPaths) policy.allowedPaths.push(new RegExp(pattern));
+  relevance = new GoalRelevance(providers.jev, plan);
+  console.log('goal plan', JSON.stringify(plan));
+}
 const crawler = new SampledCrawler({
-  url, durationMs, policy,
+  url, durationMs, policy, judge, relevance,
   log: event => {
     appendFileSync(join(out, 'events.jsonl'), JSON.stringify(event) + '\n');
     const t = (event.at / 1000).toFixed(1);
     if (event.type === 'action') console.log(t, event.tier.padEnd(18), event.step.kind.padEnd(5), event.outcome.padEnd(9), event.newState ? 'NEW' : '   ', JSON.stringify(event.step.label), event.overlay || '', event.error || '');
     else if (event.type === 'state') console.log(t, 'state', event.state.url, event.state.overlay || '', event.state.controls);
     else if (event.type === 'finding') console.log(t, 'finding', event.finding.rule, JSON.stringify(event.finding.text), event.finding.detail);
+    else if (event.type === 'judgement') console.log(t, 'judge', event.question, event.source, event.yes ? 'YES' : 'no', event.probability ?? '', JSON.stringify(event.label));
     else console.log(t, event.type, event.reason);
   },
 });

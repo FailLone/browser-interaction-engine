@@ -1,6 +1,6 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { SampledCrawler, maskVolatile, stateKey, type CrawlEvent } from '@interaction/crawler';
+import { SampledCrawler, defaultChecks, maskVolatile, stateKey, type CrawlEvent } from '@interaction/crawler';
 
 // One page with: a blocking modal on load, a long list of identical rows, a
 // tab panel, a live price, an in-scope second page and an out-of-scope link.
@@ -46,7 +46,7 @@ test('live values do not change component or state identity', () => {
 
 test('crawls the entry page: modal first, lists sampled, out-of-scope links skipped', async () => {
   const events: CrawlEvent[] = [];
-  const crawler = new SampledCrawler({ url: base, durationMs: 60000, settleMs: 100, log: e => events.push(e) });
+  const crawler = new SampledCrawler({ url: base, durationMs: 60000, settleMs: 100, checks: defaultChecks, log: e => events.push(e) });
   const summary = await crawler.run();
   const actions = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
   const labels = actions.map(a => a.step.label);
@@ -65,8 +65,62 @@ test('crawls the entry page: modal first, lists sampled, out-of-scope links skip
   expect(labels).not.toContain('Other page');
   expect(actions.every(a => a.url.startsWith(base))).toBe(true);
   expect(summary.onEntryPage).toBe(summary.actions);
-  // UI checks run on each new state and report each issue once.
+  // Optional UI checks run on each new state and report each issue once.
   const findings = [...crawler.findings.values()];
   expect(findings.filter(f => f.rule === 'broken-image')).toHaveLength(1);
   expect(findings.filter(f => f.rule === 'clipped-text' && f.text.includes('clipped label'))).toHaveLength(1);
+}, 120000);
+
+test('JEV is asked first; an uncertain JEV answer escalates to the LLM; answers are cached', async () => {
+  const { ModelJudge } = await import('@interaction/crawler');
+  const calls: string[] = [];
+  const provider = (name: string, answer: (q: unknown) => { probability?: number; value?: boolean }) => ({ name, model: name,
+    async decide(request: { state: unknown }) { calls.push(name); const a = answer(request.state); return { model: name, value: a.value ?? (a.probability! >= 0.5), probability: a.probability }; } });
+  const judge = new ModelJudge({
+    jev: provider('jev', q => ({ probability: JSON.stringify(q).includes('Unsure') ? 0.5 : 0.95 })),
+    llm: provider('llm', () => ({ value: false })),
+  });
+  const control = (name: string) => ({ kind: 'interactive' as const, control: { tag: 'div', role: 'generic', name, hints: ['pointer-cursor/v1'], text: name } });
+  expect(await judge.ask(control('Open menu'))).toMatchObject({ yes: true, source: 'jev' });
+  expect(await judge.ask(control('Unsure'))).toMatchObject({ yes: false, source: 'llm' });
+  expect(await judge.ask(control('Open menu'))).toMatchObject({ yes: true, source: 'cache' });
+  expect(calls).toEqual(['jev', 'jev', 'llm']);
+  expect(judge.stats).toMatchObject({ jev: 2, llm: 1, cached: 1 });
+});
+
+test('a weak pointer-only control is crawled only after the judge confirms it', async () => {
+  const { ModelJudge } = await import('@interaction/crawler');
+  // Listener attached in script: the DOM only shows a pointer cursor, no click evidence.
+  const weak = `<!doctype html><title>Weak</title><main><div id="weak" style="cursor:pointer;padding:8px">Show more rates</div>
+    <section id="panel" hidden><button>Inner rate</button></section></main>
+    <script>document.getElementById('weak').addEventListener('click',()=>{document.getElementById('panel').hidden=false;});</script>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(weak); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  const run = async (yes: boolean) => {
+    const judge = new ModelJudge({ jev: { name: 'jev', model: 'jev', async decide() { return { model: 'jev', value: yes, probability: yes ? 0.95 : 0.05 }; } } });
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, checks: [], judge, log: e => events.push(e) }).run();
+    return events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
+  };
+  try {
+    expect(await run(true)).toEqual(expect.arrayContaining(['Show more rates', 'Inner rate']));
+    expect(await run(false)).not.toContain('Show more rates');
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);
+
+test('goal mode explores goal-relevant actions and prunes the rest', async () => {
+  const { GoalRelevance } = await import('@interaction/crawler');
+  // Fake JEV: only actions mentioning "Pair" or "Close" are relevant to the goal.
+  const jev = { name: 'jev', model: 'jev', async decide(request: { checks?: Record<string, { instructions: string }> }) {
+    return { model: 'jev', value: Object.fromEntries(Object.entries(request.checks || {}).map(([k, v]) => [k, /Pair|Close/.test(v.instructions) ? 0.9 : 0.05])) };
+  } };
+  const relevance = new GoalRelevance(jev, { goal: 'Pick a trading pair', allowedPaths: [], focus: ['pair list'], tasks: ['pick a pair'] });
+  const events: CrawlEvent[] = [];
+  await new SampledCrawler({ url: base, durationMs: 30000, settleMs: 100, relevance, log: e => events.push(e) }).run();
+  const labels = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
+  expect(labels[0]).toBe('Close');
+  expect(labels.some(l => /^Pair \d+$/.test(l))).toBe(true);
+  expect(labels).not.toContain('Details');
+  expect(relevance.calls).toBeGreaterThan(0);
 }, 120000);

@@ -2,7 +2,9 @@ import { BrowserAdapter, PlaywrightAdapter, type ActionCandidate, type Control }
 import { MemoryEvidenceStore } from '@interaction/storage-memory';
 import { activeOverlay, controlClass, maskVolatile, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
-import { defaultChecks, findingKey, type Finding, type PageCheck } from './checks.js';
+import { findingKey, type Finding, type PageCheck } from './checks.js';
+import type { Judge, Question } from './judge.js';
+import type { GoalRelevance } from './goal.js';
 
 export interface CrawlOptions {
   url: string;
@@ -18,7 +20,11 @@ export interface CrawlOptions {
   pageActions?: number;
   settleMs?: number;
   policy?: CrawlPolicy;
-  /** UI checks run on the live page once per newly discovered abstract state. */
+  /** Model plugin for questions the program cannot settle (weak controls, invisible effects). */
+  judge?: Judge;
+  /** Goal mode: JEV prunes action classes irrelevant to the goal; relevant ones run first. */
+  relevance?: GoalRelevance;
+  /** Optional UI checks run once per newly discovered abstract state (off by default; traversal comes first). */
   checks?: PageCheck[];
   /** Called once per newly discovered abstract state, after checks. */
   onState?: (state: CrawlState, page: import('playwright').Page) => Promise<void> | void;
@@ -32,9 +38,10 @@ export type CrawlEvent =
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; finding: Finding; state: string; url: string }
+  | { type: 'judgement'; at: number; question: string; label: string; yes: boolean; source: string; probability?: number }
   | { type: 'stop'; at: number; reason: string };
 
-interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string }
+interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string; relevance?: number }
 
 const TIERS = ['overlay', 'body', 'in-page-disclosure', 'navigate', 'chrome'] as const;
 
@@ -62,11 +69,17 @@ export class SampledCrawler {
   /** True from dispatch until the post-action settle completes. */
   private dispatching = false;
   private readonly started = Date.now();
-  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log'>> & Pick<CrawlOptions, 'onState' | 'log'>;
+  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance'>> & Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance'>;
+  /** Weak controls the judge confirmed as interactive, by component class. */
+  private readonly confirmed = new Set<string>();
+  /** Action classes JEV judged irrelevant to the goal. */
+  private readonly pruned = new Set<string>();
+  /** Weak control classes already asked about. */
+  private readonly asked = new Set<string>();
 
   constructor(options: CrawlOptions) {
     this.options = { headless: true, durationMs: 240_000, maxActions: 200, samples: 1, listSamples: 2, pageSamples: 2, pageActions: 20, settleMs: 600,
-      policy: defaultPolicy(options.url), checks: defaultChecks, ...options };
+      policy: defaultPolicy(options.url), checks: [], ...options };
   }
 
   private emit(event: CrawlEvent) { this.events.push(event); this.options.log?.(event); }
@@ -94,6 +107,8 @@ export class SampledCrawler {
         if (!this.page.url().startsWith('http')) { await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {}); await this.settle(); this.path = []; }
         const snapshot = await this.snapshot();
         await this.visit(snapshot);
+        await this.reviewWeakControls(snapshot);
+        await this.assessRelevance(snapshot);
         const candidate = this.choose(snapshot);
         if (!candidate) {
           if (await this.backtrack(snapshot, 'state_exhausted')) continue;
@@ -120,6 +135,9 @@ export class SampledCrawler {
       byTier: Object.fromEntries(TIERS.map(t => [t, actions.filter(a => a.tier === t).length])),
       maxPerClass: Math.max(0, ...this.classCounts.values()),
       backtracks: this.events.filter(e => e.type === 'backtrack').length,
+      judge: this.options.judge?.stats,
+      weakControlsConfirmed: this.confirmed.size,
+      goal: this.options.relevance && { plan: this.options.relevance.plan, jevCalls: this.options.relevance.calls, prunedClasses: this.pruned.size },
       lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
         executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0) },
       pages: [...new Set([...this.states.values()].map(st => pagePath(st.url)))].length,
@@ -134,7 +152,7 @@ export class SampledCrawler {
 
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM(false, false);
-    return { url: dom.url, title: dom.title, controls: dom.controls as Control[], overlays: dom.overlays };
+    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays };
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -167,33 +185,74 @@ export class SampledCrawler {
     return true;
   }
 
+  /** Ask the judge about visible controls that only have weak interaction hints. */
+  private async reviewWeakControls(s: Snapshot) {
+    const judge = this.options.judge;
+    if (!judge) return;
+    const overlay = activeOverlay(s), scope = overlay && new Set(overlay.controlIds);
+    const batch: { cls: string; label: string; question: Question }[] = [];
+    for (const c of s.controls) {
+      if (!c.visible || c.actions.length || !c.interactionHints?.length || c.actionable.occludedBy || (scope && !scope.has(c.localId))) continue;
+      const name = c.name || c.displayedText;
+      if (!name || this.options.policy.forbiddenLabel.test(name)) continue;
+      const cls = controlClass(c);
+      if (this.asked.has(cls)) continue;
+      this.asked.add(cls);
+      batch.push({ cls, label: name.slice(0, 60), question: { kind: 'interactive', control: { tag: c.tag, role: c.role, name: maskVolatile(name), hints: c.interactionHints.map(h => h.rule), text: maskVolatile(c.displayedText || '') } } });
+    }
+    if (!batch.length) return;
+    const answers = judge.askAll ? await judge.askAll(batch.map(b => b.question)) : await Promise.all(batch.map(b => judge.ask(b.question)));
+    batch.forEach(({ cls, label }, i) => {
+      const answer = answers[i];
+      this.emit({ type: 'judgement', at: this.now(), question: 'interactive', label, yes: answer.yes, source: answer.source, probability: answer.probability });
+      if (answer.yes) this.confirmed.add(cls);
+    });
+  }
+
   private budget(classKey: string) { return classKey.startsWith('list:') ? this.options.listSamples : this.options.samples; }
 
   /** All currently executable, still-unsampled candidates, ranked by tier. */
-  candidates(s: Snapshot): Candidate[] {
+  candidates(s: Snapshot, applyGoal = true): Candidate[] {
     const overlay = activeOverlay(s);
     const scope = overlay ? new Set(overlay.controlIds) : undefined;
     const rows: Candidate[] = [];
     for (const c of s.controls) {
-      if (!c.visible || !c.actions.length) continue;
+      if (!c.visible || (!c.actions.length && !this.confirmed.has(controlClass(c)))) continue;
       // An open overlay masks the page beneath it: never fight the backdrop.
       if (scope && !scope.has(c.localId)) continue;
       if (!scope && c.actionable.occludedBy) continue;
       const where = placement(c, s.url, this.options.url, this.options.policy);
       if (where === 'outside') continue;
       if (where === 'navigate' && !this.pageAllowed(linkTarget(c, s.url)!)) continue;
-      for (const kind of kindsFor(c)) {
+      for (const kind of kindsFor(c, this.confirmed)) {
         if (!allowed(c, kind, this.options.policy)) continue;
         const classKey = `${kind}|${controlClass(c)}`;
         if (classKey.includes('|list:')) { const seen = this.listMembers.get(classKey) || new Set(); seen.add(`${pagePath(s.url)}|${c.name}`); this.listMembers.set(classKey, seen); }
         if (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey)) continue;
         const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover';
         const tierName = scope ? 'overlay' : c.landmark ? 'chrome' : where === 'navigate' ? 'navigate' : disclosure ? 'in-page-disclosure' : 'body';
-        rows.push({ control: c, kind, classKey, tier: TIERS.indexOf(tierName), tierName, value: kind === 'check' ? String(!c.checked) : undefined });
+        const relevance = applyGoal ? this.options.relevance : undefined;
+        // An open overlay must still be handled even when its contents are off-goal.
+        if (relevance && !scope && !relevance.relevant(classKey)) continue;
+        rows.push({ control: c, kind, classKey, tier: TIERS.indexOf(tierName), tierName, value: kind === 'check' ? String(!c.checked) : undefined, relevance: relevance?.score(classKey) });
       }
     }
     // Stable ranking: tier, then reading order (top-left first).
-    return rows.sort((a, b) => a.tier - b.tier || a.control.rect.y - b.control.rect.y || a.control.rect.x - b.control.rect.x);
+    // Goal mode ranks by relevance inside the overlay-first rule; otherwise tier then reading order.
+    const goal = (r: Candidate) => r.tierName === 'overlay' ? 2 : r.relevance ?? 0.5;
+    return rows.sort((a, b) => (applyGoal && this.options.relevance ? goal(b) - goal(a) : 0) || a.tier - b.tier || a.control.rect.y - b.control.rect.y || a.control.rect.x - b.control.rect.x);
+  }
+
+  /** Goal mode: score this state's new action classes in one JEV batch. */
+  private async assessRelevance(s: Snapshot) {
+    const relevance = this.options.relevance;
+    if (!relevance) return;
+    const rows = this.candidates(s, false);
+    await relevance.assess(rows.map(r => ({ classKey: r.classKey, description: `${r.kind} ${r.control.role} "${maskVolatile(r.control.name || r.control.label)}"${r.control.landmark ? ` in site ${r.control.landmark}` : ''}` })));
+    for (const r of rows) if (!relevance.relevant(r.classKey) && !this.pruned.has(r.classKey)) {
+      this.pruned.add(r.classKey);
+      this.emit({ type: 'judgement', at: this.now(), question: 'relevance', label: r.control.name.slice(0, 60), yes: false, source: 'jev', probability: relevance.score(r.classKey) });
+    }
   }
 
   private choose(s: Snapshot): Candidate | undefined {
@@ -232,10 +291,20 @@ export class SampledCrawler {
     if (!this.page.url().startsWith('http')) { await this.backtrack(before, 'navigation_refused', true); return; }
     let after: Snapshot;
     try { after = await this.snapshot(); } catch { await this.backtrack(before, 'capture_failed', true); return; }
-    const afterKey = stateKey(after);
-    if (outcome === 'ok' && afterKey === beforeKey) outcome = 'no_change';
+    let afterKey = stateKey(after);
+    if (outcome === 'ok' && afterKey === beforeKey) {
+      outcome = 'no_change';
+      // Structure is unchanged; content may not be (chart range, panel text). Ask once per action class.
+      const textBefore = before.text || '', textAfter = after.text || '';
+      if (this.options.judge && textBefore && maskVolatile(textBefore) !== maskVolatile(textAfter)) {
+        const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: excerpt(textAfter, textBefore) });
+        this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, yes: answer.yes, source: answer.source, probability: answer.probability });
+        if (answer.yes) { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
+      }
+    }
     if (outcome === 'ok') this.path.push(step);
     const isNew = !this.states.has(afterKey);
+    if (isNew && afterKey.includes('|content:')) this.states.set(afterKey, { key: afterKey, url: after.url, firstSeenAt: this.now(), controls: after.controls.filter(x => x.visible).length });
     this.emit({ type: 'action', at: this.now(), step, url: before.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, tier: c.tierName, outcome, error, newState: isNew, after: pagePath(after.url) });
     // Left the allowed scope (script navigation, redirect): never repeat this class, return to entry.
     if (placementOfUrl(after.url, this.options) === 'outside') { this.failedClasses.add(c.classKey); await this.backtrack(after, 'left_scope'); }
@@ -274,17 +343,17 @@ export class SampledCrawler {
   private candidatesForReplay(s: Snapshot, step: Step): Candidate | undefined {
     for (const c of s.controls) {
       if (!c.visible) continue;
-      for (const kind of kindsFor(c)) if (kind === step.kind && `${kind}|${controlClass(c)}` === step.classKey && (c.name || c.label || c.role).slice(0, 60) === step.label)
+      for (const kind of kindsFor(c, this.confirmed)) if (kind === step.kind && `${kind}|${controlClass(c)}` === step.classKey && (c.name || c.label || c.role).slice(0, 60) === step.label)
         return { control: c, kind, classKey: step.classKey, tier: 0, tierName: 'replay', value: step.value };
     }
   }
 }
 
-function kindsFor(c: Control): CrawlKind[] {
+function kindsFor(c: Control, confirmed?: ReadonlySet<string>): CrawlKind[] {
   const basis = c.actionBasis || {} as NonNullable<Control['actionBasis']>;
   const kinds: CrawlKind[] = [];
   if (c.actions.includes('check')) kinds.push('check');
-  else if (c.actions.includes('click')) kinds.push('click');
+  else if (c.actions.includes('click') || confirmed?.has(controlClass(c))) kinds.push('click');
   // Hover only where the page declares a hover-driven disclosure.
   if (c.actions.includes('hover') && (basis.hover?.status === 'supported' || c.expanded !== null || c.controls)) kinds.push('hover');
   return kinds;
@@ -296,4 +365,10 @@ function placementOfUrl(url: string, options: { url: string; policy: CrawlPolicy
     if (pagePath(url) === pagePath(options.url)) return 'stay';
     return u.origin === e.origin && options.policy.allowedPaths.some(p => p.test(u.pathname)) ? 'navigate' : 'outside';
   } catch { return 'outside'; }
+}
+
+/** The differing middle of two page texts, bounded for a model question. */
+function excerpt(text: string, other: string, size = 600) {
+  let start = 0; while (start < text.length && text[start] === other[start]) start++;
+  return text.slice(Math.max(0, start - 100), start - 100 + size);
 }
