@@ -1,6 +1,7 @@
 import {boundaryExitTransition,disclosureObservationReady} from './capture-readiness.js';
 import {browserComponentCorrespondence} from './component-correspondence.js';
 export {browserComponentCorrespondence} from './component-correspondence.js';
+export type {BrowserCommandEvent,BrowserCommandName,BrowserInstrumentationOptions} from './browser-instrumentation.js';
 export { traversalScrollSchema } from './scroll-containers.js';
 import { scrollProbeSchema } from './scroll-probe.js';
 export { scrollProbeSchema } from './scroll-probe.js';

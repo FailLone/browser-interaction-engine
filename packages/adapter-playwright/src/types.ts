@@ -291,6 +291,7 @@ export type Session = CoreSession<SessionOptions>;
 export type ControlIdentity = CoreIdentity<Control>;
 export type HookContext = CoreHookContext<Observation, SessionOptions>;
 export interface EngineHooks extends CoreHooks<Observation, SessionOptions> {
+  browserInstrumentation?:import('./browser-instrumentation.js').BrowserInstrumentationOptions;
   /** Caller-owned verifier for externally restored business state. The engine
    * still verifies live UI expectations and never rewrites historical outcomes. */
   verifyExternalRecovery?: (material: import('./interventions.js').ExternalRecoveryVerification, ctx: HookContext) => Promise<{ result: 'pass' | 'fail' | 'unknown'; evidence: string[] }> | { result: 'pass' | 'fail' | 'unknown'; evidence: string[] };

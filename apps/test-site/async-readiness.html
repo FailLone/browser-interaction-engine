@@ -11,9 +11,9 @@ const link=(id)=>{const a=document.createElement('a');a.textContent='Record '+id
 if(scenario==='never'){
  const nav=document.createElement('nav');nav.setAttribute('aria-label','Independent');nav.append(link('independent'));document.body.append(nav);
 }
-if(scenario==='mixed'){
+if(scenario==='mixed'||scenario==='mixed-enabled'){
  const existing=document.createElement('button');existing.type='button';existing.setAttribute('role','tab');existing.textContent='Existing child';existing.setAttribute('aria-controls','result');existing.setAttribute('aria-expanded','false');
- menu.replaceWith(existing,result);existing.addEventListener('click',()=>{record('existing');existing.disabled=true;existing.setAttribute('aria-expanded','true');const pending=document.createElement('div');pending.setAttribute('aria-busy','true');result.append(pending);record('pending');setTimeout(()=>{pending.replaceWith(link('late'));record('child-added');},delay);});
+ menu.replaceWith(existing,result);existing.addEventListener('click',()=>{record('existing');existing.disabled=scenario==='mixed';existing.setAttribute('aria-expanded','true');const pending=document.createElement('div');pending.setAttribute('aria-busy','true');result.append(pending);record('pending');setTimeout(()=>{pending.replaceWith(link('late'));record('child-added');},delay);});
 }
 
 let started=false;

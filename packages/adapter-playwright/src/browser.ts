@@ -1,3 +1,4 @@
+import {BrowserCommandInstrumentation,publicBrowserInventory} from './browser-instrumentation.js';
 import {boundaryExitTransition,unresolvedContentScopes,contentBlockedControls,disclosureTransition} from './capture-readiness.js';
 import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
 import {navigationIntent,sameHTTPDestination} from './navigation.js';
@@ -516,9 +517,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       && !!current.discoveryScan && live.discoveryScan?.topologyKey === current.discoveryScan.topologyKey;
   }
   invalidateDiscoveryScan(reason: string) { if (this.discoveryPlan) this.discoveryPlan = { ...this.discoveryPlan, status: 'invalidated', reason }; }
-  constructor(public options: SessionOptions, private evidence: EvidenceStore, private hooks: EngineHooks = {}) { this.options = { ...options, evidence: evidenceOptionsSchema.parse(options.evidence) }; }
+  private readonly instrumentation:BrowserCommandInstrumentation;
+  constructor(public options: SessionOptions, private evidence: EvidenceStore, private hooks: EngineHooks = {}) { this.options = { ...options, evidence: evidenceOptionsSchema.parse(options.evidence) };this.instrumentation=new BrowserCommandInstrumentation(hooks.browserInstrumentation); }
+  private inventory(stage:string,actionId?:string){return this.instrumentation.run('inventory',{stage,actionId},()=>this.page!.evaluate(publicBrowserInventory),value=>value);}
   connected() { return !!this.page && !this.page.isClosed(); }
   async start() {
+    return this.instrumentation.run('start',{url:this.options.url},async()=>{
     this.browser = await chromium.launch({ headless: this.options.headless });
     this.context = await this.browser.newContext({ viewport: this.options.viewport, storageState: this.options.storageState as any, acceptDownloads: false });
     this.page = await this.context.newPage();
@@ -556,8 +560,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       } else await route.continue();
     });
     await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' });
+
+    if(this.instrumentation.inventory)await this.inventory('initial');
+    });
   }
   private async readHistory(documentId?: string): Promise<BrowserHistory> {
+    return this.instrumentation.run('readHistory',{documentId},async()=>{
     if (!this.navigationClient) throw new EngineError('BROWSER_UNAVAILABLE', 'Native navigation history is unavailable');
     const history = await this.navigationClient.send('Page.getNavigationHistory');
     const current = history.entries[history.currentIndex];
@@ -574,10 +582,13 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     }
     return { browserSessionId: this.navigationSessionId, currentIndex: history.currentIndex,
       entries: history.entries.map(e => ({ id: e.id, url: e.url, method: this.entryMethods.get(e.id) })) };
+
+    });
   }
   /** Validation reads retain fresh DOM guards without building persistence-only
    * dependency evidence. Capture always requests the graph in the same sample. */
   async readDOM(detailed = false, ownerDependencies = true): Promise<DOMSnapshot> {
+    return this.instrumentation.run('readDOM',{detailed,ownerDependencies},async()=>{
     if (!this.page || this.page.isClosed()) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
     // tsx preserves nested function names using a module-local helper. Supply it
     // inside the serialized closure so development and compiled execution agree.
@@ -600,13 +611,18 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     }
     if (plan?.status === 'invalidated') dom.discoveryScan.supplement = { requestId: plan.requestId, targetId: plan.targetId, budget: plan.budget, status: 'invalidated', reason: plan.reason };
     return dom;
+
+    });
   }
   /** Existing sampling delay, exposed as one countable bounded acquisition step. */
-  protected async waitForCaptureSample(milliseconds:number) { await new Promise(r=>setTimeout(r,milliseconds)); }
+  protected async waitForCaptureSample(milliseconds:number) { await this.instrumentation.run('waitForCaptureSample',{milliseconds},()=>new Promise<void>(r=>setTimeout(r,milliseconds))); }
   async capture(observationId: string, captureContext?: CaptureContext<Observation>) {
+    return this.instrumentation.run('capture',{observationId},async()=>{
     // A capture consumes the slot even on failure, mismatch or ordinary observe.
     const dispatch = this.ownerDispatch; this.ownerDispatch = undefined; this.preparedOwnerDispatch = undefined;
     return this.captureWithinDeadline(observationId, captureContext, Date.now() + this.options.observeTimeoutMs, dispatch);
+
+    },o=>({id:observationId,content:o.contentReadiness,controls:o.controls.filter(c=>c.visible).map(c=>({name:c.name,id:c.localId,readiness:c.readiness})),gaps:o.gaps,controlCount:o.controls.length,visibleCount:o.controls.filter(c=>c.visible).length}));
   }
   private async captureWithinDeadline(observationId: string, captureContext: CaptureContext<Observation> | undefined,
     deadline: number, dispatch: Observation['ownerDependencyDispatch'], consistencyRetries = 0): ReturnType<InteractionDriver<Observation, SessionOptions>['capture']> {
@@ -745,7 +761,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           if (this.page.isClosed()) break;
         }
         if (Date.now() >= deadline) break;
-        await this.waitForCaptureSample(Math.min(contentWaitStarted!==undefined?Math.max(100,Math.min(250,this.options.settleMs)):50, Math.max(0, deadline - Date.now())));
+        const sampleDelay=contentWaitStarted!==undefined?Math.max(100,Math.min(250,this.options.settleMs)):50;
+        // A pending-content sample needs its full interval and acquisition slot.
+        // Do not sleep almost to the deadline then discard earlier independent
+        // evidence because the following read has only a few milliseconds left.
+        if(dom&&contentWaitStarted!==undefined&&deadline-Date.now()<=sampleDelay+Math.max(25,2*lastDOMReadMs))break;
+        await this.waitForCaptureSample(Math.min(sampleDelay, Math.max(0, deadline - Date.now())));
       } while (Date.now() < deadline);
       if (this.options.evidence.enabled && dom && !lastError && Date.now()<deadline) {
         try {
@@ -813,7 +834,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       try {
         const locator = this.page.locator(rule.selector);
         if (await locator.count() !== 1) throw new Error('Context selector is absent or ambiguous');
-        const value = rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '');
+        const value = await this.instrumentation.run('context-read',{key:rule.key},()=>rule.attribute ? locator.getAttribute(rule.attribute) : locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? ''));
         if (value === null) throw new Error('Context attribute absent');
         context[rule.key] = { value, status: 'known', source: `dom:${rule.selector}` };
       } catch (error) {
@@ -825,7 +846,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const saveImage = async (key: string, fullPage = false) => {
       // Hiding carets can leave an empty style attribute on inputs after capture,
       // invalidating the very subtree evidence we just collected.
-      const data = await this.page!.screenshot({ timeout: this.options.actionTimeoutMs, fullPage, caret: 'initial' }); const at = now();
+      const data = await this.instrumentation.run('screenshot',{fullPage},()=>this.page!.screenshot({ timeout: this.options.actionTimeoutMs, fullPage, caret: 'initial' })); const at = now();
       await this.evidence.put(key, { data, mediaType: 'image/png' });
       // Hash the exact bytes rather than their JSON representation.
       return { key, mediaType: 'image/png', capturedAt: at, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') };
@@ -835,7 +856,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const accessibility: DetailSnapshot['accessibility'] = { status: 'disabled', format: 'playwright-aria-yaml', gaps: [] };
     if (this.options.evidence.enabled && this.options.evidence.accessibility) {
       try {
-        const text = await this.page.locator('body').ariaSnapshot({ timeout: this.options.observeTimeoutMs });
+        const text = await this.instrumentation.run('accessibility',{},()=>this.page!.locator('body').ariaSnapshot({ timeout: this.options.observeTimeoutMs }));
         Object.assign(accessibility, { status: 'captured', capturedAt: now(), text: text.slice(0, this.options.evidence.maxHtmlLength), truncated: text.length > this.options.evidence.maxHtmlLength });
         if (accessibility.truncated) accessibility.gaps.push({ code: 'ARIA_TRUNCATED', message: 'ARIA snapshot exceeds the configured character limit' });
       } catch (error) { accessibility.status = 'unavailable'; accessibility.gaps.push({ code: 'ARIA_UNAVAILABLE', message: String(error) }); }
@@ -845,7 +866,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       catch (error) { evidenceManifest.gaps.push({ code: 'FULL_PAGE_SCREENSHOT_FAILED', message: String(error) }); }
     }
     try {
-      const current = await timeout(this.page.evaluate(() => ({ documentId: (window as any).__interactionEvidenceTracker?.documentId, hasBody: !!document.body })), this.options.observeTimeoutMs, 'Document verification deadline exceeded');
+      const current = await this.instrumentation.run('verify-document',{},()=>timeout(this.page!.evaluate(() => ({ documentId: (window as any).__interactionEvidenceTracker?.documentId, hasBody: !!document.body })), this.options.observeTimeoutMs, 'Document verification deadline exceeded'));
       if (current.documentId !== dom.documentId || !current.hasBody) { stable = false; gaps.push({ code: 'OBSERVATION_INTERRUPTED', message: 'Document changed or became unavailable between DOM and evidence collection', critical: true }); }
       if (navigation && (historyPosition(navigation).url !== dom.url || canonical(historyPosition(navigation)) !== canonical(historyPosition(await this.readHistory())))) {
         stable = false; gaps.push({ code: 'NAVIGATION_HISTORY_CHANGED', message: 'Browser history changed during evidence collection', critical: true });
@@ -880,6 +901,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const { actionId: _id, ...dispatch } = this.lastDismissal; return { ...dispatch };
   }
   async execute(action: ActionCandidate, control?: Control) {
+    return this.instrumentation.run('execute',{action,control,url:this.page?.url()},async()=>{
+    if(this.instrumentation.inventory)await this.inventory('before',action.id);
+    try{
     const prepared = this.preparedOwnerDispatch; this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
     this.liveEpoch++;
     const page = this.page!;
@@ -906,9 +930,9 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
         const history = await this.readHistory(); const current = history.entries[history.currentIndex];
         if (current?.id === target.id && current.url === target.url) break;
         if (Date.now() >= deadline) throw new EngineError('NAVIGATION_RETURN_UNVERIFIED', 'Native history did not reach the expected entry');
-        await new Promise(resolve => setTimeout(resolve, 25));
+        await this.instrumentation.run('waitForHistory',{milliseconds:25},()=>new Promise<void>(resolve=>setTimeout(resolve,25)));
       }
-      await page.waitForURL(target.url, { waitUntil: 'domcontentloaded', timeout: this.options.actionTimeoutMs });
+      await this.instrumentation.run('navigation-wait',{url:target.url},()=>page.waitForURL(target.url, { waitUntil: 'domcontentloaded', timeout: this.options.actionTimeoutMs }));
       return;
     }
     if (action.kind === 'scroll' && !control) { await page.mouse.wheel(0, Number(action.value ?? 600)); return; }
@@ -916,7 +940,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (!control) throw new EngineError('TARGET_MISSING', 'A current control is required');
     const target = page.locator(control.selector);
     if (await target.count() !== 1) throw new EngineError('TARGET_AMBIGUOUS', 'Target is no longer unique');
-    const sameInstance = await target.evaluate((el, expected) => (window as any).__interactionEvidenceTracker?.ids.get(el) === expected, control.instanceId);
+    const sameInstance = await this.instrumentation.run('target-validation',{localId:control.localId},()=>target.evaluate((el, expected) => (window as any).__interactionEvidenceTracker?.ids.get(el) === expected, control.instanceId));
     if (!sameInstance) throw new EngineError('STALE_TARGET', 'Target was rebuilt after observation');
     const clickOptions = control.actionable.clickPoint ? { position: control.actionable.clickPoint } : {};
     // No witness for multi-stage scroll/dismiss/history or custom dispatch/read
@@ -927,11 +951,11 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       await target.hover(clickOptions);
       const before = await target.evaluate(el => ({ x: el.scrollLeft, y: el.scrollTop }));
       await page.mouse.wheel(delta.x, delta.y);
-      await page.waitForFunction(({ selector, instanceId, before, delta }) => {
+      await this.instrumentation.run('scroll-wait',{localId:control.localId},()=>page.waitForFunction(({ selector, instanceId, before, delta }) => {
         const el = document.querySelector(selector);
         return el && (window as any).__interactionEvidenceTracker?.ids.get(el) === instanceId
           && (delta.x !== 0 && el.scrollLeft !== before.x || delta.y !== 0 && el.scrollTop !== before.y);
-      }, { selector: control.selector, instanceId: control.instanceId, before, delta }, { timeout: this.options.actionTimeoutMs });
+      }, { selector: control.selector, instanceId: control.instanceId, before, delta }, { timeout: this.options.actionTimeoutMs }));
     } else if (action.kind === 'hover') await target.hover(clickOptions);
     else if (action.kind === 'fill') await target.fill(String(action.value ?? ''));
     else if (action.kind === 'select') await target.selectOption(String(action.value));
@@ -942,8 +966,12 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     else if (action.kind === 'click') await target.click(clickOptions);
     else if (action.kind === 'focus') await target.focus();
     else throw new EngineError('UNSUPPORTED_ACTION', `Unsupported browser action: ${action.kind}`);
+
+    }finally{if(this.instrumentation.inventory)await this.inventory('after',action.id);}
+    });
   }
   async validateInput(control: Control, value: string) {
+    return this.instrumentation.run('input-validation',{localId:control.localId},async()=>{
     if (!['input', 'textarea'].includes(control.tag)) return { valid: true, reason: '' };
     // A detached native element checks syntax and constraints without changing the page.
     return this.page!.evaluate(({ tag, constraints, value }) => {
@@ -954,6 +982,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       const lengthValid = (!constraints.minLength || value.length >= constraints.minLength) && (constraints.maxLength === undefined || value.length <= constraints.maxLength);
       return { valid: input.value === value && input.checkValidity() && lengthValid, reason: input.validationMessage || (!lengthValid ? 'Input length violates constraints' : input.value !== value ? 'Value cannot be represented by this input type' : '') };
     }, { tag: control.tag, constraints: control.constraints, value });
+    });
   }
   async discover(o: Observation, session: Session, invoke: HookInvoker): Promise<ActionCandidate[]> {
     const actions: ActionCandidate[] = [];
@@ -1035,7 +1064,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     for (const rule of this.options.contextRules) {
       const locator = this.page!.locator(rule.selector);
       let observed: string | null = null;
-      if (await locator.count() === 1) observed = rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '');
+      if (await locator.count() === 1) observed = await this.instrumentation.run('context-read',{key:rule.key},()=>rule.attribute ? locator.getAttribute(rule.attribute) : locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? ''));
       if (canonical(observed) !== canonical(current.context[rule.key]?.value)) return 'context_changed';
     }
     // Native history has no DOM target; retain exact history/document/context checks.
@@ -1177,7 +1206,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       || !Array.isArray(preserved) || !preserved.every(p => preservedControlFacts(live.controls.find(c => c.localId === p.localId)) === p.facts)) throw new EngineError('STALE_DISMISSAL_TARGET', 'Outside point or boundary changed');
     for (const rule of this.options.contextRules) {
       const locator = this.page!.locator(rule.selector);
-      const value = await locator.count() === 1 ? rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '') : null;
+      const value = await this.instrumentation.run('context-read',{key:rule.key},async()=>await locator.count() === 1 ? rule.attribute ? await locator.getAttribute(rule.attribute) : await locator.evaluate(el => 'value' in el ? String((el as HTMLInputElement).value) : el.textContent?.trim() ?? '') : null);
       if (canonical(value) !== canonical(action.preconditions.context[rule.key]?.value)) throw new EngineError('PRECONDITIONS_CHANGED', 'Declared context changed before outside click');
     }
     // Pointer departure can already dismiss a hover-sensitive panel. Verify the
@@ -1205,6 +1234,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (action.kind === 'fill' && control) { const validation = await this.validateInput(control, String(action.value)); if (!validation.valid) throw new EngineError('INVALID_INPUT', validation.reason); }
   }
   private async traversalScroll(action: ActionCandidate, perform: boolean) {
+    return this.instrumentation.run('scroll-traversal',{actionId:action.id,perform},async()=>{
     const options = traversalScrollSchema.parse(action.value);
     const live = await this.readDOM(false, false); const active = live.overlays.at(-1);
     const container = live.scrollContainers?.find(c => c.nodeId === options.containerNodeId);
@@ -1213,8 +1243,10 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const target = this.page!.locator(container.selector);
     if (await target.count() !== 1) throw new EngineError('TARGET_AMBIGUOUS', 'Scroll container is not unique');
     await target.evaluate(traversalScrollInPage, { options, boundarySelector: active?.selector, perform });
+    });
   }
   private async controlledScroll(action: ActionCandidate, control: Control | undefined, perform: boolean) {
+    return this.instrumentation.run('scroll-probe',{actionId:action.id,perform},async()=>{
     if (!control) throw new EngineError('TARGET_MISSING', 'A current control is required for a scroll probe');
     const options = scrollProbeSchema.parse(action.value);
     const target = this.page!.locator(control.selector);
@@ -1225,13 +1257,16 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (active?.key !== action.boundary?.key) throw new EngineError('ACTION_BLOCKED', 'Scroll probe scope changed before execution');
     if (active && !active.controlIds.includes(control.localId)) throw new EngineError('ACTION_BLOCKED', 'outside_active_boundary');
     await target.evaluate(scrollProbeInPage, { options, instanceId: control.instanceId, boundarySelector: active?.selector, perform });
+    });
   }
   async reopen() {
+    return this.instrumentation.run('reopen',{},async()=>{
     this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined;
     const storageState = await this.context!.storageState(); await this.close();
     this.options = { ...this.options, storageState }; await this.start();
+    });
   }
-  async close() { this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; await this.context?.close().catch(() => {}); await this.browser?.close().catch(() => {}); this.page = undefined; }
+  async close() { return this.instrumentation.run('close',{},async()=>{this.preparedOwnerDispatch = undefined; this.ownerDispatch = undefined; await this.context?.close().catch(() => {}); await this.browser?.close().catch(() => {}); this.page = undefined;}); }
 }
 
 // Capture implementation authority once. Later prototype replacement or an

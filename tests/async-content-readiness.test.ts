@@ -8,14 +8,24 @@ import {meterReadinessBrowser} from '../scripts/readiness-budget.js';
 import {pageOf,act} from './helpers.js';
 import {disclosureObservationReady} from '../packages/adapter-playwright/src/capture-readiness.js';
 
-it.each(['delayed','live','mixed'])('actual plugin discovers and dispatches a late child with outside ticks (%s)',async scenario=>{
+it.each(['delayed','live','mixed','mixed-enabled'])('actual plugin discovers and dispatches a late child with outside ticks (%s)',async scenario=>{
  const result=await runAsyncReadiness(scenario,resolve(`.data/readiness-tests/${scenario}`));
  expect(result.commands).toBeLessThanOrEqual(40);expect(result.budgetRejected).toBe(0);expect(result.elapsedMs).toBeLessThan(60000);
- expect(result.attempts.map((a:any)=>[a.action.label,a.status])).toEqual([[scenario==='mixed'?'Existing child':'Information','succeeded'],['Record late','succeeded']]);
+ expect(result.attempts.map((a:any)=>[a.action.label,a.status])).toEqual([[scenario.startsWith('mixed')?'Existing child':'Information','succeeded'],['Record late','succeeded']]);
  expect(result.applicationEvents.filter((e:any)=>e.type==='link')).toHaveLength(1);
  expect(result.applicationEvents.some((e:any)=>e.type==='destination'&&e.url==='/async-result/late')).toBe(true);
  expect(result.applicationEvents.find((e:any)=>e.type==='child-added').ticks).toBeGreaterThan(0);
  expect(result.modelRequests).toBe(0);
+ if(scenario==='mixed-enabled'){
+  const afterOld=result.observations.find((o:Observation)=>o.id===result.attempts[0].afterId);
+  expect(afterOld.controls.find((c:any)=>c.name==='Existing child')).toMatchObject({enabled:true,visible:true});
+  expect(afterOld.controls.some((c:any)=>c.name==='Record late'&&c.visible&&c.enabled)).toBe(true);
+  expect(result.applicationEvents.filter((e:any)=>e.type==='existing')).toHaveLength(1);
+  expect(result.task.plan.some((i:any)=>i.required&&i.scope.label==='Existing child'&&i.status==='unresolved'&&i.attempts.length===0)).toBe(true);
+  const childDuty=result.task.plan.find((i:any)=>i.scope.label==='Record late');
+  expect(childDuty.status).toBe('succeeded');expect(childDuty.resolvedBy.attemptId).toBe(result.attempts[1].id);
+ }
+
  const acquired=result.observations.find((o:Observation)=>o.contentReadiness?.transitions.some(t=>t.addedControlIds.length));
  expect(acquired).toBeDefined();expect(acquired.contentReadiness.status).toBe('observed');
  expect(acquired.contentReadiness.transitions.some((t:any)=>t.signals.some((s:any)=>s.kind===(scenario==='live'?'live-placeholder':'busy')))).toBe(true);
@@ -44,7 +54,7 @@ it('times out content acquisition without making the observed opening or indepen
 
 async function sdkFixture(html:string,options:Partial<SessionOptions>={}){
  const meter=meterReadinessBrowser(),server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end('<!doctype html>'+html);});await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));
- const url=`http://127.0.0.1:${(server.address() as any).port}/`,engine=new BrowserEngine({persistence:new MemoryStore()});
+ const url=`http://127.0.0.1:${(server.address() as any).port}/`,engine=new BrowserEngine({persistence:new MemoryStore(),hooks:meter.hooks});
  const s=await engine.createSession({url,headless:true,exploration:'controls',coveragePolicy:'finite-ui-v1',executionPolicy:'observed-ui',settleMs:0,observeTimeoutMs:240,evidence:{enabled:false},
   executionBoundary:{version:1,programNavigation:'public-navigation-v1',urls:[{match:'route',origin:new URL(url).origin,pathnamePattern:'^/.*$'}],allowedOperations:['click','select'],exclusions:[]},...options});
  return {engine,sid:s.id,meter,async edit(fn:()=>void){meter.charge('fixture-mutation');await pageOf(engine).evaluate(fn);},async close(){try{await engine.close();await new Promise<void>(r=>server.close(()=>r()));expect(meter.commands.length).toBeLessThanOrEqual(40);expect(meter.rejected).toBe(0);expect(Date.now()-meter.began).toBeLessThan(60000);}finally{meter.restore();}}};

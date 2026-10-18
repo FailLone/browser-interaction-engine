@@ -181,7 +181,17 @@ export async function reviewNext(c:ReviewContext):Promise<boolean> {
   // its sources would not yet have durable identity/owner evidence. Difficult
   // semantic reviews still yield to independently executable work at the quota.
   const finiteNeedsReview=o.coveragePolicy==='finite-ui-v1'&&(observedUI&&pendingOccurrence||!c.deferSemanticReview&&!c.allowIndependentActionYield&&(pendingOccurrence||readClassification().controls.some(item=>item.needsClassification&&allRelevantIds.has(item.control.localId)&&!done(digest({type:'classification',instance:o.instanceScope,control:item.control,reviews:item.classifications.map(r=>[r.id,r.status])})))));
-  if(!finiteNeedsReview&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
+  // A newly revealed native navigation can be ready yet absent from the active
+  // region partition. Complete that deterministic preparation before yielding
+  // to an old entry in a new condition; otherwise it can starve its own child.
+  // This grants no dispatch/coverage and preserves every semantic unknown.
+  const navigationNeedsPartition=programNavigation&&programRegions&&readRegions().enabled&&available.some(action=>{
+    const control=o.controls.find(control=>control.localId===action.localId);
+    return !!control&&relevantIds.has(control.localId)&&control.visible&&control.enabled&&!control.readiness
+      &&readRegions().unassignedControlIds.includes(control.localId)
+      &&programNavigationAllowed(contractExecutionBoundary(task.coverageContract!),action,o);
+  });
+  if(!finiteNeedsReview&&!navigationNeedsPartition&&(focused?(c.allowPriorityActionYield??c.allowLocalActionYield):c.allowLocalActionYield)!==false&&(focused?c.hasPendingAction(priorityFilter,true):available.some(inPlace)&&c.hasPendingAction(inPlace,true))){retainBeforeYield();return false;}
   if(observedUI&&!c.programApply){c.gap('missing_capability:program_review',{url:o.url});return false;}
   if(focused){const scopes=pendingScopes(true),retained=retainGroups(scopes);if(retained){await retained;return true;}if(scopes.length)return reviewGroup(scopes[0]);}
   const region=readRegions();
