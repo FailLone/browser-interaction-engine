@@ -6,6 +6,8 @@ import { findingKey, type Finding, type PageCheck } from './checks.js';
 import type { Judge, Question } from './judge.js';
 import type { GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
+import { classifyInput, inputSamples, judgeInputKind, readInputFacts, type InputKind } from './inputs.js';
+import type { Provider } from '@interaction/explorer-plugin';
 
 export interface CrawlOptions {
   url: string;
@@ -23,6 +25,8 @@ export interface CrawlOptions {
   policy?: CrawlPolicy;
   /** Model plugin for questions the program cannot settle (weak controls, invisible effects). */
   judge?: Judge;
+  /** JEV used to classify input fields whose structure does not settle their kind. */
+  inputJudge?: Provider;
   /** Goal mode: JEV prunes action classes irrelevant to the goal; relevant ones run first. */
   relevance?: GoalRelevance;
   /** Optional UI checks run once per newly discovered abstract state (off by default; traversal comes first). */
@@ -33,16 +37,18 @@ export interface CrawlOptions {
 }
 
 export interface CrawlState { key: string; url: string; overlay?: string; firstSeenAt: number; controls: number }
-export interface Step { kind: CrawlKind; classKey: string; label: string; value?: string }
+export interface Step { kind: CrawlKind; classKey: string; label: string; value?: string; purpose?: string }
 export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; finding: Finding; state: string; url: string }
-  | { type: 'judgement'; at: number; question: string; label: string; verdict: 'yes' | 'no' | 'uncertain'; source: string; probability?: number }
+  | { type: 'judgement'; at: number; question: string; label: string; verdict: 'yes' | 'no' | 'uncertain'; source: string; probability?: number; detail?: string }
   | { type: 'stop'; at: number; reason: string };
 
-interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string; relevance?: number }
+interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string; relevance?: number;
+  /** For fill: which sample of the input's kind (e.g. existing / empty search). */
+  purpose?: string }
 
 // Everything that stays on the current page (including site-chrome menus) runs
 // before any navigation; otherwise the entry page's own UI waits behind other pages.
@@ -69,12 +75,16 @@ export class SampledCrawler {
   private adapter!: BrowserAdapter;
   private path: Step[] = [];
   private blockedNavigation?: string;
+  /** Page text at the last dispatch, used to pick search terms that should match. */
+  private lastText = '';
   /** True from dispatch until the post-action settle completes. */
   private dispatching = false;
   private readonly started = Date.now();
-  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance'>> & Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance'>;
+  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge'>> & Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge'>;
   /** Weak controls the judge confirmed as interactive, by component class. */
   private readonly confirmed = new Set<string>();
+  /** Input kind per input component class: structural, judged by JEV, or defaulted. */
+  readonly inputKinds = new Map<string, { kind: InputKind; source: 'structure' | 'jev' | 'default' }>();
   /** Action classes JEV judged irrelevant to the goal. */
   private readonly pruned = new Set<string>();
   /** Weak control classes already asked about. */
@@ -143,6 +153,9 @@ export class SampledCrawler {
       judge: this.options.judge?.stats,
       models: modelCost([this.options.judge?.stats.jev, this.options.relevance?.meter], [this.options.judge?.stats.llm]),
       weakControlsConfirmed: this.confirmed.size,
+      inputs: { classes: this.inputKinds.size, kinds: Object.fromEntries([...this.inputKinds.values()].reduce((m, k) => m.set(`${k.kind}:${k.source}`, (m.get(`${k.kind}:${k.source}`) || 0) + 1), new Map<string, number>())),
+        filled: actions.filter(a => a.step.kind === 'fill').map(a => ({ label: a.step.label, purpose: a.step.purpose, value: a.step.value?.slice(0, 20), outcome: a.outcome, newState: a.newState })) },
+      hovers: actions.filter(a => a.step.kind === 'hover').length,
       goal: this.options.relevance && { plan: this.options.relevance.plan, jevCalls: this.options.relevance.calls, prunedClasses: this.pruned.size },
       lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
         executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0) },
@@ -235,13 +248,21 @@ export class SampledCrawler {
         if (!allowed(c, kind, this.options.policy)) continue;
         const classKey = `${kind}|${controlClass(c)}`;
         if (classKey.includes('|list:')) { const seen = this.listMembers.get(classKey) || new Set(); seen.add(`${pagePath(s.url)}|${c.name}`); this.listMembers.set(classKey, seen); }
-        if (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey)) continue;
-        const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover';
+        if (kind !== 'fill' && (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey))) continue;
+        const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover' || kind === 'fill';
         const tierName = scope ? 'overlay' : where === 'navigate' ? 'navigate' : c.landmark ? 'chrome' : disclosure ? 'in-page-disclosure' : 'body';
         const relevance = applyGoal ? this.options.relevance : undefined;
         // An open overlay must still be handled even when its contents are off-goal.
         if (relevance && !scope && !relevance.relevant(classKey)) continue;
-        rows.push({ control: c, kind, classKey, tier: TIERS.indexOf(tierName), tierName, value: kind === 'check' ? String(!c.checked) : undefined, relevance: relevance?.score(classKey) });
+        const row = { control: c, kind, classKey, tier: TIERS.indexOf(tierName), tierName, value: kind === 'check' ? String(!c.checked) : undefined, relevance: relevance?.score(classKey) };
+        if (kind !== 'fill') { rows.push(row); continue; }
+        // Each sample purpose of an input is its own class; its kind is settled at first use.
+        const inputKind = this.inputKinds.get(controlClass(c))?.kind;
+        for (const purpose of inputKind ? inputSamples(inputKind, emptyFacts, '').map(x => x.purpose) : ['first']) {
+          const sampleKey = `${classKey}|${purpose}`;
+          if (this.failedClasses.has(sampleKey) || (this.classCounts.get(sampleKey) || 0) >= 1) continue;
+          rows.push({ ...row, classKey: sampleKey, purpose });
+        }
       }
     }
     // Stable ranking: tier, then reading order (top-left first).
@@ -277,8 +298,7 @@ export class SampledCrawler {
   }
 
   private async act(before: Snapshot, c: Candidate) {
-    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value };
-    this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 0) + 1);
+    this.lastText = before.text || '';
     this.pageCounts.set(pagePath(before.url), (this.pageCounts.get(pagePath(before.url)) || 0) + 1);
     const beforeKey = stateKey(before), overlay = activeOverlay(before);
     let outcome: 'ok' | 'failed' | 'no_change' = 'ok', error: string | undefined;
@@ -291,6 +311,9 @@ export class SampledCrawler {
       outcome = 'failed'; error = String(e).slice(0, 200);
       this.failedClasses.add(c.classKey);
     } finally { this.dispatching = false; }
+    // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
+    this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 0) + 1);
+    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose };
     // Set asynchronously by the route/popup handlers during dispatch.
     const refused = this.blockedNavigation as string | undefined;
     if (refused) { outcome = 'failed'; error = `navigation outside scope refused: ${refused.slice(0, 120)}`; this.failedClasses.add(c.classKey); }
@@ -299,27 +322,66 @@ export class SampledCrawler {
     let after: Snapshot;
     try { after = await this.snapshot(); } catch { await this.backtrack(before, 'capture_failed', true); return; }
     let afterKey = stateKey(after);
+    // An input's effect is usually on other fields' values (a conversion result), not on structure.
+    if (outcome === 'ok' && afterKey === beforeKey && c.kind === 'fill') {
+      const values = (x: Snapshot) => x.controls.filter(k => k.visible && k.localId !== c.control.localId && ['input', 'textarea'].includes(k.tag)).map(k => k.value).join('\u0000');
+      if (values(before) !== values(after)) afterKey = `${afterKey}|value:${c.classKey}`;
+    }
     if (outcome === 'ok' && afterKey === beforeKey) {
       outcome = 'no_change';
       // Structure is unchanged; content may not be (chart range, panel text). Ask once per action class.
       const textBefore = before.text || '', textAfter = after.text || '';
-      if (this.options.judge && textBefore && maskVolatile(textBefore) !== maskVolatile(textAfter)) {
-        const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: excerpt(textAfter, textBefore) });
-        this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
-        if (answer.verdict === 'yes') { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
+      if (textBefore && maskVolatile(textBefore, Infinity) !== maskVolatile(textAfter, Infinity)) {
+        // Without a judge, a text change beyond live numbers (e.g. an empty-result message) is new content.
+        let changed = true;
+        if (this.options.judge) {
+          const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: excerpt(textAfter, textBefore) });
+          this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
+          changed = answer.verdict === 'yes';
+        }
+        if (changed) { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
       }
     }
     if (outcome === 'ok') this.path.push(step);
     const isNew = !this.states.has(afterKey);
-    if (isNew && afterKey.includes('|content:')) this.states.set(afterKey, { key: afterKey, url: after.url, firstSeenAt: this.now(), controls: after.controls.filter(x => x.visible).length });
+    if (isNew && /\|(content|value):/.test(afterKey)) this.states.set(afterKey, { key: afterKey, url: after.url, firstSeenAt: this.now(), controls: after.controls.filter(x => x.visible).length });
     this.emit({ type: 'action', at: this.now(), step, url: before.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, tier: c.tierName, outcome, error, newState: isNew, after: pagePath(after.url) });
     // Left the allowed scope (script navigation, redirect): never repeat this class, return to entry.
     if (placementOfUrl(after.url, this.options) === 'outside') { this.failedClasses.add(c.classKey); await this.backtrack(after, 'left_scope'); }
   }
 
   private async dispatch(c: Candidate) {
+    if (c.kind === 'fill') return this.fill(c);
     const action = { id: `crawl:${this.now()}`, kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined } as unknown as ActionCandidate;
     await this.adapter.execute(action, c.control);
+  }
+
+  /** Classify the input (structure first, then JEV once per input class) and type one sample. */
+  private async fill(c: Candidate) {
+    const facts = await readInputFacts(this.page, c.control);
+    if (!facts) throw new Error('Input target is no longer unique');
+    const cls = controlClass(c.control);
+    let known = this.inputKinds.get(cls);
+    if (!known) {
+      const structural = classifyInput(facts);
+      if (structural) known = { kind: structural, source: 'structure' };
+      else if (this.options.inputJudge) {
+        try { known = { kind: await judgeInputKind(this.options.inputJudge, facts, maskVolatile(c.control.displayedText || this.lastText.slice(0, 400))), source: 'jev' }; }
+        catch { known = { kind: 'text', source: 'default' }; }
+      } else known = { kind: 'text', source: 'default' };
+      this.inputKinds.set(cls, known);
+      this.emit({ type: 'judgement', at: this.now(), question: 'input-kind', label: (facts.placeholder || facts.name || c.control.name).slice(0, 60), verdict: 'yes', source: known.source, probability: undefined, detail: known.kind });
+    }
+    const samples = inputSamples(known.kind, facts, this.lastText);
+    const sample = samples.find(x => x.purpose === c.purpose) || samples[0];
+    c.value = sample.value; c.purpose = sample.purpose;
+    // Re-key the first sample under its real purpose so the remaining samples stay pending.
+    if (c.classKey.endsWith('|first')) c.classKey = c.classKey.replace(/\|first$/, `|${sample.purpose}`);
+    const target = this.page.locator(c.control.selector);
+    await target.click({ timeout: 5000 });
+    await target.fill(sample.value, { timeout: 5000 });
+    // Search boxes commonly need Enter; only searches are submitted.
+    if (known.kind === 'search') await target.press('Enter', { timeout: 5000 });
   }
 
   /** Return to the entry page and replay the recorded path minus its last step. */
@@ -350,19 +412,26 @@ export class SampledCrawler {
   private candidatesForReplay(s: Snapshot, step: Step): Candidate | undefined {
     for (const c of s.controls) {
       if (!c.visible) continue;
-      for (const kind of kindsFor(c, this.confirmed)) if (kind === step.kind && `${kind}|${controlClass(c)}` === step.classKey && (c.name || c.label || c.role).slice(0, 60) === step.label)
-        return { control: c, kind, classKey: step.classKey, tier: 0, tierName: 'replay', value: step.value };
+      // Fill keys carry a sample purpose suffix; replay types the recorded sample again.
+      const base = step.kind === 'fill' ? step.classKey.slice(0, step.classKey.lastIndexOf('|')) : step.classKey;
+      for (const kind of kindsFor(c, this.confirmed)) if (kind === step.kind && `${kind}|${controlClass(c)}` === base && (c.name || c.label || c.role).slice(0, 60) === step.label)
+        return { control: c, kind, classKey: step.classKey, tier: 0, tierName: 'replay', value: step.value, purpose: step.purpose };
     }
   }
 }
 
+const emptyFacts = { type: '', inputmode: '', placeholder: '', pattern: '', autocomplete: '', ariaAutocomplete: '', ariaHaspopup: '', role: '', name: '', min: '', max: '', step: '', value: '' };
+
 function kindsFor(c: Control, confirmed?: ReadonlySet<string>): CrawlKind[] {
   const basis = c.actionBasis || {} as NonNullable<Control['actionBasis']>;
   const kinds: CrawlKind[] = [];
+  if (c.actions.includes('fill') && c.editable && ['input', 'textarea'].includes(c.tag)) return ['fill'];
   if (c.actions.includes('check')) kinds.push('check');
   else if (c.actions.includes('click') || confirmed?.has(controlClass(c))) kinds.push('click');
   // Hover only where the page declares a hover-driven disclosure.
-  if (c.actions.includes('hover') && (basis.hover?.status === 'supported' || c.expanded !== null || c.controls)) kinds.push('hover');
+  // Hover where the page declares or hints at a hover-driven disclosure (menus, tooltips).
+  const popup = c.reviewBinding?.attributes['aria-haspopup'] || c.reviewBinding?.attributes['aria-describedby'] || c.reviewBinding?.attributes.title;
+  if (c.actions.includes('hover') && (basis.hover?.status === 'supported' || c.expanded !== null || c.controls || popup || basis.hover?.status === 'tentative' && c.landmark)) kinds.push('hover');
   return kinds;
 }
 

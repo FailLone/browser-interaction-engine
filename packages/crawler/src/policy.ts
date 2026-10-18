@@ -1,7 +1,7 @@
 import type { Control } from '@interaction/adapter-playwright';
 import { pagePath } from './abstraction.js';
 
-export type CrawlKind = 'click' | 'hover' | 'check' | 'press';
+export type CrawlKind = 'click' | 'hover' | 'check' | 'press' | 'fill';
 
 export interface CrawlPolicy {
   /** Same-origin pathname patterns the crawler may navigate to. Entry path is always allowed. */

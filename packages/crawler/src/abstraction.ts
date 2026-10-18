@@ -6,8 +6,8 @@ export interface Snapshot {
 }
 
 /** Live values (prices, times, percentages, counts) never make a new state or component. */
-export function maskVolatile(text: string): string {
-  return text.replace(/\s+/g, ' ').trim().replace(/[-+]?[\d₀-₉][\d₀-₉.,:%/]*/g, '#').slice(0, 80);
+export function maskVolatile(text: string, max = 80): string {
+  return text.replace(/\s+/g, ' ').trim().replace(/[-+]?[\d₀-₉][\d₀-₉.,:%/]*/g, '#').slice(0, max);
 }
 
 /** Region/script locale prefixes (/zh-hans/, /en-au/) are the same page in another language. */
@@ -61,5 +61,7 @@ export function stateKey(s: Snapshot): string {
   const overlay = activeOverlay(s);
   // Visible named content counts too: a hover card or expanded answer adds text, not always controls.
   const classes = new Set(s.controls.filter(c => c.visible && (c.actions.length || c.name)).map(controlClass));
-  return JSON.stringify([pagePath(s.url), overlay ? `${overlay.kind}:${maskVolatile(overlay.name)}` : '', [...classes].sort()]);
+  // Status messages (empty results, errors, alerts) are states even when they add no controls.
+  const status = (s.text || '').split(/\n+/).map(line => line.trim()).filter(line => /^(no |nothing|not found|没有|暂无|无结果|未找到)|result|empty|error|failed|错误|失败/i.test(line) && line.length <= 80).map(line => maskVolatile(line)).sort();
+  return JSON.stringify([pagePath(s.url), overlay ? `${overlay.kind}:${maskVolatile(overlay.name)}` : '', [...classes].sort(), [...new Set(status)]]);
 }

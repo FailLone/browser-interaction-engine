@@ -5,3 +5,4 @@ export * from './checks.js';
 export * from './judge.js';
 export * from './goal.js';
 export * from './meter.js';
+export * from './inputs.js';

@@ -161,3 +161,40 @@ test('a page that reopens its dialog forever cannot keep the crawler busy', asyn
     expect(events.at(-1)).toMatchObject({ type: 'stop' });
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);
+
+test('inputs are classified from structure and filled with kind-specific samples', async () => {
+  const { classifyInput, inputSamples } = await import('@interaction/crawler');
+  const facts = (o: object) => ({ type: 'text', inputmode: '', placeholder: '', pattern: '', autocomplete: '', ariaAutocomplete: '', ariaHaspopup: '', role: '', name: '', min: '', max: '', step: '', value: '', ...o });
+  expect(classifyInput(facts({ type: 'number' }))).toBe('number');
+  expect(classifyInput(facts({ inputmode: 'decimal' }))).toBe('number');
+  expect(classifyInput(facts({ pattern: '\\d*\\.?\\d*' }))).toBe('number');
+  expect(classifyInput(facts({ value: '0.00001237' }))).toBe('number');
+  expect(classifyInput(facts({ type: 'search' }))).toBe('search');
+  expect(classifyInput(facts({ role: 'combobox', ariaHaspopup: 'listbox' }))).toBe('search');
+  expect(classifyInput(facts({ placeholder: 'Search crypto' }))).toBe('search');
+  expect(classifyInput(facts({ type: 'email' }))).toBe('email');
+  expect(classifyInput(facts({ placeholder: 'Your name' }))).toBeUndefined();
+  const search = inputSamples('search', facts({}), 'Pairs: BTC ETH BTC SOL BTC');
+  expect(search).toEqual([{ value: 'BTC', purpose: 'existing' }, { value: 'zzqx-no-result-7319', purpose: 'empty' }]);
+  expect(inputSamples('number', facts({ max: '50' }), '').map(x => x.value)).toEqual(['100', '50', '0', 'abc']);
+});
+
+test('a search box is tried with a matching term and with one that exposes the empty state', async () => {
+  const html = `<!doctype html><title>Search</title><main>
+    <input type="search" placeholder="Search pairs" id="q"><ul id="r"></ul>
+    <p>Pairs: BTC ETH SOL BTC BTC</p>
+    <script>const pairs=['BTC/USDT','ETH/USDT','SOL/USDT'];document.getElementById('q').addEventListener('keydown',e=>{if(e.key!=='Enter')return;
+      const hits=pairs.filter(p=>p.includes(e.target.value.toUpperCase()));document.getElementById('r').innerHTML=hits.length?hits.map(h=>'<li><button>'+h+'</button></li>').join(''):'<li role="status">No results</li>';});</script></main>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(html); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) });
+    const summary = await crawler.run();
+    const fills = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action' && e.step.kind === 'fill');
+    expect(fills.map(f => [f.step.purpose, f.step.value])).toEqual(expect.arrayContaining([['existing', 'BTC'], ['empty', 'zzqx-no-result-7319']]));
+    expect(fills.every(f => f.newState)).toBe(true);
+    expect(summary.inputs.kinds).toEqual({ 'search:structure': 1 });
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);
