@@ -2065,7 +2065,9 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         if (checks.at(-1)!.result === 'fail') return { failure: 'PRECONDITIONS_CHANGED', reason: 'declared_context_changed' };
         checks.push({ name: 'observation-rules', result: source.ruleVersion === current.ruleVersion && current.ruleVersion === this.adapter.ruleVersion ? 'pass' : 'unknown' });
         if (checks.at(-1)!.result === 'unknown') return { failure: 'UNVERIFIED', reason: 'observation_rules_changed' };
-        checks.push({ name: 'observation-completeness', result: source.stable && current.stable && !source.gaps.some(gap => gap.critical) && !current.gaps.some(gap => gap.critical) ? 'pass' : 'unknown' });
+        const returnReady=current.stable||this.adapter.observedSourceReturnReady?.(source,current)===true;
+        if(!current.stable&&returnReady)checks.push({name:'native-position-ready-controls-unready',result:'pass'});
+        checks.push({ name: 'observation-completeness', result: source.stable && returnReady && !source.gaps.some(gap => gap.critical) && !current.gaps.some(gap => gap.critical) ? 'pass' : 'unknown' });
         if (checks.at(-1)!.result === 'unknown') return { failure: 'UNVERIFIED', reason: 'observation_incomplete' };
         const position = this.adapter.observedSourcePosition?.(source, current);
         if (!position) return { failure: 'UNREACHABLE', reason: 'observed_source_return_unsupported' };
@@ -2086,7 +2088,11 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         // attach() opens an entry when disconnected. That is outside this API,
         // and a persisted history pointer alone cannot prove a live position.
         if (!connected()) return finish('UNREACHABLE', 'observed_source_driver_unavailable');
-        await this.capture(sessionId, 'recovery');
+        const source=this.observation(sessionId,request.observationId),current=this.observation(sessionId);
+        // A dedicated native-position proof can prepare history return without
+        // first waiting for unrelated fields. runAction still performs mandatory
+        // live driver preflight and all normal recovery/authorization checks.
+        if(current.stable||this.adapter.observedSourceReturnReady?.(source,current)!==true)await this.capture(sessionId, 'recovery');
         state = inspect();
         if (state.failure) return finish(state.failure, state.reason);
         if (state.reached) return finish('SOURCE_REACHED', state.reason);

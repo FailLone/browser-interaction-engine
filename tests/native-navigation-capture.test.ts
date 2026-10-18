@@ -1,6 +1,6 @@
 import {createServer} from 'node:http';
 import {expect,it} from 'vitest';
-import {PlaywrightAdapter} from '@interaction/adapter-playwright';
+import {PlaywrightAdapter,nativeDocumentReturnReady} from '@interaction/adapter-playwright';
 import {act,testEngine} from './helpers.js';
 
 it.each([false,true])('observes a committed native navigation while destination fields remain unready (early URL replacement: %s)',async rewrite=>{
@@ -17,6 +17,17 @@ it.each([false,true])('observes a committed native navigation while destination 
   await expect(act(f.engine,f.sessionId,'Changing','fill','example')).rejects.toHaveProperty('code');
   expect(f.engine.list(f.sessionId,'attempt')).toHaveLength(1);
   const adapter=new PlaywrightAdapter(),before=f.engine.observation(f.sessionId,attempt.beforeId);
+  expect(nativeDocumentReturnReady(before,after)).toBe(true);
+  for(const change of ['missing-proof','wrong-document','wrong-url','uncommitted-history','critical-gap','new-boundary'] as const){
+   const altered=structuredClone(after);
+   if(change==='missing-proof')delete altered.navigationCapture;
+   if(change==='wrong-document')altered.documentId='another-document';
+   if(change==='wrong-url')altered.url=url+'/another';
+   if(change==='uncommitted-history')altered.navigation!.entries[altered.navigation!.currentIndex].method='POST';
+   if(change==='critical-gap')altered.gaps.push({code:'READ_FAILED',message:'Incomplete',critical:true});
+   if(change==='new-boundary')altered.boundaries=[{key:'new-dialog'} as any];
+   expect(nativeDocumentReturnReady(before,altered),change).toBe(false);
+  }
   for(const change of ['missing-proof','wrong-source','uncommitted-history','critical-gap'] as const){
    const altered=structuredClone(after);if(change==='missing-proof')delete altered.navigationCapture;
    if(change==='wrong-source')altered.navigationCapture!.beforeId='unrelated';

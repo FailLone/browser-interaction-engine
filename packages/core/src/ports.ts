@@ -169,6 +169,10 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
   /** Verify exact source position and whether a single native return is available.
    * Implementations must not infer arrival from URL or UI similarity alone. */
   observedSourcePosition?(target: O, current: O): ObservedSourcePosition;
+  /** Settled native position despite unrelated unsettled controls. A true result
+   * permits preparing only source return without full-page recapture. The driver
+   * must still preflight its exact native document/entry before actual dispatch. */
+  observedSourceReturnReady?(target: O, current: O): boolean;
   /** Explicit sampling policy. This is not a state equivalence or independence claim. */
   explorationCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
   /** Decode explicitly supported historical representative sampling policies.

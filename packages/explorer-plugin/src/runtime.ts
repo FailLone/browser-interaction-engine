@@ -793,7 +793,7 @@ export class ExplorerPlugin {
   }
   /** Resolve durable work against retained checkpoint evidence. The DFS stack is
    * an optional path/cost hint, never the source of the unfinished-work set. */
-  private async scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader,signal:AbortSignal=new AbortController().signal):Promise<ScheduledRecovery|undefined> {
+  private async scheduledRecovery(task:Task,round:Round,o:Observation,actions:ActionCandidate[],availability:ReturnType<ExplorerHost['actionAvailability']>,routeCondition:RouteConditionReader,signal:AbortSignal=new AbortController().signal,sourceReturnOnly=false):Promise<ScheduledRecovery|undefined> {
     const revision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
     const liveTask=task;
     let selectionView=this.host.recoverySelectionView?.(o.sessionId,{observationId:o.id});
@@ -866,6 +866,7 @@ export class ExplorerPlugin {
     const pending:PlanItem[]=[];
     for(const item of orderedObligations(task.plan,schedule)){
       const wait=checkpoint();if(wait){await wait;resume();}
+      if(sourceReturnOnly&&!pageSourceObligation(item))continue;
       if(!authorities.some(authority=>contains(authority.scope,item)||authority.prerequisites.some(scope=>contains(scope,item)))||exclusions.some(excluded=>contains(excluded.scope,item)))continue;
       if(item.reason.startsWith('missing_capability:')||item.reason==='unknown_action_outcome')continue;
       const entry=entries.get(item.id);
@@ -1284,7 +1285,11 @@ export class ExplorerPlugin {
       ?currentObligationTarget(this.host,task.plan.find(item=>item.id===reviewSelection.itemId),o,this.host.actions(sid,o.id)):undefined;
     const modelRequestsBefore=task.usage.modelRequests;
     const reviewedBefore=round.reviewed.length,decisionCursor=this.store.decisionCursor(task.id),unresolvedBefore=new Set(Object.keys(round.unresolvedPurposeReviews||{})),unresolvedReviews:UnresolvedReview[]=[];
-    try { const reviewed=await reviewNext({host:this.host,task,observation:o,
+    const deferDestinationReview=!!task.coverageContract?.programNavigation&&!o.stable&&!!o.navigationCapture&&!!this.host.returnToObservedSource
+      &&task.plan.some(item=>item.required&&isUnfinished(item)&&pageSourceObligation(item)&&item.scope.url===o.navigationCapture!.sourceUrl)
+      &&!!sourceReturnCondition(this.host.observation(sid,o.navigationCapture!.beforeId),o);
+    if(deferDestinationReview)this.event(task,'review.deferred_for_source_return',{observationId:o.id,sourceObservationId:o.navigationCapture!.beforeId,reason:'native_document_ready_destination_controls_unready',unknownDutiesRetained:true,coverageGranted:false,dispatchRevalidationRequired:true});
+    try { const reviewed=deferDestinationReview?false:await reviewNext({host:this.host,task,observation:o,
       reviewQuotaReached:()=>task.usage.modelRequests-modelRequestsBefore>=2,
       deferSemanticReview:!!task.coverageContract?.programNavigation&&!semanticFallback,
       allowIndependentActionYield:(round.consecutiveReviewSteps??0)>=2,
@@ -1414,7 +1419,7 @@ export class ExplorerPlugin {
     let recovery:ScheduledRecovery|undefined;
     if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!local.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
-      recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal);
+      recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal,deferDestinationReview);
       // Even a short async selection has a final microtask boundary. Check it
       // before reserving work, recording debt, persisting, or local fallback.
       this.assert(task,signal,undefined,recoveryRevision);

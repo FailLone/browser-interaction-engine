@@ -20,6 +20,17 @@ export function navigationIntent(action:ActionCandidate,o:Observation):Navigatio
 export const historyPosition = (history: BrowserHistory) => ({ browserSessionId: history.browserSessionId,
   entryId: history.entries[history.currentIndex]?.id, url: history.entries[history.currentIndex]?.url });
 
+/** Only a committed, separately settled native document can avoid recapturing
+ * unrelated changing controls before history return. No control readiness or
+ * restored source-state equivalence is asserted here. */
+export function nativeDocumentReturnReady(target: Observation, current: Observation) {
+  const proof=current.navigationCapture,entry=current.navigation?.entries[current.navigation.currentIndex];
+  return target.stable&&!target.gaps.some(g=>g.critical)&&!current.gaps.some(g=>g.critical)&&!current.boundaries?.length
+    &&!!proof&&proof.version===1&&proof.documentId===current.documentId&&proof.sourceDocumentId!==current.documentId
+    &&proof.observedUrl===current.url&&proof.samples>=2&&proof.settledMs>=0&&entry?.url===current.url&&entry.method==='GET'
+    &&observedSourcePosition(target,current).status==='returnable';
+}
+
 /** Native entry identity survives document changes; it never proves the old UI was restored. */
 export function observedSourcePosition(target: Observation, current: Observation): ObservedSourcePosition {
   const checks: ObservedSourcePosition['checks'] = [];

@@ -13,8 +13,8 @@ import { signature } from './util.js';
 import { constrain, hasDeclaredBoundaryExit, hasObservedBoundaryExit } from './policy.js';
 import { browserControlCorrespondence, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, controlCase, controlsTraversalCase, explorationCase, restorationStep, verifyRestorationStep } from './exploration.js';
 export { browserControlCorrespondence, browserControlBindingKey, browserOperationCorrespondenceHint, createBrowserOperationCorrespondenceHintReader, browserOperationKey, browserOperationSchedulingKey, legacyBrowserOperationKey } from './exploration.js';
-export { navigationIntent, type NavigationIntent } from './navigation.js';
-import { historyReturn, observedSourcePosition, navigationIntent } from './navigation.js';
+export { navigationIntent, nativeDocumentReturnReady, type NavigationIntent } from './navigation.js';
+import { historyReturn, observedSourcePosition, navigationIntent, nativeDocumentReturnReady } from './navigation.js';
 import { browserTargetConditions, browserTargetReady, browserTargetRecoverable } from './target-arrival.js';
 import { browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader } from './review-target.js';
 export { browserControlReviewTargetCorrespondence, createBrowserControlReviewTargetCorrespondenceReader, browserControlReviewMaterialKey, createBrowserControlReviewMaterialKey } from './review-target.js';
@@ -135,6 +135,7 @@ export class PlaywrightAdapter implements InteractionAdapter<Observation, Sessio
   explorationGroups(...args: Parameters<typeof listGroups>) { return [...listGroups(...args), ...structuralListGroups(...args), ...decisionScopes(args[0], args[1], args[2])]; }
   returnToObservation = historyReturn;
   observedSourcePosition = observedSourcePosition;
+  observedSourceReturnReady = nativeDocumentReturnReady;
   testPredicate(predicate: Predicate, observation: Observation): 'pass' | 'fail' | 'unknown' {
     if (predicate.target === 'url') return observation.url === predicate.equals ? 'pass' : 'fail';
     if (predicate.target === 'context') { const value = observation.context[predicate.key || '']; return !value || value.status === 'unknown' ? 'unknown' : canonical(value.value) === canonical(predicate.equals) ? 'pass' : 'fail'; }

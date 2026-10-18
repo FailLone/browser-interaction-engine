@@ -1,4 +1,4 @@
-import type { Observation } from '@interaction/browser';
+import { nativeDocumentReturnReady, type Observation } from '@interaction/browser';
 import type { PlanItem } from './types.js';
 import { digest } from './policy.js';
 import { currentHistoryAnchor } from './review-recovery.js';
@@ -15,7 +15,11 @@ export function pageSourceObligation(item:PlanItem) {
  * Quotes, capture IDs and rebuilt DOM nodes cannot mint another retry.
  */
 export function sourceReturnCondition(source:Observation,current:Observation):string|undefined {
-  if(!source.stable||!current.stable||current.boundaries?.length||!currentHistoryAnchor(source,current)||source.ruleVersion!==current.ruleVersion)return;
+  // Retry accounting may use the separately settled native document position.
+  // This does not make its changing controls ready; SDK history dispatch still
+  // checks the live document, exact entry, boundaries, dirty state and authority.
+  const documentReady=nativeDocumentReturnReady(source,current);
+  if(!source.stable||!current.stable&&!documentReady||current.gaps.some(g=>g.critical)||current.boundaries?.length||!currentHistoryAnchor(source,current)||source.ruleVersion!==current.ruleVersion)return;
   const context=(o:Observation)=>Object.fromEntries(Object.entries(o.context).map(([key,value])=>[key,{status:value.status,value:value.value}]));
   if(digest(context(source))!==digest(context(current)))return;
   const from=current.navigation!.entries[current.navigation!.currentIndex],to=source.navigation!.entries[source.navigation!.currentIndex];
