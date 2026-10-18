@@ -1,0 +1,86 @@
+{
+  "revision": "9329eb9c94972bae43bae5f3d99efd0db9a8d2ca",
+  "commonSourceFiles": 521,
+  "allCommonHashesEqual": true,
+  "result": {
+    "accepted": false,
+    "reason": "strict_pending_child_reentry_not_established",
+    "elapsedMs": 215514,
+    "actions": 13,
+    "branchCount": null,
+    "strictChains": null,
+    "chains": [],
+    "coverage": {
+      "finite": {
+        "total": 712,
+        "verified": 2,
+        "remaining": 710
+      },
+      "observedCombinations": 10,
+      "unknownDependencies": [
+        "unobserved JavaScript dependencies",
+        "unobserved condition combinations",
+        "unbounded free-input values",
+        "unassessed business effects"
+      ],
+      "exhaustive": false
+    },
+    "taskStatus": "budget_exhausted",
+    "taskReason": "BUDGET_EXHAUSTED"
+  },
+  "fragments": {
+    "run": "/Users/xietian/.codex/worktrees/broader-ui-exploration/browser-interaction-engine/.data/broader-ui/reuse-factor-narrow-1",
+    "policy": "guarded-host-fragments/v3",
+    "fragmentCount": 216,
+    "mappingCount": 3330,
+    "actualAccessEvents": 8,
+    "accessWithoutLoggedSucceededReceipt": [],
+    "uniqueProjectedPrunedCandidates": 3,
+    "uniquePropagatedPrunedCandidates": 0,
+    "observationsWithPruning": 7,
+    "registration": {
+      "calls": 34,
+      "totalMs": 6187.133998000032,
+      "p50Ms": 154.7420839999977,
+      "p95Ms": 454.14166700001806,
+      "maxMs": 494.6786659999925
+    },
+    "accessRecording": {
+      "calls": 8,
+      "totalMs": 2780.084249000014,
+      "p50Ms": 331.3528329999972,
+      "p95Ms": 552.9199160000135,
+      "maxMs": 552.9199160000135
+    },
+    "cumulativeMappedActionObservations": 1097,
+    "cumulativeUnmappedActionObservations": 6222,
+    "rootBytes": 198,
+    "auditLedgerBytes": 50913743,
+    "ledgerBytes": 50913743,
+    "bounded": false,
+    "pending": 1227,
+    "projectedPrunedPending": 10,
+    "requiredRestoreDispatches": 1,
+    "limitations": [
+      "Projection counts include observations and are not dispatches avoided or verified coverage.",
+      "Unmapped actions remain in the same strategy; unknown duties remain pending.",
+      "Timing categories can overlap, especially access recording and registration.",
+      "No browser or original-DB mutation is performed by this report."
+    ]
+  },
+  "fileSHA256": {
+    "result.json": "b989ffeedf06d492a9d65db2fde7b72a4c1c7e96cf6313689ba4d4b68f0561c0",
+    "audit.json": "542d59e6cafa2c0c14ef021e6fd90c02a1858ac932b411168c0cb1ff54d2a81c",
+    "protocol.json": "fcdd828abb4b493217de8ee3617dbb6c7a0f8f56ad28623da0f846544f1376cd",
+    "source.json": "9bea0cbe8a9faf8d0342809f2a2e369c5ed19596446d5ed0239701fa08ca3236",
+    "source.diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coverage-ledger.json": "711415bb25b874ee099e36e92468685c5cff6b485158dc7f5579878e40757db2",
+    "fragment-summary.json": "77ed630c9bfeaddacac4e5cf1d3e870a24002fd4e27014b31266a068e3043635",
+    "fragment-storage.json": "e6d1759bed8e84ce7dc57eaaf30f995b4e1eca6eec754dd69279b588ef908590"
+  },
+  "limits": [
+    "Failed acceptance remains failed; no strict original-child chain.",
+    "Projected pruned IDs are not avoided commands; all propagation counts remain zero.",
+    "Original source/protocol/auditors unchanged."
+  ]
+}

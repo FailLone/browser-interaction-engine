@@ -1,0 +1,48 @@
+{
+  "baseRevision": "9329eb9c94972bae43bae5f3d99efd0db9a8d2ca",
+  "changedSourceHashes": {
+    "packages/adapter-playwright/src/fragment-local-effect.ts": "a7e6bbcd9d40134f47d245c38d85bd1905fea68a127fc2f6ad996d12472e7132",
+    "packages/adapter-playwright/src/fragment-outcome.ts": "19821600ab4a00e44d600eacb741fd6c5e451bf4b862da84d7db02643cf73770",
+    "packages/explorer-plugin/src/fragment-sampling.ts": "d2df6c99157dbc5c61d03ab31e382a28354e9c6d95a56bc78d8cdbea2dec0277",
+    "packages/explorer-plugin/src/fragment-session.ts": "95d5a941531bcdc6bb73ac5f8582e2a51d2769682754f52802ea04a7b4954abc",
+    "packages/explorer-plugin/src/fragment-traversal.ts": "a72bd5dc48ae0d447c2160d2a3a2787c572a9014bdb2c998a6ccdf3a0253064d",
+    "packages/explorer-plugin/src/review-recovery.ts": "960c5cabe826648e115c8b87d06a790c97fe70c2d99389c9bcce572ba6683147",
+    "packages/explorer-plugin/src/runtime.ts": "70f48ac7d99e988490964fd971f009e3fa01b8787f6c868f21a60c98c1a9f2bb",
+    "tests/fragment-local-effect.test.ts": "58b9eb747f60b2e0c1a5874758c50c4b3bfd539334df9d0c1ef47691a6cb82e8",
+    "tests/fragment-sampling.test.ts": "ffaea1377a379c39bf082d3e16acb73974f38e351d462906a93ee42d7d91bc21",
+    "tests/explorer-uncertain-exit.test.ts": "602bc01876607df780461c2a92596963761231e70b0a366c496ec56a982cf455",
+    "tests/fixtures/fraggen-effects/okx-actual-effects.json.gz": "1fd82c7525454e494592722d9f1e3208f8bec896f87eef883a3517d9538e6cbc"
+  },
+  "focused": {
+    "passed": 80,
+    "failed": 0,
+    "report": "p1p2-focused-final.json.gz"
+  },
+  "types": {
+    "root": true,
+    "core": true
+  },
+  "original251": {
+    "passed": 207,
+    "failed": 44,
+    "total": 251,
+    "sameFailureNamesAs": "reuse-factor-251",
+    "original11FilesByteIdenticalTo": "574a7ea"
+  },
+  "realOKX": "not_yet_run_for_this_source",
+  "unknownDuties": "preserved",
+  "deterministicUncertainReplay": {
+    "elapsedMs": 39316,
+    "commands": 37,
+    "finite": {
+      "total": 38,
+      "verified": 38,
+      "remaining": 0
+    },
+    "duplicateCompletedConditionAttempts": [],
+    "status": "blocked",
+    "reason": "no_new_evidence",
+    "unknownDutiesRetained": true,
+    "result": "uncertain-replay-final-1-result.json.gz"
+  }
+}

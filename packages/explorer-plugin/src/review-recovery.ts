@@ -167,3 +167,15 @@ export function prioritizeReviewAnchors(checkpoints:Checkpoint[],current:Observa
   };
   return next();
 }
+
+/** Retained interpretation changes only the required arrival contract. It does
+ * not discharge unproved old sources or authorize any exit/replay operation. */
+export function hasRetainedReviewInterpretation(item:PlanItem,snapshot:ReturnType<ExplorerHost['controlInterpretationSnapshot']>|undefined,source?:EvidenceRef):boolean {
+ const saved=item.reviewSourceProofs;
+ if(!snapshot||saved?.policy!=='review-source-completion-v1'||saved.scopeKey!==digest(item.scope))return false;
+ return saved.bindings.some(binding=>(!source||binding.source.sessionId===source.sessionId&&binding.source.observationId===source.observationId
+  &&binding.source.sessionId===binding.proof.sessionId&&binding.source.observationId===binding.proof.observationId&&binding.source.localId===binding.proof.localId)&&snapshot.retainedClassifications.some(row=>row.retained&&row.localId===binding.proof.localId
+  &&row.source.sessionId===binding.proof.sessionId&&row.source.observationId===binding.proof.observationId
+  &&row.source.classificationId===binding.proof.classificationId&&row.source.classification===binding.proof.classification
+  &&['display','container'].includes(row.source.classification)));
+}

@@ -6,7 +6,7 @@ import {ExplorerError,type PlanItem} from './types.js';
 import {FragmentSession} from './fragment-session.js';
 import {bestFragmentCandidate,bestFragmentState,fragmentWasExplored,fragmentCandidateInfluence,fragmentDuplicationFactor} from './fragment-traversal-core.js';
 export type {FragmentTraversalLedger} from './fragment-records.js';
-export interface FragmentFrontier {observationId:string;byAction:Map<string,{fragmentId:string;candidateId:string}>;pruned:string[];registered:number;mapped:number;unmapped:number;elapsedMs:number}
+export interface FragmentFrontier {observationId:string;byAction:Map<string,{fragmentId:string;candidateId:string;regionId?:string}>;pruned:string[];registered:number;mapped:number;unmapped:number;elapsedMs:number}
 /** Registration imports existing access before admission. Durable records have
  * no coverage-count ceiling; material/cache budgets never erase pending work. */
 export function registerFragmentObservation(l:FragmentSession,o:Observation,actions:readonly ActionCandidate[],authority:string,eligibleIds:ReadonlySet<string>):FragmentFrontier {
@@ -19,7 +19,7 @@ export function registerFragmentObservation(l:FragmentSession,o:Observation,acti
     for(const [index,current] of projection.candidates.entries()){
       const c=record.candidates[index];
       // Ambiguous candidates are retained, but never admitted as a unique map.
-      if(record.candidates.filter(other=>other.path===c.path&&other.operation===c.operation&&other.guard===c.guard).length===1)byAction.set(current.actionId,{fragmentId:record.fragment.id,candidateId:c.id});
+      if(record.candidates.filter(other=>other.path===c.path&&other.operation===c.operation&&other.guard===c.guard).length===1)byAction.set(current.actionId,{fragmentId:record.fragment.id,candidateId:c.id,regionId:projection.regionId});
     }
   }
   const candidateIds=[...new Set([...byAction].filter(([id])=>eligibleIds.has(id)).map(([,ref])=>ref.candidateId))].sort();
@@ -35,8 +35,8 @@ export function recordFragmentOutcome(l:FragmentSession,frontier:FragmentFrontie
   if(l.root.policy!==fragmentProjectionPolicy)return false;
   if(attempt.status!=='succeeded'||!attempt.afterId||attempt.beforeId!==frontier.observationId)return false;
   const ref=frontier.byAction.get(attempt.action.id);if(!ref)return false;
-  const effect=observations&&observations.before.id===attempt.beforeId&&observations.after.id===attempt.afterId&&observations.before.sessionId===attempt.sessionId&&observations.after.sessionId===attempt.sessionId?browserFragmentObservedEffect(observations.before,observations.after):undefined;
-  const event={id:attempt.id,...ref,sessionId:attempt.sessionId,observationId:attempt.beforeId,afterId:attempt.afterId,actionId:attempt.action.id,...(effect?{effect:l.material('effect',effect.material)}:{})},prior=l.get('events',attempt.id);
+  const effect=observations&&observations.before.id===attempt.beforeId&&observations.after.id===attempt.afterId&&observations.before.sessionId===attempt.sessionId&&observations.after.sessionId===attempt.sessionId?browserFragmentObservedEffect(observations.before,observations.after,ref.regionId&&attempt.action.localId?{regionId:ref.regionId,localId:attempt.action.localId}:undefined):undefined;
+  const event={id:attempt.id,fragmentId:ref.fragmentId,candidateId:ref.candidateId,sessionId:attempt.sessionId,observationId:attempt.beforeId,afterId:attempt.afterId,actionId:attempt.action.id,...(effect?{effect:l.material('effect',effect.material)}:{})},prior=l.get('events',attempt.id);
   if(prior){if(JSON.stringify(prior)!==JSON.stringify(event))throw new ExplorerError('FRAGMENT_ORIGIN_CONFLICT');return false;}
   return l.put('events',event);
 }

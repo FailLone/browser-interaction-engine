@@ -1,0 +1,14 @@
+{
+  "source": "closed sampling-broad-1 actual receipts, extracted from a disposable engine copy",
+  "fixture": "okx-actual-effects.json.gz",
+  "sha256": "1fd82c7525454e494592722d9f1e3208f8bec896f87eef883a3517d9538e6cbc",
+  "attemptIds": [
+    "3b4496ec-56c9-4efb-806e-60903c7e9cd4",
+    "d795d34b-85a9-433c-959f-77f9bd1d1cc7",
+    "acf5cad7-ec8a-4590-8e96-b83ac8361636",
+    "da7322b8-41e5-4a13-89b3-76f67a283b52",
+    "9a719315-2d0e-4358-aee9-b5474b0d708a",
+    "11e4bb75-f25b-4db4-a01e-11a3fa1eb92e"
+  ],
+  "purpose": "actual source/result field comparison; not coverage or a fabricated receipt"
+}

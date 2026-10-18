@@ -1,3 +1,4 @@
+import {browserFragmentEffectComparison} from '@interaction/browser';
 import {fragmentProjectionPolicy} from '@interaction/browser';
 import type {FragmentSamplingDecision} from './fragment-sampling.js';
 import {ExplorerError} from './types.js';
@@ -172,7 +173,7 @@ export class FragmentSession {
         // Legacy topology alone cannot upgrade changed local materials. Every
         // address above is resolved and checked against its complete bytes.
         if(!row.direct&&(source.context===undefined||target.context===undefined||source.path!==target.path||source.operation!==target.operation||source.guard!==target.guard||fragment.structure!==owner.structure||fragment.owner!==owner.owner))continue;
-        yield {event,direct:!!row.direct,context:source.context===undefined?undefined:this.raw(source.context,'context'),effect:event.effect===undefined?undefined:this.raw(event.effect,'effect')};
+        yield {event,direct:!!row.direct,context:source.context===undefined?undefined:this.raw(source.context,'context'),effect:event.effect===undefined?undefined:browserFragmentEffectComparison(this.raw(event.effect,'effect'))};
       }
       if(page.length<128)break;
     }

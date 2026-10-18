@@ -1,3 +1,4 @@
+import {browserFragmentEffectComparison} from '@interaction/browser';
 /** Separate local correspondence from a revocable sampling decision. Inputs
  * are direct receipt origins connected to THIS target by explicit live edges.
  * Never feed inherited counts back here or infer missing/revoked edges. */
@@ -9,6 +10,7 @@ export interface FragmentSamplingDecision {
  conflictAttemptIds?:string[];
 }
 export function decideFragmentSampling(candidateId:string,context:string,origins:readonly SamplingOrigin[]):FragmentSamplingDecision {
+ origins=origins.map(o=>({...o,effect:o.effect===undefined?undefined:browserFragmentEffectComparison(o.effect)}));
  const result=(status:FragmentSamplingDecision['status'],sourceAttemptIds:string[]=[],validationAttemptIds:string[]=[]):FragmentSamplingDecision=>({status,sourceAttemptIds,validationAttemptIds,recheckBudget:1,coverageGranted:false,...status==='context-sample'?{assumption:'unverified-external-context' as const}:status==='same-context'?{assumption:'observed-context-only' as const}:{}});
  const direct=origins.filter(o=>o.candidateId===candidateId);
  const effects=new Set(origins.flatMap(o=>o.effect===undefined?[]:[o.effect]));
