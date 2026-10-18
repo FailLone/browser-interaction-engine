@@ -1312,12 +1312,14 @@ export class ExplorerPlugin {
     if(task.plan.length&&!task.plan.some(item=>item.required&&item.dispatchScope===true&&schedulableObligation(item)&&item.status!=='excluded'))return false;
     await this.retainHostLimitations(task,o,signal);
     if(o.gaps.some(g=>g.critical)){this.gap(task,'observation_incomplete',{url:o.url});return false;}
-    const readyNavigation=!!task.coverageContract?.programNavigation&&o.navigationScopes?.some(scope=>scope.complete&&scope.binding
-      &&scope.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&c.enabled&&!c.readiness)));
-    if(readyNavigation&&!round.localOpportunityDocuments?.includes(o.documentId)){
-      this.changedRound(task,round);(round.localOpportunityDocuments??=[]).push(o.documentId);
+    const navigationOpportunityKey=(url:string)=>{try{const u=new URL(url);u.hash='';return digest({url:u.href,context:o.context});}catch{return digest({url,context:o.context});}};
+    const visitedNavigation=new Set(task.rounds.flatMap(r=>r.localOpportunityScopes||[])),opportunityKey=navigationOpportunityKey(o.url);
+    const readyNavigation=!!task.coverageContract?.programNavigation&&!o.boundaries?.length&&o.navigationScopes?.some(scope=>scope.complete&&scope.binding
+      &&scope.controlIds.some(id=>o.controls.some(c=>c.localId===id&&c.visible&&c.enabled&&!c.readiness&&c.actionable?.hitTarget===true)));
+    if(readyNavigation&&!visitedNavigation.has(opportunityKey)){
+      this.changedRound(task,round);(round.localOpportunityScopes??=[]).push(opportunityKey);visitedNavigation.add(opportunityKey);
       this.initializeScheduling(task).localSelections=0;this.persist(task);
-      this.event(task,'navigation.local_opportunity',{observationId:o.id,documentId:o.documentId,reason:'new_document_ready_navigation',limit:localSelectionLimit,coverageGranted:false});
+      this.event(task,'navigation.local_opportunity',{observationId:o.id,documentId:o.documentId,url:o.url,scopeKey:opportunityKey,reason:'new_page_context_ready_navigation',limit:localSelectionLimit,coverageGranted:false});
     }
     await this.reconcileReviewLedger(task,o,signal);
     await this.applyReviewRecoveryChanges(task,o,signal,reviewRecoveryChanges(task,o,this.host));
@@ -1448,9 +1450,22 @@ export class ExplorerPlugin {
     // Modal work remains exclusive. A transient branch keeps its turn over
     // background controls, but at the local quota it may take a ready child
     // navigation and retain the remaining branch for a later verified return.
-    const scoped=task.coverageContract?.programNavigation?local.filter(choice=>!!o.boundaries?.length||locality(choice)>0):[];
-    const scopedDeparture=!o.boundaries?.length&&schedule.localSelections>=localSelectionLimit&&scoped.find(choice=>!!navigationTarget(actions.find(a=>a.id===choice.actionId)!,o));
-    const scopedChoice=scopedDeparture||scoped[0];
+    // Reloading the exact current URL adds no new observed position. Preserve
+    // that duty, but give other current work or a retained route the next turn.
+    const currentURLLink=(choice:ObligationSelection)=>{
+      const action=actions.find(a=>a.id===choice.actionId)!,control=o.controls.find(c=>c.localId===action.localId),href=control?.reviewBinding?.attributes.href;
+      if(action.kind!=='click'||control?.tag!=='a'||typeof href!=='string'||!action.basis?.evidence.some(e=>e.rule==='hyperlink/v1'))return false;
+      try{return new URL(href,o.url).href===o.url;}catch{return false;}
+    };
+    const productiveLocal=task.coverageContract?.programNavigation&&!o.boundaries?.length?local.filter(choice=>!currentURLLink(choice)):local;
+    const scoped=task.coverageContract?.programNavigation?productiveLocal.filter(choice=>!!o.boundaries?.length||locality(choice)>0):[];
+    const scopedDeparture=!o.boundaries?.length&&schedule.localSelections>=localSelectionLimit&&scoped.find(choice=>{
+      const target=navigationTarget(actions.find(a=>a.id===choice.actionId)!,o);return !!target&&!visitedNavigation.has(navigationOpportunityKey(target));
+    });
+    // A fresh child destination can finish this local batch. Cycles through
+    // already visited pages must yield to retained work at the same quota;
+    // modal interiors remain exclusive and every unselected duty stays pending.
+    const scopedChoice=scopedDeparture||(o.boundaries?.length||schedule.localSelections<localSelectionLimit?scoped[0]:undefined);
     // Finish the selected recovered child once before fairness sends us away.
     // Its current target was just projected; reservation changes the selection
     // to current, so this exception never resets or renews the ordinary quota.
@@ -1474,7 +1489,7 @@ export class ExplorerPlugin {
     }):undefined;
     reentries.sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
     let recovery:ScheduledRecovery|undefined;
-    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!returnedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!local.length||schedule.localSelections>=localSelectionLimit)){
+    if(!boundaryExit&&!arrivedChoice&&!arrivedReentry&&!returnedReentry&&!scopedChoice&&(!task.coverageContract?.programNavigation||!reentries.length)&&(!productiveLocal.length||schedule.localSelections>=localSelectionLimit)){
       const recoveryRevision=task.revision,observationKey=digest(o),actionsKey=digest(actions),availabilityRevision=availability.revision;
       recovery=await this.scheduledRecovery(task,round,o,actions,availability,routeCondition,signal,deferDestinationReview);
       // Even a short async selection has a final microtask boundary. Check it
@@ -1485,7 +1500,7 @@ export class ExplorerPlugin {
     }
     const remote:ObligationSelection[]=[...reentries,...recovery?[{itemId:recovery.itemId,kind:broadScope(byId.get(recovery.itemId)!.scope)?'inspect' as const:'recovery' as const,source:{sessionId:sid,observationId:recovery.source.id},routeKey:recovery.routeKey}]:[]]
       .sort((a,b)=>(targetOrder.get(a.itemId)??Infinity)-(targetOrder.get(b.itemId)??Infinity));
-    const selection=boundaryExit||arrivedChoice||arrivedReentry||returnedReentry||scopedChoice||selectObligation(schedule,local,remote),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    const selection=boundaryExit||arrivedChoice||arrivedReentry||returnedReentry||scopedChoice||(!productiveLocal.length&&remote.length?remote[0]:selectObligation(schedule,productiveLocal.length?productiveLocal:local,remote)),selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,localSelections:schedule.localSelections,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}

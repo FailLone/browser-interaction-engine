@@ -28,11 +28,13 @@ it('prepares and explores ready destination navigation before returning to retai
   const final=store.task(task.id),attempts=final.rounds.flatMap(r=>f.host.list<any>(r.sessionId,'attempt'));
   const menu=attempts.findIndex(a=>a.action.label==='Destination menu'&&a.status==='succeeded'),returned=attempts.findIndex(a=>a.action.kind==='history');
   expect(menu,JSON.stringify({reason:final.reason,attempts:attempts.map(a=>[a.action.label,a.status,a.reason])})).toBeGreaterThan(0);
-  if(returned>=0)expect(menu).toBeLessThan(returned);
+  expect(returned,JSON.stringify(attempts.map(a=>[a.action.label,a.status]))).toBeGreaterThan(menu);
   const before=f.host.observation(attempts[menu].sessionId,attempts[menu].beforeId);expect(before.url).toBe(new URL('/overview',f.url).href);
   expect(before.stable).toBe(false);expect(before.controls.find(c=>c.name==='Changing quote')?.readiness?.status).toBe('unstable');
   expect(attempts.some(a=>a.action.label==='Destination details'&&a.status==='succeeded')).toBe(true);
   expect(store.events(task.id).some(e=>e.type==='navigation.local_opportunity')).toBe(true);
+  const opportunities=store.events(task.id).filter(e=>e.type==='navigation.local_opportunity').map(e=>(e.data as any).scopeKey);
+  expect(new Set(opportunities).size).toBe(opportunities.length);
   expect(final.plan.some(i=>i.required&&i.scope.label==='Unresolved slider'&&i.status!=='succeeded')).toBe(true);
   expect(store.decisions(task.id)).toEqual([]);expect(final.status).not.toBe('completed');
  }finally{await plugin.close();await f.close();}

@@ -103,6 +103,9 @@ export interface Round {
   position?: NavigationPosition;
   /** Bounded per-document scheduling opportunities, never completion evidence. */
   localOpportunityDocuments?: string[];
+  /** Scheduling only: revisiting a URL/context cannot renew the local batch.
+   * Fragment changes remain distinct observations, but do not buy another turn. */
+  localOpportunityScopes?: string[];
   /** One continuation turn after a verified page-position return. No child
    * arrival or replay authority is inherited from this scheduling hint. */
   returnedSource?: {url:string;documentId:string;resultId:string};
