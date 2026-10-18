@@ -6,7 +6,7 @@ import type { ObligationProjection, RouteRetryLedger } from './obligation-lifecy
 import type { ObligationSchedule } from './obligation-scheduler.js';
 
 /** Only documented public operations. Never a browser handle or engine persistence. */
-export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'reachControlReviewTarget'|'controlReviewTargetCorrespondence'|'controlReviewTargetCorrespondences'|'returnToObservedSource'|'repetitionAssessment'|'recoverySourceMaterial'|'recoveryAnchorMaterial'|'recoveryReviewMaterial'|'recoverySelectionView'|'operationReceiptCondition'|'operationReceiptConditions'|'checkpointRecoveryCandidates'>>;
+export type ExplorerHost = Pick<BrowserEngine, 'operationCoverageCandidates' | 'actionAvailability' | 'operationCorrespondences' | 'explorationSnapshot' | 'controlInterpretationSnapshot' | 'boundaryState' | 'interactionTransition' | 'navigationIsolation' | 'recoveryAssessment' | 'sessions' | 'session' | 'createSession' | 'observation' | 'observe' | 'actions' | 'execute' | 'command' | 'getFrontier' | 'report' | 'list' | 'regionReviewMaterial' | 'explorationReviewMaterial' | 'controlClassificationMaterial' | 'controlReviewMaterial' | 'purposeReviewMaterial' | 'discoveryScanMaterial' | 'createCheckpoint' | 'reachCheckpoint' | 'pause' | 'stop' | 'events' | 'pinEvidence' | 'unpinEvidence'> & Partial<Pick<BrowserEngine,'boundaryExitMaterial'|'probeAvailability'|'classificationCorrespondences'|'explorationTargetCorrespondences'|'reachExplorationTarget'|'reachControlReviewTarget'|'controlReviewTargetCorrespondence'|'controlReviewTargetCorrespondences'|'returnToObservedSource'|'repetitionAssessment'|'recoverySourceMaterial'|'recoveryAnchorMaterial'|'recoveryReviewMaterial'|'recoverySelectionView'|'operationReceiptCondition'|'operationReceiptConditions'|'checkpointRecoveryCandidates'|'componentCorrespondenceMaterial'|'recordComponentCorrespondence'>>;
 export type TaskStatus = 'idle' | 'running' | 'paused' | 'stopped' | 'completed' | 'blocked' | 'budget_exhausted' | 'configuration_required';
 export interface Budget { rounds: number; actions: number; durationMs: number; modelRequests: number }
 export interface EvidenceRef { sessionId: string; observationId: string; attemptId?: string }
@@ -81,7 +81,7 @@ export interface PlanItem {
   coverageResolvedBy?: {observation:EvidenceRef; relatedItemIds:string[]};
   /** An obligation or gap is not execution authority. Only accepted plan scopes authorize dispatch. */
   dispatchScope?: boolean;
-  attempts: { roundId: string; outcome: string; evidence?: EvidenceRef }[];
+  attempts: { roundId: string; outcome: string; evidence?: EvidenceRef; sourceAssociation?: DispatchSourceAssociation }[];
 }
 export interface EntryRoute {
   entry:Scope; targets:Scope[]; context:string;
@@ -176,9 +176,10 @@ export interface Task {
   acceptedLimitations?: {code:string;reason:string;at:string}[];
 }
 export type DecisionKind = 'choice' | 'noul' | 'checklist' | 'generate';
-export type DecisionPolicy = 'ranking'|'discovery'|'coverage'|'classification'|'identity'|'evidence-gate'|'planning-gate'|'recovery'|'grouping'|'task-intent';
-export interface ModelRequest { id: string; triggeredBy?: string; purpose: string; kind: DecisionKind; instructions: string; state: unknown; options?: Record<string, unknown>; schema?: Record<string, unknown>; policy?: DecisionPolicy; fallbackOption?: string; allowedReductions?: string[]; blockedOptions?: string[]; checks?: Record<string, {instructions:string}> }
-export interface ModelAnswer { value: unknown; model: string; confidence?: number; probability?: number; probabilities?: Record<string, number>; usage?: Record<string, number>; response?: Record<string, unknown> }
+export type DecisionPolicy = 'ranking'|'discovery'|'coverage'|'classification'|'identity'|'evidence-gate'|'planning-gate'|'recovery'|'grouping'|'task-intent'|'component-correspondence';
+export interface ModelRequest { reasoningEffort?:'none'; timeoutMs?:number; maxOutputTokens?:number; id: string; triggeredBy?: string; purpose: string; kind: DecisionKind; instructions: string; state: unknown; options?: Record<string, unknown>; schema?: Record<string, unknown>; policy?: DecisionPolicy; fallbackOption?: string; allowedReductions?: string[]; blockedOptions?: string[]; checks?: Record<string, {instructions:string}> }
+export interface ModelTransport {httpRequests:number;judgments:number;requestBytes:number;responseBytes?:number;imageCount:number;providerElapsedMs:number;automaticRetries:0}
+export interface ModelAnswer { value: unknown; model: string; confidence?: number; probability?: number; probabilities?: Record<string, number>; usage?: Record<string, number>; response?: Record<string, unknown>;transport?:ModelTransport }
 export interface Provider { name: string; model: string; requestBody?(request: ModelRequest): Record<string, unknown>; decide(request: ModelRequest, signal: AbortSignal): Promise<ModelAnswer> }
 export interface Providers {
   jev?: Provider; llm?: Provider;
@@ -191,11 +192,11 @@ export interface Decision {
   id: string; taskId: string; revision: number; roundId?: string; sessionId?: string; observationId?: string;
   actor: 'jev' | 'llm'; purpose: string; provider: string; model: string; request: ModelRequest;
   triggeredBy?: string;
-  input?: Record<string, unknown>; output?: Record<string, unknown>;
+  input?: Record<string, unknown>; output?: Record<string, unknown>; transport?:ModelTransport;
   resolution?: {source:'program'|'jev';value:unknown;reason:string;threshold?:number;bounds?:{low:number;high:number};policy?:DecisionPolicy;policyVersion?:string};
   status: 'requested' | 'returned' | 'applied' | 'rejected' | 'stale' | 'cancelled' | 'failed';
   startedAt: string; elapsedMs?: number; answer?: ModelAnswer; reason?: string; fallbackFrom?: string;
 }
 export interface ExplorerEvent { sequence: number; taskId: string; at: string; actor: 'program' | 'jev' | 'llm' | 'engine'; type: string; sessionId?: string; observationId?: string; decisionId?: string; attemptId?: string; data: unknown }
 export interface TaskView { task: Task; decisions: Decision[]; events: ExplorerEvent[] }
-export class ExplorerError extends Error { constructor(public code: string, message = code, public response?: Record<string, unknown>) { super(message); } }
+export class ExplorerError extends Error { constructor(public code: string, message = code, public response?: Record<string, unknown>, public transport?:ModelTransport) { super(message); } }

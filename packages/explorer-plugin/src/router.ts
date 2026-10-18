@@ -39,7 +39,7 @@ export class DecisionRouter {
       try {
         const remaining=remainingTime();if(remaining<=0)throw new ExplorerError('BUDGET_EXHAUSTED');
         budgetDeadline=Date.now()+remaining;
-        const providerTimeout=this.providers.timeoutMs??60000,budgetFirst=remaining<=providerTimeout;
+        const providerTimeout=Math.min(this.providers.timeoutMs??60000,req.timeoutMs??Infinity),budgetFirst=remaining<=providerTimeout;
         const abort=new Promise<never>((_,reject)=>{onAbort=()=>{reject(new ExplorerError('CANCELLED'));controller.abort();};signal.addEventListener('abort',onAbort,{once:true});timer=setTimeout(()=>{
           budgetExpired=budgetFirst||remainingTime()<=0||Date.now()>=budgetDeadline;
           // Settle our deadline before aborting: an AbortError from the provider
@@ -66,7 +66,7 @@ export class DecisionRouter {
         }
         requireDeadline();return {answer,decision:d};
       } catch(error) {
-        if(error instanceof ExplorerError&&error.response)d.output=error.response;
+        if(error instanceof ExplorerError){if(error.response)d.output=error.response;if(error.transport)d.transport=error.transport;}
         // A provider may synchronously overrun the deadline, or finish with a
         // service error before the timer gets an event-loop turn. Budget wins.
         if(!signal.aborted&&(budgetExpired||remainingTime()<=0||Date.now()>=budgetDeadline))error=new ExplorerError('BUDGET_EXHAUSTED');

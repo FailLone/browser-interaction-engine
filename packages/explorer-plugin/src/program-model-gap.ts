@@ -3,7 +3,7 @@ import type {ExplorerHost,Task,Scope} from './types.js';
 import {controlInScope,digest,scopeForControl} from './policy.js';
 
 export interface ProgramModelGap {
-  key:string;kind:'classification'|'operation';question:string;scope:Scope;
+  key:string;kind:'classification'|'operation'|'component-correspondence';question:string;scope:Scope;
   source:{sessionId:string;observationId:string;localId:string};
   checks:{capture:{observationId:string;stable:boolean;criticalGaps:string[]};
     attempts:{id:string;kind:string;status:string;beforeId:string;afterId?:string;reason?:string;

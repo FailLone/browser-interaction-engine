@@ -1,4 +1,6 @@
 import {boundaryExitTransition} from './capture-readiness.js';
+import {browserComponentCorrespondence} from './component-correspondence.js';
+export {browserComponentCorrespondence} from './component-correspondence.js';
 export { traversalScrollSchema } from './scroll-containers.js';
 import { scrollProbeSchema } from './scroll-probe.js';
 export { scrollProbeSchema } from './scroll-probe.js';
@@ -44,6 +46,7 @@ export type { Command } from './schema.js';
 export { compareObservations, observableCanonical } from './model.js';
 
 export class PlaywrightAdapter implements InteractionAdapter<Observation, SessionOptions> {
+  componentCorrespondence=browserComponentCorrespondence;
   requiresDispatchWitness(o:Observation,session:Session):boolean {return o.coveragePolicy==='finite-ui-v1'&&session.options.coveragePolicy==='finite-ui-v1';}
   observedUICoverage(action:ActionCandidate,o:Observation,session:Session):boolean {
     return o.coveragePolicy==='finite-ui-v1'&&session.options.coveragePolicy==='finite-ui-v1'&&session.options.executionPolicy==='observed-ui'

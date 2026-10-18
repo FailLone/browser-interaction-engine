@@ -18,7 +18,7 @@ const columns:Record<FragmentRowKind,string>={
   candidates:"fragment_id TEXT NOT NULL,class_id TEXT,position INTEGER NOT NULL,operation_id TEXT NOT NULL,guard_id TEXT NOT NULL,material_kind TEXT NOT NULL DEFAULT 'material' CHECK(material_kind='material'),",
   events:"candidate_id TEXT GENERATED ALWAYS AS(json_extract(json,'$.candidateId')) STORED,fragment_id TEXT GENERATED ALWAYS AS(json_extract(json,'$.fragmentId')) STORED,",
   edges:"source_id TEXT GENERATED ALWAYS AS(json_extract(json,'$.sourceCandidateId')) STORED,target_id TEXT GENERATED ALWAYS AS(json_extract(json,'$.targetCandidateId')) STORED,relation TEXT GENERATED ALWAYS AS(json_extract(json,'$.kind')) STORED,revoked INTEGER GENERATED ALWAYS AS(json_type(json,'$.revoked') IS NOT NULL) STORED,",
-  revocations:'',states:'',obligations:''
+  revocations:'',states:'',obligations:'',componentQuestions:''
 };
 const references:Partial<Record<FragmentRowKind,string>>={
   fragments:',FOREIGN KEY(material_kind,structure_id) REFERENCES fg_objects(kind,id),FOREIGN KEY(material_kind,owner_id) REFERENCES fg_objects(kind,id)',
@@ -141,7 +141,8 @@ export class FragmentStore {
       for(const kind of fragmentRowKinds)for(const value of delta[kind]){
         const old=this.get(taskId,kind,value.id),json=JSON.stringify(value);
         if(old&&same(old,value))continue;
-        if(old&&!['states','obligations','edges','revocations'].includes(kind))throw new ExplorerError('FRAGMENT_RECORD_CONFLICT');
+        if(old&&!['states','obligations','edges','revocations','componentQuestions'].includes(kind))throw new ExplorerError('FRAGMENT_RECORD_CONFLICT');
+        if(kind==='componentQuestions'){const q=value as FragmentRows['componentQuestions'];this.material(q.sourceMaterial,'component');this.material(q.targetMaterial,'component');}
         if(kind==='fragments'){const f=value as FragmentRows['fragments'];this.material(f.structure,'structure');this.material(f.owner,'owner');}
         if(kind==='candidates'){
           const c=value as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');
@@ -173,6 +174,7 @@ export class FragmentStore {
   /** Explicit maintenance; ordinary task reads never materialize the graph. */
   verify(taskId:string){
     for(const kind of fragmentRowKinds)for(const row of this.rows(taskId,kind)){
+      if(kind==='componentQuestions'){const q=row as FragmentRows['componentQuestions'];this.material(q.sourceMaterial,'component');this.material(q.targetMaterial,'component');}
       if(kind==='fragments'){const f=row as FragmentRows['fragments'];this.material(f.structure,'structure');this.material(f.owner,'owner');}
       if(kind==='candidates'){const c=row as FragmentRows['candidates'];this.material(c.operation,'operation');this.material(c.guard,'guard');if(c.context!==undefined)this.material(c.context,'context');}
       if(kind==='events'){const e=row as FragmentRows['events'];if(e.effect!==undefined)this.material(e.effect,'effect');}
@@ -188,6 +190,7 @@ export class FragmentStore {
       const tasks=this.db.prepare('SELECT task_id FROM fg_roots').all() as {task_id:string}[];for(const task of tasks)this.verify(task.task_id);
       const materialIds=new Set((this.db.prepare('SELECT structure_id id FROM fg_fragments UNION SELECT owner_id FROM fg_fragments UNION SELECT operation_id FROM fg_candidates UNION SELECT guard_id FROM fg_candidates').all() as {id:string}[]).map(row=>row.id));
       for(const task of tasks){
+        for(const q of this.rows(task.task_id,'componentQuestions')){materialIds.add(q.sourceMaterial);materialIds.add(q.targetMaterial);}
         for(const c of this.rows(task.task_id,'candidates'))if(c.context!==undefined)materialIds.add(c.context);
         for(const e of this.rows(task.task_id,'events'))if(e.effect!==undefined)materialIds.add(e.effect);
       }

@@ -1,4 +1,5 @@
 import {dispatchWitnessMatches} from './dispatch-witness.js';
+import type {ComponentCorrespondenceInput,ComponentCorrespondenceMaterial,ExternalComponentCorrespondence} from './component-correspondence.js';
 import { EventBus } from './events.js';
 import { contextSchema, actionBasisSchema, componentDescriptionSchema } from './schema.js';
 import type { ComponentDescription, ComponentDescriptionInput, ExplorationTargetReference, ExplorationTargetCorrespondence, ReachExplorationTargetInput, ExplorationTargetReachResult, RepetitionAssessment, ReturnToObservedSourceInput, ObservedSourceReturnResult, CheckpointRecoveryCandidatesInput, CheckpointRecoveryCandidateAssessment, CheckpointRecoveryStrategy, CheckpointRecoveryCandidateStatus, ControlReviewTargetReference, ControlReviewTargetCorrespondence, ReachControlReviewTargetInput, ControlReviewTargetReachResult } from './types.js';
@@ -260,6 +261,24 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
     }catch{return result;}
     };
   }
+  componentCorrespondenceMaterial(sessionId:string,input:ComponentCorrespondenceInput):ComponentCorrespondenceMaterial {
+    const before=this.observation(input.source.sessionId,input.source.observationId),current=this.observation(sessionId,input.observationId);
+    const source=this.owned<ActionCandidate>('action',input.source.actionId,input.source.sessionId),action=this.owned<ActionCandidate>('action',input.actionId,sessionId);
+    if(source.observationId!==before.id||action.observationId!==current.id)throw new EngineError('STALE_ACTION','Component source action changed');
+    return this.adapter.componentCorrespondence?.(source,before,this.session(before.sessionId),action,current,this.session(sessionId))
+      ||{policy:'unavailable',status:'unavailable',reason:'component_adapter_unavailable',evidence:[]};
+  }
+  recordComponentCorrespondence(sessionId:string,input:ComponentCorrespondenceInput&{sourceMaterialKey:string;targetMaterialKey:string;conditionKey:string;evidence:string[]}) {
+    if(this.observation(sessionId).id!==input.observationId)throw new EngineError('STALE_OBSERVATION','Component target observation changed');
+    const material=this.componentCorrespondenceMaterial(sessionId,input);
+    if(material.status!=='uncertain'||!material.sourceMaterial||!material.targetMaterial||!material.conditionKey
+      ||hash(material.sourceMaterial)!==input.sourceMaterialKey||hash(material.targetMaterial)!==input.targetMaterialKey
+      ||material.conditionKey!==input.conditionKey||!input.evidence.length||input.evidence.some(e=>typeof e!=='string'||!e.trim()))throw new EngineError('INVALID_COMPONENT_CORRESPONDENCE','Complete pair evidence does not match');
+    const id=hash({policy:material.policy,source:input.source,targetMaterialKey:input.targetMaterialKey,sourceMaterialKey:input.sourceMaterialKey,conditionKey:input.conditionKey,sessionId});
+    const record:ExternalComponentCorrespondence={id,sessionId,policy:material.policy,source:{...input.source},sourceMaterialKey:input.sourceMaterialKey,
+      targetMaterialKey:input.targetMaterialKey,conditionKey:input.conditionKey,evidence:[...input.evidence]};
+    this.store.put('component-correspondence',record);return record;
+  }
   /** Match observed operation targets without inventing historical execution or coverage. */
   explorationTargetCorrespondences(sessionId:string,input:{observationId:string;requests:{actionId:string;source:ExplorationTargetReference}[]}) {
     const current=this.observation(sessionId);
@@ -425,6 +444,28 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
       if(action.observationId!==current.id||sourceAction.observationId!==before.id){result.reason='action_observation_mismatch';return result as ExplorationTargetCorrespondence;}
       const old=before.controls.find(c=>c.localId===sourceAction.localId),target=current.controls.find(c=>c.localId===action.localId);
       if(!old||!target){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+      // Only target arrival / necessary repetition may consume this pair. A
+      // component answer never propagates a completed operation or coverage.
+      const componentFallback=()=>{
+      if(!attempt||input.requireTargetConditions){
+        const pair=this.adapter.componentCorrespondence?.(sourceAction,before,session(before.sessionId),action,current,session(sessionId));
+        if(pair?.sourceMaterial&&pair.targetMaterial&&pair.conditionKey&&(pair.status==='same'||pair.status==='uncertain')){
+          const sourceRef={sessionId:before.sessionId,observationId:before.id,actionId:sourceAction.id};
+          const key=hash({policy:pair.policy,source:sourceRef,targetMaterialKey:hash(pair.targetMaterial),sourceMaterialKey:hash(pair.sourceMaterial),conditionKey:pair.conditionKey,sessionId});
+          const external=pair.status==='uncertain'?this.store.get<ExternalComponentCorrespondence>('component-correspondence',key):undefined;
+          if(pair.status==='same'||external&&external.policy===pair.policy&&external.conditionKey===pair.conditionKey
+            &&external.sourceMaterialKey===hash(pair.sourceMaterial)&&external.targetMaterialKey===hash(pair.targetMaterial)){
+            if(attempt&&this.adapter.requiresDispatchWitness?.(before,session(before.sessionId))&&!dispatchWitnessMatches(attempt,before,after)){
+              result.reason='dispatch_witness_missing_or_mismatched';return result as OperationCorrespondence;
+            }
+            result.equivalent=true;result.policy=pair.policy;result.conditionKey=pair.conditionKey;
+            result.reason='equivalent_observed_component_target';result.evidence=[...pair.evidence,...(external?[`external-component:${external.id}`]:['program-component-correspondence']),`observation:${before.id}`,`observation:${current.id}`];
+            return result as OperationCorrespondence|ExplorationTargetCorrespondence;
+          }
+        }
+      }
+      return undefined;
+      };
       const hint=getOperationHint(target,action.kind,current),prior=getOperationHint(old,sourceAction.kind,before);
       const hintFor=(c:Control,o:O)=>getOperationHint(c,action.kind,o);
       const sameInstance=()=>before.sessionId===current.sessionId&&!!before.instanceScope&&before.instanceScope===current.instanceScope
@@ -455,18 +496,18 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
         const resolve=resolveIdentity(sessionId),identity=resolve(old);
         const retainedInstance=sameInstance();
         const sameIdentity=identity&&identity===resolve(target)&&[before,current].every(o=>count(o,'identity',resolve,identity)===1);
-        if(!retainedInstance&&!sameIdentity){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+        if(!retainedInstance&&!sameIdentity){result.reason='target_correspondence_missing';return componentFallback()||result as OperationCorrespondence|ExplorationTargetCorrespondence;}
         evidence=[retainedInstance?'current-instance-continuity':'resolved-identity-projection'];
       }else if(!hint&&!prior&&!old.identityScope&&!target.identityScope&&old.name&&target.name){
         // Reuse the adapter signature and local identity judgments. Uniqueness
         // is checked in both complete observations; this still grants no identity.
         const signature=getSignature(old),oldIdentity=resolveIdentity(before.sessionId)(old),newIdentity=resolveIdentity(current.sessionId)(target);
-        if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+        if(!oldIdentity||!newIdentity||signature!==getSignature(target)||[before,current].some(o=>count(o,'signature',getSignature,signature)!==1)){result.reason='target_correspondence_missing';return componentFallback()||result as OperationCorrespondence|ExplorationTargetCorrespondence;}
         evidence=['unique-adapter-semantic-signature','independently-resolved-session-identities'];
-      }else {result.reason='target_correspondence_missing';return result as OperationCorrespondence|ExplorationTargetCorrespondence;}
+      }else {result.reason='target_correspondence_missing';return componentFallback()||result as OperationCorrespondence|ExplorationTargetCorrespondence;}
       if(attempt&&this.adapter.requiresDispatchWitness?.(before,session(before.sessionId))&&!dispatchWitnessMatches(attempt,before,after)){result.reason='dispatch_witness_missing_or_mismatched';return result as OperationCorrespondence;}
       const a=sample(sourceAction,before),requiresTargetConditions=!attempt||input.requireTargetConditions;
-      let b=sample(action,current),reviewProjection:ReturnType<typeof this.historicalReviewProjection>;
+      let b=sample(action,current),reviewProjection:ReviewProjection;
       const portableUnavailable=!a||!b;
       // Historical review clarification never authorizes target arrival or
       // replay. The original identity checks and complete operation sample
@@ -486,7 +527,7 @@ export class InteractionEngine<O extends Observation = Observation, S extends Se
           result.evidence=[...evidence,...retained.evidence,`attempt:${attempt!.id}`,`observation:${before.id}`,`observation:${after!.id}`,`observation:${current.id}`];
           return result as OperationCorrespondence;
         }
-        result.reason='operation_conditions_unavailable';return result as ExplorationTargetCorrespondence;
+        result.reason='operation_conditions_unavailable';return componentFallback()||result as ExplorationTargetCorrespondence;
       }
       if(a.key!==b.key){result.reason='operation_conditions_changed';return result as ExplorationTargetCorrespondence;}
       // Coverage keeps its existing sampling contract. Target arrival and repeated

@@ -122,6 +122,21 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
   // completion below still revalidates every source against the actual receipt.
   const prepareAssociation=(item:PlanItem,action:ActionCandidate)=>bind(item,{sessionId:action.sessionId,beforeId:action.observationId,action});
   const associate=(item:PlanItem,attempt:ActionAttempt,saved?:DispatchSourceAssociation)=>!!bind(item,attempt,saved);
+  // An explicit pre-dispatch binding may settle only its selected original
+  // source after that exact command has a verified receipt. Re-read the SDK
+  // relation against the receipt's before-frame; never distribute this receipt
+  // to sibling items, new children, other observations or transitive relations.
+  const executedBoundSource=(item:PlanItem,source:{sessionId:string;observationId:string},action:ActionCandidate,attempt:ActionAttempt)=>{
+    const saved=item.attempts.find(row=>row.evidence?.sessionId===attempt.sessionId&&row.evidence.attemptId===attempt.id)?.sourceAssociation;
+    const proof=saved?.proof;
+    if(!saved||!proof||saved.actionKey!==digest(attempt.action)||proof.policy!=='captured-component-pair/v1'
+      ||!proof.equivalent||proof.source.sessionId!==source.sessionId||proof.source.observationId!==source.observationId||proof.source.actionId!==action.id
+      ||proof.target.sessionId!==attempt.sessionId||proof.target.observationId!==attempt.beforeId||proof.target.actionId!==attempt.action.id)return false;
+    const fresh=host.explorationTargetCorrespondences?.(attempt.sessionId,{observationId:attempt.beforeId,requests:[{actionId:attempt.action.id,source:proof.source}]}).results[0];
+    return !!fresh?.equivalent&&fresh.policy===proof.policy&&fresh.identityAuthorized===false&&fresh.replayAuthorized===false&&fresh.currentExecution===false
+      &&digest(fresh.source)===digest(proof.source)&&digest(fresh.target)===digest(proof.target)
+      &&fresh.evidence.includes(`recorded-target-dispatch:${attempt.id}`);
+  };
   const complete=(item:PlanItem):boolean=>{
     try {
       // Old hosts retain their original per-reference lazy single-query path.
@@ -138,7 +153,8 @@ export function operationSourceCompletion(host:ExplorerHost,current?:ActionAttem
         const members=actions.filter(action=>action.sessionId===ref.sessionId&&action.observationId===ref.observationId&&matches(item.scope,action,observation));
         if(!members.length||observation.controls.some(control=>control.visible&&controlInScope(item.scope,control,observation,actions)&&!members.some(action=>action.localId===control.localId)))return false;
         const remaining=members.filter(action=>![...receipts.values()].some(attempt=>attempt.sessionId===ref.sessionId&&attempt.beforeId===ref.observationId
-          &&attempt.action.id===action.id&&attempt.action.localId===action.localId&&attempt.action.kind===action.kind&&JSON.stringify(attempt.action.value)===JSON.stringify(action.value)));
+          &&attempt.action.id===action.id&&attempt.action.localId===action.localId&&attempt.action.kind===action.kind&&JSON.stringify(attempt.action.value)===JSON.stringify(action.value)
+          ||executedBoundSource(item,ref,action,attempt)));
         if(!remaining.length)continue;
         const requests=remaining.flatMap(action=>[...receipts.values()].map(attempt=>({actionId:action.id,source:{sessionId:attempt.sessionId,attemptId:attempt.id}})));
         const result=host.operationCorrespondences(ref.sessionId,{observationId:ref.observationId,requests});

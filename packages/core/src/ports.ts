@@ -198,6 +198,8 @@ export interface InteractionAdapter<O extends Observation = Observation, S exten
    * May be stricter than explorationCase queue sampling; undefined never falls
    * back to that broader sample when this contract is implemented. */
   correspondenceCase?(action: ActionCandidate, observation: O, session: Session<S>): ExplorationCase | undefined;
+  /** Complete pair-local component/operation evidence; never coverage. */
+  componentCorrespondence?(source:ActionCandidate,before:O,sourceSession:Session<S>,action:ActionCandidate,current:O,session:Session<S>):import('./component-correspondence.js').ComponentCorrespondenceMaterial;
   /** Explicit opt-in to receipt-local identity conflict checks. An available
    * correspondence case must also declare its complete identityConflictScope.
    * Omission preserves the session-wide identity gate and callback ordering. */

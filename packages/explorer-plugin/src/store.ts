@@ -58,7 +58,7 @@ export class ExplorerStore {
       CREATE TABLE IF NOT EXISTS events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,task_id TEXT NOT NULL,json TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS event_task ON events(task_id,sequence);`);
       const version = (this.db.prepare('SELECT version FROM explorer_meta').get() as {version:number}).version;
-      if (![1,2,3,4,5,6].includes(version)) throw new ExplorerError('STORE_VERSION');
+      if (![1,2,3,4,5,6,7].includes(version)) throw new ExplorerError('STORE_VERSION');
       this.db.exec(`CREATE TABLE IF NOT EXISTS task_items(
         task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
         kind TEXT NOT NULL CHECK(kind IN ('plan','rounds')), position INTEGER NOT NULL,
@@ -116,9 +116,9 @@ export class ExplorerStore {
         for(const row of old){this.writeHeader(row.id,row.json,row.version,row.plan_count,row.round_count);this.packCold(row.id,row.round_count,true);}
       }
       this.fragmentRecords=new FragmentStore(this.db);
-      // v6 adds exact context/effect material roles. Older maintenance code
+      // v7 adds component question/material roots. Older maintenance code
       // must reject this store rather than discard those reachable objects.
-      this.db.prepare('UPDATE explorer_meta SET version=6').run();
+      this.db.prepare('UPDATE explorer_meta SET version=7').run();
       // Existing databases pay one index build. Subsequent restarts inspect
       // unsettled records without parsing every historical model request.
       this.db.exec(`CREATE INDEX IF NOT EXISTS decision_unsettled_task ON decisions(task_id) WHERE json_extract(json,'$.status') IN ('requested','returned');

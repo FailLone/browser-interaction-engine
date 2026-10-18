@@ -6,6 +6,11 @@ export const POLICY_VERSION = 'program-first-v7';
 export function resolveJudgment(req:ModelRequest, answer:ModelAnswer, providers:Providers):Decision['resolution'] {
   const policy=req.policy;
   if(!policy)return;
+  if(policy==='component-correspondence'&&req.kind==='noul'){
+    const p=answer.probability;
+    return {source:'program',value:typeof p==='number'&&p>=.9?'yes':typeof p==='number'&&p<=.1?'no':'undecided',
+      reason:'component_probability_band',bounds:{low:.1,high:.9},policy,policyVersion:POLICY_VERSION};
+  }
   const resolve=(value:unknown,reason:string,threshold?:number):NonNullable<Decision['resolution']>=>({
     source:JSON.stringify(value)===JSON.stringify(answer.value)?'jev':'program',value,reason,threshold,policy,policyVersion:POLICY_VERSION,
   });

@@ -11,6 +11,7 @@ export interface FragmentTraversalLedger {
   mappings:FragmentMapping[];
   events:FragmentEvent[];
   states:FragmentState[];
+  componentQuestions?:ComponentQuestion[]; // Materials are full JSON bytes in interchange.
 }
 export interface FragmentRoot {storageVersion:2;policy:string;rootKey:string;epoch:number;authority?:string;legacyBounded?:true}
 export interface FragmentRecord {
@@ -26,14 +27,20 @@ export interface FragmentState {id:string;url:string;context:string;candidateIds
 export interface FragmentObligation {id:string;scopeKey:string;authority:string;candidateIds:string[]}
 export interface FragmentEdge extends FragmentMapping {id:string}
 export interface FragmentRevocation {id:string;reason:string}
+export interface ComponentQuestion {
+  id:string;policy:string;sourceMaterial:string;targetMaterial:string;conditionKey:string;
+  models:{jev:string;llm?:string};status:'reserved'|'yes'|'no'|'undecided'|'unavailable';
+  probability?:number;rawValue?:unknown;decisionIds:string[];reason:string;
+  calls:{actor:'jev'|'llm';startedAt:number;elapsedMs?:number;status:'reserved'|'returned'|'failed';usage?:Record<string,number>}[];
+}
 export interface FragmentDelta {
   root:FragmentRoot;
   atoms:FragmentAtom[];materials:FragmentMaterial[];fragments:FragmentRecord[];candidates:CandidateRecord[];
   classes:FragmentClass[];events:FragmentEvent[];states:FragmentState[];obligations:FragmentObligation[];
-  edges:FragmentEdge[];revocations:FragmentRevocation[];
+  edges:FragmentEdge[];revocations:FragmentRevocation[];componentQuestions:ComponentQuestion[];
 }
-export type FragmentRows={fragments:FragmentRecord;candidates:CandidateRecord;classes:FragmentClass;events:FragmentEvent;states:FragmentState;obligations:FragmentObligation;edges:FragmentEdge;revocations:FragmentRevocation};
+export type FragmentRows={fragments:FragmentRecord;candidates:CandidateRecord;classes:FragmentClass;events:FragmentEvent;states:FragmentState;obligations:FragmentObligation;edges:FragmentEdge;revocations:FragmentRevocation;componentQuestions:ComponentQuestion};
 export type FragmentRowKind=keyof FragmentRows;
-export const fragmentRowKinds:FragmentRowKind[]=['fragments','classes','candidates','edges','events','revocations','states','obligations'];
+export const fragmentRowKinds:FragmentRowKind[]=['fragments','classes','candidates','edges','events','revocations','states','obligations','componentQuestions'];
 export const fragmentRoot=(taskId:string,policy:string):FragmentRoot=>({storageVersion:2,policy,rootKey:taskId,epoch:0});
-export const emptyFragmentDelta=(root:FragmentRoot):FragmentDelta=>({root,atoms:[],materials:[],fragments:[],candidates:[],classes:[],events:[],states:[],obligations:[],edges:[],revocations:[]});
+export const emptyFragmentDelta=(root:FragmentRoot):FragmentDelta=>({root,atoms:[],materials:[],fragments:[],candidates:[],classes:[],events:[],states:[],obligations:[],edges:[],revocations:[],componentQuestions:[]});

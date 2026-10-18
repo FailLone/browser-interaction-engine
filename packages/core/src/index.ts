@@ -1,5 +1,6 @@
 export { InteractionEngine } from './engine.js';
 export * from './types.js';
+export * from './component-correspondence.js';
 export * from './ports.js';
 export { sessionSchema, contextSchema, evidenceRetentionSchema, componentDescriptionSchema, explorationGroupDecisionSchema, explorationGroupProposalSchema, explorationGroupResolutionsSchema } from './schema.js';
 export { canonical, hash, hashBytes, contextKey, id, now, clone, timeout } from './util.js';

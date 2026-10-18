@@ -44,7 +44,7 @@ export class FragmentSession {
   }
   put<K extends FragmentRowKind>(kind:K,value:FragmentRows[K]){
     const old=this.get(kind,value.id);if(equal(old,value))return false;
-    if(old&&!['states','obligations','edges','revocations'].includes(kind))throw new ExplorerError('FRAGMENT_RECORD_CONFLICT');
+    if(old&&!['states','obligations','edges','revocations','componentQuestions'].includes(kind))throw new ExplorerError('FRAGMENT_RECORD_CONFLICT');
     this.map(kind).set(value.id,structuredClone(value));this.root.epoch++;this.dirty=true;return true;
   }
   authority(authority:string){if(this.root.authority!==authority){this.root.authority=authority;this.root.epoch++;this.dirty=true;}}
@@ -288,6 +288,7 @@ export class FragmentSession {
     for(const [id,reason] of Object.entries(ledger.revokedCandidates))this.put('revocations',{id,reason});
     for(const state of ledger.states)this.put('states',state);
     for(const [id,ref] of Object.entries(ledger.obligations))this.put('obligations',{id,...ref});
+    for(const q of ledger.componentQuestions||[])this.put('componentQuestions',{...q,sourceMaterial:this.material('component',q.sourceMaterial),targetMaterial:this.material('component',q.targetMaterial)});
     this.root={storageVersion:2,rootKey:this.taskId,policy:ledger.policy,epoch:ledger.epoch,...(ledger.authority?{authority:ledger.authority}:{}),...(ledger.bounded?{legacyBounded:true as const}:{})};this.dirty=true;
   }
   /** Explicit full audit export. Normal task/state reads use only FragmentRoot. */
@@ -299,6 +300,7 @@ export class FragmentSession {
     const mappings=[...this.rows('edges')].map(({id,...edge})=>edge);
     const explicitPairs=new Set(mappings.map(e=>JSON.stringify([e.sourceCandidateId,e.targetCandidateId])));
     for(const cls of this.rows('classes')){const members=[...this.rows('candidates','class_id=?',[cls.id],c=>c.classId===cls.id)];for(const a of members)for(const b of members)if(a.id!==b.id&&!explicitPairs.has(JSON.stringify([a.id,b.id])))mappings.push({sourceFragmentId:a.fragmentId,targetFragmentId:b.fragmentId,sourceCandidateId:a.id,targetCandidateId:b.id,kind:'equivalent'});}
-    return {policy:this.root.policy,epoch:this.root.epoch,authority:this.root.authority,...(this.root.legacyBounded?{bounded:true as const}:{}),fragments:fragments.map(({lookupKey,legacy,...f})=>f),mappings,events:[...this.rows('events')].map(({legacy,...e})=>({...e,...(e.effect!==undefined?{effect:legacy?.effectEncoded?encodeFragmentMaterial(this.raw(e.effect,'effect')):this.raw(e.effect,'effect')}:{})})),states:[...this.rows('states')],obligations:Object.fromEntries([...this.rows('obligations')].map(({id,...o})=>[id,o])),revokedCandidates:Object.fromEntries([...this.rows('revocations')].map(r=>[r.id,r.reason]))};
+    const questions=[...this.rows('componentQuestions')].map(q=>({...q,sourceMaterial:this.raw(q.sourceMaterial,'component'),targetMaterial:this.raw(q.targetMaterial,'component')}));
+    return {policy:this.root.policy,epoch:this.root.epoch,authority:this.root.authority,...(questions.length?{componentQuestions:questions}:{}),...(this.root.legacyBounded?{bounded:true as const}:{}),fragments:fragments.map(({lookupKey,legacy,...f})=>f),mappings,events:[...this.rows('events')].map(({legacy,...e})=>({...e,...(e.effect!==undefined?{effect:legacy?.effectEncoded?encodeFragmentMaterial(this.raw(e.effect,'effect')):this.raw(e.effect,'effect')}:{})})),states:[...this.rows('states')],obligations:Object.fromEntries([...this.rows('obligations')].map(({id,...o})=>[id,o])),revokedCandidates:Object.fromEntries([...this.rows('revocations')].map(r=>[r.id,r.reason]))};
   }
 }

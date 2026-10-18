@@ -1,3 +1,4 @@
+import {ComponentJudgments,componentOpportunities,componentGap,componentEvidence} from './component-correspondence.js';
 import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,fragmentSamplingDecision,preferFragmentCandidate,fragmentStateOrder,linkFragmentObligations,fragmentObligationSampled,sampledFragmentAction,type FragmentFrontier} from './fragment-traversal.js';
 import {programNavigationDependencies} from '@interaction/browser';
 import {coverageLedger} from './coverage-ledger.js';
@@ -50,6 +51,7 @@ export class ExplorerPlugin {
   readonly router:DecisionRouter;
   private active?: {task:Task;controller:AbortController;promise:Promise<void>};
   private closed=false;
+  private componentJudgments=new ComponentJudgments();
   private activeProgramGap?:{taskId:string;key:string;localId:string;deadline:number};
   private writers=new WeakMap<Task,TaskWriter>();
   private fragmentSessions=new WeakMap<Task,FragmentSession>();
@@ -345,7 +347,7 @@ export class ExplorerPlugin {
   private async decide(task:Task,signal:AbortSignal,request:Omit<ModelRequest,'id'>,validate?:(v:unknown)=>unknown) {
     if(task.coverageContract?.programNavigation){
       const context=this.activeProgramGap,gap=context?.taskId===task.id?task.programModelGaps?.[context.key]:undefined;
-      const allowed=gap?.kind==='classification'?['control-classification','classification-clarification']:['control-risk','operation-clarification'];
+      const allowed=gap?.kind==='component-correspondence'?['component-correspondence','component-correspondence-clarification']:gap?.kind==='classification'?['control-classification','classification-clarification']:['control-risk','operation-clarification'];
       if(!gap||!allowed.includes(request.purpose))throw new ExplorerError('PROGRAM_MODEL_GAP_REQUIRED');
       request={...request,state:{...(request.state as Record<string,unknown>),programGap:{key:gap.key,kind:gap.kind,question:gap.question,source:gap.source,checks:gap.checks,maxCalls:gap.maxCalls,maxDurationMs:gap.maxDurationMs}}};
       this.event(task,'model.gap_question',{gapKey:gap.key,purpose:request.purpose,question:gap.question,source:gap.source,programChecks:gap.checks});
@@ -651,7 +653,9 @@ export class ExplorerPlugin {
         &&sourcesCompleted.associate(item,attempt,task.pendingDispatch?.sessionId===attempt.sessionId&&task.pendingDispatch.requestId===attempt.requestId&&task.pendingDispatch.observationId===attempt.beforeId&&task.pendingDispatch.actionId===attempt.action.id?task.pendingDispatch.sourceAssociations?.[item.id]:undefined);
       if(condition&&condition!==operationKey()&&!rebound)continue;
       this.changedPlan(task,item);
-      if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref});
+      const dispatch=task.pendingDispatch;
+      const sourceAssociation=dispatch?.sessionId===attempt.sessionId&&dispatch.requestId===attempt.requestId&&dispatch.observationId===attempt.beforeId&&dispatch.actionId===attempt.action.id?dispatch.sourceAssociations?.[item.id]:undefined;
+      if(!item.attempts.some(x=>x.evidence?.attemptId===attempt.id))item.attempts.push({roundId:round.id,outcome:attempt.status,evidence:ref,...sourceAssociation?{sourceAssociation}:{}});
       item.evidence.push(ref);
       if(item.operationSchedulingNormalization)this.normalizeScheduling(task,[item],normalizationHost,ref.observationId,normalizer);
       if(attempt.status==='succeeded'&&attempt.afterId){
@@ -1493,7 +1497,11 @@ export class ExplorerPlugin {
         // Boundary exits and page traversal serve existing work without creating
         // a recurring goal for an otherwise completed one-shot request.
         const prerequisite=includesScope(task.plan,action,o)==='prerequisite'?pending.find(item=>item.dispatchScope===true)||pending[0]:undefined;
-        const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||item||prerequisite;
+        // Prefer an original pending source whose current target the SDK has
+        // freshly bound. Selecting it preserves its ID and pre-dispatch source
+        // binding; a newer literal row must not consume its only visible action.
+        const bound=projection.entries.find(entry=>entry.state==='active'&&entry.currentActionId===action.id&&entry.source&&entry.correspondence&&byId.has(entry.itemId));
+        const owner=arrivedTarget&&arrivedTarget.currentActionId===action.id&&byId.get(arrivedTarget.itemId)||bound&&byId.get(bound.itemId)||item||prerequisite;
         if(owner)local.push({itemId:owner.id,kind:'current',actionId:action.id,source:{sessionId:sid,observationId:o.id}});
       }else{
         const targets=this.entryTargets(task,action,o).sort((a,b)=>(Number(b.id===arrived)-Number(a.id===arrived))||(retainedOrder.get(a.id)??Infinity)-(retainedOrder.get(b.id)??Infinity));
@@ -1562,6 +1570,7 @@ export class ExplorerPlugin {
       omitted:Math.max(0,local.length-128),remote:remote.map(choice=>({itemId:choice.itemId,kind:choice.kind,routeKey:choice.routeKey})),
       returnEvaluation:recovery?'candidate_route_available':beforeRecovery?.needsRecovery?'no_selected_return_route':'current_work_preferred',coverageGranted:false});
     const selection=fragmentDecision.selection,selectedAction=selection?.actionId&&unique.find(action=>action.id===selection.actionId);
+    if(selectedAction&&await this.resolveComponentGap(task,o,signal,selectedAction.id))return true;
     if(recovery&&(selection?.kind==='recovery'||selection?.kind==='inspect'))recovery.revalidate();
     const schedulingBefore={cursor:schedule.cursor,selection:schedule.selection};
     if(selection){if(selectedAction)schedule.selection={...selection};else reserveObligation(schedule,selection);if(schedule.deferred)delete schedule.deferred[selection.itemId];this.event(task,'obligation.selected',{...selection,sourceObservationId:o.id,coverageGranted:false,executionAuthorized:false});}
@@ -1615,7 +1624,7 @@ export class ExplorerPlugin {
       if(reentry&&!repetition?.repeatable)throw new ExplorerError('REENTRY_EVIDENCE_CHANGED');
       const reentryItem=reentry?this.recordEntry(task,round,action,o):undefined;
       const purpose=reentry||completedExit?'prerequisite':includesScope(task.plan,action,o);const items=task.plan.filter(i=>i.required&&schedulableObligation(i)&&!i.reason.startsWith('missing_capability:')&&matches(i.scope,action,o)&&(!boundOperationCondition(i)||boundOperationCondition(i)===keyFor(action,o)));
-      if(purpose==='target'&&selection?.itemId===arrived&&!items.some(item=>item.id===selection.itemId)){
+      if(purpose==='target'&&selection?.itemId&&!items.some(item=>item.id===selection.itemId)){
         const item=byId.get(selection.itemId),binding=currentObligationTarget(this.host,item,o,this.host.actions(sid,o.id));
         if(!item||binding?.currentActionId!==action.id||!binding.source||!binding.correspondence)throw new ExplorerError('STALE_DECISION');
         items.push(item);
@@ -1628,7 +1637,7 @@ export class ExplorerPlugin {
       // proves arrival, identity correspondence or completion of the child.
       if(reentryItem){schedule.selection={itemId:reentryItem.id,kind:'reentry',actionId:action.id,source:reentryItem.evidence.find(ref=>!ref.attemptId)};schedule.cursor=reentryItem.id;}
       const association=operationSourceCompletion(this.host),sourceAssociations:NonNullable<NonNullable<Task['pendingDispatch']>['sourceAssociations']>={};
-      for(const item of items)if(item.dispatchScope===false&&(boundOperationCondition(item)!==keyFor(action,o)||!matches(item.scope,action,o))){
+      for(const item of items)if(item.dispatchScope===false&&(item.id===selection?.itemId||boundOperationCondition(item)!==keyFor(action,o)||!matches(item.scope,action,o))){
         const binding=association.prepareAssociation(item,action);if(binding)sourceAssociations[item.id]=binding;
       }
       const requestId=randomUUID();task.pendingDispatch={sessionId:sid,actionId:action.id,requestId,itemIds:items.map(i=>i.id),observationId:o.id,...Object.keys(sourceAssociations).length?{sourceAssociations}:{}};
@@ -1751,7 +1760,34 @@ export class ExplorerPlugin {
     }
     return false;
   }
+  private async resolveComponentGap(task:Task,o:Observation,signal:AbortSignal,actionId?:string) {
+    if(!this.host.recordComponentCorrespondence||!this.router.providers.jev)return false;
+    for(const opportunity of componentOpportunities(this.host,task,o,actionId)){
+      const key=this.componentJudgments.key(opportunity.material,this.router.providers),fragments=this.fragments(task);
+      const cached=fragments.get('componentQuestions',key);
+      if(cached&&cached.status!=='yes'){this.event(task,'component.cache_hit',{key,status:cached.status});continue;}
+      const gap=componentGap(opportunity,o,key);(task.programModelGaps??={})[key]=gap;
+      this.activeProgramGap={taskId:task.id,key,localId:opportunity.action.localId!,deadline:Date.now()+12000};
+      const stillValuable=()=>!signal.aborted&&this.host.observation(o.sessionId).id===o.id
+        &&task.plan.some(i=>i.id===opportunity.itemId&&isUnfinished(i)&&!i.attempts.length);
+      try{
+        const answer=await this.componentJudgments.judge(opportunity.material,{fragments,providers:this.router.providers,task,signal,
+          persist:()=>this.persist(task),stillValuable,decide:request=>this.decide(task,signal,request),event:(type,data)=>this.event(task,type,data)});
+        gap.status=answer?'reviewed':'no_call';gap.decisionIds=answer?.decisionIds||[];
+        if(answer?.status==='yes'&&stillValuable()){
+          const record=this.host.recordComponentCorrespondence(o.sessionId,componentEvidence(opportunity.input,opportunity.material,answer));
+          gap.validations.push({accepted:true,command:'recordComponentCorrespondence',beforeId:o.id});
+          this.event(task,'component.correspondence_recorded',{key,recordId:record.id,itemId:opportunity.itemId,input:opportunity.input,
+            sourceMaterial:answer.sourceMaterial,targetMaterial:answer.targetMaterial,coverageGranted:false,dispatchRevalidationRequired:true});
+          return true;
+        }
+        if(answer&&!cached)return true;
+      }finally{delete this.activeProgramGap;this.persist(task);}
+    }
+    return false;
+  }
   private async resolveProgramGap(task:Task,round:Round,o:Observation,signal:AbortSignal) {
+    if(await this.resolveComponentGap(task,o,signal))return true;
     const candidate=programModelGapCandidates(this.host,task,o)[0];
     if(!candidate){this.event(task,'model.fallback_not_needed',{reason:'no_new_concrete_operation_gap',observationId:o.id,unknownDutiesRetained:true});return false;}
     const {gap,control,priorProbe,readyProbe}=candidate;
