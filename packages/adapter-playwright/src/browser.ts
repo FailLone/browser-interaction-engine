@@ -1,4 +1,4 @@
-import {boundaryExitTransition} from './capture-readiness.js';
+import {boundaryExitTransition,unresolvedContentScopes,contentBlockedControls,disclosureTransition} from './capture-readiness.js';
 import { scrollProbeInPage, scrollProbeSchema } from './scroll-probe.js';
 import {navigationIntent,sameHTTPDestination} from './navigation.js';
 import {executionURLAllowed} from './execution-boundary.js';
@@ -601,6 +601,8 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     if (plan?.status === 'invalidated') dom.discoveryScan.supplement = { requestId: plan.requestId, targetId: plan.targetId, budget: plan.budget, status: 'invalidated', reason: plan.reason };
     return dom;
   }
+  /** Existing sampling delay, exposed as one countable bounded acquisition step. */
+  protected async waitForCaptureSample(milliseconds:number) { await new Promise(r=>setTimeout(r,milliseconds)); }
   async capture(observationId: string, captureContext?: CaptureContext<Observation>) {
     // A capture consumes the slot even on failure, mismatch or ordinary observe.
     const dispatch = this.ownerDispatch; this.ownerDispatch = undefined; this.preparedOwnerDispatch = undefined;
@@ -618,12 +620,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       && dispatch.actionKey === hash(dispatched.action) && dispatch.graphKey === hash(dispatched.before.ownerDependencies)
       && dispatch.contextKey === hash(dispatched.before.context) ? dispatch : undefined;
     if (!this.page) throw new EngineError('BROWSER_UNAVAILABLE', 'Browser is not connected');
-    let stable = false; let interactionStable = false; let captureRetries = 0;
+    let stable = false; let interactionStable = false; let captureRetries = 0; let lastDOMReadMs=0;
     let dom: Awaited<ReturnType<BrowserAdapter['readDOM']>> | undefined;
     let lastError: string | undefined;
     // All windows describe the same sampled DOM. Time spent computing its
     // projections cannot turn a single sample into stability evidence.
-    let sampledAt = 0;
+    let sampledAt = 0; const captureStarted=Date.now(); let contentSamples=0, contentWaitStarted:number|undefined;
+    const contentTransitions=new Map<string,NonNullable<Observation['contentReadiness']>['transitions'][number]>();
+    let contentStop:'settled'|'independent-work'|'deadline'='settled';
     const projections = new WeakMap<object, Map<string, string>>();
     const project = (view: NonNullable<typeof dom>) => {
       if (!projections.has(view)) {
@@ -632,14 +636,18 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
           const key=navigationScopeProjection(view,scope);
           for(const localId of scope.controlIds){const target=view.controls.find(c=>c.localId===localId);if(target&&!scope.blockedControlIds.includes(localId)&&!result.has(target.instanceId))result.set(target.instanceId,key);}
         }
+        for(const id of contentBlockedControls(view)){const target=view.controls.find(c=>c.localId===id);if(target)result.delete(target.instanceId);}
         projections.set(view,result);
       }
       return projections.get(view)!;
     };
     const dependencyWindows = new Map<string, { key: string; since: number }>();
+    let disclosureWindow:{rootId:string;since:number;samples:number}|undefined;
     let exitWindow:{since:number;samples:number}|undefined;
     let documentWindow:{key:string;since:number;samples:number}|undefined;
     const sampleDependencies = (view: NonNullable<typeof dom>) => {
+      const disclosure=pending&&disclosureTransition(pending.action,pending.before,view);
+      if(disclosure){if(disclosureWindow?.rootId===disclosure.rootId)disclosureWindow.samples++;else disclosureWindow={rootId:disclosure.rootId,since:sampledAt,samples:1};}else disclosureWindow=undefined;
       if(pending&&boundaryExitTransition(pending.action,pending.before,view)){
         if(exitWindow)exitWindow.samples++;else exitWindow={since:sampledAt,samples:1};
       }else exitWindow=undefined;
@@ -647,6 +655,11 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if(view.gaps.some(g=>g.critical||['DOM_ROOT_UNAVAILABLE','DOCUMENT_LOADING'].includes(g.code)))documentWindow=undefined;
       else if(documentWindow?.key===documentKey)documentWindow.samples++;
       else documentWindow={key:documentKey,since:sampledAt,samples:1};
+      for(const scope of view.navigationScopes||[]){
+        let transition=contentTransitions.get(scope.rootId);
+        if(scope.contentSignals?.length&&!transition){transition={rootId:scope.rootId,triggerIds:scope.triggerIds||[],firstControlIds:scope.controlIds,lastControlIds:scope.controlIds,addedControlIds:[],signals:scope.contentSignals,samples:0};contentTransitions.set(scope.rootId,transition);}
+        if(transition){transition.samples++;transition.lastControlIds=scope.controlIds;transition.addedControlIds=scope.controlIds.filter(id=>!transition!.firstControlIds.includes(id));}
+      }
       const present = new Set<string>();
       for (const control of view.controls) {
         const key = project(view).get(control.instanceId); if (!key) continue;
@@ -663,7 +676,14 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     const pending = captureContext?.afterAction;
     const pendingTarget = pending?.before.controls.find(c => c.localId === pending.action.localId);
     const pendingScope = pending?.action.risk === 'interface' && pendingTarget ? nativeFormScope(pendingTarget, pending.action.kind) : undefined;
+    const pendingDisclosure=pendingTarget&&pending?.before.navigationScopes?.some(s=>s.kind==='disclosure'&&s.triggerIds?.includes(pendingTarget.localId));
     const pendingNavigationScope=pendingTarget&&navigationScopeFor(pending!.before,[pendingTarget.localId]);
+    const contentWaiting=(view:NonNullable<typeof dom>)=>unresolvedContentScopes(view).filter(scope=>!pendingTarget||scope.triggerIds?.includes(pendingTarget.localId)||scope.blockedControlIds.includes(pendingTarget.localId));
+    // This is a yield budget, not a readiness delay: a ready result returns as
+    // soon as sampled; an unrelated ready operation can proceed after at most
+    // 1 second of this capture's existing deadline. There is no second loop.
+    const contentMayYield=(view:NonNullable<typeof dom>)=>contentWaitStarted!==undefined&&sampledAt-contentWaitStarted>=1000
+      &&[...readyDependencies(view)].some(id=>id!==pendingTarget?.instanceId);
     const pendingNavigation=pending&&navigationIntent(pending.action,pending.before);
     const sameWindow=!pendingTarget?.reviewBinding?.attributes.target||pendingTarget.reviewBinding.attributes.target==='_self';
     const navigationReady=(view:NonNullable<typeof dom>)=>!!pendingNavigation&&sameWindow&&!!documentWindow&&documentWindow.samples>=2
@@ -695,39 +715,46 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     };
     const evidenceManifest: BrowserEvidenceManifest = { schemaVersion: 1, status: this.options.evidence.enabled ? 'captured' : 'disabled', artifacts: {}, gaps: [] };
     for (;;) {
-      let previous = ''; let unchangedSince = Date.now();
+      let previous = ''; let observationSamples=0; let unchangedSince = Date.now();
       let previousInteraction = ''; let interactionSince = Date.now();
       stable = false; interactionStable = false;
       do {
         try {
+          // Do not start an already unaffordable last read and turn a bounded
+          // pending-content timeout into a fabricated capture failure.
+          if(dom&&deadline-Date.now()<=Math.max(10,lastDOMReadMs))break;
+          const readStarted=Date.now();
           dom = await timeout(this.readDOM(false, true), Math.max(1, deadline - Date.now()), 'DOM capture deadline exceeded');
-          sampledAt = Date.now();
+          sampledAt = Date.now();lastDOMReadMs=sampledAt-readStarted;observationSamples++;
           lastError = undefined;
           sampleDependencies(dom);
+          const contentPending=unresolvedContentScopes(dom).length>0;
+          if(contentPending){contentSamples++;contentWaitStarted??=sampledAt;}
+          const waiting=contentWaiting(dom).length>0;
           const incomplete = dom.gaps.some(g => ['DOM_ROOT_UNAVAILABLE', 'DOCUMENT_LOADING'].includes(g.code));
           const key = JSON.stringify({ documentId: dom.documentId, url: dom.url, overlays: dom.overlays.map(o => o.key), controls: dom.controls.map(c => [c.instanceId, c.name, c.value, c.displayedText, c.checked, c.pressed, c.visible, c.enabled, c.editable, c.expanded, c.constraints, c.rect, c.actionable.hitTarget, c.actionBasis]) });
           if (key !== previous || incomplete) { previous = key; unchangedSince = sampledAt; }
           const scoped = interactionScope(dom);
           const interactive = interactionProjection(scoped) + boundaryBinding(dom) + canonical(scoped.regionCandidates?.map(c => [c.id, c.binding])) + canonical(scoped.structuralLists);
           if (interactive !== previousInteraction || incomplete) { previousInteraction = interactive; interactionSince = sampledAt; }
-          interactionStable = !incomplete && sampledAt - interactionSince >= this.options.settleMs;
-          if (!incomplete && sampledAt - unchangedSince >= this.options.settleMs) { stable = true; break; }
-          if (this.options.exploration === 'controls' && !dom.gaps.some(g => g.critical) && (interactionStable || partialSufficient(dom))) break;
+          interactionStable = !incomplete && !contentPending && (!pendingDisclosure||observationSamples>=2) && sampledAt - interactionSince >= this.options.settleMs;
+          if (!incomplete && !contentPending && (!pendingDisclosure||observationSamples>=2) && sampledAt - unchangedSince >= this.options.settleMs) { stable = true; break; }
+          if ((!pendingDisclosure||observationSamples>=2) && this.options.exploration === 'controls' && !dom.gaps.some(g => g.critical) && (interactionStable || !pending&&readyDependencies(dom).size>0 || !waiting&&partialSufficient(dom) || waiting&&contentMayYield(dom))) {if(waiting)contentStop='independent-work';break;}
         } catch (error) {
-          dependencyWindows.clear(); documentWindow=undefined; exitWindow=undefined; lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
+          dependencyWindows.clear(); documentWindow=undefined; exitWindow=undefined; disclosureWindow=undefined; lastError = String(error); previous = ''; unchangedSince = Date.now(); previousInteraction = ''; interactionSince = Date.now(); interactionStable = false;
           if (this.page.isClosed()) break;
         }
         if (Date.now() >= deadline) break;
-        await new Promise(r => setTimeout(r, Math.min(50, Math.max(0, deadline - Date.now()))));
+        await this.waitForCaptureSample(Math.min(contentWaitStarted!==undefined?Math.max(100,Math.min(250,this.options.settleMs)):50, Math.max(0, deadline - Date.now())));
       } while (Date.now() < deadline);
-      if (this.options.evidence.enabled && dom && !lastError) {
+      if (this.options.evidence.enabled && dom && !lastError && Date.now()<deadline) {
         try {
-          const detailed = await timeout(this.readDOM(true, true), this.options.observeTimeoutMs, 'Detailed DOM capture deadline exceeded');
-          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists)) {
-            interactionStable &&= interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(interactionScope(dom).regionCandidates?.map(c => [c.id, c.binding])) === canonical(interactionScope(detailed).regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
+          const detailed = await timeout(this.readDOM(true, true), Math.max(1,deadline-Date.now()), 'Detailed DOM capture deadline exceeded');
+          if (observableCanonical({ ...dom, context: {} }) !== observableCanonical({ ...detailed, context: {} }) || dom.documentId !== detailed.documentId || canonical(dom.regionCandidates?.map(c => [c.id, c.binding])) !== canonical(detailed.regionCandidates?.map(c => [c.id, c.binding])) || canonical(dom.structuralLists) !== canonical(detailed.structuralLists) || canonical(dom.navigationScopes) !== canonical(detailed.navigationScopes)) {
+            interactionStable &&= !unresolvedContentScopes(detailed).length && interactionProjection(interactionScope(dom)) === interactionProjection(interactionScope(detailed)) && boundaryBinding(dom) === boundaryBinding(detailed) && canonical(interactionScope(dom).regionCandidates?.map(c => [c.id, c.binding])) === canonical(interactionScope(detailed).regionCandidates?.map(c => [c.id, c.binding])) && canonical(interactionScope(dom).structuralLists) === canonical(interactionScope(detailed).structuralLists);
             stable = false;
             const critical = !(this.options.exploration === 'controls' && (interactionStable || readyDependencies(detailed).size > 0 || navigationReady(detailed) || exitReady(detailed)));
-            const sufficient = this.options.exploration === 'controls' && (interactionStable || partialSufficient(detailed));
+            const sufficient = this.options.exploration === 'controls' && (interactionStable || !contentWaiting(detailed).length&&partialSufficient(detailed) || contentMayYield(detailed));
             dom = detailed;
             // A transition can arrive after the quiet sampling window. Re-sample
             // for this action within the original deadline. Its needs do not
@@ -745,6 +772,11 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
     dom ??= { documentId: `unavailable:${id()}`, url: this.page.url(), title: '', text: '', controls: [], regions: [], overlays: [], boundaries: [], scroll: { x: 0, y: 0, maxY: 0 }, gaps: [] };
     const ready = this.options.exploration === 'controls' && !stable && !interactionStable && !lastError && !dom.gaps.some(g => g.critical)
       ? readyDependencies(dom) : new Set<string>();
+    const unresolved=unresolvedContentScopes(dom);
+    if(unresolved.length&&contentStop!=='independent-work')contentStop='deadline';
+    const contentReadiness:Observation['contentReadiness']=contentWaitStarted!==undefined||unresolved.length?{version:1,status:unresolved.length?'unknown':'observed',samples:contentSamples,
+      waitedMs:Date.now()-(contentWaitStarted??captureStarted),stop:unresolved.length?contentStop:'settled',
+      transitions:[...contentTransitions.values()],scopes:unresolved.map(s=>({rootId:s.rootId,triggerIds:s.triggerIds||[],controlIds:s.controlIds,complete:s.complete,reasons:s.reasons,signals:s.contentSignals||[]}))}:undefined;
     const capturedAt = now(); const gaps = [...dom.gaps, ...this.gaps.splice(0)];
     let navigation: BrowserHistory | undefined;
     try { navigation = await this.readHistory(dom.documentId); }
@@ -759,14 +791,21 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       &&(dom.documentId===pending!.before.documentId||currentEntry.id!==sourceHistory.entries[sourceHistory.currentIndex].id)
       ?{...(dom.documentId===pending!.before.documentId?{version:2 as const,transition:'same-document-url' as const,sourceEntryId:sourceHistory.entries[sourceHistory.currentIndex].id,entryId:currentEntry.id}:{version:1 as const}),beforeId:pending!.before.id,actionId:pending!.action.id,sourceDocumentId:pending!.before.documentId,documentId:dom.documentId,sourceUrl:pending!.before.url,requestedUrl:pendingNavigation!.targetUrl,observedUrl:dom.url,samples:documentWindow!.samples,settledMs:sampledAt-documentWindow!.since}:undefined;
     const boundaryExitCapture:Observation['boundaryExitCapture']=!lastError&&exitReady(dom)?{version:1,beforeId:pending!.before.id,actionId:pending!.action.id,samples:exitWindow!.samples,settledMs:sampledAt-exitWindow!.since}:undefined;
-    if(ready.size||(navigationCapture||boundaryExitCapture)&&!stable&&!interactionStable)for(const control of dom.controls)if(!ready.has(control.instanceId)){
+    const disclosureCapture:Observation['disclosureCapture']=!lastError&&pending&&disclosureWindow&&disclosureWindow.samples>=2&&sampledAt-disclosureWindow.since>=this.options.settleMs&&disclosureTransition(pending.action,pending.before,dom)
+      ?{version:1,beforeId:pending.before.id,actionId:pending.action.id,rootId:disclosureWindow.rootId,samples:disclosureWindow.samples,settledMs:sampledAt-disclosureWindow.since}:undefined;
+    if(ready.size||(navigationCapture||boundaryExitCapture||disclosureCapture)&&!stable&&!interactionStable)for(const control of dom.controls)if(!ready.has(control.instanceId)){
       control.readiness={status:'unstable',reason:'This operation’s dependency scope did not settle during capture'};
     }
+    const contentBlocked=contentBlockedControls(dom);
+    for(const control of dom.controls)if(contentBlocked.has(control.localId))control.readiness={status:'unstable',reason:'Related asynchronous content remains pending or unknown; observe again without repeating the entrance'};
+    for(const scope of unresolved)gaps.push({code:'ASYNC_CONTENT_PENDING',message:'The related content has pending or unknown readiness; absence of children does not prove empty or exhausted content',reference:scope.rootId,
+      coverageScope:{version:'dom-subtree-v1',documentId:dom.documentId,rootInstanceId:scope.rootId,ancestorInstanceIds:scope.binding?.ancestors.map(a=>a.id)||[],affectedControlIds:scope.controlIds,complete:scope.complete,landmark:'navigation'}});
+    if(disclosureCapture&&!stable&&!interactionStable)gaps.push({code:'PARTIAL_DISCLOSURE_OBSERVED',message:'The same-document disclosure opened; asynchronous content remains separately pending or unknown'});
     if(boundaryExitCapture&&!stable&&!interactionStable)gaps.push({code:'PARTIAL_BOUNDARY_EXIT_READY',message:'The exclusive layer closed and the remaining boundary stack settled; parent control dependencies remain independently unready'});
     if(navigationCapture&&!stable&&!interactionStable)gaps.push({code:'PARTIAL_NATIVE_NAVIGATION_READY',message:'The native HTTP destination and GET history were observed; destination control dependencies remain independently unready'});
     if (captureRetries) gaps.push({ code: 'EVIDENCE_CAPTURE_RETRIED', message: `Re-sampled after ${captureRetries} change(s) during detailed capture; the browser action was not repeated` });
     if (lastError) gaps.push({ code: 'DOM_CAPTURE_FAILED', message: lastError, critical: true });
-    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && (interactionStable || ready.size > 0 || !!navigationCapture || !!boundaryExitCapture)) });
+    if (!stable) gaps.push({ code: 'UNSTABLE', message: 'Page did not settle within the observation budget', critical: !(this.options.exploration === 'controls' && (interactionStable || ready.size > 0 || !!navigationCapture || !!boundaryExitCapture || !!disclosureCapture)) });
     if (ready.size) gaps.push({ code: 'PARTIAL_INTERACTION_READY', message: `${ready.size} local targets have stable captured dependencies; unsettled operations remain blocked` });
     if (!stable && this.options.exploration === 'controls' && interactionStable) gaps.push({ code: 'INTERACTION_STABLE', message: 'Supported interactive controls settled; passive display changes remain in the full observation' });
     const context: Context = Object.fromEntries(Object.entries(this.options.context).map(([k, value]) => [k, { value, status: 'known', source: 'declared' }]));
@@ -833,7 +872,7 @@ export class BrowserAdapter implements InteractionDriver<Observation, SessionOpt
       if (evidenceManifest.gaps.length || dom.detailDom?.nodes.some(n => n.gaps.length)) evidenceManifest.status = 'partial';
     }
     const { detailDom: _, ...observation } = dom;
-    return { ...observation, ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, ...(navigationPositionCapture?{navigationPositionCapture}:{}), ...(navigationCapture?{navigationCapture}:{}), ...(boundaryExitCapture?{boundaryExitCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
+    return { ...observation, ...(contentReadiness?{contentReadiness}:{}), ...(this.options.coveragePolicy ? {coveragePolicy:this.options.coveragePolicy}:{}), ...(ownerDependencyDispatch ? { ownerDependencyDispatch } : {}), navigation, ...(disclosureCapture?{disclosureCapture}:{}), ...(navigationPositionCapture?{navigationPositionCapture}:{}), ...(navigationCapture?{navigationCapture}:{}), ...(boundaryExitCapture?{boundaryExitCapture}:{}), evidence: evidenceManifest, instanceScope: dom.documentId, capturedAt, screenshotAt, screenshot, context, gaps, stable, viewport: dom.detailDom?.environment ? { width: dom.detailDom.environment.layoutViewport.width, height: dom.detailDom.environment.layoutViewport.height } : this.options.viewport };
   }
   private lastDismissal?: BoundaryExitDispatch & { actionId: string };
   dismissalDispatch(actionId: string): BoundaryExitDispatch | undefined {
