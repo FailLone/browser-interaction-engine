@@ -37,7 +37,9 @@ export interface CrawlOptions {
 }
 
 export interface CrawlState { key: string; url: string; overlay?: string; firstSeenAt: number; controls: number }
-export interface Step { kind: CrawlKind; classKey: string; label: string; value?: string; purpose?: string }
+export interface Step { kind: CrawlKind; classKey: string; label: string; value?: string; purpose?: string;
+  /** Page the step was taken on; used to rewind past a whole page when backtracking. */
+  from?: string }
 export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
@@ -133,8 +135,10 @@ export class SampledCrawler {
         if (!candidate) {
           // Every action spends class budget, so action loops end; backtracks spend none.
           // A page that keeps reopening an overlay or redirecting must not spin until the deadline.
-          if (++idleBacktracks <= 3 && await this.backtrack(snapshot, 'state_exhausted')) continue;
-          stop = idleBacktracks > 3 ? 'no_progress' : 'scope_exhausted'; break;
+          // Each backtrack rewinds the path, so a run of them ends at the entry page; the cap
+          // only guards pages that keep reopening an overlay or redirecting.
+          if (++idleBacktracks <= 8 && await this.backtrack(snapshot, 'state_exhausted')) continue;
+          stop = idleBacktracks > 8 ? 'no_progress' : 'scope_exhausted'; break;
         }
         actions++; idleBacktracks = 0;
         await this.act(snapshot, candidate);
@@ -362,7 +366,7 @@ export class SampledCrawler {
     } finally { this.dispatching = false; }
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
     this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 0) + 1);
-    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose };
+    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose, from: pagePath(before.url) };
     // Set asynchronously by the route/popup handlers during dispatch.
     const refused = this.blockedNavigation as string | undefined;
     if (refused) { outcome = 'failed'; error = `navigation outside scope refused: ${refused.slice(0, 120)}`; this.failedClasses.add(c.classKey); }
@@ -451,8 +455,16 @@ export class SampledCrawler {
       if (stateKey(after) !== stateKey(current)) { this.path.pop(); this.emit({ type: 'backtrack', at: this.now(), reason: `${reason}:escape`, url: current.url }); return true; }
     }
     if (!restore && !this.path.length && pagePath(current.url) === pagePath(this.options.url)) return false;
-    // Restoring replays the whole path back to `current`; otherwise drop its last step.
-    const replay = restore ? this.path : this.path.slice(0, -1);
+    // Restoring replays the whole path back to `current`. Otherwise drop the last step; on a
+    // secondary page with nothing left, drop every step taken on it and the step that entered it,
+    // so the replay does not land on the same exhausted page again.
+    let replay = restore ? this.path : this.path.slice(0, -1);
+    const page = pagePath(current.url);
+    if (!restore && page !== pagePath(this.options.url)) {
+      let end = this.path.length;
+      while (end > 0 && this.path[end - 1].from === page) end--;
+      replay = this.path.slice(0, Math.max(0, end - 1));
+    }
     this.emit({ type: 'backtrack', at: this.now(), reason, url: current.url });
     await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
     await this.settle();

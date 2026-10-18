@@ -11,6 +11,8 @@ import { providersFromEnv } from '@interaction/explorer-plugin';
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
 const durationMs = Number(process.argv[4] || 240000);
+// Longer runs can spend more per secondary page and visit more pages per template:
+// CRAWL_PAGE_ACTIONS (default 20), CRAWL_PAGE_SAMPLES (default 2).
 // Optional UI checks as a side observation (not an acceptance target): CRAWL_CHECKS=1.
 // Optional anchored pathname pattern for other in-scope pages (same origin as the entry).
 const scope = process.argv[5] || undefined;
@@ -40,6 +42,7 @@ if (goal) {
 }
 const crawler = new SampledCrawler({
   url, durationMs, policy, judge, relevance, inputJudge, maxActions: 2000, ...(process.env.CRAWL_CHECKS ? { checks: defaultChecks } : {}),
+  ...(process.env.CRAWL_PAGE_ACTIONS ? { pageActions: Number(process.env.CRAWL_PAGE_ACTIONS) } : {}), ...(process.env.CRAWL_PAGE_SAMPLES ? { pageSamples: Number(process.env.CRAWL_PAGE_SAMPLES) } : {}),
   log: event => {
     appendFileSync(join(out, 'events.jsonl'), JSON.stringify(event) + '\n');
     const t = (event.at / 1000).toFixed(1);
