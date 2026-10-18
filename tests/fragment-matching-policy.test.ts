@@ -8,7 +8,7 @@ import {modeStructureReader} from '../packages/adapter-playwright/src/mode-struc
 import type {Observation,ActionCandidate,ActionAttempt} from '@interaction/browser';
 import type {PlanItem} from '@interaction/explorer-plugin';
 import {emptyFragmentAccess,mapFragmentCandidates,recordFragmentAccess} from '../packages/explorer-plugin/src/fragment-traversal-core.js';
-import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,fragmentObligationSampled,fragmentStateOrder,sampledFragmentAction,preferFragmentCandidate} from '../packages/explorer-plugin/src/fragment-traversal.js';
+import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,fragmentSamplingDecision,fragmentObligationSampled,fragmentStateOrder,sampledFragmentAction,preferFragmentCandidate} from '../packages/explorer-plugin/src/fragment-traversal.js';
 import {fragmentFixture} from './fragment-storage-helpers.js';
 import {digest} from '../packages/explorer-plugin/src/policy.js';
 import {navigationModeFixture} from './fixtures/mode-structure.js';
@@ -31,28 +31,31 @@ it('freezes exact public OKX inputs and reproduces the legacy instance-mode reje
  expect(t.identityScope).toBe('instance');
  expect(assessBrowserReviewBranchConditions(t,r.observation).assessment.reason).toBe('selector_instance_bound');
  const diagnostic=new Map<string,string>();browserTraversalFragments(r.observation,r.actions,'authority',diagnostic);
- expect([...diagnostic.values()].filter(v=>v==='projectable')).toHaveLength(104);
+ expect([...diagnostic.values()].filter(v=>v==='projectable')).toHaveLength(103);
+ // This search control has an incomplete captured dependency edge.
+ expect(diagnostic.get('4af4054a-b8d7-4b63-b01c-5d21c258046b')).toBe('mode:related_reference_incomplete');
  expect(conditions(r)?.conditions).toHaveLength(15);
  expect(r).toEqual(before); // Neither target identity nor original evidence is upgraded.
 });
 
 it('maps an actually repeated capture, and preserves its local proof under a document-instance rebuild',()=>{
  const original=capture(10),repeat=capture(11);
- expect(mappings(original,repeat)).toHaveLength(104);
+ expect(mappings(original,repeat)).toHaveLength(103);
  // Metamorphic rebuild of frozen bytes, explicitly separate from the real pair.
  const rebuilt=JSON.parse(JSON.stringify(original).replaceAll(original.observation.documentId,'rebuilt-document'));
  rebuilt.observation.id='rebuilt-observation';rebuilt.observation.url='https://www.okx.com/another-public-document';
- expect(mappings(original,rebuilt)).toHaveLength(104);
+ expect(mappings(original,rebuilt)).toHaveLength(103);
  expect(tab(rebuilt).identityScope).toBe('instance');
 });
 
-it('does not claim correspondence for captured pages with different document modes or real tab values',()=>{
- expect(mappings(capture(0),capture(4))).toEqual([]);
- expect(mappings(capture(10),capture(14))).toEqual([]);
+it('separates external document-mode differences from changed relevant tab values',()=>{
+ expect(mappings(capture(0),capture(4)).length).toBeGreaterThan(0);
+ const a=capture(10),b=capture(14),ids=new Set(a.actions.filter(action=>action.localId===tab(a).localId).map(action=>action.id));
+ expect(mappings(a,b).filter(m=>ids.has(m.sourceCandidateId))).toEqual([]);
  expect(conditions(capture(10))?.key).not.toBe(conditions(capture(14))?.key);
- // Unkeyed business records on the spot page still prevent projection.
+ // Unkeyed business records still decline locally; unrelated header work proceeds.
  const r=capture(18),d=new Map<string,string>();browserTraversalFragments(r.observation,r.actions,'authority',d);
- expect(candidates(r)).toHaveLength(0);expect([...d.values()]).toContain('mode:selector_record_key_missing');
+ expect(candidates(r).length).toBeGreaterThan(0);expect([...d.values()].some(v=>v==='unkeyed_record'||v==='mode:selector_record_key_missing')).toBe(true);
 });
 
 it.each(['external-mode','context','parameter','record','destination','hidden-target','missing','truncated','duplicate-root'])(
@@ -71,6 +74,9 @@ it.each(['external-mode','context','parameter','record','destination','hidden-ta
     expect(affected.size).toBeGreaterThan(0);
     expect(mappings(a,b).filter(m=>affected.has(m.sourceCandidateId))).toEqual([]);
     expect(mappings(a,b).length).toBeGreaterThan(0); // Independent unchanged fragments remain reusable.
+  }else if(kind==='external-mode'){
+    expect(mappings(a,b).length).toBeGreaterThan(0);
+    const from=candidates(a),to=candidates(b);expect(from.some(c=>to.some(d=>c.actionId===d.actionId&&c.context!==d.context))).toBe(true);
   }else expect(mappings(a,b)).toEqual([]);
  });
 
@@ -101,17 +107,18 @@ it('does not discard captured external ancestor dependencies merely because a na
  expect(modeStructureReader(a.observation,'fragment')(a.modes.b)?.key).not.toBe(modeStructureReader(b.observation,'fragment')(b.modes.b)?.key);
 });
 
-it('disables every legacy derived pruning entry point while retaining IDs, receipts and pending work',()=>{
+it.each(['guarded-host-fragments/v1','guarded-host-fragments/v2'])('disables %s derived pruning while retaining IDs, receipts and pending work',policy=>{
  const r=capture(10),active=fragmentFixture(),ids=new Set(r.actions.map(a=>a.id));
  const front=registerFragmentObservation(active.session,r.observation,r.actions,'authority',ids),[actionId,ref]=[...front.byAction][0];
  const item={id:'original-pending-child',scope:{kind:'click'},status:'pending',required:true} as PlanItem;
  active.session.put('obligations',{id:item.id,scopeKey:digest({scope:item.scope}),authority:'authority',candidateIds:[ref.candidateId]});
  active.session.put('events',{id:'actual-receipt',...ref,sessionId:'session',observationId:'before',afterId:'after',actionId});
- const legacy=active.session.exportLegacy();legacy.policy='guarded-host-fragments/v1';active.close();
+ const legacy=active.session.exportLegacy();legacy.policy=policy;active.close();
  const old=fragmentFixture(':memory:',legacy),l=old.session,before=old.store.exportFragments('task');
  try{
- expect(fragmentProjectionPolicy).toBe('guarded-host-fragments/v2');
+ expect(fragmentProjectionPolicy).toBe('guarded-host-fragments/v3');
  expect(fragmentObligationSampled(l,item)).toBe(false);expect(fragmentActionEvidence(l,front,actionId)).toBeUndefined();
+ expect(fragmentSamplingDecision(l,ref.candidateId)).toBeUndefined();
  expect(sampledFragmentAction(l,r.observation,r.actions,'authority',actionId)).toBe(false);
  expect(fragmentStateOrder(l,r.observation)).toEqual({order:[],deferred:[]});
  const choices=[{actionId},{actionId:'unmapped'}];expect(preferFragmentCandidate(l,front,choices)).toBe(choices[0]);

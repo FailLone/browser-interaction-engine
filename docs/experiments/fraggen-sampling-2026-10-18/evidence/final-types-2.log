@@ -1,0 +1,6 @@
+
+> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/fraggen-matching/browser-interaction-engine
+> tsc --noEmit && tsc -p packages/core/tsconfig.json
+
+tests/fragment-sampling.test.ts(102,174): error TS1005: ',' expected.
+ ELIFECYCLE  Command failed with exit code 2.

@@ -1,4 +1,4 @@
-import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,preferFragmentCandidate,fragmentStateOrder,linkFragmentObligations,fragmentObligationSampled,sampledFragmentAction,type FragmentFrontier} from './fragment-traversal.js';
+import {registerFragmentObservation,recordFragmentOutcome,fragmentActionEvidence,fragmentSamplingDecision,preferFragmentCandidate,fragmentStateOrder,linkFragmentObligations,fragmentObligationSampled,sampledFragmentAction,type FragmentFrontier} from './fragment-traversal.js';
 import {programNavigationDependencies} from '@interaction/browser';
 import {coverageLedger} from './coverage-ledger.js';
 import {contractOperationAllowed,contractProposalError,contractExecutionBoundary,observedContractRoots} from './coverage-contract.js';
@@ -57,21 +57,26 @@ export class ExplorerPlugin {
     const writer=this.writers.get(task);if(writer)return writer.fragments();
     let session=this.fragmentSessions.get(task);if(!session){const root=task.fragmentTraversal;session=new FragmentSession(this.store.fragmentRecords,task.id,root&&'storageVersion' in root?root:undefined);if(root&&!('storageVersion' in root))session.importLegacy(root);task.fragmentTraversal=session.root;this.fragmentSessions.set(task,session);}return session;
   }
-  private fragmentFrontiers=new WeakMap<Task,{key:string;frontier:FragmentFrontier}>();
+  private fragmentFrontiers=new WeakMap<Task,{key:string;epoch:number;frontier:FragmentFrontier}>();
   private fragmentAuthority(task:Task){return digest({contract:task.coverageContract,options:task.sessionOptions,goal:task.goal,epoch:task.fragmentAuthorityEpoch||0});}
   private prepareFragments(task:Task,o:Observation,actions=this.host.actions(o.sessionId,o.id)) {
     const authority=this.fragmentAuthority(task);
     const key=digest({observation:o.id,actions:actions.map(a=>a.id),authority});
-    const cached=this.fragmentFrontiers.get(task);if(cached?.key===key)return cached.frontier;
+    const ledger=this.fragments(task),cached=this.fragmentFrontiers.get(task);if(cached?.key===key&&cached.epoch===ledger.root.epoch)return cached.frontier;
     const availability=this.host.actionAvailability(o.sessionId,o.id);
     const eligible=new Set(actions.filter(a=>contractOperationAllowed(task.coverageContract,a,o)&&includesScope(task.plan,a,o)
       &&permitted(a,o,availability)&&!this.navigationIsUnverified(task,a,o)).map(a=>a.id));
-    const ledger=this.fragments(task),frontier=registerFragmentObservation(ledger,o,actions,authority,eligible);
-    this.fragmentFrontiers.set(task,{key,frontier});
+    const frontier=registerFragmentObservation(ledger,o,actions,authority,eligible);
     linkFragmentObligations(ledger,frontier,o,actions,task.plan);
+    this.fragmentFrontiers.set(task,{key,epoch:ledger.root.epoch,frontier});
+    const samplingChecks=[...frontier.byAction].flatMap(([actionId,ref])=>{
+      const sampling=fragmentSamplingDecision(ledger,ref.candidateId);
+      return sampling&&['context-recheck-required','observed-effect-conflict'].includes(sampling.status)?[{actionId,...ref,sampling}]:[];
+    });
     this.event(task,'fragment.frontier',{policy:ledger.root.policy,observationId:o.id,epoch:ledger.root.epoch,registered:frontier.registered,mappings:frontier.mapped,
       candidates:frontier.byAction.size,unmapped:frontier.unmapped,elapsedMs:frontier.elapsedMs,storageVersion:ledger.root.storageVersion,
       pruned:frontier.pruned.slice(0,128).map(actionId=>({actionId,...fragmentActionEvidence(ledger,frontier,actionId)})),
+      samplingChecks:samplingChecks.slice(0,128),omittedSamplingChecks:Math.max(0,samplingChecks.length-128),
       omittedPruned:Math.max(0,frontier.pruned.length-128),obligationsRetained:true,coverageGranted:false});
     return frontier;
   }
@@ -630,7 +635,7 @@ export class ExplorerPlugin {
     const round=task.rounds.at(-1)!;const ref={sessionId:attempt.sessionId,observationId:attempt.afterId||attempt.beforeId,attemptId:attempt.id};
     if(attempt.status==='succeeded'&&attempt.afterId){
       const fragmentStarted=performance.now(),source=this.host.observation(attempt.sessionId,attempt.beforeId),frontier=this.prepareFragments(task,source);
-      if(frontier&&recordFragmentOutcome(this.fragments(task),frontier,attempt))this.event(task,'fragment.access_recorded',{
+      if(frontier&&recordFragmentOutcome(this.fragments(task),frontier,attempt,{before:source,after:this.host.observation(attempt.sessionId,attempt.afterId)}))this.event(task,'fragment.access_recorded',{
         attemptId:attempt.id,...fragmentActionEvidence(this.fragments(task),frontier,attempt.action.id),actualExecution:true,functionalCoverage:false,elapsedMs:performance.now()-fragmentStarted},attempt.beforeId);
     }
     const readCondition=receiptConditionReader(this.host),sourcesCompleted=operationSourceCompletion(this.host,attempt,readCondition);

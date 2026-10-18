@@ -1,4 +1,4 @@
-import {browserTraversalFragments,fragmentProjectionPolicy,type ActionCandidate,type ActionAttempt,type Observation} from '@interaction/browser';
+import {browserTraversalFragments,browserFragmentObservedEffect,fragmentProjectionPolicy,type ActionCandidate,type ActionAttempt,type Observation} from '@interaction/browser';
 import {digest,matches,schedulingKeyFor} from './policy.js';
 import {boundOperationCondition} from './plan-state.js';
 import {ExplorerError,type PlanItem} from './types.js';
@@ -30,21 +30,23 @@ export function registerFragmentObservation(l:FragmentSession,o:Observation,acti
 }
 /** A durable succeeded SDK receipt precedes this idempotent ingest. The two
  * databases are not one transaction; missing ingest never means unexecuted. */
-export function recordFragmentOutcome(l:FragmentSession,frontier:FragmentFrontier,attempt:ActionAttempt):boolean {
+export function recordFragmentOutcome(l:FragmentSession,frontier:FragmentFrontier,attempt:ActionAttempt,observations?:{before:Observation;after:Observation}):boolean {
   if(l.root.policy!==fragmentProjectionPolicy)return false;
   if(attempt.status!=='succeeded'||!attempt.afterId||attempt.beforeId!==frontier.observationId)return false;
   const ref=frontier.byAction.get(attempt.action.id);if(!ref)return false;
-  const event={id:attempt.id,...ref,sessionId:attempt.sessionId,observationId:attempt.beforeId,afterId:attempt.afterId,actionId:attempt.action.id},prior=l.get('events',attempt.id);
+  const effect=observations&&observations.before.id===attempt.beforeId&&observations.after.id===attempt.afterId&&observations.before.sessionId===attempt.sessionId&&observations.after.sessionId===attempt.sessionId?browserFragmentObservedEffect(observations.before,observations.after):undefined;
+  const event={id:attempt.id,...ref,sessionId:attempt.sessionId,observationId:attempt.beforeId,afterId:attempt.afterId,actionId:attempt.action.id,...(effect?{effect:l.material('effect',effect.material)}:{})},prior=l.get('events',attempt.id);
   if(prior){if(JSON.stringify(prior)!==JSON.stringify(event))throw new ExplorerError('FRAGMENT_ORIGIN_CONFLICT');return false;}
   return l.put('events',event);
 }
+export function fragmentSamplingDecision(l:FragmentSession,candidateId:string){return l.root.policy===fragmentProjectionPolicy?l.sampling(candidateId):undefined;}
 export function revokeFragmentMappings(l:FragmentSession,candidateId:string,reason:string){l.put('revocations',{id:candidateId,reason});}
 /** Compact stable reference. Full origin receipts are paginated by origins();
  * ordinary logs never duplicate growing source sets. */
 export function fragmentActionEvidence(l:FragmentSession,f:FragmentFrontier,actionId:string){
   if(l.root.policy!==fragmentProjectionPolicy)return;
   const ref=f.byAction.get(actionId);if(!ref)return;const access=l.counts(ref.candidateId);
-  return {...ref,pruned:fragmentWasExplored(access),access,originCount:access.equivalent,evidenceRef:{rootKey:l.root.rootKey,candidateId:ref.candidateId,epoch:l.root.epoch},coverageGranted:false as const};
+  return {...ref,pruned:fragmentWasExplored(access),access,sampling:fragmentSamplingDecision(l,ref.candidateId),originCount:access.equivalent,evidenceRef:{rootKey:l.root.rootKey,candidateId:ref.candidateId,epoch:l.root.epoch},coverageGranted:false as const};
 }
 export function linkFragmentObligations(l:FragmentSession,f:FragmentFrontier,o:Observation,actions:readonly ActionCandidate[],plan:readonly PlanItem[]){
   if(l.root.policy!==fragmentProjectionPolicy)return;

@@ -1,0 +1,34 @@
+{
+  "parent": "366012568c24e8c5e720552eba801a7fc82b166e",
+  "sourceHashes": {
+    "packages/adapter-playwright/src/branch-conditions.ts": "fab4189f9f07696cd31d9a755065711315452816de29ee53bc4dadc9c955905d",
+    "packages/adapter-playwright/src/fragment-projection.ts": "7a32a156902800e48b64ba92612422e01db47f5dea66617e02df40a489aa0be9",
+    "packages/adapter-playwright/src/index.ts": "da350dbfc7f0f482510e8bb8e8217f7c22bd3665cac70f39da579a2f07a62fec",
+    "packages/explorer-plugin/src/fragment-traversal-core.ts": "fd41520eb4e6684cf7414bbbcfaf4eaf606814ec7354c91ae80c1fe35fa3cfd4",
+    "packages/explorer-plugin/src/fragment-traversal.ts": "d2e3e0f5b2e3ca22ccf17fc7b8d634aaddef2a39de45f978ba5a5d6d95584944",
+    "packages/explorer-plugin/src/runtime.ts": "c58ed2288871fddcaa73bf4b39c0afc67ea8efa623131d0d100ca1612a57455f",
+    "tests/fragment-matching-policy.test.ts": "81155d07c844f34adf777221af748045c72ec97f9caf1126735e572b74efaf67",
+    "packages/adapter-playwright/src/fragment-conditions.ts": "5a547fd494b82e8b80461353d0835cec297965142ba8e370608a8ef4286ddf2a",
+    "packages/adapter-playwright/src/fragment-outcome.ts": "71e47e0b3dc73bf02a1047cf2f8d99925a330b11cb71d6cfce9bee0709dcb170",
+    "packages/explorer-plugin/src/fragment-sampling.ts": "6c02218f97f0c1c145b09ef054b3af4e98f2a5aa663b0df417549b67275b1788",
+    "tests/fragment-sampling.test.ts": "127df5ac9f6839ed58b31fdb43de82ce054a8373c01f069e6e5b3d54df71cab9"
+  },
+  "evidenceHashes": {
+    "browser-proof.json.gz": "f696c26beffc196dfd9e951b3f4e3fbd254e52d184f78fe9d9f9b54003632a4b",
+    "browser-summary.json": "4c8a44f797ce8ea1740f03ab3cff03230d454e4e21c42a5f8f573c3d3f01b77b",
+    "final-affected.log": "4744e0249259b0e8c464139467ec5781a40a2d9eacf438424351c867e5f92194",
+    "final-focused.log": "f8357b94f2e9dec6cb12a50573099d44d026479997b0e3e9619f34c6a239c820",
+    "final-types-2.log": "4c671627f105bbc8baa37b63c414103ac164a74abb309102d0a39a1c52d98bbb",
+    "final-types-3.log": "b9da5911c1ca1c8077eae1b8e6a9b2a64e5531cb2918c3ebec62d48756f47ed9",
+    "first.log": "f77a7d8525610fc7a14b85ba77a2e68a90228ba2d62c6f024414fe3db316e0e2",
+    "fourth.log": "2d1a0417f5f948a121dc8fec91c38da0e420617c5a2e6edfd344de19e5d32afa",
+    "frozen-pair.json": "1c30f034a5c8b2b4500e64fa1cc23bf4ad4c6bbd416fede87118c877edb76153",
+    "full-comparison.json": "07efeb35adc27d6e314194bb2b4419b9da851dbb788041849884914995dd4083",
+    "public-menu-pair.json": "b8eca806ed2962b0671c6b260a227d817bee2db9c3d6b669b9266cae13a72716",
+    "second.log": "814588e2ee61604488ba792a9d605f52811486b19349eaea808d422933178991",
+    "subset-comparison.json": "7d74239a249a063188646ffe1cacea982d05e3676dcb3cf4bda68c0aea3e7dab",
+    "v2-fragment-projection.ts": "b92b7bbf8bf5a88b0f40688a8f31989de1a95da2d5a173a0080cfe468b4a84e1"
+  },
+  "fullInputSHA256": "4829d76f444728b62704839c815307c944c5c11dd859190391afd25c41e11253",
+  "closedInputDatabaseSHA256": "1b3061c076aef9a7c588a82e2868841fd24fdb787512d47f8e6d23c6119878cd"
+}

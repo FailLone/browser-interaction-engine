@@ -1,12 +1,11 @@
 import {canonical,hash} from '@interaction/core';
-import {assessBrowserReviewBranchConditions} from './branch-conditions.js';
-import {modeStructureReader} from './mode-structure.js';
+import {fragmentConditionReader} from './fragment-conditions.js';
 import type {ActionCandidate,Observation,RegionCandidate} from './types.js';
 
-export const fragmentProjectionPolicy='guarded-host-fragments/v2' as const;
+export const fragmentProjectionPolicy='guarded-host-fragments/v3' as const;
 export interface BrowserTraversalFragment {
   regionId:string;parentRegionId?:string;structure:string;owner:string;revision:string;
-  candidates:{actionId:string;path:string;operation:string;guard:string}[];
+  candidates:{actionId:string;path:string;operation:string;guard:string;context?:string}[];
 }
 /** Host segmentation replaces VIPS, not its visual classification. An exact
  * ordered tree is only a comparison index. Full local content, operation,
@@ -17,7 +16,7 @@ export function browserTraversalFragments(o:Observation,actions:readonly ActionC
   if(o.gaps.some(g=>g.critical))return rejectAll('observation_critical_gap');
   if(Object.values(o.context).some(v=>v.status!=='known'))return rejectAll('context_unknown');
   let origin:string;try{origin=new URL(o.url).origin;}catch{return rejectAll('invalid_origin');}
-  const modeStructure=modeStructureReader(o,'fragment');
+  const conditions=fragmentConditionReader(o);
   const regions=(o.regionCandidates||[]).filter((r):r is RegionCandidate&{fragment:NonNullable<RegionCandidate['fragment']>}=>r.fragment?.policy==='host-dom-fragment/v1');
   const snapshots:BrowserTraversalFragment[]=regions.map(r=>{
     const f=r.fragment,structure=canonical(f.nodes.map(n=>[n.path,n.tag]));
@@ -48,7 +47,7 @@ export function browserTraversalFragments(o:Observation,actions:readonly ActionC
     const unresolved=Object.entries(c.reviewBinding!.attributes).filter(([key])=>idrefs.has(key)).flatMap(([,v])=>v.split(/\s+/).filter(Boolean))
       .some(id=>f.nodes.filter(n=>n.attributes.id===id).length!==1&&!references.some(r=>r.id===id&&('nodes' in r||r.path)));
     if(unresolved||references.some(r=>!('nodes' in r)&&!r.path)){reject(action,'unresolved_reference');continue;}
-    const assessment=assessBrowserReviewBranchConditions(c,o,modeStructure),modes=assessment.conditions;
+    const dependencies=conditions(c,f),assessment=dependencies.modes,modes=assessment.conditions;
     if(!modes){reject(action,'mode:'+assessment.assessment.reason);continue;}
     const {valid:_,...constraints}=c.constraints;
     const operation=canonical({kind:action.kind,value:action.value});
@@ -56,7 +55,7 @@ export function browserTraversalFragments(o:Observation,actions:readonly ActionC
       binding:c.identityContext&&{scope:c.identityContext.scope,binding:c.identityContext.binding},
       record:c.structuralItem&&{recordKey:c.structuralItem.recordKey,slot:c.structuralItem.slot,template:c.structuralItem.template},
       events:c.reviewBinding!.runtimeEvents,references,constraints,options:c.options,readOnly:c.readOnly,modes:modes.conditions});
-    snapshots.find(s=>s.regionId===region.id)!.candidates.push({actionId:action.id,path:nodes[0].path,operation,guard});
+    snapshots.find(s=>s.regionId===region.id)!.candidates.push({actionId:action.id,path:nodes[0].path,operation,guard,context:dependencies.context});
   }
   for(const f of snapshots)f.candidates.sort((a,b)=>canonical([a.path,a.operation,a.guard]).localeCompare(canonical([b.path,b.operation,b.guard])));
   for(const f of snapshots)f.revision=hash({policy:fragmentProjectionPolicy,structure:f.structure,owner:f.owner,candidates:f.candidates.map(({actionId,...c})=>c)});

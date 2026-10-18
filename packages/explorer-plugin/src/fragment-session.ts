@@ -1,4 +1,5 @@
 import {fragmentProjectionPolicy} from '@interaction/browser';
+import type {FragmentSamplingDecision} from './fragment-sampling.js';
 import {ExplorerError} from './types.js';
 import {taskDigest} from './task-codec.js';
 import {splitFragmentMaterial,readFragmentMaterial,fragmentMaterialId,type FragmentMaterialKind} from './fragment-codec.js';
@@ -7,6 +8,7 @@ import {FragmentStore} from './fragment-store.js';
 import {emptyFragmentDelta,fragmentRoot,fragmentRowKinds,type FragmentDelta,type FragmentRoot,type FragmentRows,type FragmentRowKind,type FragmentTraversalLedger,type FragmentRecord,type CandidateRecord} from './fragment-records.js';
 
 const equal=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
+export type StoredSamplingDecision=Omit<FragmentSamplingDecision,'sourceAttemptIds'|'validationAttemptIds'|'conflictAttemptIds'>&{sourceCount:number;validationCount:number;conflictCount:number;evidenceRef:{rootKey:string;candidateId:string;epoch:number;originSet:'direct-sampling-sources'}};
 export type FragmentCounters={direct:boolean;duplicate:number;equivalent:number};
 export type FragmentProjectionInput={structure:string;owner:string;revision:string;candidates:{path:string;operation:string;guard:string;context?:string}[]};
 /** A small explicit write set over indexed durable records. Closing/reloading
@@ -16,12 +18,13 @@ export class FragmentSession {
   private maps:Partial<{[K in FragmentRowKind]:Map<string,FragmentRows[K]>}>={};
   private atoms=new Map<string,FragmentDelta['atoms'][number]>();private materials=new Map<string,FragmentDelta['materials'][number]>();
   private countCache=new Map<string,FragmentCounters>();private cacheStamp='';
+  private samplingCache=new Map<string,StoredSamplingDecision>();
   private peerCache=new Map<string,number>();private checkedClasses=new Set<string>();
   private baseRoot?:FragmentRoot;
   private snapshot<T>(read:()=>T):T{return this.store.db.inTransaction?read():this.store.db.transaction(read)();}
   private checkSnapshot(){
     if(!equal(this.store.root(this.taskId),this.baseRoot))throw new ExplorerError('STALE_TASK_VERSION');
-    const stamp=this.root.epoch+':'+this.store.changeToken();if(stamp!==this.cacheStamp){this.countCache.clear();this.peerCache.clear();this.checkedClasses.clear();this.cacheStamp=stamp;}
+    const stamp=this.root.epoch+':'+this.store.changeToken();if(stamp!==this.cacheStamp){this.countCache.clear();this.samplingCache.clear();this.peerCache.clear();this.checkedClasses.clear();this.cacheStamp=stamp;}
   }
   constructor(readonly store:FragmentStore,readonly taskId:string,root?:FragmentRoot){
     this.root=structuredClone(root??fragmentRoot(taskId,fragmentProjectionPolicy));this.pending=emptyFragmentDelta(this.root);
@@ -144,9 +147,71 @@ export class FragmentSession {
     if(c.context!==undefined)this.raw(c.context,'context');
     if(c.classId){const key=JSON.stringify([this.root.policy,f.structure,f.owner,c.path,c.operation,c.guard]);if(this.get('classes',c.classId)?.key!==key||taskDigest('fragment-class/v2\0'+key)!==c.classId)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');}
   }
+  /** Exact local classes only index direct peers. V3 never walks through an
+   * inherited sample, and an explicit edge revocation overrides a class pair. */
+  private samplingQuery(candidateId:string){
+    if(!this.legacyEdges())return this.directClassQuery(candidateId);
+    const graph=this.graph();return {params:[...graph.params,candidateId,candidateId,candidateId,candidateId,candidateId,candidateId,candidateId],sql:`${graph.sql},
+      members(id) AS (SELECT ? UNION SELECT peer.id FROM c peer JOIN c target ON target.id=? AND peer.class=target.class
+        WHERE peer.id NOT IN(SELECT id FROM r) AND target.id NOT IN(SELECT id FROM r)
+        AND NOT EXISTS(SELECT 1 FROM edges_all WHERE json_extract(json,'$.sourceCandidateId')=peer.id AND json_extract(json,'$.targetCandidateId')=? AND json_type(json,'$.revoked') IS NOT NULL)
+        UNION SELECT json_extract(json,'$.sourceCandidateId') FROM edges_all WHERE json_extract(json,'$.targetCandidateId')=?
+          AND json_type(json,'$.revoked') IS NULL AND json_extract(json,'$.sourceCandidateId') NOT IN(SELECT id FROM r) AND ? NOT IN(SELECT id FROM r)),
+      origins AS (SELECT json,json_extract(json,'$.id') id,json_extract(json,'$.candidateId')=? direct,json_extract(json,'$.candidateId')=? duplicate
+        FROM events_all WHERE json_extract(json,'$.candidateId') IN(SELECT id FROM members))`};
+  }
+  private *samplingRows(candidateId:string,after=''){
+    const target=this.get('candidates',candidateId);if(!target)throw new ExplorerError('FRAGMENT_CANDIDATE_NOT_FOUND');this.validateCandidate(target);
+    const owner=this.get('fragments',target.fragmentId)!,q=this.samplingQuery(candidateId);
+    for(;;){
+      const page=this.store.db.prepare(`${q.sql} SELECT json,direct FROM origins WHERE id>? ORDER BY id LIMIT 128`).all(...q.params,after) as {json:string;direct:number}[];
+      for(const row of page){
+        const event=JSON.parse(row.json) as FragmentRows['events'];after=event.id;
+        const source=this.get('candidates',event.candidateId);if(!source)throw new ExplorerError('CORRUPT_FRAGMENT_STORAGE');this.validateCandidate(source);
+        const fragment=this.get('fragments',source.fragmentId)!;
+        // Legacy topology alone cannot upgrade changed local materials. Every
+        // address above is resolved and checked against its complete bytes.
+        if(!row.direct&&(source.context===undefined||target.context===undefined||source.path!==target.path||source.operation!==target.operation||source.guard!==target.guard||fragment.structure!==owner.structure||fragment.owner!==owner.owner))continue;
+        yield {event,direct:!!row.direct,context:source.context===undefined?undefined:this.raw(source.context,'context'),effect:event.effect===undefined?undefined:this.raw(event.effect,'effect')};
+      }
+      if(page.length<128)break;
+    }
+  }
+  sampling(candidateId:string):StoredSamplingDecision|undefined {
+    if(this.root.policy!=='guarded-host-fragments/v3')return;
+    return this.snapshot(()=>this.samplingSnapshot(candidateId));
+  }
+  private samplingSnapshot(candidateId:string):StoredSamplingDecision {
+    this.checkSnapshot();const cached=this.samplingCache.get(candidateId);if(cached)return structuredClone(cached);
+    const target=this.get('candidates',candidateId);if(!target)throw new ExplorerError('FRAGMENT_CANDIDATE_NOT_FOUND');this.validateCandidate(target);
+    const context=target.context===undefined?undefined:this.raw(target.context,'context');
+    let total=0,direct=0,same=0,witnessed=0,conflict=false,differentContexts=false,firstEffect:string|undefined,firstContext:string|undefined;
+    // Scan every actual origin in bounded pages. Keep only two full witness
+    // materials; neither a display page limit nor a digest decides agreement.
+    for(const row of this.samplingRows(candidateId)){
+      total++;if(row.direct)direct++;if(context!==undefined&&row.context===context)same++;
+      if(row.effect!==undefined){witnessed++;if(firstEffect===undefined)firstEffect=row.effect;else if(firstEffect!==row.effect)conflict=true;
+        if(row.context!==undefined){if(firstContext===undefined)firstContext=row.context;else if(firstContext!==row.context)differentContexts=true;}}
+    }
+    const status:StoredSamplingDecision['status']=direct?'direct':conflict?'observed-effect-conflict':same?'same-context':!total?'fresh':!differentContexts?'context-recheck-required':'context-sample';
+    const result:StoredSamplingDecision={status,sourceCount:status==='direct'?direct:status==='same-context'?same:status==='context-sample'?witnessed:0,
+      validationCount:status==='observed-effect-conflict'||status==='context-sample'?witnessed:status==='context-recheck-required'?total:0,
+      conflictCount:conflict?witnessed:0,recheckBudget:1,coverageGranted:false,
+      ...(status==='context-sample'?{assumption:'unverified-external-context' as const}:status==='same-context'?{assumption:'observed-context-only' as const}:{}),
+      evidenceRef:{rootKey:this.root.rootKey,candidateId,epoch:this.root.epoch,originSet:'direct-sampling-sources'}};
+    if(this.samplingCache.size>=2048)this.samplingCache.delete(this.samplingCache.keys().next().value!);this.samplingCache.set(candidateId,result);return structuredClone(result);
+  }
+  /** Complete direct source provenance, separately paginated from effective
+   * borrowed access. Conflicting and validation origins remain auditable. */
+  samplingOrigins(candidateId:string,after='',limit=128){
+    if(!Number.isSafeInteger(limit)||limit<1||limit>1000)throw new ExplorerError('INVALID_FRAGMENT_PAGE');
+    return this.snapshot(()=>{this.samplingSnapshot(candidateId);const result:{event:FragmentRows['events'];direct:boolean}[]=[];
+      for(const row of this.samplingRows(candidateId,after)){result.push({event:row.event,direct:row.direct});if(result.length===limit)break;}return result;});
+  }
   counts(candidateId:string):FragmentCounters {return this.snapshot(()=>this.countsSnapshot(candidateId));}
   private countsSnapshot(candidateId:string):FragmentCounters {
     this.checkSnapshot();const cached=this.countCache.get(candidateId);if(cached)return {...cached};
+    if(this.root.policy==='guarded-host-fragments/v3'){const decision=this.samplingSnapshot(candidateId);return {direct:decision.status==='direct',duplicate:decision.status==='direct'?decision.sourceCount:0,equivalent:decision.sourceCount};}
     const c=this.get('candidates',candidateId);if(!c)throw new ExplorerError('FRAGMENT_CANDIDATE_NOT_FOUND');this.validateCandidate(c);
     if(c.classId&&!this.checkedClasses.has(c.classId)){
       for(const member of this.rows('candidates','class_id=?',[c.classId],row=>row.classId===c.classId))this.validateCandidate(member);
@@ -158,6 +223,15 @@ export class FragmentSession {
   }
   origins(candidateId:string,after='',limit=128){
     if(!Number.isSafeInteger(limit)||limit<1||limit>1000)throw new ExplorerError('INVALID_FRAGMENT_PAGE');
+    if(this.root.policy==='guarded-host-fragments/v3')return this.snapshot(()=>{
+      const decision=this.samplingSnapshot(candidateId),target=this.get('candidates',candidateId)!,context=target.context===undefined?undefined:this.raw(target.context,'context');
+      const result:{event:FragmentRows['events'];direct:boolean;duplicate:boolean}[]=[];
+      if(!decision.sourceCount)return result;
+      for(const row of this.samplingRows(candidateId,after)){
+        const included=decision.status==='direct'?row.direct:decision.status==='same-context'?row.context===context:decision.status==='context-sample'&&row.effect!==undefined;
+        if(included){result.push({event:row.event,direct:row.direct,duplicate:row.direct});if(result.length===limit)break;}
+      }return result;
+    });
     return this.snapshot(()=>{this.countsSnapshot(candidateId);const q=this.accessQuery(candidateId);return (this.store.db.prepare(`${q.sql} SELECT json,direct,duplicate FROM origins WHERE id>? ORDER BY id LIMIT ?`).all(...q.params,after,limit) as {json:string;direct:number;duplicate:number}[]).map(row=>({event:JSON.parse(row.json) as FragmentRows['events'],direct:!!row.direct,duplicate:!!row.duplicate}));});
   }
   peers(fragmentId:string):number {return this.snapshot(()=>{this.checkSnapshot();const old=this.peerCache.get(fragmentId);if(old!==undefined)return old;const value=this.peersSnapshot(fragmentId);if(this.peerCache.size>=2048)this.peerCache.delete(this.peerCache.keys().next().value!);this.peerCache.set(fragmentId,value);return value;});}
@@ -194,7 +268,8 @@ export class FragmentSession {
       return {id:c.id,path:c.path,operation:this.raw(c.operation),guard:c.legacy?.guardEncoded?encodeFragmentMaterial(this.raw(c.guard)):this.raw(c.guard),...(c.context!==undefined?{context:c.legacy?.contextEncoded?encodeFragmentMaterial(this.raw(c.context,'context')):this.raw(c.context,'context')}:{ }),access:{direct,duplicate,equivalent}};
     })}));
     const mappings=[...this.rows('edges')].map(({id,...edge})=>edge);
-    for(const cls of this.rows('classes')){const members=[...this.rows('candidates','class_id=?',[cls.id],c=>c.classId===cls.id)];for(const a of members)for(const b of members)if(a.id!==b.id)mappings.push({sourceFragmentId:a.fragmentId,targetFragmentId:b.fragmentId,sourceCandidateId:a.id,targetCandidateId:b.id,kind:'equivalent'});}
+    const explicitPairs=new Set(mappings.map(e=>JSON.stringify([e.sourceCandidateId,e.targetCandidateId])));
+    for(const cls of this.rows('classes')){const members=[...this.rows('candidates','class_id=?',[cls.id],c=>c.classId===cls.id)];for(const a of members)for(const b of members)if(a.id!==b.id&&!explicitPairs.has(JSON.stringify([a.id,b.id])))mappings.push({sourceFragmentId:a.fragmentId,targetFragmentId:b.fragmentId,sourceCandidateId:a.id,targetCandidateId:b.id,kind:'equivalent'});}
     return {policy:this.root.policy,epoch:this.root.epoch,authority:this.root.authority,...(this.root.legacyBounded?{bounded:true as const}:{}),fragments:fragments.map(({lookupKey,legacy,...f})=>f),mappings,events:[...this.rows('events')].map(({legacy,...e})=>({...e,...(e.effect!==undefined?{effect:legacy?.effectEncoded?encodeFragmentMaterial(this.raw(e.effect,'effect')):this.raw(e.effect,'effect')}:{})})),states:[...this.rows('states')],obligations:Object.fromEntries([...this.rows('obligations')].map(({id,...o})=>[id,o])),revokedCandidates:Object.fromEntries([...this.rows('revocations')].map(r=>[r.id,r.reason]))};
   }
 }

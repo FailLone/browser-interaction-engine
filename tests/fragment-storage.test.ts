@@ -13,7 +13,7 @@ const fixtures:ReturnType<typeof fragmentFixture>[]=[],dirs:string[]=[];
 afterEach(()=>{vi.restoreAllMocks();for(const f of fixtures.splice(0))f.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
 function fixture(path=':memory:',legacy=undefined as Parameters<typeof fragmentFixture>[1]){const f=fragmentFixture(path,legacy);fixtures.push(f);return f;}
 const source={sessionId:'s',observationId:'o',regionId:'nav'};
-const projection={structure:'<nav><a/></nav>',owner:JSON.stringify({content:'complete content',context:{variant:'A'}}),revision:'r',candidates:[{path:'./a[1]',operation:'click',guard:JSON.stringify({binding:'a',modes:Array.from({length:80},(_,i)=>({id:i,expanded:false,recordKey:'original'}))})}]};
+const projection={structure:'<nav><a/></nav>',owner:JSON.stringify({content:'complete content',context:{variant:'A'}}),revision:'r',candidates:[{path:'./a[1]',operation:'click',context:'observed external context',guard:JSON.stringify({binding:'a',modes:Array.from({length:80},(_,i)=>({id:i,expanded:false,recordKey:'original'}))})}]};
 const register=(s:FragmentSession,index:number)=>s.register(`https://example.test/${index}`,projection,source);
 function event(id:string,record:ReturnType<typeof register>){return {id,fragmentId:record.fragment.id,candidateId:record.candidates[0].id,sessionId:'s',observationId:'o',afterId:'after',actionId:'action'};}
 

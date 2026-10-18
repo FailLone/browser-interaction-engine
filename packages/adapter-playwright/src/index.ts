@@ -187,3 +187,4 @@ export * from './exploration-decision-reuse.js';
 export {routeURLSchema} from './schema.js';
 
 export * from './fragment-projection.js';
+export * from './fragment-outcome.js';

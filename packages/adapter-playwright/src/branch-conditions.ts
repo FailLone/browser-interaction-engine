@@ -22,7 +22,7 @@ export interface BrowserBranchConditionsAssessment {
 }
 
 /** These are observed UI mode selectors, not arbitrary text/value combinations. */
-function selectorState(c: Control, selections: Map<string, boolean>) {
+export function selectorState(c: Control, selections: Map<string, boolean>) {
   const state: Record<string, string[] | boolean | 'mixed'> = {};
   if (c.checked !== null && c.checked !== undefined) state.checked = c.checked;
   else if (['checkbox', 'radio', 'switch'].includes(c.role)) return null;

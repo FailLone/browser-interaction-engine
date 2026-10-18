@@ -1,0 +1,33 @@
+
+ RUN  v3.2.7 /Users/xietian/.codex/worktrees/fraggen-matching/browser-interaction-engine
+
+ ✓ tests/fragment-matching-policy.test.ts (22 tests) 29871ms
+   ✓ maps an actually repeated capture, and preserves its local proof under a document-instance rebuild  4621ms
+   ✓ separates external document-mode differences from changed relevant tab values  3499ms
+   ✓ retains the external-mode guard when projecting the real menu  2431ms
+   ✓ retains the context guard when projecting the real menu  2187ms
+   ✓ retains the parameter guard when projecting the real menu  2169ms
+   ✓ retains the record guard when projecting the real menu  2259ms
+   ✓ retains the destination guard when projecting the real menu  4435ms
+   ✓ retains the hidden-target guard when projecting the real menu  4601ms
+   ✓ retains the missing guard when projecting the real menu  367ms
+   ✓ retains the truncated guard when projecting the real menu  369ms
+   ✓ retains the duplicate-root guard when projecting the real menu  2214ms
+ ✓ tests/fragment-restart.test.ts (2 tests) 6565ms
+   ✓ retains fragment access and immutable pending IDs across a real first process exit  4296ms
+   ✓ retains fragment access and immutable pending IDs across a real crash process exit  2269ms
+ ✓ tests/fragment-traversal-browser.test.ts (4 tests) 5928ms
+   ✓ imports late mappings from actual receipts, survives serialization, and rejects changed guards and unknown receipts  817ms
+   ✓ prunes the shared menu on B, executes its unique link, then actually restores and executes the original child  3434ms
+   ✓ actually executes the same operation in two observed external modes without sharing access  824ms
+   ✓ declines oversized fragments while leaving native execution available  852ms
+ ✓ tests/fragment-sampling.test.ts (5 tests) 3965ms
+   ✓ bounds real context rechecks, skips a repeat, preserves unique work, then revokes on a real external dependency result  3564ms
+ ✓ tests/mode-structure.test.ts (36 tests) 48ms
+ ✓ tests/fragment-traversal.test.ts (6 tests) 4ms
+
+ Test Files  6 passed (6)
+      Tests  75 passed (75)
+   Start at  18:12:10
+   Duration  49.77s (transform 729ms, setup 0ms, collect 2.56s, tests 46.38s, environment 0ms, prepare 203ms)
+
