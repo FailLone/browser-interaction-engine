@@ -225,3 +225,44 @@ test('a mode group that only redraws a canvas is sampled once; one that switches
     expect(summary.modeGroups.flat).toBe(1);
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);
+
+test('backtracking from a finished page uses browser history instead of replaying from the entry', async () => {
+  const pages: Record<string, string> = {
+    '/': `<!doctype html><title>Home</title><main><a href="/a">Page A</a><a href="/b">Page B</a></main>`,
+    '/a': `<!doctype html><title>A</title><main><button onclick="this.textContent='A done'">A action</button></main>`,
+    '/b': `<!doctype html><title>B</title><main><button onclick="this.textContent='B done'">B action</button></main>`,
+  };
+  const local = createServer((req, res) => { res.setHeader('content-type', 'text/html'); res.end(pages[req.url || '/'] || pages['/']); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const { defaultPolicy } = await import('@interaction/crawler');
+    const policy = defaultPolicy(url); policy.allowedPaths.push(/^\/[ab]$/);
+    const events: CrawlEvent[] = [];
+    const summary = await new SampledCrawler({ url, policy, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
+    const labels = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
+    expect(labels).toEqual(expect.arrayContaining(['Page A', 'A action', 'Page B', 'B action']));
+    expect(summary.historyBacks).toBeGreaterThan(0);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);
+
+test('a covered control fails immediately instead of waiting for a click timeout', async () => {
+  const html = `<!doctype html><title>Covered</title><main><button id="b" style="position:absolute;top:10px;left:10px">Hidden behind</button>
+    <div style="position:absolute;top:0;left:0;width:300px;height:100px;background:#fff;z-index:2"></div><button style="position:absolute;top:150px">Visible</button></main>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(html); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) });
+    // Bypass the capture-time occlusion filter to exercise the dispatch-time check.
+    const candidates = crawler.candidates.bind(crawler);
+    crawler.candidates = (s, goal) => candidates({ ...s, controls: s.controls.map(c => ({ ...c, actionable: { ...c.actionable, occludedBy: undefined } })) }, goal);
+    await crawler.run();
+    const covered = events.find((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action' && e.step.label === 'Hidden behind');
+    expect(covered).toMatchObject({ outcome: 'failed' });
+    expect(covered!.error).toContain('covered');
+    const before = events[events.indexOf(covered!) - 1];
+    expect(covered!.at - (before?.at ?? 0)).toBeLessThan(1500);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);

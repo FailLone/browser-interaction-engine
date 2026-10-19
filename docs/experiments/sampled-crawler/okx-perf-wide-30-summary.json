@@ -1,0 +1,539 @@
+{
+  "elapsedMs": 428292,
+  "actions": 275,
+  "states": 175,
+  "onEntryPage": 74,
+  "inOverlay": 50,
+  "failed": 8,
+  "byTier": {
+    "overlay": 50,
+    "body": 86,
+    "in-page-disclosure": 71,
+    "chrome": 36,
+    "navigate": 32
+  },
+  "maxPerClass": 1,
+  "backtracks": 54,
+  "historyBacks": 35,
+  "directLoads": 11,
+  "judge": {
+    "questions": 83,
+    "cacheHits": 0,
+    "answeredByJev": 52,
+    "answeredByLlm": 0,
+    "uncertain": 31,
+    "unavailable": 0,
+    "yes": 46,
+    "no": 6,
+    "jevProbabilities": [
+      0,
+      6,
+      4,
+      11,
+      5,
+      2,
+      5,
+      8,
+      10,
+      32
+    ],
+    "jev": {
+      "calls": 58,
+      "failures": 0,
+      "judgments": 83,
+      "inputTokens": 44702,
+      "outputTokens": 1650,
+      "costUsd": 0.0018774839999999998,
+      "unpricedCalls": 0,
+      "elapsedMs": 37482,
+      "byPurpose": {
+        "crawler-interactive": {
+          "calls": 26,
+          "costUsd": 0.0008826299999999999
+        },
+        "crawler-effect": {
+          "calls": 32,
+          "costUsd": 0.0009948540000000003
+        }
+      }
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "elapsedMs": 0,
+      "byPurpose": {}
+    }
+  },
+  "models": {
+    "jev": {
+      "calls": 58,
+      "failures": 0,
+      "judgments": 83,
+      "inputTokens": 44702,
+      "outputTokens": 1650,
+      "costUsd": 0.0018774839999999998,
+      "unpricedCalls": 0,
+      "avgMs": 646,
+      "elapsedMs": 37482
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "avgMs": 0,
+      "elapsedMs": 0
+    }
+  },
+  "weakControlsConfirmed": 47,
+  "inputs": {
+    "classes": 9,
+    "kinds": {
+      "search:structure": 2,
+      "number:structure": 1,
+      "text:jev": 4,
+      "number:jev": 2
+    },
+    "filled": [
+      {
+        "label": "Search",
+        "purpose": "existing",
+        "value": "USD",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "normal",
+        "value": "100",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "boundary",
+        "value": "999999999",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "zero",
+        "value": "0",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "invalid",
+        "value": "abc",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "existing",
+        "value": "USD",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "$BTC is at ¥548,631.64 right now – catch the latest on Bitco",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Test input",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Test input",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": false
+      },
+      {
+        "label": "Min",
+        "purpose": "normal",
+        "value": "100",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Min",
+        "purpose": "boundary",
+        "value": "999999999",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Min",
+        "purpose": "zero",
+        "value": "0",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Min",
+        "purpose": "invalid",
+        "value": "abc",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Max",
+        "purpose": "normal",
+        "value": "100",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Max",
+        "purpose": "boundary",
+        "value": "999999999",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Max",
+        "purpose": "zero",
+        "value": "0",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Max",
+        "purpose": "invalid",
+        "value": "abc",
+        "outcome": "no_change",
+        "newState": false
+      }
+    ]
+  },
+  "hovers": 13,
+  "modeGroups": {
+    "sampled": 39,
+    "flat": 18
+  },
+  "coverage": {
+    "pages": [
+      {
+        "page": "https://www.okx.com/convert/usd-to-btc",
+        "classesSeen": 129,
+        "classesExecuted": 65,
+        "classCoverage": 0.5,
+        "listClasses": 18,
+        "textBlocksSeen": 518,
+        "textBlocksRevealedByActions": 267
+      },
+      {
+        "page": "https://www.okx.com/convert",
+        "classesSeen": 53,
+        "classesExecuted": 7,
+        "classCoverage": 0.13,
+        "listClasses": 8,
+        "textBlocksSeen": 177,
+        "textBlocksRevealedByActions": 29
+      },
+      {
+        "page": "https://www.okx.com/markets/prices",
+        "classesSeen": 245,
+        "classesExecuted": 27,
+        "classCoverage": 0.11,
+        "listClasses": 22,
+        "textBlocksSeen": 248,
+        "textBlocksRevealedByActions": 91
+      },
+      {
+        "page": "https://www.okx.com/markets/rankings/spot/hot-crypto",
+        "classesSeen": 58,
+        "classesExecuted": 11,
+        "classCoverage": 0.19,
+        "listClasses": 13,
+        "textBlocksSeen": 122,
+        "textBlocksRevealedByActions": 18
+      },
+      {
+        "page": "https://www.okx.com/markets/rankings/spot/new-crypto",
+        "classesSeen": 43,
+        "classesExecuted": 2,
+        "classCoverage": 0.05,
+        "listClasses": 3,
+        "textBlocksSeen": 112,
+        "textBlocksRevealedByActions": 4
+      },
+      {
+        "page": "https://www.okx.com/markets/trading-data/overview",
+        "classesSeen": 78,
+        "classesExecuted": 23,
+        "classCoverage": 0.29,
+        "listClasses": 9,
+        "textBlocksSeen": 240,
+        "textBlocksRevealedByActions": 111
+      },
+      {
+        "page": "https://www.okx.com/markets/rankings/spot",
+        "classesSeen": 38,
+        "classesExecuted": 1,
+        "classCoverage": 0.03,
+        "listClasses": 3,
+        "textBlocksSeen": 104,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/markets/data/spot",
+        "classesSeen": 56,
+        "classesExecuted": 7,
+        "classCoverage": 0.13,
+        "listClasses": 3,
+        "textBlocksSeen": 107,
+        "textBlocksRevealedByActions": 10
+      },
+      {
+        "page": "https://www.okx.com/convert/btc-to-usd",
+        "classesSeen": 74,
+        "classesExecuted": 10,
+        "classCoverage": 0.14,
+        "listClasses": 5,
+        "textBlocksSeen": 287,
+        "textBlocksRevealedByActions": 42
+      },
+      {
+        "page": "https://www.okx.com/price/bitcoin-btc",
+        "classesSeen": 116,
+        "classesExecuted": 37,
+        "classCoverage": 0.32,
+        "listClasses": 13,
+        "textBlocksSeen": 377,
+        "textBlocksRevealedByActions": 81
+      },
+      {
+        "page": "https://www.okx.com/price",
+        "classesSeen": 56,
+        "classesExecuted": 14,
+        "classCoverage": 0.25,
+        "listClasses": 11,
+        "textBlocksSeen": 326,
+        "textBlocksRevealedByActions": 178
+      },
+      {
+        "page": "https://www.okx.com/price/quant-(qnt)-quant",
+        "classesSeen": 61,
+        "classesExecuted": 1,
+        "classCoverage": 0.02,
+        "listClasses": 4,
+        "textBlocksSeen": 171,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/markets/favorite",
+        "classesSeen": 76,
+        "classesExecuted": 3,
+        "classCoverage": 0.04,
+        "listClasses": 3,
+        "textBlocksSeen": 134,
+        "textBlocksRevealedByActions": 6
+      },
+      {
+        "page": "https://www.okx.com/markets/prices/hot-cryptocurrency",
+        "classesSeen": 69,
+        "classesExecuted": 3,
+        "classCoverage": 0.04,
+        "listClasses": 7,
+        "textBlocksSeen": 130,
+        "textBlocksRevealedByActions": 2
+      },
+      {
+        "page": "https://www.okx.com/markets/prices/top-cryptocurrency",
+        "classesSeen": 70,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 3,
+        "textBlocksSeen": 135,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/markets/prices/layer1&2-cryptocurrency",
+        "classesSeen": 74,
+        "classesExecuted": 2,
+        "classCoverage": 0.03,
+        "listClasses": 7,
+        "textBlocksSeen": 136,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/markets/prices/gainers-cryptocurrency",
+        "classesSeen": 69,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 7,
+        "textBlocksSeen": 130,
+        "textBlocksRevealedByActions": 2
+      },
+      {
+        "page": "https://www.okx.com/markets/prices/losers-cryptocurrency",
+        "classesSeen": 75,
+        "classesExecuted": 4,
+        "classCoverage": 0.05,
+        "listClasses": 7,
+        "textBlocksSeen": 133,
+        "textBlocksRevealedByActions": 5
+      },
+      {
+        "page": "https://www.okx.com/convert/btc-to-pkr",
+        "classesSeen": 71,
+        "classesExecuted": 2,
+        "classCoverage": 0.03,
+        "listClasses": 6,
+        "textBlocksSeen": 257,
+        "textBlocksRevealedByActions": 7
+      },
+      {
+        "page": "https://www.okx.com/convert/btc-to-cny",
+        "classesSeen": 69,
+        "classesExecuted": 3,
+        "classCoverage": 0.04,
+        "listClasses": 5,
+        "textBlocksSeen": 249,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/convert/cny-to-btc",
+        "classesSeen": 68,
+        "classesExecuted": 2,
+        "classCoverage": 0.03,
+        "listClasses": 6,
+        "textBlocksSeen": 247,
+        "textBlocksRevealedByActions": 0
+      },
+      {
+        "page": "https://www.okx.com/price/ethereum-eth",
+        "classesSeen": 96,
+        "classesExecuted": 15,
+        "classCoverage": 0.16,
+        "listClasses": 13,
+        "textBlocksSeen": 288,
+        "textBlocksRevealedByActions": 19
+      },
+      {
+        "page": "https://www.okx.com/price/united-stables-u",
+        "classesSeen": 71,
+        "classesExecuted": 8,
+        "classCoverage": 0.11,
+        "listClasses": 4,
+        "textBlocksSeen": 181,
+        "textBlocksRevealedByActions": 4
+      },
+      {
+        "page": "https://www.okx.com/price/usd-coin-usdc",
+        "classesSeen": 76,
+        "classesExecuted": 3,
+        "classCoverage": 0.04,
+        "listClasses": 8,
+        "textBlocksSeen": 232,
+        "textBlocksRevealedByActions": 2
+      },
+      {
+        "page": "https://www.okx.com/price/solana-sol",
+        "classesSeen": 86,
+        "classesExecuted": 1,
+        "classCoverage": 0.01,
+        "listClasses": 12,
+        "textBlocksSeen": 256,
+        "textBlocksRevealedByActions": 1
+      },
+      {
+        "page": "https://www.okx.com/price/page/2",
+        "classesSeen": 52,
+        "classesExecuted": 1,
+        "classCoverage": 0.02,
+        "listClasses": 7,
+        "textBlocksSeen": 148,
+        "textBlocksRevealedByActions": 0
+      }
+    ],
+    "statesPerMinute": [
+      27,
+      58,
+      78,
+      108,
+      126,
+      146,
+      173,
+      175
+    ],
+    "lastNewStateAtMs": 428170
+  },
+  "lists": {
+    "classes": 65,
+    "membersSeen": 1801,
+    "executed": 39
+  },
+  "pages": 26,
+  "findings": {},
+  "inputClassification": {
+    "calls": 6,
+    "failures": 0,
+    "judgments": 6,
+    "inputTokens": 3224,
+    "outputTokens": 312,
+    "costUsd": 0.000135408,
+    "unpricedCalls": 0,
+    "elapsedMs": 3828,
+    "byPurpose": {
+      "crawler-input-kind": {
+        "calls": 6,
+        "costUsd": 0.000135408
+      }
+    }
+  }
+}

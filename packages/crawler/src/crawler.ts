@@ -39,7 +39,9 @@ export interface CrawlOptions {
 export interface CrawlState { key: string; url: string; overlay?: string; firstSeenAt: number; controls: number }
 export interface Step { kind: CrawlKind; classKey: string; label: string; value?: string; purpose?: string;
   /** Page the step was taken on; used to rewind past a whole page when backtracking. */
-  from?: string }
+  from?: string;
+  /** Page after the step; differs from `from` when the step navigated. */
+  to?: string }
 export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
@@ -84,6 +86,10 @@ export class SampledCrawler {
   private adapter!: BrowserAdapter;
   private path: Step[] = [];
   private blockedNavigation?: string;
+  /** Backtracks served by browser history instead of replay. */
+  private historyBacks = 0;
+  /** Backtracks that loaded the last page by URL and replayed only its in-page steps. */
+  private directLoads = 0;
   /** Page text at the last dispatch, used to pick search terms that should match. */
   private lastText = '';
   /** True from dispatch until the post-action settle completes. */
@@ -109,7 +115,7 @@ export class SampledCrawler {
   private get page() { return this.adapter.page!; }
 
   async run() {
-    const sessionOptions = new PlaywrightAdapter().parseOptions({ url: this.options.url, headless: this.options.headless, listExploration: 'review', actionTimeoutMs: 5000 });
+    const sessionOptions = new PlaywrightAdapter().parseOptions({ url: this.options.url, headless: this.options.headless, listExploration: 'review', actionTimeoutMs: 2000 });
     this.adapter = new BrowserAdapter(sessionOptions, new MemoryEvidenceStore());
     await this.adapter.start();
     // Script-driven navigation (buttons, redirects) is refused before it leaves scope.
@@ -161,6 +167,8 @@ export class SampledCrawler {
       byTier: Object.fromEntries(TIERS.map(t => [t, actions.filter(a => a.tier === t).length])),
       maxPerClass: Math.max(0, ...this.classCounts.values()),
       backtracks: this.events.filter(e => e.type === 'backtrack').length,
+      historyBacks: this.historyBacks,
+      directLoads: this.directLoads,
       judge: this.options.judge?.stats,
       models: modelCost([this.options.judge?.stats.jev, this.options.relevance?.meter], [this.options.judge?.stats.llm]),
       weakControlsConfirmed: this.confirmed.size,
@@ -371,7 +379,13 @@ export class SampledCrawler {
     const refused = this.blockedNavigation as string | undefined;
     if (refused) { outcome = 'failed'; error = `navigation outside scope refused: ${refused.slice(0, 120)}`; this.failedClasses.add(c.classKey); }
     // An aborted navigation can leave an error document; restore the source state.
-    if (!this.page.url().startsWith('http')) { await this.backtrack(before, 'navigation_refused', true); return; }
+    if (!this.page.url().startsWith('http')) {
+      // The source document is the previous history entry: one step back usually restores it.
+      const back = await this.page.goBack({ waitUntil: 'domcontentloaded', timeout: 5000 }).catch(() => null);
+      if (back && pagePath(this.page.url()) === pagePath(before.url)) { await this.settle(); this.historyBacks++; this.emit({ type: 'backtrack', at: this.now(), reason: 'navigation_refused:history', url: before.url }); }
+      else await this.backtrack(before, 'navigation_refused', true);
+      return;
+    }
     let after: Snapshot;
     try { after = await this.snapshot(); } catch { await this.backtrack(before, 'capture_failed', true); return; }
     let afterKey = stateKey(after);
@@ -395,6 +409,7 @@ export class SampledCrawler {
         if (changed) { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
       }
     }
+    step.to = pagePath(after.url);
     if (outcome === 'ok') this.path.push(step);
     const isNew = !this.states.has(afterKey);
     // The first member of a mode group decides whether the rest are worth sampling.
@@ -412,9 +427,22 @@ export class SampledCrawler {
   }
 
   private async dispatch(c: Candidate) {
+    await this.ensureActionable(c.control);
     if (c.kind === 'fill') return this.fill(c);
     const action = { id: `crawl:${this.now()}`, kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined } as unknown as ActionCandidate;
     await this.adapter.execute(action, c.control);
+  }
+
+  /**
+   * Fail in milliseconds instead of waiting for Playwright's actionability timeout when
+   * the target is hidden, zero-sized, or covered at its click point by another element.
+   */
+  private async ensureActionable(control: Control) {
+    const target = this.page.locator(control.selector);
+    if (await target.count() !== 1) throw new Error('Target is no longer unique');
+    await target.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(() => {});
+    const blocker = await target.evaluate(hitTestInPage).catch(() => 'detached');
+    if (blocker) throw new Error(`Target not actionable: ${blocker}`);
   }
 
   /** Classify the input (structure first, then JEV once per input class) and type one sample. */
@@ -439,10 +467,10 @@ export class SampledCrawler {
     // Re-key the first sample under its real purpose so the remaining samples stay pending.
     if (c.classKey.endsWith('|first')) c.classKey = c.classKey.replace(/\|first$/, `|${sample.purpose}`);
     const target = this.page.locator(c.control.selector);
-    await target.click({ timeout: 5000 });
-    await target.fill(sample.value, { timeout: 5000 });
+    await target.click({ timeout: 2000 });
+    await target.fill(sample.value, { timeout: 2000 });
     // Search boxes commonly need Enter; only searches are submitted.
-    if (known.kind === 'search') await target.press('Enter', { timeout: 5000 });
+    if (known.kind === 'search') await target.press('Enter', { timeout: 2000 });
   }
 
   /** Return to the entry page and replay the recorded path minus its last step. */
@@ -466,15 +494,54 @@ export class SampledCrawler {
       replay = this.path.slice(0, Math.max(0, end - 1));
     }
     this.emit({ type: 'backtrack', at: this.now(), reason, url: current.url });
-    await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    // Fast path: the replay target ends where an earlier page was entered and nothing was done
+    // on that page since, so the browser history already holds it. Go back instead of replaying.
+    if (await this.historyBack(replay)) return true;
+    // Every page here was reached by an ordinary link, so its URL loads it directly. Start the
+    // replay from the last page boundary in the kept path; only that page's in-page steps remain.
+    let start = replay.length;
+    while (start > 0 && replay[start - 1].to === replay[start - 1].from) start--;
+    const resume = start > 0 ? replay[start - 1].to! : pagePath(this.options.url);
+    await this.page.goto(start > 0 ? resume : this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
     await this.settle();
-    this.path = [];
-    for (const step of replay) {
+    if (start > 0 && pagePath(this.page.url()) !== resume) {
+      // Redirected or blocked: fall back to the full replay from the entry.
+      start = 0; await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {}); await this.settle();
+    }
+    if (start > 0) this.directLoads++;
+    this.path = replay.slice(0, start);
+    for (const step of replay.slice(start)) {
       const s = await this.snapshot();
       const target = this.candidatesForReplay(s, step);
       if (!target) break;
       try { await this.dispatch(target); await this.settle(); this.path.push(step); } catch { break; }
     }
+    return true;
+  }
+
+  /**
+   * Browser back replaces replay when the dropped steps only left the target page: one
+   * history entry per navigating step, and in-page steps on pages being left need no undo.
+   * Leaving drops in-page state on the target too, so the kept path is trimmed to match.
+   * The landing page is verified; anything unexpected falls back to replay from the entry.
+   */
+  private async historyBack(replay: Step[]): Promise<boolean> {
+    const dropped = this.path.slice(replay.length);
+    const target = replay.length ? replay.at(-1)!.to : pagePath(this.options.url);
+    const navigations = dropped.filter(step => step.to && step.to !== step.from).length;
+    if (!target || !navigations || navigations > 3 || dropped.some(step => !step.to)) return false;
+    // A dropped in-page step on the target itself would be state that back cannot undo.
+    if (dropped.some(step => step.from === target && step.to === target)) return false;
+    for (let i = 0; i < navigations; i++) {
+      const ok = await this.page.goBack({ waitUntil: 'domcontentloaded', timeout: 5000 }).then(r => !!r).catch(() => false);
+      if (!ok) return false;
+    }
+    await this.settle();
+    if (pagePath(this.page.url()) !== target) return false;
+    let kept = replay.length;
+    while (kept > 0 && replay[kept - 1].from === target && replay[kept - 1].to === target) kept--;
+    this.path = replay.slice(0, kept);
+    this.historyBacks++;
     return true;
   }
 
@@ -488,6 +555,14 @@ export class SampledCrawler {
     }
   }
 }
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+const hitTestInPage = new Function('el', `const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+  if (r.width < 1 || r.height < 1 || s.visibility === 'hidden' || s.display === 'none') return 'hidden';
+  const x = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), y = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2));
+  const hit = document.elementFromPoint(x, y);
+  if (!hit || el === hit || el.contains(hit) || hit.contains(el)) return '';
+  return 'covered by ' + hit.tagName.toLowerCase() + (hit.className && typeof hit.className === 'string' ? '.' + hit.className.split(' ')[0] : '');`) as (el: Element) => string;
 
 const emptyFacts = { type: '', inputmode: '', placeholder: '', pattern: '', autocomplete: '', ariaAutocomplete: '', ariaHaspopup: '', role: '', name: '', min: '', max: '', step: '', value: '' };
 
