@@ -13,6 +13,7 @@
       "arrowParentheses": "asNeeded"
     }
   },
+  "css": { "parser": { "tailwindDirectives": true } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -30,6 +31,10 @@
     {
       "includes": ["apps/test-site/**"],
       "linter": { "rules": { "a11y": "off" } }
+    },
+    {
+      "includes": ["apps/ui/src/components/ui/**"],
+      "linter": { "enabled": false }
     },
     {
       "includes": ["tests/**"],

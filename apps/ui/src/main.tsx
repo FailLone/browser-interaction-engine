@@ -1,11 +1,16 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { CrawlPanel } from './CrawlPanel.js';
-import './style.css';
-import './crawl.css';
+import './index.css';
+
+// Follow the system color scheme; shadcn's dark tokens hang off the `.dark` class.
+const dark = window.matchMedia('(prefers-color-scheme: dark)');
+const applyScheme = () => document.documentElement.classList.toggle('dark', dark.matches);
+applyScheme();
+dark.addEventListener('change', applyScheme);
 
 createRoot(document.getElementById('root')!).render(
-  <div className="crawl-shell">
+  <main className="mx-auto max-w-[1400px] p-4 sm:p-6">
     <CrawlPanel />
-  </div>,
+  </main>,
 );
