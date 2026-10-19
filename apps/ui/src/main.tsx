@@ -28,13 +28,15 @@ const blockerText: Record<string, string> = { control_classified_noninteractive:
 const unblockText: Record<string, string> = { 'Wait for this operation’s dependencies to settle; other independently validated work may continue': '确认此范围就绪后再执行；保留当前覆盖缺口', 'Repair this scope’s changing dependencies and explicitly execute a fresh action to verify recovery': '处理变化原因后，手动执行此范围的新动作以验证恢复', 'Supply an exploration group decision; unexecuted members remain uncovered': '调整探索范围决策后可继续；未执行项仍保留为未覆盖', 'Increase maxDepth': '需提高最大探索深度', 'Reach the branch checkpoint or repair its preconditions': '需恢复并验证该界面；必要时重置业务环境' };
 const statusText: Record<string, string> = { running: '探索中', idle: '等待选择', paused: '已暂停', stopped: '已停止', finished: '本轮结束', pending: '待执行', executed: '已执行', blocked: '受阻', unknown: '结果未知', needs_revalidation: '需重新验证', executing: '执行中', succeeded: '成功', failed: '失败' };
 type Mode = 'crawl' | 'session';
-/** The sampled crawler is the default; the step-by-step session engine stays available. */
+/** Switch between the sampled crawler and the step-by-step session engine; the choice is kept in the URL. */
 function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (mode: Mode) => void }) {
+  const choose = (m: Mode) => { const url = new URL(location.href); if (m === 'crawl') url.searchParams.set('mode', 'crawl'); else url.searchParams.delete('mode'); history.replaceState(null, '', url); setMode(m); };
   return <nav className="mode-switch" aria-label="模式">{([['crawl', '抽样遍历'], ['session', '会话（逐步）']] as const).map(([m, label]) =>
-    <button key={m} className={mode === m ? 'active' : ''} onClick={() => setMode(m)}>{label}</button>)}</nav>;
+    <button key={m} className={mode === m ? 'active' : ''} onClick={() => choose(m)}>{label}</button>)}</nav>;
 }
 function App() {
-  const [mode, setMode] = useState<Mode>(() => (new URLSearchParams(location.search).get('mode') as Mode) || 'crawl');
+  // Session mode stays the root view (existing links and tests); the crawler is ?mode=crawl.
+  const [mode, setMode] = useState<Mode>(() => new URLSearchParams(location.search).get('mode') === 'crawl' ? 'crawl' : 'session');
   const [sessions, setSessions] = useState<Session[]>([]); const [sessionId, setSessionId] = useState(''); const [session, setSession] = useState<Session>();
   const [url, setUrl] = useState('http://127.0.0.1:4174'); const [headless, setHeadless] = useState(true); const [maxActions, setMaxActions] = useState(100);
   const [retentionMode, setRetentionMode] = useState<'cache' | 'transient' | 'persistent'>('cache'); const [retentionSeconds, setRetentionSeconds] = useState(300); const [retentionMiB, setRetentionMiB] = useState(64);

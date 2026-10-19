@@ -8,7 +8,7 @@
 
 `@interaction/crawler` 像真实用户一样遍历当前页面，把弹窗、菜单、提示、输入、hover 等状态交互出来：同类控件只抽样几个，价格等实时数据不算新状态，跳转被拦截并记录，不会离开页面。JEV/LLM 是可选插件，用于程序判断不了的问题。
 
-- 界面：`pnpm demo` 后打开 http://127.0.0.1:5173（默认"抽样遍历"模式）。
+- 界面：`pnpm demo` 后打开 http://127.0.0.1:5173/?mode=crawl（右上角可在"抽样遍历"与"会话（逐步）"之间切换）。
 - 接口：`POST /v1/crawls`、`GET /v1/crawls/:id/events` 等，支持停止与续跑。
 - 命令行：`pnpm exec tsx --conditions=development scripts/sampled-crawl.ts OUT URL`。
 

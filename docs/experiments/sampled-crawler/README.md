@@ -364,7 +364,7 @@ OKX 价格页（`/price/bitcoin-btc`，只测当前页）：
 - **存储**：`CrawlStore`（SQLite，`.data/crawls.sqlite`，与引擎数据同目录）保存每次运行、全部事件、每个新状态的截图，以及可续跑的"账本"（各动作类执行次数、失败的类、模型已判定的弱控件/列表/输入框类型、同组跳过、已知状态）。运行中每 5 秒写一次账本，进程中途退出也能续跑；服务重启时把未结束的运行标为"已中断"。
 - **HTTP**（`apps/server`）：`POST /v1/crawls` 启动（可选 `resumeFrom` 续跑、`models`、`durationMs`、`followNavigation`），`GET /v1/crawls`、`/v1/crawls/:id`、`/v1/crawls/:id/events?after=`、`/v1/crawls/:id/screenshot?state=`，`POST /v1/crawls/:id/stop`。遍历在服务端后台运行，关闭页面不影响。
 - **续跑**：新运行载入上次的账本，已执行或已失败的动作类不再执行，已知状态不再算新状态。测试中对同一页面续跑，动作数为 0。
-- **界面**（`apps/ui`）：默认进入"抽样遍历"模式（右上角可切回原来的"会话（逐步）"模式）。可以输入网址开始运行，左侧是运行记录，右侧实时显示动作、跳转、模型判定，状态列表点开能看截图；完成后显示汇总与每页覆盖，可一键续跑。截图见 `ui-crawl-panel.png`（本地测试站）。
+- **界面**（`apps/ui`）：打开 `/?mode=crawl` 进入"抽样遍历"模式，右上角可切换；根地址仍是原来的"会话（逐步）"界面，以免影响现有链接和界面测试。可以输入网址开始运行，左侧是运行记录，右侧实时显示动作、跳转、模型判定，状态列表点开能看截图；完成后显示汇总与每页覆盖，可一键续跑。截图见 `ui-crawl-panel.png`（本地测试站）。
 - `pnpm demo` 和 `pnpm dev` 都已接入；模型配置沿用 `EXPLORER_JEV_*` / `EXPLORER_LLM_*`。
 
 说明：`apps/ui` 单独执行 `vite build` 在本次改动之前就会失败（找不到 `@interaction/explorer-plugin/ui` 的构建产物），需先构建各包（`pnpm build` 会按顺序处理）。按源码解析的构建与开发服务器都能正常编译新界面。
