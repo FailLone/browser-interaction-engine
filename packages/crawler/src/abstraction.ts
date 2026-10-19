@@ -3,6 +3,8 @@ import type { Control, Overlay, Region } from '@interaction/adapter-playwright';
 /** Minimal capture the crawler needs; produced by the adapter's DOM collector. */
 export interface Snapshot {
   url: string; title: string; text?: string; controls: Control[]; overlays?: Overlay[]; regions?: Region[];
+  /** Adapter document identity; changes on every full page load. */
+  documentId?: string;
 }
 
 /** Live values (prices, times, percentages, counts) never make a new state or component. */

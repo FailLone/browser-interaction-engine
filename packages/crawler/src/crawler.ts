@@ -17,10 +17,19 @@ export interface CrawlOptions {
   /** Samples per action class; list members default to `listSamples`. */
   samples?: number;
   listSamples?: number;
-  /** Distinct pages visited per page template (e.g. /convert/*). */
+  /** Distinct pages visited per page template (e.g. /convert/*); only with `followNavigation`. */
   pageSamples?: number;
-  /** Actions spent on any non-entry page before it is left for other work. */
+  /** Actions spent on any non-entry page before it is left for other work; only with `followNavigation`. */
   pageActions?: number;
+  /**
+   * Default false: the crawler tests the current page only. Every document navigation away from
+   * it is intercepted (the request is aborted, the current document and its state stay intact)
+   * and recorded as an outgoing link. Same-document URL changes (hash, history.pushState) are
+   * recorded and undone; with `inPageRoutes` 'explore' (default) they are re-run once all other
+   * in-page work is done, with 'skip' never.
+   */
+  followNavigation?: boolean;
+  inPageRoutes?: 'explore' | 'skip';
   settleMs?: number;
   policy?: CrawlPolicy;
   /** Model plugin for questions the program cannot settle (weak controls, invisible effects). */
@@ -47,6 +56,8 @@ export type CrawlEvent =
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; finding: Finding; state: string; url: string }
+  /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
+  | { type: 'navigation'; at: number; kind: 'document' | 'same-document' | 'popup'; from: string; to: string; action: string; outcome: 'intercepted' | 'kept' | 'reverted' | 'followed' }
   | { type: 'judgement'; at: number; question: string; label: string; verdict: 'yes' | 'no' | 'uncertain'; source: string; probability?: number; detail?: string }
   | { type: 'stop'; at: number; reason: string };
 
@@ -56,7 +67,7 @@ interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier:
 
 // Everything that stays on the current page (including site-chrome menus) runs
 // before any navigation; otherwise the entry page's own UI waits behind other pages.
-const TIERS = ['overlay', 'body', 'in-page-disclosure', 'chrome', 'navigate'] as const;
+const TIERS = ['overlay', 'body', 'in-page-disclosure', 'chrome', 'navigate', 'route'] as const;
 
 /**
  * Crawljax-style sampled crawler: abstract states, action classes sampled k
@@ -85,7 +96,14 @@ export class SampledCrawler {
   readonly findings = new Map<string, Finding & { url: string; state: string }>();
   private adapter!: BrowserAdapter;
   private path: Step[] = [];
-  private blockedNavigation?: string;
+  /** Document of the entry page currently loaded; route changes keep it, a page load replaces it. */
+  private entryDocument?: string;
+  /** Document navigation intercepted during the current dispatch. */
+  private intercepted?: string;
+  /** Popup opened during the current dispatch. */
+  private popup?: string;
+  /** Outgoing navigations recorded per (page, target page). */
+  readonly links = new Map<string, { from: string; to: string; kind: 'document' | 'same-document' | 'popup'; action: string; count: number }>();
   /** Backtracks served by browser history instead of replay. */
   private historyBacks = 0;
   /** Backtracks that loaded the last page by URL and replayed only its in-page steps. */
@@ -100,13 +118,15 @@ export class SampledCrawler {
   private readonly confirmed = new Set<string>();
   /** Input kind per input component class: structural, judged by JEV, or defaulted. */
   readonly inputKinds = new Map<string, { kind: InputKind; source: 'structure' | 'jev' | 'default' }>();
+  /** Action classes whose effect was a same-document route change; ranked last. */
+  private readonly routeClasses = new Set<string>();
   /** Action classes JEV judged irrelevant to the goal. */
   private readonly pruned = new Set<string>();
   /** Weak control classes already asked about. */
   private readonly asked = new Set<string>();
 
   constructor(options: CrawlOptions) {
-    this.options = { headless: true, durationMs: 240_000, maxActions: 200, samples: 1, listSamples: 2, pageSamples: 2, pageActions: 20, settleMs: 600,
+    this.options = { headless: true, durationMs: 240_000, maxActions: 200, samples: 1, listSamples: 2, pageSamples: 2, pageActions: 20, followNavigation: false, inPageRoutes: 'explore', settleMs: 600,
       policy: defaultPolicy(options.url), checks: [], ...options };
   }
 
@@ -118,22 +138,40 @@ export class SampledCrawler {
     const sessionOptions = new PlaywrightAdapter().parseOptions({ url: this.options.url, headless: this.options.headless, listExploration: 'review', actionTimeoutMs: 2000 });
     this.adapter = new BrowserAdapter(sessionOptions, new MemoryEvidenceStore());
     await this.adapter.start();
-    // Script-driven navigation (buttons, redirects) is refused before it leaves scope.
+    // Document navigations are decided before they happen. Aborting with 'aborted' cancels the
+    // load and leaves the current document, its DOM and its state untouched (no error page).
+    // Popups (window.open, target=_blank) are stopped before they load. Page routes take
+    // precedence over context routes, so popups are the only navigations this one sees.
+    await this.adapter.context!.route('**/*', async route => {
+      const request = route.request();
+      if (!request.isNavigationRequest()) return route.continue();
+      // A popup's first request is issued before its frame exists.
+      let frame; try { frame = request.frame(); } catch { frame = undefined; }
+      if (frame && frame.page() === this.page) return route.fallback();
+      if (this.dispatching) this.popup = request.url();
+      return route.abort('aborted');
+    });
+    // Registered after the adapter's own page route, so it runs first for the main frame.
     await this.page.route('**/*', async route => {
       const request = route.request();
-      if (request.isNavigationRequest() && request.frame() === this.page.mainFrame() && placementOfUrl(request.url(), this.options) === 'outside') {
-        if (this.dispatching) this.blockedNavigation = request.url();
-        await route.abort('blockedbyclient');
-      } else await route.continue();
+      if (!request.isNavigationRequest() || request.frame() !== this.page.mainFrame()) return route.fallback();
+      const target = request.url(), current = this.page.url();
+      const leaving = pagePath(target) !== pagePath(current);
+      const intercept = this.dispatching && (placementOfUrl(target, this.options) === 'outside' || leaving && !this.options.followNavigation);
+      if (intercept) { this.intercepted = target; return route.abort('aborted'); }
+      // Outside an action (initial load, explicit backtrack) only out-of-scope loads are refused.
+      if (!this.dispatching && placementOfUrl(target, this.options) === 'outside') return route.abort('aborted');
+      return route.fallback();
     });
-    // Popups opened by window.open/target=_blank are closed immediately.
-    this.adapter.context!.on('page', popup => { if (popup === this.page) return; if (this.dispatching) this.blockedNavigation = popup.url(); void popup.close(); });
+    // Popups (window.open, target=_blank) are recorded and closed; the current page is unaffected.
+    this.adapter.context!.on('page', popup => { if (popup === this.page) return; if (this.dispatching && !this.popup && popup.url() !== 'about:blank') this.popup = popup.url(); void popup.close(); });
     let actions = 0, idleBacktracks = 0, stop = 'budget_exhausted';
     try {
       await this.settle();
       while (this.now() < this.options.durationMs && actions < this.options.maxActions) {
         if (!this.page.url().startsWith('http')) { await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {}); await this.settle(); this.path = []; }
         const snapshot = await this.snapshot();
+        if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
         await this.visit(snapshot);
         await this.reviewWeakControls(snapshot);
         await this.assessRelevance(snapshot);
@@ -168,6 +206,11 @@ export class SampledCrawler {
       maxPerClass: Math.max(0, ...this.classCounts.values()),
       backtracks: this.events.filter(e => e.type === 'backtrack').length,
       historyBacks: this.historyBacks,
+      navigations: {
+        intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
+        sameDocument: [...this.links.values()].filter(l => l.kind === 'same-document').map(l => ({ from: l.from, to: l.to, action: l.action })),
+        outgoingPages: [...new Set([...this.links.values()].filter(l => l.kind !== 'same-document').map(l => pagePath(l.to)))].length,
+      },
       directLoads: this.directLoads,
       judge: this.options.judge?.stats,
       models: modelCost([this.options.judge?.stats.jev, this.options.relevance?.meter], [this.options.judge?.stats.llm]),
@@ -192,7 +235,7 @@ export class SampledCrawler {
 
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM(false, false);
-    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions };
+    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions, documentId: dom.documentId };
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -299,7 +342,9 @@ export class SampledCrawler {
       if (scope && !scope.has(c.localId)) continue;
       if (!scope && c.actionable.occludedBy) continue;
       const where = placement(c, s.url, this.options.url, this.options.policy);
-      if (where === 'outside') continue;
+      // Testing the current page only: a link's destination is recorded, never visited, so a
+      // link elsewhere needs no click at all (its href is already the record).
+      if (where === 'outside' || where === 'navigate' && !this.options.followNavigation) { if (where === 'navigate' || where === 'outside') this.noteLink(c, s.url); continue; }
       if (where === 'navigate' && !this.pageAllowed(linkTarget(c, s.url)!)) continue;
       for (const kind of kindsFor(c, this.confirmed)) {
         if (!allowed(c, kind, this.options.policy)) continue;
@@ -309,7 +354,8 @@ export class SampledCrawler {
         const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
         if (group && this.flatModeGroups.has(group)) continue;
         const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover' || kind === 'fill';
-        const tierName = scope ? 'overlay' : where === 'navigate' ? 'navigate' : c.landmark ? 'chrome' : disclosure ? 'in-page-disclosure' : 'body';
+        if (this.routeClasses.has(classKey) && this.options.inPageRoutes === 'skip') continue;
+        const tierName = scope ? 'overlay' : this.routeClasses.has(classKey) ? 'route' : where === 'navigate' ? 'navigate' : c.landmark ? 'chrome' : disclosure ? 'in-page-disclosure' : 'body';
         const relevance = applyGoal ? this.options.relevance : undefined;
         // An open overlay must still be handled even when its contents are off-goal.
         if (relevance && !scope && !relevance.relevant(classKey)) continue;
@@ -363,7 +409,8 @@ export class SampledCrawler {
     this.pageCounts.set(pagePath(before.url), (this.pageCounts.get(pagePath(before.url)) || 0) + 1);
     const beforeKey = stateKey(before), overlay = activeOverlay(before);
     let outcome: 'ok' | 'failed' | 'no_change' = 'ok', error: string | undefined;
-    this.blockedNavigation = undefined;
+    this.intercepted = undefined; this.popup = undefined;
+    const urlBefore = this.page.url();
     this.dispatching = true;
     try {
       await this.dispatch(c);
@@ -375,17 +422,24 @@ export class SampledCrawler {
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
     this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 0) + 1);
     const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose, from: pagePath(before.url) };
-    // Set asynchronously by the route/popup handlers during dispatch.
-    const refused = this.blockedNavigation as string | undefined;
-    if (refused) { outcome = 'failed'; error = `navigation outside scope refused: ${refused.slice(0, 120)}`; this.failedClasses.add(c.classKey); }
-    // An aborted navigation can leave an error document; restore the source state.
-    if (!this.page.url().startsWith('http')) {
-      // The source document is the previous history entry: one step back usually restores it.
-      const back = await this.page.goBack({ waitUntil: 'domcontentloaded', timeout: 5000 }).catch(() => null);
-      if (back && pagePath(this.page.url()) === pagePath(before.url)) { await this.settle(); this.historyBacks++; this.emit({ type: 'backtrack', at: this.now(), reason: 'navigation_refused:history', url: before.url }); }
-      else await this.backtrack(before, 'navigation_refused', true);
-      return;
+    // Navigations are recorded, never followed by default. Set asynchronously during dispatch.
+    const intercepted = this.intercepted as string | undefined, popup = this.popup as string | undefined;
+    if (intercepted) this.recordLink('document', before.url, intercepted, step.label, 'intercepted');
+    if (popup) this.recordLink('popup', before.url, popup, step.label, 'intercepted');
+    // A navigation is the expected result of a link: it worked, so it is not a failure.
+    if ((intercepted || popup) && outcome === 'failed' && /aborted|ERR_ABORTED/.test(error || '')) { outcome = 'ok'; error = undefined; }
+    const urlAfter = this.page.url();
+    let routeChanged = false;
+    if (urlAfter !== urlBefore && !this.routeClasses.has(c.classKey) && await this.sameDocument(before)) {
+      // Same document, new URL: hash change or history.pushState (SPA route).
+      // Recorded on discovery and undone (history back, same document). The class then ranks
+      // last; with inPageRoutes 'explore' it is re-run once all other in-page work is done.
+      routeChanged = true;
+      this.recordLink('same-document', urlBefore, urlAfter, step.label, 'reverted');
+      await this.page.goBack({ timeout: 2000 }).catch(() => {}); await this.settle();
+      if (this.options.inPageRoutes === 'explore' && !this.routeClasses.has(c.classKey)) this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 1) - 1);
     }
+    if (!this.page.url().startsWith('http')) { await this.backtrack(before, 'capture_failed', true); return; }
     let after: Snapshot;
     try { after = await this.snapshot(); } catch { await this.backtrack(before, 'capture_failed', true); return; }
     let afterKey = stateKey(after);
@@ -422,8 +476,13 @@ export class SampledCrawler {
     }
     if (isNew && /\|(content|value):/.test(afterKey)) this.states.set(afterKey, { key: afterKey, url: after.url, firstSeenAt: this.now(), controls: after.controls.filter(x => x.visible).length });
     this.emit({ type: 'action', at: this.now(), step, url: before.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, tier: c.tierName, outcome, error, newState: isNew, after: pagePath(after.url) });
-    // Left the allowed scope (script navigation, redirect): never repeat this class, return to entry.
-    if (placementOfUrl(after.url, this.options) === 'outside') { this.failedClasses.add(c.classKey); await this.backtrack(after, 'left_scope'); }
+    if (routeChanged) this.routeClasses.add(c.classKey);
+    // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
+    // A same-document route change (kept) is still the entry page's document, not a departure.
+    const departed = !this.options.followNavigation && pagePath(after.url) !== pagePath(this.options.url) && after.documentId !== this.entryDocument;
+    if (placementOfUrl(after.url, this.options) === 'outside' || departed) {
+      this.failedClasses.add(c.classKey); await this.backtrack(after, 'left_scope');
+    }
   }
 
   private async dispatch(c: Candidate) {
@@ -431,6 +490,26 @@ export class SampledCrawler {
     if (c.kind === 'fill') return this.fill(c);
     const action = { id: `crawl:${this.now()}`, kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined } as unknown as ActionCandidate;
     await this.adapter.execute(action, c.control);
+  }
+
+  /** Static links are recorded from their href without clicking (once per destination page). */
+  private noteLink(c: Control, base: string) {
+    const target = linkTarget(c, base);
+    if (target) this.recordLink(c.reviewBinding?.attributes.target === '_blank' ? 'popup' : 'document', base, target, (c.name || c.label).slice(0, 60), 'intercepted');
+  }
+
+  private recordLink(kind: 'document' | 'same-document' | 'popup', from: string, to: string, action: string, outcome: 'intercepted' | 'kept' | 'reverted' | 'followed') {
+    const key = `${kind === 'same-document' ? kind : 'leave'}|${pagePath(from)}|${kind === 'same-document' ? to : pagePath(to)}`;
+    const row = this.links.get(key);
+    if (row) { row.count++; return; }
+    this.links.set(key, { from: pagePath(from), to, kind, action, count: 1 });
+    this.emit({ type: 'navigation', at: this.now(), kind, from, to, action, outcome });
+  }
+
+  /** True when the document that produced `before` is still loaded (no full page load happened). */
+  private async sameDocument(before: Snapshot) {
+    const id = await this.page.evaluate('window.__interactionEvidenceTracker && window.__interactionEvidenceTracker.documentId').catch(() => undefined);
+    return !!id && id === before.documentId;
   }
 
   /**

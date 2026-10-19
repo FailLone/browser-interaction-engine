@@ -239,7 +239,7 @@ test('backtracking from a finished page uses browser history instead of replayin
     const { defaultPolicy } = await import('@interaction/crawler');
     const policy = defaultPolicy(url); policy.allowedPaths.push(/^\/[ab]$/);
     const events: CrawlEvent[] = [];
-    const summary = await new SampledCrawler({ url, policy, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
+    const summary = await new SampledCrawler({ url, policy, followNavigation: true, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
     const labels = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
     expect(labels).toEqual(expect.arrayContaining(['Page A', 'A action', 'Page B', 'B action']));
     expect(summary.historyBacks).toBeGreaterThan(0);
@@ -264,5 +264,55 @@ test('a covered control fails immediately instead of waiting for a click timeout
     expect(covered!.error).toContain('covered');
     const before = events[events.indexOf(covered!) - 1];
     expect(covered!.at - (before?.at ?? 0)).toBeLessThan(1500);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);
+
+test('by default the crawler stays on the page: navigations are intercepted and recorded, route changes kept last', async () => {
+  const home = `<!doctype html><title>Home</title><main>
+    <input id="amount" value="5">
+    <a href="/other">Plain link</a>
+    <button onclick="location.href='/scripted'">Scripted jump</button>
+    <button onclick="window.open('/popup')">Open popup</button>
+    <a href="#details">Details anchor</a>
+    <button onclick="history.pushState({},'','/spa-view');document.getElementById('view').textContent='SPA view'">SPA route</button>
+    <button onclick="document.getElementById('view').textContent='Panel'">Local action</button>
+    <p id="view"></p></main>`;
+  let otherLoads = 0;
+  const local = createServer((req, res) => {
+    res.setHeader('content-type', 'text/html');
+    if (req.url !== '/') otherLoads++;
+    res.end(req.url === '/' ? home : '<title>Elsewhere</title><button>Elsewhere action</button>');
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const { defaultPolicy } = await import('@interaction/crawler');
+    const policy = defaultPolicy(url); policy.allowedPaths.push(/^\/(other|scripted|popup|spa-view)$/);
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({ url, policy, durationMs: 30000, settleMs: 100, log: e => events.push(e) });
+    const summary = await crawler.run();
+    const actions = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+    const navigations = events.filter((e): e is Extract<CrawlEvent, { type: 'navigation' }> => e.type === 'navigation');
+    // Never tested anything on another page, and never loaded one.
+    expect(actions.map(a => a.step.label)).not.toContain('Elsewhere action');
+    expect(actions.every(a => a.url.startsWith(url))).toBe(true);
+    expect(otherLoads).toBe(0);
+    // The plain link is recorded from its href without a click; scripted jumps and popups are intercepted.
+    expect(actions.map(a => a.step.label)).not.toContain('Plain link');
+    expect(navigations).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'document', to: `${url}other` }),
+      expect.objectContaining({ kind: 'document', to: `${url}scripted`, action: 'Scripted jump' }),
+      expect.objectContaining({ kind: 'popup', action: 'Open popup' }),
+      expect.objectContaining({ kind: 'same-document', action: 'SPA route' }),
+    ]));
+    // An intercepted jump is not a failure, and the page keeps its state.
+    expect(actions.find(a => a.step.label === 'Scripted jump')).toMatchObject({ outcome: expect.not.stringMatching('failed') });
+    // The route change is undone when first seen, then re-run only after all other in-page work.
+    const labels = actions.map(a => a.step.label);
+    const spa = labels.map((l, i) => l === 'SPA route' ? i : -1).filter(i => i >= 0);
+    expect(spa).toHaveLength(2);
+    expect(labels.indexOf('Local action')).toBeLessThan(spa[1]);
+    expect(actions[spa[1]].tier).toBe('route');
+    expect(summary.navigations.sameDocument.length).toBeGreaterThan(0);
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);

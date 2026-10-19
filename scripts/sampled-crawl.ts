@@ -50,6 +50,7 @@ const crawler = new SampledCrawler({
     else if (event.type === 'state') console.log(t, 'state', event.state.url, event.state.overlay || '', event.state.controls);
     else if (event.type === 'finding') console.log(t, 'finding', event.finding.rule, JSON.stringify(event.finding.text), event.finding.detail);
     else if (event.type === 'judgement') console.log(t, 'judge', event.question, event.source, event.verdict, event.probability ?? '', JSON.stringify(event.label));
+    else if (event.type === 'navigation') console.log(t, 'navigation', event.kind, event.outcome, event.to, JSON.stringify(event.action));
     else console.log(t, event.type, event.reason);
   },
 });

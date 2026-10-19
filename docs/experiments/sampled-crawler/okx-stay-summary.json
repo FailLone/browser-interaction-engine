@@ -1,0 +1,230 @@
+{
+  "elapsedMs": 147390,
+  "actions": 74,
+  "states": 40,
+  "onEntryPage": 74,
+  "inOverlay": 7,
+  "failed": 3,
+  "byTier": {
+    "overlay": 7,
+    "body": 23,
+    "in-page-disclosure": 11,
+    "chrome": 33,
+    "navigate": 0,
+    "route": 0
+  },
+  "maxPerClass": 1,
+  "backtracks": 6,
+  "historyBacks": 0,
+  "navigations": {
+    "intercepted": 268,
+    "sameDocument": [],
+    "outgoingPages": 268
+  },
+  "directLoads": 0,
+  "judge": {
+    "questions": 32,
+    "cacheHits": 0,
+    "answeredByJev": 19,
+    "answeredByLlm": 0,
+    "uncertain": 13,
+    "unavailable": 0,
+    "yes": 15,
+    "no": 4,
+    "jevProbabilities": [
+      0,
+      4,
+      2,
+      7,
+      3,
+      0,
+      1,
+      2,
+      3,
+      10
+    ],
+    "jev": {
+      "calls": 15,
+      "failures": 0,
+      "judgments": 32,
+      "inputTokens": 12914,
+      "outputTokens": 611,
+      "costUsd": 0.0005423879999999999,
+      "unpricedCalls": 0,
+      "elapsedMs": 11699,
+      "byPurpose": {
+        "crawler-interactive": {
+          "calls": 13,
+          "costUsd": 0.0004935
+        },
+        "crawler-effect": {
+          "calls": 2,
+          "costUsd": 0.000048888
+        }
+      }
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "elapsedMs": 0,
+      "byPurpose": {}
+    }
+  },
+  "models": {
+    "jev": {
+      "calls": 15,
+      "failures": 0,
+      "judgments": 32,
+      "inputTokens": 12914,
+      "outputTokens": 611,
+      "costUsd": 0.0005423879999999999,
+      "unpricedCalls": 0,
+      "avgMs": 780,
+      "elapsedMs": 11699
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "avgMs": 0,
+      "elapsedMs": 0
+    }
+  },
+  "weakControlsConfirmed": 26,
+  "inputs": {
+    "classes": 4,
+    "kinds": {
+      "search:structure": 2,
+      "number:structure": 1,
+      "text:jev": 1
+    },
+    "filled": [
+      {
+        "label": "Search",
+        "purpose": "existing",
+        "value": "USD",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "normal",
+        "value": "100",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "boundary",
+        "value": "999999999",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "zero",
+        "value": "0",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "invalid",
+        "value": "abc",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "existing",
+        "value": "USD",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      }
+    ]
+  },
+  "hovers": 12,
+  "modeGroups": {
+    "sampled": 3,
+    "flat": 3
+  },
+  "coverage": {
+    "pages": [
+      {
+        "page": "https://www.okx.com/convert/usd-to-btc",
+        "classesSeen": 124,
+        "classesExecuted": 66,
+        "classCoverage": 0.53,
+        "listClasses": 16,
+        "textBlocksSeen": 476,
+        "textBlocksRevealedByActions": 225
+      }
+    ],
+    "statesPerMinute": [
+      27,
+      40,
+      40
+    ],
+    "lastNewStateAtMs": 106939
+  },
+  "lists": {
+    "classes": 9,
+    "membersSeen": 83,
+    "executed": 4
+  },
+  "pages": 1,
+  "findings": {},
+  "inputClassification": {
+    "calls": 1,
+    "failures": 0,
+    "judgments": 1,
+    "inputTokens": 531,
+    "outputTokens": 52,
+    "costUsd": 0.000022302,
+    "unpricedCalls": 0,
+    "elapsedMs": 1053,
+    "byPurpose": {
+      "crawler-input-kind": {
+        "calls": 1,
+        "costUsd": 0.000022302
+      }
+    }
+  }
+}
