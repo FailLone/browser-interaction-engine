@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
-import { ChevronDown, ChevronRight, CornerDownLeft, CircleX, Sparkles, Undo2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, CornerDownLeft, CircleX, Info, Sparkles, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,8 +17,12 @@ import {
   pluginText,
   questionText,
   severityText,
+  inputKindText,
+  sourceText,
   tierText,
   verdictLabel,
+  verdictMeaning,
+  verdictText,
 } from './text.js';
 import { type ActionNode, type ActionTree, type ModelStep, type ModelSteps, modelSteps, pathTo } from './tree.js';
 import type { Event, FindingEvent, JudgementEvent, ModelCallSummary, PluginErrorEvent } from './types.js';
@@ -135,21 +139,24 @@ function ModelStepRow({
 /** What the crawler concluded from a model answer; an unrelated effect shows how sure JEV was. */
 function VerdictBadge({ judgement: j }: { judgement: JudgementEvent }) {
   const unrelated = j.verdict === 'no' && j.unrelated !== undefined && j.unrelated >= 0.5;
-  const badge = (
-    <Badge
-      variant="outline"
-      className={cn('px-1.5 py-0 text-[10px]', unrelated ? 'text-muted-foreground' : verdictClass[j.verdict])}
-    >
-      {verdictLabel(j)}
-      {unrelated
-        ? ` ${(j.unrelated as number).toFixed(2)}`
-        : j.probability !== undefined && ` ${j.probability.toFixed(2)}`}
-    </Badge>
-  );
-  if (!unrelated) return badge;
+  const tip = unrelated
+    ? `JEV 判断新出现的文字是页面自己加载或更新的（把握 ${(j.unrelated as number).toFixed(2)}），和这个动作无关，不算新状态。`
+    : j.detail
+      ? `${sourceText[j.source] ?? j.source}判定为「${inputKindText[j.detail] ?? j.detail}」，按这个类型填入样本值。`
+      : `${verdictMeaning[j.question]?.[j.verdict] ?? verdictText[j.verdict]}${
+          j.probability !== undefined ? `（概率 ${j.probability.toFixed(2)}）` : ''
+        }`;
   return (
-    <Hint tip="JEV 判断新出现的文字是页面自己加载或更新的，和这个动作无关，所以不算新内容。" className="no-underline">
-      {badge}
+    <Hint tip={tip} className="no-underline">
+      <Badge
+        variant="outline"
+        className={cn('px-1.5 py-0 text-[10px]', unrelated ? 'text-muted-foreground' : verdictClass[j.verdict])}
+      >
+        {verdictLabel(j)}
+        {unrelated
+          ? ` ${(j.unrelated as number).toFixed(2)}`
+          : j.probability !== undefined && ` ${j.probability.toFixed(2)}`}
+      </Badge>
     </Hint>
   );
 }
@@ -181,6 +188,7 @@ export function ActionTreeView({
   events,
   calls,
   selected,
+  focus,
   onSelect,
   onOpenCall,
 }: {
@@ -189,6 +197,8 @@ export function ActionTreeView({
   events: Event[];
   calls: ModelCallSummary[];
   selected?: number;
+  /** Changes on every jump from outside the tree (a failure, a finding, a model call). */
+  focus?: number;
   onSelect: (seq: number) => void;
   onOpenCall: (id: number) => void;
 }) {
@@ -198,11 +208,38 @@ export function ActionTreeView({
   const node = selected === undefined ? undefined : tree.nodes.get(selected);
   const virtuoso = useRef<VirtuosoHandle>(null);
   // Bring an action chosen elsewhere (a finding, a model call) into view; only rendered rows exist.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the selection changes, not on every new row
-  useEffect(() => {
-    const index = list.findIndex(r => r.type === 'action' && r.node.event.seq === selected);
+  // A collapsed ancestor hides the row: open the branch, then scroll once the row is rendered.
+  const rowOf = (seq?: number) => list.findIndex(r => r.type === 'action' && r.node.event.seq === seq);
+  // Coming from another tab mounts the tree afresh: it opens on the selected row instead of scrolling.
+  const [initial] = useState(() => Math.max(0, rowOf(selected)));
+  const mounted = useRef(false);
+  const reveal = useRef<number>(undefined);
+  const scrollTo = (seq: number) => {
+    const index = rowOf(seq);
     if (index >= 0) virtuoso.current?.scrollIntoView({ index, behavior: 'auto' });
-  }, [selected]);
+  };
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs on a jump, not on every new row
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    if (!node) return;
+    const hidden = new Set(
+      pathTo(node)
+        .map(n => n.event.seq)
+        .filter(seq => seq !== selected && collapsed.has(seq)),
+    );
+    if (!hidden.size) return scrollTo(node.event.seq);
+    reveal.current = node.event.seq;
+    setCollapsed(prev => new Set([...prev].filter(seq => !hidden.has(seq))));
+  }, [selected, focus]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrolls once the opened branch is rendered
+  useEffect(() => {
+    if (reveal.current === undefined) return;
+    scrollTo(reveal.current);
+    reveal.current = undefined;
+  }, [list]);
 
   // Model calls, findings and plugin errors between this action and the next one.
   const next = node && tree.actions[node.index];
@@ -230,6 +267,7 @@ export function ActionTreeView({
       <div className="min-w-0 overflow-hidden rounded-lg border">
         <Virtuoso
           ref={virtuoso}
+          initialTopMostItemIndex={{ index: initial, align: 'center' }}
           data={list}
           computeItemKey={(_, row) => (row.type === 'model' ? row.key : `${row.type}:${row.node.event.seq}`)}
           style={{ height: Math.min(list.length * 30 + 8, maxListHeight) }}
@@ -355,7 +393,19 @@ function Legend() {
       </span>
       <span className="flex items-center gap-1">
         <Sparkles className="size-3" />
-        问模型（动作上方：选这个动作前问；下方：执行中问，如效果、输入框类型）
+        <Hint
+          tip={
+            <>
+              在动作<b>上方</b>、与它同一层的：为了选这个动作而问的（值不值得点、列表是否同类）。
+              <br />
+              在动作<b>下方</b>、缩进一层的：执行这个动作时问的（算不算新内容、输入框类型）。
+              <br />
+              点开可以看问了什么、模型怎么答、爬虫据此做了什么。
+            </>
+          }
+        >
+          问模型
+        </Hint>
       </span>
       <span className="flex items-center gap-1">
         <CornerDownLeft className="size-3" />
@@ -365,9 +415,23 @@ function Legend() {
         <Undo2 className="size-3 text-warning" />
         到头回溯
       </span>
-      <InfoTip>
-        每个动作挂在"把页面带到它所在状态"的那个动作下面：往下一层是沿着走下去，同一层的兄弟是从同一个状态试的不同动作。很多动作不改变页面（如输入、展开文字），之后的动作仍挂在原来的父节点下，所以会出现一个节点下有很多子节点。
-      </InfoTip>
+      <Hint
+        className="ml-auto flex items-center gap-1"
+        tip={
+          <>
+            一个动作缩进在谁下面，表示它是在<b>那个动作执行后的页面</b>上做的。
+            <br />
+            往下一层：在新出现的页面状态上继续操作。
+            <br />
+            同一层：从同一个页面状态出发，依次试的不同动作。
+            <br />
+            没有改变页面的动作（如输入、没有带出新内容的点击）不产生新状态，下一个动作和它同层，而不是挂在它下面，所以一个动作下面常常排着很多子动作。
+          </>
+        }
+      >
+        <Info className="size-3" />
+        怎么读这棵树
+      </Hint>
     </div>
   );
 }

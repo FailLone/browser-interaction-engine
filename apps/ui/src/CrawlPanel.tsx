@@ -2,6 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ChevronDown,
+  ChevronUp,
   CircleAlert,
   CircleCheck,
   CircleStop,
@@ -46,6 +47,7 @@ import {
   viewportText,
 } from './debug/text.js';
 import { buildActionTree } from './debug/tree.js';
+import type { ActionNode } from './debug/tree.js';
 import type { Event, FindingEvent, ModelCallSummary, PluginErrorEvent, Run, ViewportPreset } from './debug/types.js';
 
 /**
@@ -275,8 +277,12 @@ function RunDetail({
   };
   const jev = model('jev'),
     llm = model('llm');
+  const failures = useMemo(() => tree.actions.filter(a => a.event.outcome === 'failed'), [tree]);
+  // Bumped on every jump from outside the tree, so choosing the same action again still scrolls to it.
+  const [focus, setFocus] = useState(0);
   const selectAction = (seq: number) => {
     setAction(seq);
+    setFocus(n => n + 1);
     setTab('tree');
   };
 
@@ -291,7 +297,15 @@ function RunDetail({
 
   const stats: [string, React.ReactNode, React.ReactNode?, string?][] = [
     ['用时', summary ? seconds(summary.elapsedMs) : tree.actions.length ? seconds(events.at(-1)!.at) : '—'],
-    ['动作', summary?.actions ?? tree.actions.length, summary?.failed ? `${summary.failed} 失败` : undefined],
+    [
+      '动作',
+      summary?.actions ?? tree.actions.length,
+      failures.length ? (
+        <FailureStepper key="failures" failures={failures} current={action} onSelect={selectAction} />
+      ) : summary?.failed ? (
+        `${summary.failed} 失败`
+      ) : undefined,
+    ],
     ['新状态', summary?.states ?? states.length, summary?.resumedStates ? `沿用 ${summary.resumedStates}` : undefined],
     ['回溯', summary?.backtracks ?? backtracks],
     [
@@ -424,6 +438,7 @@ function RunDetail({
                 events={events}
                 calls={calls.calls}
                 selected={action}
+                focus={focus}
                 onSelect={setAction}
                 onOpenCall={setOpenCall}
               />
@@ -706,5 +721,50 @@ function NewRunDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Failed actions in the stats box: the count opens the first one in the action tree; with
+ * several, the arrows step through them in run order.
+ */
+function FailureStepper({
+  failures,
+  current,
+  onSelect,
+}: {
+  failures: ActionNode[];
+  current?: number;
+  onSelect: (seq: number) => void;
+}) {
+  const at = failures.findIndex(f => f.event.seq === current);
+  const go = (i: number) => onSelect(failures[(i + failures.length) % failures.length].event.seq);
+  const arrow = 'rounded p-0.5 text-destructive/70 hover:bg-destructive/10 hover:text-destructive';
+  return (
+    <span className="inline-flex items-center gap-0.5 text-destructive">
+      <button
+        type="button"
+        className="rounded px-0.5 underline-offset-4 hover:underline"
+        title="在动作树中查看失败的动作"
+        onClick={() => go(at < 0 ? 0 : at)}
+      >
+        {failures.length} 失败
+      </button>
+      {failures.length > 1 && (
+        <>
+          {at >= 0 && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {at + 1}/{failures.length}
+            </span>
+          )}
+          <button type="button" className={arrow} aria-label="上一个失败" onClick={() => go(at < 0 ? -1 : at - 1)}>
+            <ChevronUp className="size-3.5" />
+          </button>
+          <button type="button" className={arrow} aria-label="下一个失败" onClick={() => go(at + 1)}>
+            <ChevronDown className="size-3.5" />
+          </button>
+        </>
+      )}
+    </span>
   );
 }

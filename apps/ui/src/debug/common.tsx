@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import { ImageOff, Info } from 'lucide-react';
+import { ChevronRight, ImageOff, Info } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -136,5 +136,32 @@ export function Json({ value, className }: { value: unknown; className?: string 
     >
       {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
     </pre>
+  );
+}
+
+/** A toggle whose content is only rendered once opened, so large JSON costs nothing until asked for. */
+export function Disclosure({
+  summary,
+  children,
+  className,
+}: {
+  summary: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={cn('text-xs', className)}>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+      >
+        <ChevronRight className={cn('size-3.5 transition-transform', open && 'rotate-90')} />
+        {summary}
+      </button>
+      {open && <div className="mt-1.5">{children}</div>}
+    </div>
   );
 }

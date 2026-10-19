@@ -84,7 +84,7 @@ export const questionText: Record<string, { title: string; why: string }> = {
   },
   effect: {
     title: '算不算新内容',
-    why: '动作后页面结构没变，但出现了新文字，需要判断是有意义的新内容（提示、展开），还是行情数字跳动。判为"否"的不算新状态。',
+    why: '动作后页面结构没变，但出现了新文字，需要判断是有意义的新内容（提示、展开），还是行情数字跳动、页面自己加载出来的内容。判为"无实质变化"或"与动作无关"的不算新状态。',
   },
   'same-kind': {
     title: '列表是否同类',
@@ -97,6 +97,10 @@ export const questionText: Record<string, { title: string; why: string }> = {
   relevance: { title: '和目标是否相关', why: '目标模式下，判断动作是否属于要测的目标，不相关的不执行。' },
   'goal-relevance': { title: '和目标是否相关', why: '目标模式下，判断动作是否属于要测的目标，不相关的不执行。' },
   'goal-plan': { title: '拆解测试目标', why: '目标模式下，把测试目标拆成关注点和任务。' },
+  'goal-pursuit': {
+    title: '找目标问题的答案',
+    why: '目标模式下，每到一个新状态，让 LLM 读新出现的文字：答案找到了没有，没有的话下一步点哪个最可能找到。',
+  },
 };
 /** `crawler-interactive+same-kind` → the question kinds in a call. */
 export const purposeKinds = (purpose: string) => purpose.replace(/^crawler-/, '').split('+');
@@ -116,3 +120,22 @@ export const providerClass: Record<'jev' | 'llm', string> = {
 /** A judgement's conclusion in a few words; an effect rejected as the page's own change says so. */
 export const verdictLabel = (j: { verdict: string; detail?: string; unrelated?: number }) =>
   j.detail ?? (j.verdict === 'no' && j.unrelated !== undefined && j.unrelated >= 0.5 ? '无关' : verdictText[j.verdict]);
+/**
+ * What each verdict means and what the crawler does with it, per question kind. Uncertain
+ * follows the crawler: weak controls are still tried, unclear text still counts as a state,
+ * unclear lists are still sampled.
+ */
+export const verdictMeaning: Record<string, Partial<Record<'yes' | 'no' | 'uncertain', string>>> = {
+  interactive: { yes: '可操作，会点击', no: '只是展示信息，不点击', uncertain: '拿不准，仍会点一次试试' },
+  'same-kind': { yes: '同类，只抽样测一两个', no: '不同功能，逐个测试', uncertain: '拿不准，按同类抽样' },
+  effect: { yes: '是新内容，记为新状态', no: '无实质变化，不算新状态', uncertain: '拿不准，仍记为新状态' },
+  'goal-relevance': { yes: '与目标相关，会执行', no: '与目标无关，不执行' },
+  relevance: { yes: '与目标相关，会执行', no: '与目标无关，不执行' },
+};
+export const inputKindText: Record<string, string> = {
+  number: '数字',
+  search: '搜索',
+  email: '邮箱',
+  date: '日期',
+  text: '文本',
+};
