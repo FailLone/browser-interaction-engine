@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { DomNodeEvidence } from '@interaction/adapter-playwright';
+import type { DomNodeEvidence } from './types.js';
 import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
 
 function ancestors(node: DomNodeEvidence, nodes: Map<string, DomNodeEvidence>) {
@@ -10,6 +10,26 @@ function ancestors(node: DomNodeEvidence, nodes: Map<string, DomNodeEvidence>) {
   }
   return result;
 }
+/**
+ * A covering element that is ordinary layered page UI rather than an obstruction defect:
+ * - page chrome: a sticky/fixed bar spanning (nearly) the whole viewport width, such as a
+ *   header or bottom bar, that ordinary content scrolls beneath;
+ * - an open popup: the covering element belongs to an overlay the capture recorded
+ *   (a menu, picker or dialog opened by an earlier action).
+ * A small positioned box over a static control is not excluded: that is the defect itself.
+ */
+function transientCover(blockerChain: DomNodeEvidence[], targetChain: DomNodeEvidence[], viewportWidth: number, overlayRoots: Set<string>) {
+  const targetIds = new Set(targetChain.map(n => n.id));
+  for (const n of blockerChain) {
+    if (targetIds.has(n.id)) break; // shared ancestor: from here up, both are in the same layer
+    if (overlayRoots.has(n.id)) return { code: 'COVERED_BY_OPEN_POPUP', actual: 'An open popup layered above the page covers the sampled point' };
+    const position = n.styles?.position ?? '';
+    if ((position === 'sticky' || position === 'fixed') && n.rect && n.rect.width >= viewportWidth * .9 && n.rect.height < 400)
+      return { code: 'COVERED_BY_PAGE_CHROME', actual: `A full-width ${position} bar the page scrolls beneath covers the sampled point` };
+  }
+  return undefined;
+}
+
 function assess(context: RuleContext, includeDisabled: boolean): RuleAssessment {
   const { capture, dom, observation, control, node } = context;
   const evidence = [capture.id, `node:${capture.documentId}:${node.id}`];
@@ -53,6 +73,12 @@ function assess(context: RuleContext, includeDisabled: boolean): RuleAssessment 
   const positioned = blockerChain.filter(n => ['sticky', 'fixed'].includes(n.styles?.position ?? ''));
   const blockerOverlays = overlays.filter(o => blockerChain.some(n => n.id === dom.regionRoots[o.key])).map(o => o.key);
   const tooltip = blockerChain.some(n => n.attributes?.role === 'tooltip');
+  // Transient UI over page content is expected, not a defect: an open popup, or full-width
+  // sticky/fixed page chrome the page scrolls beneath.
+  const transient = transientCover(blockerChain, chain, viewport.width, new Set(overlays.map(o => dom.regionRoots[o.key]).filter(Boolean)));
+  if (transient) return result('not-applicable', transient.code, transient.actual, {
+    evidence: [...evidence, `node:${capture.documentId}:${blocker.id}`], facts: { sample: { x: hit.x, y: hit.y }, blockerNodeId: blocker.id, coverage: 'one-point-only' },
+  });
   return result('unknown', 'SAMPLE_INTERCEPTED', 'Another node receives the sampled point; design intent, whole-control impact and recovery have not been verified', {
     severity: 'warning', evidence: [...evidence, `node:${capture.documentId}:${blocker.id}`],
     facts: { sample: { x: hit.x, y: hit.y }, blockerNodeId: blocker.id, positionedAncestors: positioned.map(n => ({ nodeId: n.id, position: n.styles!.position })), overlayKeys: blockerOverlays, tooltip, recovery: 'unverified', coverage: 'one-point-only' },

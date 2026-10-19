@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import { canonical, hash } from '@interaction/adapter-playwright';
-import type { Inspection } from '@interaction/browser';
-import type { CaptureReader, RuleCheck, RuleReport } from './types.js';
+import { canonical, hash } from './util.js';
+import type { Inspection, RulePage, RuleCheck, RuleReport } from './types.js';
 import { RuleRunner } from './runner.js';
 import { imageAspectRatioOptionsSchema, imageAspectRatioRule } from './image-aspect-ratio.js';
 import { findingSnapshot } from './finding-history.js';
@@ -20,20 +19,21 @@ export class ImageAspectRatioTracker {
   private last?: { sessionId: string; sequence: number; inspectionId: string; report: RuleReport };
   private queue: Promise<unknown> = Promise.resolve();
   constructor(input: ImageAspectRatioTrackerOptions = {}) { this.options = imageAspectRatioTrackerOptionsSchema.parse(input); }
-  run(reader: CaptureReader, inspection: Inspection): Promise<RuleReport> {
+  run(page: RulePage): Promise<RuleReport> {
+    const inspection = page.inspection;
     const task = structuredClone(inspection);
-    const work = this.queue.then(() => this.process(reader, task)); this.queue = work.catch(() => {}); return work;
+    const work = this.queue.then(() => this.process(page, task)); this.queue = work.catch(() => {}); return work;
   }
-  private async process(reader: CaptureReader, task: Inspection): Promise<RuleReport> {
+  private async process(page: RulePage, task: Inspection): Promise<RuleReport> {
     if (this.last) {
       if (this.last.sessionId !== task.sessionId) throw new Error('TRACKER_SESSION_MISMATCH');
       if (this.last.inspectionId === task.id) return structuredClone(this.last.report);
       if (task.sequence <= this.last.sequence) throw new Error('TRACKER_OUT_OF_ORDER');
     }
-    const source = structuredClone(await reader.captureDetails(task.sessionId, task.captureId));
-    const [screened] = await new RuleRunner([imageAspectRatioRule]).run({ captureDetails: async () => source }, task,
+    const source = structuredClone(page);
+    const [screened] = await new RuleRunner([imageAspectRatioRule]).run(source,
       [{ ruleId: imageAspectRatioRule.id, ruleVersion: imageAspectRatioRule.version, options: this.options.rule }]);
-    const dom = source.details?.snapshot?.dom, observation = source.details?.observation;
+    const dom = source.snapshot.dom, observation = source.observation;
     const nodes = new Map(dom?.nodes.map(n => [n.id, n]));
     const findings = structuredClone(this.findings), visited = new Set<string>(), checks: RuleCheck[] = [];
     for (const check of screened.checks) {

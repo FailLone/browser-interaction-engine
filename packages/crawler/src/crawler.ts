@@ -1,8 +1,8 @@
-import { BrowserDriver } from './browser/driver.js';
+import { BrowserDriver, type DOMSnapshot } from './browser/driver.js';
 import type { Control } from './browser/types.js';
 import { activeOverlay, controlClass as baseClass, listClass, maskVolatile, modeGroup, modeSiblings, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
-import { findingKey, type Finding, type PageCheck } from './checks.js';
+import { findingKey, type CrawlPlugin, type CrawlStateContext, type Finding } from './plugin.js';
 import type { Judge, Question } from './judge.js';
 import type { GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
@@ -45,8 +45,8 @@ export interface CrawlOptions {
   signal?: AbortSignal;
   /** Called with a viewport screenshot of every newly discovered state. */
   onScreenshot?: (state: string, png: Buffer) => void | Promise<void>;
-  /** Optional UI checks run once per newly discovered abstract state (off by default; traversal comes first). */
-  checks?: PageCheck[];
+  /** Plugins (UI rules, checks) that observe each newly discovered state; composed by the host. */
+  plugins?: CrawlPlugin[];
   /** Called once per newly discovered abstract state, after checks. */
   onState?: (state: CrawlState, page: import('playwright').Page) => Promise<void> | void;
   log?: (event: CrawlEvent) => void;
@@ -66,7 +66,8 @@ export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
   | { type: 'backtrack'; at: number; reason: string; url: string }
-  | { type: 'finding'; at: number; finding: Finding; state: string; url: string }
+  | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
+  | { type: 'plugin_error'; at: number; plugin: string; state: string; error: string }
   /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
   | { type: 'navigation'; at: number; kind: 'document' | 'same-document' | 'popup'; from: string; to: string; action: string; outcome: 'intercepted' | 'kept' | 'reverted' | 'followed' }
   | { type: 'judgement'; at: number; question: string; label: string; verdict: 'yes' | 'no' | 'uncertain'; source: string; probability?: number; detail?: string }
@@ -104,7 +105,7 @@ export class SampledCrawler {
   /** Distinct visible members seen per list class, to show how much sampling skipped. */
   readonly listMembers = new Map<string, Set<string>>();
   readonly events: CrawlEvent[] = [];
-  readonly findings = new Map<string, Finding & { url: string; state: string }>();
+  readonly findings = new Map<string, Finding & { plugin: string; url: string; state: string }>();
   private adapter!: BrowserDriver;
   private path: Step[] = [];
   /** Document of the entry page currently loaded; route changes keep it, a page load replaces it. */
@@ -166,7 +167,7 @@ export class SampledCrawler {
 
   constructor(options: CrawlOptions) {
     this.options = { headless: true, durationMs: 240_000, maxActions: 200, samples: 1, listSamples: 2, pageSamples: 2, pageActions: 20, followNavigation: false, inPageRoutes: 'explore', settleMs: 600,
-      policy: defaultPolicy(options.url), checks: [], ...options };
+      policy: defaultPolicy(options.url), plugins: [], ...options };
   }
   /** Everything a later run needs to continue where this one stopped. */
   ledger(): CrawlLedger {
@@ -251,6 +252,10 @@ export class SampledCrawler {
         await this.act(snapshot, candidate);
       }
     } finally {
+      for (const plugin of this.options.plugins) {
+        try { if (plugin.onEnd) this.report(plugin.id, await plugin.onEnd(), this.page?.url() ?? this.options.url, ''); }
+        catch (error) { this.emit({ type: 'plugin_error', at: this.now(), plugin: plugin.id, state: '', error: String(error).slice(0, 300) }); }
+      }
       this.emit({ type: 'stop', at: this.now(), reason: stop });
       await this.adapter.close();
     }
@@ -290,7 +295,7 @@ export class SampledCrawler {
       lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
         executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0) },
       pages: [...new Set([...this.states.values()].map(st => pagePath(st.url)))].length,
-      findings: Object.fromEntries([...new Set([...this.findings.values()].map(f => f.rule))].map(rule => [rule, [...this.findings.values()].filter(f => f.rule === rule).length])),
+      findings: Object.fromEntries([...new Set([...this.findings.values()].map(f => `${f.plugin}/${f.rule}`))].map(rule => [rule, [...this.findings.values()].filter(f => `${f.plugin}/${f.rule}` === rule).length])),
     };
   }
 
@@ -316,7 +321,7 @@ export class SampledCrawler {
       if (first === undefined) this.firstNames.set(c.instanceId, c.name);
       else if (first && c.name !== first && c.name.startsWith(first) && !c.label) c.name = first;
     }
-    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions, documentId: dom.documentId };
+    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions, documentId: dom.documentId, capture: dom };
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -361,6 +366,17 @@ export class SampledCrawler {
     return { pages, statesPerMinute: curve, lastNewStateAtMs: last };
   }
 
+  private stateSequence = 0;
+
+  private report(plugin: string, found: Finding[], url: string, state: string) {
+    for (const finding of found) {
+      const key = findingKey(plugin, finding);
+      if (this.findings.has(key)) continue;
+      this.findings.set(key, { ...finding, plugin, url, state });
+      this.emit({ type: 'finding', at: this.now(), plugin, finding, state, url });
+    }
+  }
+
   private async visit(s: Snapshot) {
     const template = pageTemplate(s.url), pages = this.templatePages.get(template) || new Set<string>();
     pages.add(pagePath(s.url)); this.templatePages.set(template, pages);
@@ -372,14 +388,13 @@ export class SampledCrawler {
     this.states.set(key, state);
     this.emit({ type: 'state', at: this.now(), state, path: this.path.length });
     if (this.options.onScreenshot) { const png = await this.page.screenshot({ timeout: 3000 }).catch(() => undefined); if (png) await this.options.onScreenshot(key, png); }
-    for (const check of this.options.checks) {
-      let found: Finding[] = [];
-      try { found = await check(this.page); } catch { continue; }
-      for (const finding of found) {
-        const key = findingKey(finding);
-        if (this.findings.has(key)) continue;
-        this.findings.set(key, { ...finding, url: s.url, state: state.key });
-        this.emit({ type: 'finding', at: this.now(), finding, state: state.key, url: s.url });
+    if (this.options.plugins.length) {
+      let detail: Promise<DOMSnapshot> | undefined;
+      const context: CrawlStateContext = { state: key, sequence: ++this.stateSequence, url: s.url, snapshot: s.capture!, page: this.page,
+        detail: () => detail ??= this.adapter.readDOM(true), runtime: () => this.adapter.runtime() };
+      for (const plugin of this.options.plugins) {
+        try { this.report(plugin.id, await plugin.onState(context), s.url, key); }
+        catch (error) { this.emit({ type: 'plugin_error', at: this.now(), plugin: plugin.id, state: key, error: String(error).slice(0, 300) }); }
       }
     }
     await this.options.onState?.(state, this.page);

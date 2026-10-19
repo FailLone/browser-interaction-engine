@@ -1,5 +1,4 @@
-import type { Inspection } from '@interaction/browser';
-import type { CaptureReader, RuleReport } from './types.js';
+import type { RulePage, RuleReport } from './types.js';
 import { ObservedOcclusionTracker, observedOcclusionRule } from './observed-occlusion.js';
 import { ClippedControlTracker, observedClippingRule } from './observed-clipping.js';
 import { TextTruncationTracker, observedTextTruncationRule } from './observed-text-truncation.js';
@@ -16,50 +15,9 @@ export interface RulePluginInfo {
   description: string;
   effects: 'read-history';
 }
-/** Trusted, installed host code. A fresh instance consumes one session in sequence. */
+/** One rule with cross-capture history. A fresh instance consumes one crawl's pages in sequence. */
 export interface RulePlugin extends RulePluginInfo {
-  create(): { run(reader: CaptureReader, inspection: Inspection): Promise<RuleReport> };
-}
-export interface RulePluginSelection { id: string; version: string }
-export interface RulePluginRunRequest { requestId: string; plugins: RulePluginSelection[] }
-export type RulePluginResult = {
-  plugin: RulePluginInfo;
-} & ({ status: 'completed'; report: RuleReport; targetLabels: Record<string, string> } | { status: 'failed'; error: string });
-export interface RulePluginRun {
-  schemaVersion: 1;
-  id: string;
-  sessionId: string;
-  inspectionId: string;
-  captureId: string;
-  request: RulePluginRunRequest;
-  startedAt: string;
-  completedAt: string;
-  history: { count: number; firstSequence: number; lastSequence: number };
-  results: RulePluginResult[];
-  origin?: 'manual' | 'automatic';
-  automationRevision?: number;
-}
-
-export interface RuleAutomationInput { enabled: boolean; plugins: RulePluginSelection[] }
-export interface RuleAutomation extends RuleAutomationInput {
-  id: string;
-  sessionId: string;
-  revision: number;
-  status: 'watching' | 'checking' | 'paused' | 'failed';
-  completedCount: number;
-  lastSequence: number;
-  updatedAt: string;
-  error?: string;
-}
-export interface RuleRunSummary {
-  inspectionId: string;
-  sequence: number;
-  errors: number;
-  warnings: number;
-  unknown: number;
-  failedPlugins: number;
-  runId: string;
-  origin?: 'manual' | 'automatic';
+  create(): { run(page: RulePage): Promise<RuleReport> };
 }
 
 export const builtinRulePlugins: readonly RulePlugin[] = [

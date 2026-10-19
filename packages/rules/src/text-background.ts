@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { canonical, type DomNodeEvidence, type Json, type Rect } from '@interaction/adapter-playwright';
+import { canonical } from './util.js';
+import type { DomNodeEvidence, Json, Rect } from './types.js';
 import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
 import { textLabelRoots } from './text-truncation.js';
 import { hasRelevantGaps } from './evidence-dependencies.js';

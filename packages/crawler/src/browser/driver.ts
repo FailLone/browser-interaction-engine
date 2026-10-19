@@ -32,7 +32,7 @@ export type DriverAction = { kind: 'click' | 'hover' | 'check' | 'press'; value?
 
 /** Bounds for the detailed DOM evidence that UI rule plugins read. */
 export const detailOptions: EvidenceOptions = {
-  enabled: true, maxNodes: 5000, maxTextLength: 20000, maxHtmlLength: 2_000_000, maxDomCharacters: 4_000_000,
+  enabled: true, maxNodes: 20000, maxTextLength: 20000, maxHtmlLength: 2_000_000, maxDomCharacters: 40_000_000,
   maxAttributeLength: 4000, maxRuntimeEntries: 200, styles: 'essential', accessibility: false, fullPageScreenshot: false,
 };
 

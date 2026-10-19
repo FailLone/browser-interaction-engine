@@ -1,9 +1,9 @@
 import { currentCaptureOnly, findingSnapshot, observationStatus } from './finding-history.js';
 import { hasRelevantGaps } from './evidence-dependencies.js';
 import { z } from 'zod';
-import { canonical, type Control, type DomEvidence, type DomNodeEvidence, type Json, type Observation } from '@interaction/adapter-playwright';
-import type { Inspection } from '@interaction/browser';
-import type { CaptureReader, RuleAssessment, RuleCheck, RuleReport } from './types.js';
+import { canonical } from './util.js';
+import { type Control, type DomEvidence, type DomNodeEvidence, type Json, type Observation } from './types.js';
+import type { Inspection, RulePage, RuleAssessment, RuleCheck, RuleReport } from './types.js';
 import { RuleRunner } from './runner.js';
 import { sampledOcclusionRule } from './sampled-occlusion.js';
 
@@ -95,21 +95,22 @@ export class ObservedOcclusionTracker {
   private last?: { sessionId: string; sequence: number; inspectionId: string; report: RuleReport };
   private queue: Promise<unknown> = Promise.resolve();
   constructor(options: ObservedOcclusionOptions = {}) { this.options = observedOcclusionOptionsSchema.parse(options); }
-  run(reader: CaptureReader, inspection: Inspection): Promise<RuleReport> {
+  run(page: RulePage): Promise<RuleReport> {
+    const inspection = page.inspection;
     const task = structuredClone(inspection);
-    const work = this.queue.then(() => this.process(reader, task));
+    const work = this.queue.then(() => this.process(page, task));
     this.queue = work.catch(() => {}); return work;
   }
-  private async process(reader: CaptureReader, inspection: Inspection): Promise<RuleReport> {
+  private async process(page: RulePage, inspection: Inspection): Promise<RuleReport> {
     if (this.last) {
       if (this.last.sessionId !== inspection.sessionId) throw new Error('TRACKER_SESSION_MISMATCH');
       if (this.last.inspectionId === inspection.id) return structuredClone(this.last.report);
       if (inspection.sequence <= this.last.sequence) throw new Error('TRACKER_OUT_OF_ORDER');
     }
-    const source = structuredClone(await reader.captureDetails(inspection.sessionId, inspection.captureId));
-    const [screened] = await new RuleRunner([sampledOcclusionRule]).run({ captureDetails: async () => source }, inspection,
+    const source = structuredClone(page);
+    const [screened] = await new RuleRunner([sampledOcclusionRule]).run(source,
       [{ ruleId: sampledOcclusionRule.id, ruleVersion: sampledOcclusionRule.version }]);
-    const o = source.details?.observation, dom = source.details?.snapshot?.dom;
+    const o = source.observation, dom = source.snapshot.dom;
     // Work on a copy: a capacity or evidence failure cannot partly commit revisions.
     const tracks = structuredClone(this.tracks); const checks: RuleCheck[] = []; const visited = new Set<string>();
     const scenario = o && canonical([o.documentId, o.url, o.context, inspection.focus.scopeId, inspection.focus.regionKey]);
@@ -152,7 +153,10 @@ export class ObservedOcclusionTracker {
         ...result(current.reachable ? 'pass' : 'unknown', current.reachable ? 'info' : 'warning', current.reachable ? 'OBSERVED_POINT_REACHABLE' : 'OCCLUSION_SUSPECTED',
           current.reachable ? 'At least one captured point reaches the target' : 'Five captured points are blocked; impact and requirements remain unverified'),
         target: check.target, facts: { sample: json(current), coverage: 'five-pointer-samples; not-whole-control' },
-      } : { ...check, ...(reason !== check.code ? { verdict: 'unknown' as const, code: 'OCCLUSION_RECHECK_UNAVAILABLE', actual: reason } : {}) };
+      } : { ...check, ...(reason !== check.code ? { verdict: 'unknown' as const, code: 'OCCLUSION_RECHECK_UNAVAILABLE', actual: reason,
+        // Only part of the control is on screen (scrolled to an edge, or under sticky chrome):
+        // a single intercepted center point there is not evidence of an obstruction.
+        ...(reason === 'Error: TARGET_NOT_FULLY_IN_VIEW' ? { severity: 'info' as const } : {}) } : {}) };
       if (['Error: TARGET_EXCEEDS_VIEWPORT', 'Error: TARGET_EXCEEDS_CLIP_BOUNDS'].includes(reason)) {
         currentCheck.code = reason.slice('Error: '.length);
         currentCheck.actual = 'The target is larger than the captured viewport or clipping bounds; scrolling alone cannot satisfy full-view coverage';

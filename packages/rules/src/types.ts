@@ -1,5 +1,32 @@
-import type { Control, DetailSnapshot, DomEvidence, DomNodeEvidence, Json, Observation } from '@interaction/adapter-playwright';
-import type { BrowserEngine, Capture, Inspection } from '@interaction/browser';
+import type { Control as CrawlControl, DomEvidence, DomNodeEvidence, Json, Overlay, RuntimeEvidence } from '@interaction/crawler';
+export type { DomEvidence, DomNodeEvidence, Json, Rect } from '@interaction/crawler';
+
+/**
+ * Rules read one frozen page capture. These shapes are what the crawler plugin builds from a
+ * detailed capture; field names follow the original inspection protocol so rule logic and
+ * reports stay unchanged.
+ */
+export interface Control extends CrawlControl {
+  /** Same logical control across states in one crawl (the crawler's component class). */
+  identityId?: string;
+  /** Set when the control's identity is ambiguous; rules then skip cross-state history. */
+  hypothesisId?: string;
+}
+export interface Observation {
+  id: string; documentId: string; url: string; stable: boolean; context: Record<string, Json>;
+  controls: Control[]; overlays?: Overlay[]; boundaries?: { key: string; name: string }[];
+}
+export interface Capture {
+  id: string; sessionId: string; observationId: string; documentId: string; capturedAt: string;
+  quality: { status: 'complete' | 'incomplete'; missingRequired: string[] };
+}
+export interface Inspection {
+  id: string; sessionId: string; captureId: string; observationId: string; sequence: number; protocolVersion: 1;
+  focus: { regionKey: string; scopeId?: string; kind: 'document' | 'overlay'; confidence: 'observed' | 'unknown' };
+}
+export interface DetailSnapshot { observationId: string; documentId: string; dom?: DomEvidence; runtime: RuntimeEvidence }
+/** One capture as rules read it. */
+export interface RulePage { inspection: Inspection; capture: Capture; observation: Observation; snapshot: DetailSnapshot }
 
 export type RuleVerdict = 'pass' | 'fail' | 'unknown' | 'not-applicable';
 export type RuleSeverity = 'info' | 'warning' | 'error';
@@ -68,4 +95,4 @@ export interface RuleReport {
   severity: RuleSeverity;
   checks: RuleCheck[];
 }
-export type CaptureReader = Pick<BrowserEngine, 'captureDetails'>;
+

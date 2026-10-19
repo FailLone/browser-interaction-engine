@@ -1,6 +1,6 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { SampledCrawler, defaultChecks, maskVolatile, stateKey, type CrawlEvent } from '@interaction/crawler';
+import { SampledCrawler, checksPlugin, maskVolatile, stateKey, type CrawlEvent } from '@interaction/crawler';
 
 // One page with: a blocking modal on load, a long list of identical rows, a
 // tab panel, a live price, an in-scope second page and an out-of-scope link.
@@ -46,7 +46,7 @@ test('live values do not change component or state identity', () => {
 
 test('crawls the entry page: modal first, lists sampled, out-of-scope links skipped', async () => {
   const events: CrawlEvent[] = [];
-  const crawler = new SampledCrawler({ url: base, durationMs: 60000, settleMs: 100, checks: defaultChecks, log: e => events.push(e) });
+  const crawler = new SampledCrawler({ url: base, durationMs: 60000, settleMs: 100, plugins: [checksPlugin], log: e => events.push(e) });
   const summary = await crawler.run();
   const actions = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
   const labels = actions.map(a => a.step.label);
@@ -115,7 +115,7 @@ test('a weak pointer-only control is crawled unless the judge rules it out', asy
     const jev = { name: 'jev', model: 'jev', async decide(request: { state: unknown }) { return { model: 'jev', value: Object.fromEntries(Object.keys(request.state as object).map(k => [k, yes ? 0.95 : 0.05])) }; } };
     const judge = new ModelJudge({ jev });
     const events: CrawlEvent[] = [];
-    await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, checks: [], judge, log: e => events.push(e) }).run();
+    await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, judge, log: e => events.push(e) }).run();
     return events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
   };
   try {

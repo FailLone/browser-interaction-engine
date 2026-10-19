@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import type { Inspection, InspectionResult } from '@interaction/browser';
-import type { Json } from '@interaction/adapter-playwright';
-import type { CaptureReader, ControlRule, DomRule, RuleAssessment, RuleCheck, RuleMetadata, RuleReport, RuleSelection } from './types.js';
+import type { ControlRule, DomRule, Json, RuleAssessment, RuleCheck, RuleMetadata, RulePage, RuleReport, RuleSelection } from './types.js';
 
 const selectionSchema = z.array(z.object({
   ruleId: z.string().min(1).max(200), ruleVersion: z.string().min(1).max(100), enabled: z.boolean().optional(),
@@ -37,7 +35,7 @@ export class RuleRunner {
   catalog(): RuleMetadata[] {
     return [...this.rules.values()].map(({ configure: _, ...metadata }) => structuredClone(metadata));
   }
-  async run(reader: CaptureReader, inspection: Inspection, input: RuleSelection[]): Promise<RuleReport[]> {
+  async run(page: RulePage, input: RuleSelection[]): Promise<RuleReport[]> {
     const selections = selectionSchema.parse(input);
     const enabled = selections.filter(s => s.enabled !== false);
     if (new Set(enabled.map(s => s.ruleId)).size !== enabled.length) throw new Error('Select each rule once per inspection');
@@ -49,24 +47,17 @@ export class RuleRunner {
       return { selection, rule, evaluate: rule.configure(structuredClone(selection.options ?? {})) };
     });
     if (!configured.length) return [];
-    const task = freeze(structuredClone(inspection));
-    const source = freeze(structuredClone(await reader.captureDetails(task.sessionId, task.captureId)));
-    const capture = source.capture;
-    const observation = source.details?.observation;
-    const dom = source.details?.snapshot?.dom;
+    const source = freeze(structuredClone(page));
+    const task = source.inspection, capture = source.capture, observation = source.observation, dom = source.snapshot.dom;
     const reports: RuleReport[] = [];
     for (const { selection, rule, evaluate } of configured) {
       let checks: RuleCheck[] = [];
-      const unavailable = rule.requiredCapabilities.filter(kind =>
-        source.compatibility.unknownComponents.includes(kind) ||
-        !capture.components.some(c => c.kind === kind && c.status === 'captured') ||
-        !source.availability.some(a => a.kind === kind && a.availability.status === 'available'));
-      if (capture.id !== task.captureId || capture.sessionId !== task.sessionId || capture.observationId !== task.observationId ||
-        observation?.id !== task.observationId || observation?.sessionId !== task.sessionId ||
-        observation?.documentId !== capture.documentId || source.details?.snapshot?.documentId !== capture.documentId ||
-        dom?.documentId !== capture.documentId || source.details?.snapshot?.observationId !== task.observationId) {
+      const unavailable = rule.requiredCapabilities.filter(kind => !capabilityCaptured(kind, source));
+      if (capture.id !== task.captureId || capture.observationId !== task.observationId ||
+        observation?.id !== task.observationId || observation?.documentId !== capture.documentId || source.snapshot.documentId !== capture.documentId ||
+        dom?.documentId !== capture.documentId || source.snapshot.observationId !== task.observationId) {
         checks = [unknown('EVIDENCE_BINDING_MISMATCH', 'Capture, observation or document evidence is missing or does not match this inspection')];
-      } else if (!source.compatibility.protocolSupported || task.protocolVersion !== 1 || unavailable.length) {
+      } else if (task.protocolVersion !== 1 || unavailable.length) {
         checks = [unknown('EVIDENCE_UNAVAILABLE', `Unsupported or unavailable required evidence: ${unavailable.join(', ')}`)];
       } else if (capture.quality.status !== 'complete' || !dom || !observation || dom.nodesTruncated || !observation.stable) {
         checks = [unknown('EVIDENCE_INCOMPLETE', 'Required evidence is incomplete, truncated or unsettled')];
@@ -94,7 +85,7 @@ export class RuleRunner {
                   }
                   const binding = { captureId: capture.id, documentId: capture.documentId, nodeId: node.id };
                   try {
-                    const result = assessmentSchema.parse(await evaluate(Object.freeze({ inspection: task, capture, observation, snapshot: source.details!.snapshot!, dom, control: control!, node, signal: abort.signal })));
+                    const result = assessmentSchema.parse(await evaluate(Object.freeze({ inspection: task, capture, observation, snapshot: source.snapshot, dom, control: control!, node, signal: abort.signal })));
                     completed.push({ ...result, target: binding });
                   } catch (error) {
                     completed.push({ ...unknown('RULE_ERROR', String(error)), target: binding });
@@ -118,6 +109,10 @@ export class RuleRunner {
   }
 }
 
+export interface InspectionResult {
+  ruleId: string; ruleVersion: string; status: 'pass' | 'fail' | 'inconclusive' | 'not-applicable';
+  severity: 'info' | 'warning' | 'error'; message: string; nodeIds: string[]; details: Json;
+}
 /** One result per rule/version; preserve every control result in the delivery record. */
 export function toInspectionResults(reports: RuleReport[]): InspectionResult[] {
   return reports.map(report => ({
@@ -128,4 +123,16 @@ export function toInspectionResults(reports: RuleReport[]): InspectionResult[] {
     nodeIds: [...new Set(report.checks.flatMap(c => c.target ? [c.target.nodeId] : []))],
     details: JSON.parse(JSON.stringify(report)) as Json,
   }));
+}
+
+/** Which evidence kinds a capture holds (the inspection protocol's capability names). */
+function capabilityCaptured(kind: string, page: RulePage) {
+  const dom = page.snapshot.dom;
+  if (kind === 'web.runtime') return !!page.snapshot.runtime;
+  if (!dom) return false;
+  if (kind === 'web.dom') return true;
+  if (kind === 'web.layout') return dom.spatialVersion === 1;
+  if (kind === 'web.styles') return true;
+  if (kind === 'web.environment') return !!dom.environment;
+  return false;
 }

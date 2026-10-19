@@ -5,6 +5,8 @@ export interface Snapshot {
   url: string; title: string; text?: string; controls: Control[]; overlays?: Overlay[]; regions?: Region[];
   /** Adapter document identity; changes on every full page load. */
   documentId?: string;
+  /** The full capture this projection came from (for plugins). */
+  capture?: import('./browser/driver.js').DOMSnapshot;
 }
 
 /** Live values (prices, times, percentages, counts) never make a new state or component. */

@@ -14,4 +14,4 @@ export * from './requirements.js';
 export { clippedControlRule, clippedControlOptionsSchema, type ClippedControlOptions } from './clipped-control.js';
 export { ClippedControlTracker, observedClippingRule, observedClippingOptionsSchema, type ObservedClippingOptions } from './observed-clipping.js';
 export { ObservedOcclusionTracker, observedOcclusionRule, observedOcclusionOptionsSchema, type ObservedOcclusionOptions } from './observed-occlusion.js';
-export { inspectScrollRecovery, scrollRecoveryRule, scrollRecoveryOptionsSchema, type ScrollRecoveryOptions, type ScrollRecoveryClient } from './scroll-recovery.js';
+export * from './crawl-plugin.js';

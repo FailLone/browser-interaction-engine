@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Json } from '@interaction/adapter-playwright';
+import type { Json } from './types.js';
 import type { RuleCheck } from './types.js';
 import { ObservedControlTracker } from './observed-control.js';
 import { textTruncationOptionsSchema, textTruncationRule } from './text-truncation.js';

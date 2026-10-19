@@ -1,9 +1,4 @@
-import type { Page } from 'playwright';
-
-/** A UI problem observed in one crawled state. */
-export interface Finding { rule: string; severity: 'warning' | 'error'; selector: string; text: string; detail: string }
-/** Host-supplied check run on the live page for each new abstract state. */
-export type PageCheck = (page: Page) => Promise<Finding[]>;
+import type { CrawlPlugin, Finding } from './plugin.js';
 
 function scanPage() {
     const out: { rule: string; severity: 'warning' | 'error'; selector: string; text: string; detail: string }[] = [];
@@ -33,7 +28,5 @@ function scanPage() {
  * development and compiled builds agree.
  */
 const scanSource = `(() => { const __name = (fn) => fn; return (${scanPage.toString()})(); })()`;
-export const defaultChecks: PageCheck[] = [page => page.evaluate(scanSource) as Promise<Finding[]>];
-
-/** Unique key so the same issue on a recurring element is reported once. */
-export const findingKey = (f: Finding) => `${f.rule}|${f.selector}|${f.text}`;
+/** Lightweight checks as a crawl plugin: broken images and hard-clipped text, evaluated in the page. */
+export const checksPlugin: CrawlPlugin = { id: 'checks', onState: ({ page }) => page.evaluate(scanSource) as Promise<Finding[]> };

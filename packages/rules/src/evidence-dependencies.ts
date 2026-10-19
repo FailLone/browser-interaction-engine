@@ -1,4 +1,4 @@
-import type { DomNodeEvidence } from '@interaction/adapter-playwright';
+import type { DomNodeEvidence } from './types.js';
 
 // Relationship targets may legitimately not exist while a conditional popup is
 // closed. These gaps do not invalidate captured rectangles, styles or text boxes.

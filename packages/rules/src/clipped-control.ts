@@ -1,6 +1,6 @@
 import { hasRelevantGaps } from './evidence-dependencies.js';
 import { z } from 'zod';
-import type { DomNodeEvidence, Json, Rect } from '@interaction/adapter-playwright';
+import type { DomNodeEvidence, Json, Rect } from './types.js';
 import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
 
 export const clippedControlOptionsSchema = z.object({

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { DomNodeEvidence, Json } from '@interaction/adapter-playwright';
+import type { DomNodeEvidence, Json } from './types.js';
 import type { DomRule, DomRuleContext, RuleAssessment } from './types.js';
 import { hasRelevantGaps } from './evidence-dependencies.js';
 

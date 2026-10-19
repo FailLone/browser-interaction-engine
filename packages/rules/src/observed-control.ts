@@ -1,7 +1,7 @@
 import { currentCaptureOnly, findingSnapshot, observationStatus } from './finding-history.js';
-import { canonical, type Control, type DomEvidence, type Json } from '@interaction/adapter-playwright';
-import type { Inspection } from '@interaction/browser';
-import type { CaptureReader, ControlRule, RuleCheck, RuleReport, RuleSelection } from './types.js';
+import { canonical } from './util.js';
+import { type Control, type DomEvidence, type Json } from './types.js';
+import type { Inspection, RulePage, ControlRule, RuleCheck, RuleReport, RuleSelection } from './types.js';
 import { RuleRunner } from './runner.js';
 
 /** Internal shared lifecycle for passive geometry rules, not a live-page API. */
@@ -37,20 +37,21 @@ export class ObservedControlTracker {
   private last?: { sessionId: string; sequence: number; inspectionId: string; report: RuleReport };
   private queue: Promise<unknown> = Promise.resolve();
   constructor(options: ObservedControlOptions) { this.options = options; }
-  run(reader: CaptureReader, inspection: Inspection): Promise<RuleReport> {
+  run(page: RulePage): Promise<RuleReport> {
+    const inspection = page.inspection;
     const task = structuredClone(inspection);
-    const work = this.queue.then(() => this.process(reader, task));
+    const work = this.queue.then(() => this.process(page, task));
     this.queue = work.catch(() => {}); return work;
   }
-  private async process(reader: CaptureReader, inspection: Inspection): Promise<RuleReport> {
+  private async process(page: RulePage, inspection: Inspection): Promise<RuleReport> {
     if (this.last) {
       if (this.last.sessionId !== inspection.sessionId) throw new Error('TRACKER_SESSION_MISMATCH');
       if (this.last.inspectionId === inspection.id) return structuredClone(this.last.report);
       if (inspection.sequence <= this.last.sequence) throw new Error('TRACKER_OUT_OF_ORDER');
     }
-    const source = structuredClone(await reader.captureDetails(inspection.sessionId, inspection.captureId));
-    const [screened] = await new RuleRunner([this.options.rule]).run({ captureDetails: async () => source }, inspection, [this.options.selection]);
-    const o = source.details?.observation, dom = source.details?.snapshot?.dom;
+    const source = structuredClone(page);
+    const [screened] = await new RuleRunner([this.options.rule]).run(source, [this.options.selection]);
+    const o = source.observation, dom = source.snapshot.dom;
     const scenario = o && canonical([o.documentId, o.url, o.context, inspection.focus.scopeId, inspection.focus.regionKey]);
     const tracks = structuredClone(this.tracks), visited = new Set<string>(), checks: RuleCheck[] = [];
     const revise = (track: Track, check: RuleCheck, current?: Sample, currentObservation?: RuleCheck) => {

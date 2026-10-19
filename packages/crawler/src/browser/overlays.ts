@@ -44,6 +44,17 @@ export function collectOverlays(controls: Control[], regions: Region[], describe
       if (el && (['absolute', 'fixed'].includes(getComputedStyle(el).position) || opener.hasAttribute('aria-haspopup'))) add(el, 'popover', 'expanded-popup-owner');
     }
   }
+  // A visible floating panel named by an opener's aria-controls is open even when the opener
+  // does not maintain aria-expanded (some click-toggled pickers only set it on hover).
+  for (const opener of document.querySelectorAll('[aria-controls]')) {
+    for (const id of (opener.getAttribute('aria-controls') || '').split(/\s+/).filter(Boolean)) {
+      const el = document.getElementById(id);
+      if (!el || el.contains(opener) || candidates.has(el)) continue;
+      const r = el.getBoundingClientRect(), z = Number(getComputedStyle(el).zIndex);
+      if (['absolute', 'fixed'].includes(getComputedStyle(el).position) && z > 0 && r.width < innerWidth && r.height < innerHeight
+        && el.querySelector('a[href],button,input,[role=option],[role=menuitem]')) add(el, 'popover', 'floating-controlled-panel');
+    }
+  }
   // A searchable popup can put its semantic list inside a virtual scroll viewport,
   // with the search/close controls as siblings. Use their shared floating panel,
   // not the absolutely positioned list filler, as the interaction boundary.

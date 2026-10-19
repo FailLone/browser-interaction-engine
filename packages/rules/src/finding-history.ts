@@ -1,4 +1,4 @@
-import type { Json } from '@interaction/adapter-playwright';
+import type { Json } from './types.js';
 import type { RuleCheck } from './types.js';
 
 /** A bounded, immutable copy of the actual finding, independent of whether the
