@@ -127,11 +127,14 @@ function finding(rule: string, check: RuleCheck, page: RulePage): Finding {
   const nodeId = check.target?.nodeId;
   const control = page.observation.controls.find(c => c.localId === nodeId);
   const node = page.snapshot.dom?.nodes.find(n => n.id === nodeId);
+  // Page-level rules name a non-control element themselves; its tag alone would merge distinct ones.
+  const own = (key: string) => (typeof check.facts?.[key] === 'string' ? (check.facts[key] as string) : undefined);
+  const lost = Array.isArray(check.facts?.lostText) ? String(check.facts.lostText[0] ?? '') : undefined;
   return {
     rule,
     severity: check.severity,
-    selector: control?.selector ?? node?.tag ?? nodeId ?? '',
-    text: (control?.name || control?.label || node?.text || '').slice(0, 80),
+    selector: control?.selector ?? own('selector') ?? node?.tag ?? nodeId ?? '',
+    text: (control?.name || control?.label || lost || node?.text || '').slice(0, 80),
     detail: `${check.code}: ${check.actual}`,
     facts: { code: check.code, verdict: check.verdict, expected: check.expected, facts: check.facts },
   };

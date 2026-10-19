@@ -7,6 +7,7 @@ import { ImageAspectRatioTracker } from './observed-image-aspect-ratio.js';
 import { TextBackgroundTracker, observedTextBackgroundRule } from './observed-text-background.js';
 import { imageResourceRule } from './image-resource.js';
 import { ImageResourceTracker } from './observed-image-resource.js';
+import { HorizontalOverflowTracker, horizontalOverflowRule } from './horizontal-overflow.js';
 
 export interface RulePluginInfo {
   id: string;
@@ -58,5 +59,11 @@ export const builtinRulePlugins: readonly RulePlugin[] = [
     name: '图片资源加载',
     description: '区分原生加载失败、加载中和未配置资源；替代图是否合理另行判断。',
     create: () => new ImageResourceTracker(),
+  },
+  {
+    ...horizontalOverflowRule,
+    name: '横向溢出',
+    description: '检查页面能否被横向滑动、内容是否超出左侧无法到达，或被不能滚动的容器裁掉；只读布局，不滚动。',
+    create: () => new HorizontalOverflowTracker(),
   },
 ];

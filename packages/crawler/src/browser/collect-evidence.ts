@@ -184,6 +184,7 @@ export function collectEvidence(limits: EvidenceOptions, regions: Region[]): Dom
     'text-transform',
     'column-count',
     'column-width',
+    'scrollbar-width',
   ];
   while (stack.length && result.nodes.length < limits.maxNodes) {
     const { node, parentId } = stack.pop()!;

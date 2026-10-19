@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Horizontal overflow fixtures</title>
+<style>
+body { margin:0; font:16px/20px Arial,sans-serif }
+h1 { font-size:24px; margin:0 }
+</style>
+<main id="main"></main>
+<script>
+// One mode per page load. The viewport is 393px wide in the tests.
+const mode = new URLSearchParams(location.search).get('mode');
+const main = document.getElementById('main');
+const cases = {
+  // OKX's download hero: width 100% plus padding, pulled left by a negative margin.
+  okx: `<div style="padding:0 8px"><div id="culprit" style="width:100%;padding:0 8px;margin-left:-23px"><h1>Новая альтернатива ваше криптопутешествие</h1></div></div>`,
+  // Wider than the page on the right only, with text past the edge.
+  right: `<div id="culprit" style="width:460px"><p>Text that runs well past the right edge of a narrow phone viewport</p></div>`,
+  // Only empty space past the edge: the page still scrolls sideways.
+  empty: `<div id="culprit" style="width:440px;height:40px;background:#eee"></div>`,
+  // By design: a horizontal tab strip that scrolls.
+  'scroll-strip': `<div id="strip" style="overflow-x:auto;white-space:nowrap">${'<a href="#" style="display:inline-block;width:120px">Tab</a>'.repeat(8)}</div>`,
+  // By design: a carousel track clipped by its frame.
+  carousel: `<div id="frame" style="overflow:hidden"><div style="display:flex;width:1179px">${'<div style="flex:0 0 393px;height:80px"><p>Slide</p></div>'.repeat(3)}</div></div>`,
+  // By design: an off-canvas drawer, fixed or invisible.
+  drawer: `<nav style="position:fixed;top:0;left:393px;width:300px;height:100vh"><a href="#">Menu</a></nav>
+    <nav style="position:absolute;top:0;left:-300px;width:300px;opacity:0"><a href="#">Hidden menu</a></nav>`,
+  // Sub-pixel rounding is not overflow.
+  subpixel: `<div style="width:393.6px"><p>Fits</p></div>`,
+  // Decoration past the edge: no content, does not take pointer events.
+  glow: `<div style="position:relative"><div id="glow" style="position:absolute;left:-60px;width:513px;height:80px;pointer-events:none;background:radial-gradient(#0f0,transparent)"></div></div>`,
+  // Only left: content pulled past the left edge (no scroll reaches it).
+  left: `<p id="culprit" style="margin-left:-40px">Pulled left beyond the edge of the page</p>`,
+  // A non-scrolling container cuts text off.
+  'cut-off': `<div id="clip" style="width:200px;overflow:hidden"><p id="culprit" style="width:360px;white-space:nowrap">This sentence is cut off by its container</p></div>`,
+  // The page hides x-overflow: nothing scrolls, the text is still lost.
+  'root-hidden': `<style>body{overflow-x:hidden}</style><p id="culprit" style="width:460px">Text past the edge of a page that hides horizontal overflow</p>`,
+  // A strip that scrolls with its scrollbar hidden: recorded, not reported.
+  'hidden-scrollbar': `<div id="strip" style="overflow-x:auto;scrollbar-width:none;white-space:nowrap">${'<span style="display:inline-block;width:120px">Chip</span>'.repeat(8)}</div>`,
+  // A control past the edge of a clipping box belongs to the clipping rule.
+  'cut-control': `<div style="width:200px;overflow:hidden"><button style="margin-left:150px;width:120px">Clipped button</button></div>`,
+  // OKX with the title fitting: only a button sticks out both sides, and the page scrolls.
+  'control-edge': `<div style="padding:0 8px"><div id="culprit" style="width:100%;padding:0 8px;margin-left:-23px"><a href="#" style="display:block;text-align:center">Download app</a></div></div>`,
+  // OKX's region dialog over the overflowing hero: only the dialog is in front of the user.
+  'under-dialog': `<div style="padding:0 8px"><div id="culprit" style="width:100%;padding:0 8px;margin-left:-23px"><h1>Новая альтернатива ваше криптопутешествие</h1></div></div>
+    <div role="dialog" aria-modal="true" aria-label="Region" style="position:fixed;left:0;right:0;bottom:0;height:300px;background:#222;z-index:10"><p>Not available in your region</p><button>Close</button></div>`,
+  // An open dialog whose own content sticks out of the page.
+  'dialog-overflow': `<div role="dialog" aria-modal="true" aria-label="Wide" style="position:fixed;left:0;top:0;width:100%;height:300px;background:#222;z-index:10"><p id="culprit" style="margin-left:-40px">Pulled left inside the dialog</p><button>Close</button></div>`,
+  // Healthy page.
+  fits: `<h1>Fits</h1><p>Short text</p>`,
+};
+main.innerHTML = cases[mode] ?? cases.fits;
+</script>

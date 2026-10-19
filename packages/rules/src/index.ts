@@ -62,4 +62,10 @@ export {
   observedOcclusionOptionsSchema,
   type ObservedOcclusionOptions,
 } from './observed-occlusion.js';
+export {
+  HorizontalOverflowTracker,
+  horizontalOverflowRule,
+  horizontalOverflowOptionsSchema,
+  type HorizontalOverflowOptions,
+} from './horizontal-overflow.js';
 export * from './crawl-plugin.js';
