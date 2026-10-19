@@ -6,3 +6,5 @@ export * from './judge.js';
 export * from './goal.js';
 export * from './meter.js';
 export * from './inputs.js';
+export * from './store.js';
+export * from './manager.js';

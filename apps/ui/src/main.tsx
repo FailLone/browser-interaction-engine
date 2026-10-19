@@ -20,12 +20,21 @@ import type { BoundaryExitMaterial, ExplorationAudit, RegionReviewMaterial, Expl
 import './style.css';
 import { VisitDiff } from './VisitDiff.js';
 import { DiffExplanation } from './DiffExplanation.js';
+import { CrawlPanel } from './CrawlPanel.js';
+import './crawl.css';
 const api = new InteractionClient('');
 const short = (id?: string) => id?.slice(0, 8) || '—';
 const blockerText: Record<string, string> = { control_classified_noninteractive: '上层将该候选判为展示内容或容器，未执行', control_review_replaced: '已由新的控件审阅取代，旧待办未执行', control_review_invalidated: '控件审阅已失效，旧待办未执行', region_review_required: '尚未确认所属探索区域', interaction_unstable: '此操作的依赖仍在变化，其他就绪操作可继续', action_dependencies_unstable: '此范围连续失效，已停止自动重试', awaiting_exploration_decision: '等待上层决定探索范围', exploration_deferred_by_caller: '上层已暂缓此范围，尚未执行', exploration_member_not_selected: '未选入本次探索样本，尚未执行', exploration_skipped_by_caller: '上层决定本轮不测，保留为未执行', exploration_scope_invalidated: '范围条件已改变，旧决策失效', exploration_scope_hook_failed: '探索范围生成失败，需重新观察', purpose_review_replaced: '已由当前用途审阅候选取代，旧待办未执行', purpose_review_invalidated: '用途审阅已失效，旧待办未执行', awaiting_list_decision: '等待上层决定列表的遍历范围', list_deferred_by_caller: '上层已暂缓此列表，尚未执行', list_member_not_selected: '未选入本次列表样本，尚未执行', traversal_position_changed: '页面滚动位置已改变，旧遍历意图保留为未执行记录；后续从当前视口继续', outside_active_boundary: '等待当前弹层关闭', pointer_intercepted: '目标被遮挡', outside_scrollable_area: '目标位于不可滚动到达的区域', observation_incomplete: '等待完整观察', not_editable: '字段当前不可编辑', action_basis_unconfirmed: '操作依据待确认，默认探索跳过', depth_budget: '达到探索深度上限', identity_ambiguous: '控件身份待确认', 'Business state may have changed; environment reset required': '无法返回所属界面：没有已验证的返回路径，且业务状态可能已改变', 'Cannot restore checkpoint: no verified return path and business state requires an environment reset': '无法返回所属界面：没有已验证的返回路径，且业务状态可能已改变' };
 const unblockText: Record<string, string> = { 'Wait for this operation’s dependencies to settle; other independently validated work may continue': '确认此范围就绪后再执行；保留当前覆盖缺口', 'Repair this scope’s changing dependencies and explicitly execute a fresh action to verify recovery': '处理变化原因后，手动执行此范围的新动作以验证恢复', 'Supply an exploration group decision; unexecuted members remain uncovered': '调整探索范围决策后可继续；未执行项仍保留为未覆盖', 'Increase maxDepth': '需提高最大探索深度', 'Reach the branch checkpoint or repair its preconditions': '需恢复并验证该界面；必要时重置业务环境' };
 const statusText: Record<string, string> = { running: '探索中', idle: '等待选择', paused: '已暂停', stopped: '已停止', finished: '本轮结束', pending: '待执行', executed: '已执行', blocked: '受阻', unknown: '结果未知', needs_revalidation: '需重新验证', executing: '执行中', succeeded: '成功', failed: '失败' };
+type Mode = 'crawl' | 'session';
+/** The sampled crawler is the default; the step-by-step session engine stays available. */
+function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (mode: Mode) => void }) {
+  return <nav className="mode-switch" aria-label="模式">{([['crawl', '抽样遍历'], ['session', '会话（逐步）']] as const).map(([m, label]) =>
+    <button key={m} className={mode === m ? 'active' : ''} onClick={() => setMode(m)}>{label}</button>)}</nav>;
+}
 function App() {
+  const [mode, setMode] = useState<Mode>(() => (new URLSearchParams(location.search).get('mode') as Mode) || 'crawl');
   const [sessions, setSessions] = useState<Session[]>([]); const [sessionId, setSessionId] = useState(''); const [session, setSession] = useState<Session>();
   const [url, setUrl] = useState('http://127.0.0.1:4174'); const [headless, setHeadless] = useState(true); const [maxActions, setMaxActions] = useState(100);
   const [retentionMode, setRetentionMode] = useState<'cache' | 'transient' | 'persistent'>('cache'); const [retentionSeconds, setRetentionSeconds] = useState(300); const [retentionMiB, setRetentionMiB] = useState(64);
@@ -83,7 +92,9 @@ function App() {
   const parentObservationId = graph.visits.find(v => v.id === shownVisit?.parentId)?.observationId;
   const pending = frontierGroups.flatMap(g => g.items).filter(f => f.status === 'pending').length;
   const identities = identitySummary(hypotheses, current?.sessionId === sessionId ? current : undefined);
+  if (mode === 'crawl') return <div className="crawl-shell"><ModeSwitch mode={mode} setMode={setMode} /><CrawlPanel /></div>;
   return <div className="shell">
+    <ModeSwitch mode={mode} setMode={setMode} />
     <aside className="sidebar"><div className="brand"><span className="brand-mark">↗</span><div>Interaction Atlas<small>浏览器交互探索引擎 · V0.1</small></div></div>
       <div className="sidebar-label">探索工作区</div><label>起始网址<input value={url} onChange={e => setUrl(e.target.value)} /></label>
       <ExplorerWorkspace url={url} sessionId={sessionId} onSession={setSessionId}>

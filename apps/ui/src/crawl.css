@@ -1,0 +1,24 @@
+.mode-switch { position: fixed; top: 10px; right: 16px; z-index: 20; display: flex; gap: 4px; background: var(--panel, #fff); border: 1px solid var(--line, #ddd); border-radius: 8px; padding: 3px; }
+.mode-switch button { border: 0; background: transparent; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+.mode-switch button.active { background: var(--ink, #111); color: #fff; }
+.crawl-shell { padding: 56px 20px 20px; max-width: 1400px; margin: 0 auto; }
+.crawl-start { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 12px; }
+.crawl-start label { display: flex; flex-direction: column; gap: 4px; }
+.crawl-start input:not([type=checkbox]) { min-width: 320px; }
+.crawl-start input[type=number] { min-width: 80px; width: 80px; }
+.crawl-grid { display: grid; grid-template-columns: 300px 1fr; gap: 12px; align-items: start; }
+.crawl-runs { display: flex; flex-direction: column; gap: 6px; max-height: 80vh; overflow: auto; }
+.crawl-run { text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; }
+.crawl-run.selected { border-color: var(--ink, #111); }
+.crawl-detail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.crawl-columns { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+.crawl-events, .crawl-states { list-style: none; margin: 0; padding: 0; max-height: 60vh; overflow: auto; font-size: 13px; }
+.crawl-events li { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; padding: 3px 0; border-bottom: 1px solid var(--line, #eee); }
+.crawl-events li small { color: var(--muted, #666); width: 100%; padding-left: 52px; }
+.crawl-events .crawl-navigation small, .crawl-events .crawl-judgement small, .crawl-events .crawl-backtrack small, .crawl-events .crawl-stop small { width: auto; padding-left: 0; }
+.crawl-states button { width: 100%; text-align: left; background: transparent; border: 0; padding: 4px; cursor: pointer; }
+.crawl-states button.selected { background: var(--hover, #f0f0f0); }
+.crawl-shot { width: 100%; margin-top: 8px; border: 1px solid var(--line, #ddd); border-radius: 6px; }
+.crawl-coverage { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+.crawl-coverage th, .crawl-coverage td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line, #eee); }
+@media (max-width: 900px) { .crawl-grid, .crawl-columns { grid-template-columns: 1fr; } .crawl-start input:not([type=checkbox]) { min-width: 0; width: 100%; } }

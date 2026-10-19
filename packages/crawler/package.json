@@ -15,6 +15,7 @@
     "@interaction/adapter-playwright": "workspace:*",
     "@interaction/explorer-plugin": "workspace:*",
     "@interaction/storage-memory": "workspace:*",
-    "playwright": "^1.58.0"
+    "playwright": "^1.58.0",
+    "better-sqlite3": "^12.4.1"
   }
 }

@@ -9,8 +9,10 @@ import { resolve } from 'node:path';
 import { InteractionEngine, EngineError, artifactKindSchema, domQuerySchema, evidenceCapabilities, type EngineEvent } from '@interaction/browser';
 import type { RulePlugin } from '@interaction/rules';
 import { registerRulePlugins } from './rule-plugins.js';
+import { registerCrawlRoutes } from './crawl-routes.js';
+import type { CrawlManager } from '@interaction/crawler';
 
-export async function createServer(engine: InteractionEngine, options: { uiDirectory?: string; logger?: boolean; explorer?: ExplorerPlugin; rulePlugins?: readonly RulePlugin[] } = {}) {
+export async function createServer(engine: InteractionEngine, options: { uiDirectory?: string; logger?: boolean; explorer?: ExplorerPlugin; rulePlugins?: readonly RulePlugin[]; crawls?: CrawlManager } = {}) {
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 1024 * 1024 });
   const streams = new Set<import('node:http').ServerResponse>();
   app.addHook('preClose', async () => { for (const stream of streams) stream.end(); });
@@ -20,6 +22,7 @@ export async function createServer(engine: InteractionEngine, options: { uiDirec
     return reply.code(500).send({ error: { code: 'INTERNAL_ERROR', message: error instanceof Error ? error.message : String(error) } });
   });
   if (options.explorer) await registerExplorer(app, options.explorer);
+  if (options.crawls) registerCrawlRoutes(app, options.crawls);
   app.get('/v1/health', async () => ({ status: 'ok', version: '0.1.0', modelIndependent: true }));
   registerRulePlugins(app, engine, options.rulePlugins);
   app.get('/v1/capabilities/evidence', async () => evidenceCapabilities);

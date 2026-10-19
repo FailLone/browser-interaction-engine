@@ -6,6 +6,7 @@ import { findingKey, type Finding, type PageCheck } from './checks.js';
 import type { Judge, Question } from './judge.js';
 import type { GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
+import type { CrawlLedger } from './store.js';
 import { classifyInput, inputSamples, judgeInputKind, readInputFacts, type InputKind } from './inputs.js';
 import type { Provider } from '@interaction/explorer-plugin';
 
@@ -38,6 +39,12 @@ export interface CrawlOptions {
   inputJudge?: Provider;
   /** Goal mode: JEV prunes action classes irrelevant to the goal; relevant ones run first. */
   relevance?: GoalRelevance;
+  /** Resume: work recorded by an earlier run of the same target is not repeated. */
+  ledger?: CrawlLedger;
+  /** Aborting stops the crawl after the current action; the summary is still produced. */
+  signal?: AbortSignal;
+  /** Called with a viewport screenshot of every newly discovered state. */
+  onScreenshot?: (state: string, png: Buffer) => void | Promise<void>;
   /** Optional UI checks run once per newly discovered abstract state (off by default; traversal comes first). */
   checks?: PageCheck[];
   /** Called once per newly discovered abstract state, after checks. */
@@ -117,7 +124,7 @@ export class SampledCrawler {
   /** True from dispatch until the post-action settle completes. */
   private dispatching = false;
   private readonly started = Date.now();
-  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge'>> & Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge'>;
+  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>> & Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>;
   /** Weak controls the judge confirmed as interactive, by component class. */
   private readonly confirmed = new Set<string>();
   /** Input kind per input component class: structural, judged by JEV, or defaulted. */
@@ -161,12 +168,34 @@ export class SampledCrawler {
     this.options = { headless: true, durationMs: 240_000, maxActions: 200, samples: 1, listSamples: 2, pageSamples: 2, pageActions: 20, followNavigation: false, inPageRoutes: 'explore', settleMs: 600,
       policy: defaultPolicy(options.url), checks: [], ...options };
   }
+  /** Everything a later run needs to continue where this one stopped. */
+  ledger(): CrawlLedger {
+    return { classCounts: [...this.classCounts], failedClasses: [...this.failedClasses], confirmed: [...this.confirmed], asked: [...this.asked],
+      splitLists: [...this.splitLists], askedLists: [...this.askedLists], inputKinds: [...this.inputKinds], flatModeGroups: [...this.flatModeGroups],
+      resolvedFills: [...this.resolvedFills], states: [...this.states.keys()] };
+  }
+
+  private restore(ledger: CrawlLedger) {
+    for (const [k, v] of ledger.classCounts) this.classCounts.set(k, v);
+    for (const k of ledger.failedClasses) this.failedClasses.add(k);
+    for (const k of ledger.confirmed) this.confirmed.add(k);
+    for (const k of ledger.asked) this.asked.add(k);
+    for (const k of ledger.splitLists) this.splitLists.add(k);
+    for (const k of ledger.askedLists) this.askedLists.add(k);
+    for (const [k, v] of ledger.inputKinds) this.inputKinds.set(k, v as { kind: InputKind; source: 'structure' | 'jev' | 'default' });
+    for (const k of ledger.flatModeGroups) this.flatModeGroups.add(k);
+    for (const k of ledger.resolvedFills) this.resolvedFills.add(k);
+    // Known states stay known (not re-announced or re-checked), stamped as found before this run.
+    for (const k of ledger.states) this.states.set(k, { key: k, url: this.options.url, firstSeenAt: -1, controls: 0 });
+  }
+
 
   private emit(event: CrawlEvent) { this.events.push(event); this.options.log?.(event); }
   private now() { return Date.now() - this.started; }
   private get page() { return this.adapter.page!; }
 
   async run() {
+    if (this.options.ledger) this.restore(this.options.ledger);
     const sessionOptions = new PlaywrightAdapter().parseOptions({ url: this.options.url, headless: this.options.headless, listExploration: 'review', actionTimeoutMs: 2000 });
     this.adapter = new BrowserAdapter(sessionOptions, new MemoryEvidenceStore());
     await this.adapter.start();
@@ -202,6 +231,7 @@ export class SampledCrawler {
     try {
       await this.settle();
       while (this.now() < this.options.durationMs && actions < this.options.maxActions) {
+        if (this.options.signal?.aborted) { stop = 'stopped'; break; }
         if (!this.page.url().startsWith('http')) { await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {}); await this.settle(); this.path = []; }
         const snapshot = await this.snapshot();
         if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
@@ -232,7 +262,8 @@ export class SampledCrawler {
     const actions = this.events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
     const entry = pagePath(this.options.url);
     return {
-      elapsedMs: this.now(), actions: actions.length, states: this.states.size,
+      elapsedMs: this.now(), actions: actions.length, states: [...this.states.values()].filter(st => st.firstSeenAt >= 0).length,
+      resumedStates: [...this.states.values()].filter(st => st.firstSeenAt < 0).length,
       onEntryPage: actions.filter(a => pagePath(a.url) === entry).length,
       inOverlay: actions.filter(a => a.overlay).length,
       failed: actions.filter(a => a.outcome === 'failed').length,
@@ -325,7 +356,8 @@ export class SampledCrawler {
         textBlocksSeen: row.text.size, textBlocksRevealedByActions: [...row.text].filter(t => !row.initialText.has(t)).length };
     });
     const minutes = Math.max(1, Math.ceil(this.now() / 60000));
-    const curve = Array.from({ length: minutes }, (_, m) => [...this.states.values()].filter(st => st.firstSeenAt < (m + 1) * 60000).length);
+    const fresh = [...this.states.values()].filter(st => st.firstSeenAt >= 0);
+    const curve = Array.from({ length: minutes }, (_, m) => fresh.filter(st => st.firstSeenAt < (m + 1) * 60000).length);
     const last = [...this.states.values()].reduce((t, st) => Math.max(t, st.firstSeenAt), 0);
     return { pages, statesPerMinute: curve, lastNewStateAtMs: last };
   }
@@ -340,6 +372,7 @@ export class SampledCrawler {
     const state: CrawlState = { key, url: s.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, firstSeenAt: this.now(), controls: s.controls.filter(c => c.visible).length };
     this.states.set(key, state);
     this.emit({ type: 'state', at: this.now(), state, path: this.path.length });
+    if (this.options.onScreenshot) { const png = await this.page.screenshot({ timeout: 3000 }).catch(() => undefined); if (png) await this.options.onScreenshot(key, png); }
     for (const check of this.options.checks) {
       let found: Finding[] = [];
       try { found = await check(this.page); } catch { continue; }
