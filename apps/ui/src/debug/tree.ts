@@ -1,4 +1,13 @@
-import type { ActionEvent, BacktrackEvent, Event, JudgementEvent, ModelCallSummary, NavigationEvent } from './types.js';
+import type {
+  ActionEvent,
+  BacktrackEvent,
+  Box,
+  Event,
+  JudgementEvent,
+  ModelCallSummary,
+  NavigationEvent,
+  ScreenView,
+} from './types.js';
 
 /** One executed action, placed under the action that led to the state it was taken in. */
 export interface ActionNode {
@@ -41,6 +50,10 @@ export interface ActionTree {
   actions: ActionNode[];
   /** States with a screenshot (announced by a state event). */
   screenshots: Set<string>;
+  /** Scroll and viewport of each state's screenshot, when recorded. */
+  views: Map<string, ScreenView>;
+  /** States first seen right after an action, by that action's seq: their screenshot shows its result. */
+  shotAfter: Map<number, string>;
   /** Judgements after the last action. */
   tail: JudgementEvent[];
 }
@@ -57,15 +70,25 @@ export function buildActionTree(events: Event[]): ActionTree {
     nodes: new Map(),
     actions: [],
     screenshots: new Set(),
+    views: new Map(),
+    shotAfter: new Map(),
     tail: [],
   };
   const owners = new Map<string, ActionNode | ActionTree['root']>();
+  /** Revealed states announced ahead of their action, by that action's seq. */
+  const revealedBy = new Map<number, string>();
   let prev: ActionNode | undefined,
     broken = false,
     pending: (JudgementEvent | NavigationEvent)[] = [];
-  for (const e of events) {
+  for (const [i, e] of events.entries()) {
     if (e.type === 'state') {
       tree.screenshots.add(e.state.key);
+      if (e.view) tree.views.set(e.state.key, e.view);
+      // The next state announced after an action, before any other action, is where it led. A revealed
+      // state announced right before an action (older runs) belongs to that action instead.
+      const revealedNext = e.revealed === 'before' ? actionRevealing(events, i) : undefined;
+      if (revealedNext) revealedBy.set(revealedNext, e.state.key);
+      else if (prev && !broken && !tree.shotAfter.has(prev.event.seq)) tree.shotAfter.set(prev.event.seq, e.state.key);
       if (!tree.root.state && !tree.actions.length) {
         tree.root.state = e.state.key;
         owners.set(e.state.key, tree.root);
@@ -111,6 +134,8 @@ export function buildActionTree(events: Event[]): ActionTree {
       };
       parent.children.push(node);
       tree.nodes.set(e.seq, node);
+      const early = revealedBy.get(e.seq);
+      if (early) tree.shotAfter.set(e.seq, early);
       tree.actions.push(node);
       pending = [];
       prev = node;
@@ -204,4 +229,34 @@ export function modelSteps(tree: ActionTree, calls: ModelCallSummary[]): ModelSt
         add(node, { kind: 'judgement', event }, [event.question]);
   }
   return steps;
+}
+
+/**
+ * Where the operated control sits in a state's screenshot: its box when the action ran, but only
+ * when the screenshot was taken at the same scroll position and viewport. Shifting by the scroll
+ * difference is not reliable: sticky and fixed parts of a page (a calculator card, a header) do not
+ * move with it, so the box would land on something else.
+ */
+export function markIn(target: (ScreenView & { box: Box }) | undefined, view: ScreenView | undefined) {
+  if (!target || !view) return;
+  const near = (a: number, b: number) => Math.abs(a - b) <= 1;
+  if (!near(target.scroll.x, view.scroll.x) || !near(target.scroll.y, view.scroll.y)) return;
+  if (target.viewport.width !== view.viewport.width || target.viewport.height !== view.viewport.height) return;
+  const { box } = target;
+  if (
+    box.x + box.width <= 0 ||
+    box.y + box.height <= 0 ||
+    box.x >= view.viewport.width ||
+    box.y >= view.viewport.height
+  )
+    return;
+  return { box, viewport: view.viewport };
+}
+
+/** The action right after a revealed state at `i` in an older run (plugin results may sit between). */
+function actionRevealing(events: Event[], i: number): number | undefined {
+  for (const e of events.slice(i + 1)) {
+    if (e.type === 'action') return e.seq;
+    if (e.type !== 'finding' && e.type !== 'plugin_error' && e.type !== 'judgement') return;
+  }
 }

@@ -1,6 +1,12 @@
 import { createHash } from 'node:crypto';
 import type { CrawlEvent, CrawlStore } from '@interaction/crawler';
 
+/** Screenshots were PNG and are WebP now; both are kept in the same column, so tell them apart by content. */
+export const imageType = (image: Buffer) =>
+  image.subarray(0, 4).toString('latin1') === 'RIFF' && image.subarray(8, 12).toString('latin1') === 'WEBP'
+    ? 'image/webp'
+    : 'image/png';
+
 /** Short stable id for an abstract state key; keys run to several KB and are repeated in every action. */
 export const stateId = (key: string) => createHash('sha1').update(key).digest('hex').slice(0, 12);
 
@@ -54,13 +60,27 @@ export class DebugView {
 
   private slim(runId: string, event: CrawlEvent & { seq: number }) {
     switch (event.type) {
-      case 'state':
-        return { ...event, state: { ...event.state, key: this.id(runId, event.state.key) } };
+      case 'state': {
+        // A state revealed by an action (text or a typed value). Newer runs name the action and announce
+        // the state after it; older runs only show it in the key and announced it before the action.
+        const revealed = event.revealedBy
+          ? 'after'
+          : /\|(?:content|value):/.test(event.state.key)
+            ? 'before'
+            : undefined;
+        const { revealedBy: _r, ...rest } = event;
+        return {
+          ...rest,
+          state: { ...event.state, key: this.id(runId, event.state.key) },
+          ...(revealed ? { revealed } : {}),
+        };
+      }
       case 'action': {
         const { sigBefore: _b, sigAfter: _a, state, classKey, ...step } = event.step;
         return {
           ...event,
           step: { ...step, classKey: classKey.slice(0, 160), ...(state ? { state: this.id(runId, state) } : {}) },
+          ...(event.shot ? { shot: this.id(runId, event.shot) } : {}),
         };
       }
       case 'finding': {

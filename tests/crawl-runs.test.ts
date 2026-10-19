@@ -62,7 +62,8 @@ test('crawl runs are started, stored and inspected over HTTP, and a resumed run 
     expect(labels).toEqual(expect.arrayContaining(['Open panel', 'Panel action']));
     const state = events.find((e: { type: string }) => e.type === 'state').state.key;
     const shot = await fetch(`${api}/v1/crawls/${first.id}/screenshot?state=${encodeURIComponent(state)}`);
-    expect(shot.headers.get('content-type')).toBe('image/png');
+    // Screenshots are WebP; the route says so.
+    expect(shot.headers.get('content-type')).toBe('image/webp');
     expect((await shot.arrayBuffer()).byteLength).toBeGreaterThan(100);
 
     // Resuming: everything was already sampled, so no action repeats and known states are not new.

@@ -986,6 +986,51 @@ test('text the page shows by itself while an action runs is not credited to the 
   }
 }, 120000);
 
+test('a state an action revealed as text gets a screenshot, and each action says where its target was', async () => {
+  const html = `<!doctype html><title>Tip</title><main>
+    <div style="height:900px">Intro</div>
+    <button onclick="document.getElementById('t').hidden=false">24h low</button>
+    <p id="t" hidden>The lowest price in 24 hours</p></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const shots = new Map<string, Buffer>();
+    await new SampledCrawler({
+      url,
+      viewport: { width: 800, height: 600 },
+      durationMs: 30000,
+      settleMs: 100,
+      log: e => events.push(e),
+      onScreenshot: (state, image) => void shots.set(state, image),
+    }).run();
+    const states = events.filter((e): e is Extract<CrawlEvent, { type: 'state' }> => e.type === 'state');
+    const tip = events.find(
+      (e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action' && e.step.label === '24h low',
+    );
+    // The tooltip is a state of its own, announced with a screenshot like any other.
+    const revealed = states.find(s => s.state.key.includes('|content:'));
+    expect(revealed).toBeDefined();
+    expect(shots.has(revealed!.state.key)).toBe(true);
+    // Screenshots are WebP.
+    expect(shots.get(revealed!.state.key)!.subarray(8, 12).toString('latin1')).toBe('WEBP');
+    // The button sat below the fold: it was scrolled to before the click, and both positions are kept.
+    expect(tip?.target?.scroll.y).toBeGreaterThan(0);
+    expect(tip?.target?.box.width).toBeGreaterThan(0);
+    // The page's own screenshot is from the top, where the button is not visible: the moment of the
+    // click was captured as well, so the button can be shown.
+    expect(tip?.shot).toBeDefined();
+    expect(shots.has(tip!.shot!)).toBe(true);
+    expect(revealed!.view?.viewport).toEqual({ width: 800, height: 600 });
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
 test('a tooltip revealed inside its trigger is a new state, and the trigger is not taken for a new control', async () => {
   const html = `<!doctype html><title>Tips</title><main>
     <div style="cursor:pointer" onclick="this.querySelector('span').hidden=false">24h low<span hidden>The lowest price in 24 hours</span></div>

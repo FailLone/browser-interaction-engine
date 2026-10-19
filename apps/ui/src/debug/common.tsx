@@ -89,10 +89,33 @@ export function Section({
  * A state screenshot, loaded only when shown. Height is bounded so tall mobile screenshots
  * never cover the rest of the panel; click to see it full size.
  */
-export function Screenshot({ runId, state, label }: { runId: string; state: string; label: string }) {
+export function Screenshot({
+  runId,
+  state,
+  label,
+  mark,
+}: {
+  runId: string;
+  state: string;
+  label: string;
+  /** A box to outline, in the screenshot's own pixels (the viewport it was taken in). */
+  mark?: { box: { x: number; y: number; width: number; height: number }; viewport: { width: number; height: number } };
+}) {
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);
   const src = `/v1/crawls/${runId}/debug/screenshot/${state}`;
+  // Percentages of the image, so the outline scales with it at any display size.
+  const outline = mark && (
+    <span
+      className="pointer-events-none absolute rounded-sm border-2 border-rose-500"
+      style={{
+        left: `${(mark.box.x / mark.viewport.width) * 100}%`,
+        top: `${(mark.box.y / mark.viewport.height) * 100}%`,
+        width: `${(mark.box.width / mark.viewport.width) * 100}%`,
+        height: `${(mark.box.height / mark.viewport.height) * 100}%`,
+      }}
+    />
+  );
   if (failed)
     return (
       <div className="flex h-24 items-center justify-center gap-2 rounded-md border border-dashed text-xs text-muted-foreground">
@@ -107,18 +130,24 @@ export function Screenshot({ runId, state, label }: { runId: string; state: stri
         onClick={() => setOpen(true)}
         className="block overflow-hidden rounded-md border bg-muted/40 hover:ring-2 hover:ring-ring/40"
       >
-        <img
-          src={src}
-          alt={label}
-          loading="lazy"
-          onError={() => setFailed(true)}
-          className="mx-auto max-h-72 w-auto max-w-full object-contain object-top"
-        />
+        <span className="relative mx-auto block w-fit">
+          <img
+            src={src}
+            alt={label}
+            loading="lazy"
+            onError={() => setFailed(true)}
+            className="block max-h-72 w-auto max-w-full object-contain object-top"
+          />
+          {outline}
+        </span>
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-auto max-w-[calc(100vw-2rem)] p-3 sm:max-w-[calc(100vw-4rem)]">
           <DialogTitle className="pr-8 text-sm">{label}</DialogTitle>
-          <img src={src} alt={label} className="mx-auto max-h-[80vh] w-auto max-w-full object-contain" />
+          <span className="relative mx-auto block w-fit">
+            <img src={src} alt={label} className="block max-h-[80vh] w-auto max-w-full object-contain" />
+            {outline}
+          </span>
         </DialogContent>
       </Dialog>
     </>

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { CrawlManager } from '@interaction/crawler';
-import { DebugView } from './debug-view.js';
+import { DebugView, imageType } from './debug-view.js';
 import type { ModelCallLog } from './model-calls.js';
 
 const sessionRequest = z
@@ -92,7 +92,7 @@ export function registerCrawlRoutes(
     const { state } = z.object({ state: z.string().min(1) }).parse(request.query);
     const png = crawls.store.screenshot(runId, state);
     if (!png) return notFound(reply);
-    return reply.type('image/png').header('Cache-Control', 'no-store').send(png);
+    return reply.type(imageType(png)).header('Cache-Control', 'no-store').send(png);
   });
   app.post('/v1/crawls/:runId/stop', async (request, reply) => {
     const { runId } = request.params as { runId: string };
@@ -143,7 +143,7 @@ function registerDebugRoutes(app: FastifyInstance, crawls: CrawlManager, modelCa
     const key = view.stateKey(runId, (request.params as { state: string }).state);
     const png = key && crawls.store.screenshot(runId, key);
     if (!png) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Screenshot not found' } });
-    return reply.type('image/png').header('Cache-Control', 'private, max-age=86400').send(png);
+    return reply.type(imageType(png)).header('Cache-Control', 'private, max-age=86400').send(png);
   });
   app.get('/v1/crawls/:runId/debug/model-calls', async (request, reply) => {
     const runId = run(request, reply);

@@ -1,3 +1,15 @@
+export interface Box {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+/** Scroll offset and viewport of a screenshot, or of the page when an action ran. */
+export interface ScreenView {
+  scroll: { x: number; y: number };
+  viewport: { width: number; height: number };
+}
+
 /** Run records and the slim events the debug API returns (state keys are short ids). */
 export interface Run {
   id: string;
@@ -83,6 +95,10 @@ export type ActionEvent = {
   overlay?: string;
   error?: string;
   after?: string;
+  /** Where the target was on screen when the action ran (viewport pixels). */
+  target?: ScreenView & { box: Box };
+  /** Screenshot id taken just before the action, when the state's own screenshot cannot show the target. */
+  shot?: string;
 };
 export type JudgementEvent = {
   seq: number;
@@ -128,7 +144,18 @@ export type PluginErrorEvent = {
 export type Event =
   | { seq: number; type: 'viewport'; at: number; viewport: ResolvedViewport }
   | { seq: number; type: 'session'; at: number; provider: string }
-  | { seq: number; type: 'state'; at: number; state: { key: string; url: string; overlay?: string; controls: number } }
+  | {
+      seq: number;
+      type: 'state';
+      at: number;
+      state: { key: string; url: string; overlay?: string; controls: number };
+      view?: ScreenView;
+      /**
+       * Revealed by an action (text or a typed value) rather than reached by structure, and whether
+       * it is announced right after that action (newer runs) or right before it (older runs).
+       */
+      revealed?: 'after' | 'before';
+    }
   | ActionEvent
   | NavigationEvent
   | JudgementEvent

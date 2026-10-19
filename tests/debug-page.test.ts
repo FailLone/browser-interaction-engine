@@ -6,7 +6,7 @@ import { CrawlManager, CrawlStore, type Provider } from '@interaction/crawler';
 import { DebugView, stateId } from '../apps/server/src/debug-view.js';
 import { ModelCallLog } from '../apps/server/src/model-calls.js';
 import { createServer } from '../apps/server/src/server.js';
-import { actionBefore, buildActionTree, callTarget, modelSteps, pathTo } from '../apps/ui/src/debug/tree.js';
+import { actionBefore, buildActionTree, callTarget, markIn, modelSteps, pathTo } from '../apps/ui/src/debug/tree.js';
 import type { Event } from '../apps/ui/src/debug/types.js';
 
 let seq = 0;
@@ -61,6 +61,11 @@ test('the action tree follows a walk to its end and branches where a backtrack l
   // After the walk ended at Save, it went on from the state Open menu reached.
   expect(menu.children[0].children[0].resumedAt).toBe(menu);
   expect(pathTo(close).map(label)).toEqual(['Open menu', 'Help', 'Close']);
+  // Screenshots taken right after an action belong to it; Close led to a state seen before, so none.
+  expect(tree.shotAfter.get(menu.event.seq)).toBe('menu');
+  expect(tree.shotAfter.get(menu.children[1].event.seq)).toBe('help');
+  expect(tree.shotAfter.has(close.event.seq)).toBe(false);
+
   expect(tree.actions.map(n => n.index)).toEqual([1, 2, 3, 4, 5, 6]);
   // Links read from hrefs before an action are not navigations it set off.
   const nav = (action: string): Event => ({
@@ -83,6 +88,16 @@ test('the action tree follows a walk to its end and branches where a backtrack l
   expect(withLinks.actions[0].linksSeen).toHaveLength(2);
   // A finding after "Help" was checked on the state Help reached.
   expect(label(actionBefore(tree, close.event.seq - 1)!)).toBe('Help');
+});
+
+test('the operated control is outlined only on a screenshot taken where the action happened', () => {
+  const view = (y: number) => ({ scroll: { x: 0, y }, viewport: { width: 1280, height: 800 } });
+  const target = { ...view(272), box: { x: 1047, y: 149, width: 144, height: 24 } };
+  expect(markIn(target, view(272))?.box).toEqual(target.box);
+  // Taken at another scroll position: sticky parts of a page do not move with it, so no outline.
+  expect(markIn(target, view(0))).toBeUndefined();
+  // Without a recorded scroll position the mark cannot be placed.
+  expect(markIn(target, undefined)).toBeUndefined();
 });
 
 test('model calls are recorded per run with reason, input, output, cost and time, and served on demand', async () => {
@@ -173,7 +188,7 @@ test('debug events leave out page signatures and finding facts, which load by se
       state: { key, url: 'https://a.test/', firstSeenAt: 1, controls: 200 },
       path: 0,
     });
-    store.saveScreenshot(run.id, key, Buffer.from('png'));
+    store.saveScreenshot(run.id, key, Buffer.from('RIFF\0\0\0\0WEBPVP8 ', 'latin1'));
     store.appendEvent(run.id, {
       type: 'action',
       at: 2,
@@ -207,7 +222,7 @@ test('debug events leave out page signatures and finding facts, which load by se
     expect(events[2].finding).toMatchObject({ rule: 'clip', hasFacts: true });
     expect((await json(`/v1/crawls/${run.id}/debug/events/3`)).finding.facts.big).toHaveLength(50000);
     const shot = await fetch(`${api}/v1/crawls/${run.id}/debug/screenshot/${stateId(key)}`);
-    expect(shot.headers.get('content-type')).toBe('image/png');
+    expect(shot.headers.get('content-type')).toBe('image/webp');
     // Without a call log, the page is told calls were not recorded rather than shown none.
     expect(await json(`/v1/crawls/${run.id}/debug/model-calls`)).toEqual({ recorded: false, calls: [] });
   } finally {

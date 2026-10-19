@@ -24,7 +24,15 @@ import {
   verdictMeaning,
   verdictText,
 } from './text.js';
-import { type ActionNode, type ActionTree, type ModelStep, type ModelSteps, modelSteps, pathTo } from './tree.js';
+import {
+  type ActionNode,
+  type ActionTree,
+  type ModelStep,
+  type ModelSteps,
+  markIn,
+  modelSteps,
+  pathTo,
+} from './tree.js';
 import type { Event, FindingEvent, JudgementEvent, ModelCallSummary, PluginErrorEvent } from './types.js';
 
 type Row =
@@ -451,8 +459,19 @@ function ActionDetail({
 }) {
   const e = node.event;
   const path = pathTo(node);
-  const shot = node.after && tree.screenshots.has(node.after) ? node.after : undefined;
-  const beforeShot = node.before && tree.screenshots.has(node.before) ? node.before : undefined;
+  // Prefer the screenshot taken right after this action; otherwise the state it led to, taken earlier.
+  const fresh = tree.shotAfter.get(e.seq);
+  const shot = fresh ?? (node.after && tree.screenshots.has(node.after) ? node.after : undefined);
+  const stateShot = node.before && tree.screenshots.has(node.before) ? node.before : undefined;
+  // Two pictures only when the action led to another state; otherwise the one it happened on.
+  const changed = !!(shot && stateShot && shot !== stateShot) || !!(fresh && !stateShot);
+  // A screenshot taken at the moment of the action shows the page exactly as it was acted on.
+  const momentShot = e.shot;
+  const beforeShot = momentShot ?? stateShot;
+  // The operated control, on whichever picture was taken where the action happened.
+  const markBefore =
+    momentShot && e.target ? e.target : markIn(e.target, tree.views.get((beforeShot ?? shot) as string));
+  const markAfter = changed && shot ? markIn(e.target, tree.views.get(shot)) : undefined;
   return (
     <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
       <div className="flex flex-col gap-1.5">
@@ -563,13 +582,58 @@ function ActionDetail({
       </Section>
 
       {(shot || beforeShot) && (
-        <Section title={shot ? '动作后的状态' : '动作前的状态'}>
-          <Screenshot
-            key={shot ?? beforeShot}
-            runId={runId}
-            state={(shot ?? beforeShot)!}
-            label={`#${node.index} ${e.step.label}`}
-          />
+        <Section
+          title={changed ? '动作前后' : '动作所在的状态'}
+          aside={
+            <InfoTip>
+              红框是这一步操作的控件，画在"之前"那张图上，也就是操作发生的画面。每个状态只在第一次出现时截一张图，所以"之前"是这个状态第一次出现时的样子，不一定是操作前一刻。
+            </InfoTip>
+          }
+        >
+          {!markBefore && !markAfter && (
+            <p className="text-xs text-muted-foreground">
+              {e.target
+                ? '这次运行没有保存操作那一刻的截图（较早的运行），现有截图拍摄时页面滚动位置不同，无法定位控件，所以没有画框。'
+                : '没有记录控件的位置（较早的运行，或操作前就失败了），所以没有画框。'}
+            </p>
+          )}
+          {!changed && (
+            <p className="text-xs text-muted-foreground">
+              {e.outcome === 'failed'
+                ? '操作失败'
+                : e.outcome === 'no_change'
+                  ? '操作后页面没有变化'
+                  : '操作后回到了这个状态'}
+              ，所以只有一张图。
+            </p>
+          )}
+          <div className={cn('grid gap-2', changed && 'grid-cols-2')}>
+            {(beforeShot ?? shot) && (
+              <figure className="flex min-w-0 flex-col gap-1">
+                {changed && <figcaption className="text-[11px] text-muted-foreground">之前</figcaption>}
+                <Screenshot
+                  key={beforeShot ?? shot}
+                  runId={runId}
+                  state={(beforeShot ?? shot) as string}
+                  label={`#${node.index} ${kindText[e.step.kind] ?? e.step.kind} ${e.step.label || '未命名'}`}
+                  mark={markBefore}
+                />
+              </figure>
+            )}
+            {changed && shot && (
+              <figure className="flex min-w-0 flex-col gap-1">
+                <figcaption className="text-[11px] text-muted-foreground">之后</figcaption>
+                <Screenshot
+                  key={shot}
+                  runId={runId}
+                  state={shot}
+                  label={`#${node.index} 之后`}
+                  // The before picture is where the outline belongs; this one only when that one cannot have it.
+                  mark={markBefore ? undefined : markAfter}
+                />
+              </figure>
+            )}
+          </div>
         </Section>
       )}
 

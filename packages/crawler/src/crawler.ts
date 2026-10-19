@@ -1,5 +1,5 @@
 import { BrowserDriver, type DOMSnapshot } from './browser/driver.js';
-import type { Control } from './browser/types.js';
+import type { Control, Rect } from './browser/types.js';
 import { initialViewport, type ResolvedViewport, type ViewportOption } from './browser/viewport.js';
 import {
   composeSessions,
@@ -88,8 +88,8 @@ export interface CrawlOptions {
   ledger?: CrawlLedger;
   /** Aborting stops the crawl after the current action; the summary is still produced. */
   signal?: AbortSignal;
-  /** Called with a viewport screenshot of every newly discovered state. */
-  onScreenshot?: (state: string, png: Buffer) => void | Promise<void>;
+  /** Called with a viewport screenshot (WebP) of every newly discovered state. */
+  onScreenshot?: (state: string, image: Buffer) => void | Promise<void>;
   /** Plugins (UI rules, checks) that observe each newly discovered state; composed by the host. */
   plugins?: CrawlPlugin[];
   /** Called once per newly discovered abstract state, after checks. */
@@ -134,7 +134,16 @@ export type CrawlEvent =
   | { type: 'viewport'; at: number; viewport: ResolvedViewport }
   /** The session restored into the browser, and each check of it. */
   | { type: 'session'; at: number; provider: string; session: Record<string, unknown>; check?: SessionCheck }
-  | { type: 'state'; at: number; state: CrawlState; path: number }
+  | {
+      type: 'state';
+      at: number;
+      state: CrawlState;
+      path: number;
+      /** Scroll offset and viewport when the state's screenshot was taken, to place marks on it. */
+      view?: { scroll: { x: number; y: number }; viewport: { width: number; height: number } };
+      /** The action that revealed this state as text or a typed value; it is announced right after it. */
+      revealedBy?: string;
+    }
   | {
       type: 'action';
       at: number;
@@ -146,6 +155,16 @@ export type CrawlEvent =
       error?: string;
       newState: boolean;
       after: string;
+      /**
+       * Where the target was on screen when the action ran: its box in viewport pixels, the
+       * page's scroll offset and the viewport size. Lets a screenshot of that moment mark it.
+       */
+      target?: { box: Rect; scroll: { x: number; y: number }; viewport: { width: number; height: number } };
+      /**
+       * A screenshot taken just before the action, when the state's own screenshot was taken at
+       * another scroll position and so cannot show where the target is.
+       */
+      shot?: string;
     }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
@@ -309,6 +328,15 @@ export class SampledCrawler {
   };
   /** Reloads that restored the initial storage first. */
   private storageRestores = 0;
+  /** Where the current action's target was on screen, measured just before it ran. */
+  private lastTarget?: Extract<CrawlEvent, { type: 'action' }>['target'];
+  /** Scroll position of each state's screenshot, to tell whether it shows where an action happens. */
+  private readonly shotScroll = new Map<string, { x: number; y: number }>();
+  /** The state the current action runs in, while its target may still need a screenshot. */
+  private shootFor?: string;
+  /** Screenshot taken just before the current action, when its state's screenshot does not show it. */
+  private actionShot?: string;
+  private actionShots = 0;
   /** Page text at the last dispatch, used to pick search terms that should match. */
   private lastText = '';
   /** True from dispatch until the post-action settle completes. */
@@ -872,13 +900,16 @@ export class SampledCrawler {
     }
   }
 
-  private async visit(s: Snapshot) {
+  /**
+   * Announces a state the first time it is seen: event, screenshot, plugins. `key` overrides the
+   * structural key for a state an action revealed as text only (a tooltip, an answer).
+   */
+  private async visit(s: Snapshot, key = stateKey(s), revealedBy?: Step) {
     const template = pageTemplate(s.url),
       pages = this.templatePages.get(template) || new Set<string>();
     pages.add(pagePath(s.url));
     this.templatePages.set(template, pages);
     this.observeCoverage(s);
-    const key = stateKey(s);
     if (this.states.has(key)) return false;
     const overlay = activeOverlay(s);
     const state: CrawlState = {
@@ -889,10 +920,24 @@ export class SampledCrawler {
       controls: s.controls.filter(c => c.visible).length,
     };
     this.states.set(key, state);
-    this.emit({ type: 'state', at: this.now(), state, path: this.path.length });
+    const view = this.options.onScreenshot
+      ? ((await this.page.evaluate(viewInPage).catch(() => undefined)) as
+          | Extract<CrawlEvent, { type: 'state' }>['view']
+          | undefined)
+      : undefined;
+    this.emit({
+      type: 'state',
+      at: this.now(),
+      state,
+      path: this.path.length,
+      ...(view ? { view } : {}),
+      ...(revealedBy ? { revealedBy: revealedBy.classKey } : {}),
+    });
+    if (view) this.shotScroll.set(key, view.scroll);
     if (this.options.onScreenshot) {
-      const png = await this.page.screenshot({ timeout: 3000 }).catch(() => undefined);
-      if (png) await this.options.onScreenshot(key, png);
+      // WebP at this quality is about a third of a PNG and still sharp enough to read page text.
+      const image = await this.page.screenshot({ type: 'webp', quality: 80, timeout: 3000 }).catch(() => undefined);
+      if (image) await this.options.onScreenshot(key, image);
     }
     if (this.options.plugins.length) {
       let detail: Promise<DOMSnapshot> | undefined;
@@ -1263,6 +1308,9 @@ export class SampledCrawler {
     this.intercepted = undefined;
     this.popup = undefined;
     const urlBefore = this.page.url();
+    this.lastTarget = undefined;
+    this.actionShot = undefined;
+    this.shootFor = this.options.onScreenshot ? beforeKey : undefined;
     this.dispatching = true;
     try {
       await this.dispatch(c);
@@ -1393,13 +1441,9 @@ export class SampledCrawler {
       this.sampledModeGroups.set(group, isNew);
       if (!isNew && outcome !== 'failed') this.flatModeGroups.add(group);
     }
-    if (isNew && /\|(content|value):/.test(afterKey))
-      this.states.set(afterKey, {
-        key: afterKey,
-        url: after.url,
-        firstSeenAt: this.now(),
-        controls: after.controls.filter(x => x.visible).length,
-      });
+    // Revealed text and typed values are states of their own. They are announced after the action
+    // that produced them (below), like a structural state reached by it, while the page still shows them.
+    const revealed = isNew && /\|(content|value):/.test(afterKey);
     this.emit({
       type: 'action',
       at: this.now(),
@@ -1411,7 +1455,10 @@ export class SampledCrawler {
       error,
       newState: isNew,
       after: pagePath(after.url),
+      ...(this.lastTarget ? { target: this.lastTarget } : {}),
+      ...(this.actionShot ? { shot: this.actionShot } : {}),
     });
+    if (revealed) await this.visit(after, afterKey, step);
     this.options.pursuit?.note(`${describe(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
     if (routeChanged) this.routeClasses.add(c.classKey);
     // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
@@ -1481,8 +1528,27 @@ export class SampledCrawler {
     const target = this.page.locator(control.selector);
     if ((await target.count()) !== 1) throw new Error('Target is no longer unique');
     await target.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(() => {});
+    this.lastTarget = (await target.evaluate(measureInPage).catch(() => undefined)) as typeof this.lastTarget;
+    await this.shootIfUnseen();
     const blocker = await target.evaluate(hitTestInPage).catch(() => 'detached');
     if (blocker) throw new Error(`Target not actionable: ${blocker}`);
+  }
+
+  /**
+   * During an action (not a replay), screenshot the page as it is about to be acted on when the
+   * state's own screenshot was taken at another scroll position: there the target cannot be shown.
+   */
+  private async shootIfUnseen() {
+    const state = this.shootFor,
+      target = this.lastTarget;
+    this.shootFor = undefined;
+    if (!state || !target || !this.options.onScreenshot) return;
+    const seen = this.shotScroll.get(state);
+    if (seen && Math.abs(seen.x - target.scroll.x) <= 1 && Math.abs(seen.y - target.scroll.y) <= 1) return;
+    const image = await this.page.screenshot({ type: 'webp', quality: 80, timeout: 3000 }).catch(() => undefined);
+    if (!image) return;
+    this.actionShot = `action:${++this.actionShots}`;
+    await this.options.onScreenshot(this.actionShot, image);
   }
 
   /** Classify the input (structure first, then JEV once per input class) and type one sample. */
@@ -1816,6 +1882,19 @@ const writeStorageInPage = new Function(
   try { localStorage.clear(); for (const [k, v] of local) localStorage.setItem(k, v); } catch {}
   try { sessionStorage.clear(); for (const [k, v] of session) sessionStorage.setItem(k, v); } catch {}`,
 ) as (args: [string[][], string[][]]) => void;
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+const viewInPage = new Function(
+  'return { scroll: { x: scrollX, y: scrollY }, viewport: { width: innerWidth, height: innerHeight } };',
+) as () => unknown;
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+const measureInPage = new Function(
+  'el',
+  `const r = el.getBoundingClientRect();
+  return { box: { x: r.left, y: r.top, width: r.width, height: r.height }, scroll: { x: scrollX, y: scrollY },
+    viewport: { width: innerWidth, height: innerHeight } };`,
+) as (el: Element) => unknown;
 
 // Built with new Function so the bundler cannot inject helpers into the serialized source.
 const hitTestInPage = new Function(
