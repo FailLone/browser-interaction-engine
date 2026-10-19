@@ -2,12 +2,36 @@ import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import {
   BrowserDriver,
+  ModelJudge,
   SampledCrawler,
+  trimReplay,
   maskVolatile,
   stateKey,
   type CrawlEvent,
   type CrawlPlugin,
 } from '@interaction/crawler';
+
+/**
+ * A fake JEV: checklist items get `item(question)`; effect questions, a JEV choice of their own,
+ * get the `effect` distribution over yes / no / unrelated.
+ */
+function fakeJev(
+  item: (question: { kind: string; members?: string[]; control?: { name: string } }) => number,
+  effect: Record<'yes' | 'no' | 'unrelated', number> = { yes: 0.9, no: 0.05, unrelated: 0.05 },
+) {
+  return {
+    name: 'jev',
+    model: 'jev',
+    async decide(request: { kind: string; state: unknown }) {
+      if (request.kind === 'choice') {
+        const choice = Object.entries(effect).sort((a, b) => b[1] - a[1])[0][0];
+        return { model: 'jev', value: choice, probabilities: effect };
+      }
+      const state = request.state as Record<string, { kind: string; members?: string[]; control?: { name: string } }>;
+      return { model: 'jev', value: Object.fromEntries(Object.entries(state).map(([k, q]) => [k, item(q)])) };
+    },
+  };
+}
 
 // One page with: a blocking modal on load, a long list of identical rows, a
 // tab panel, a live price, an in-scope second page and an out-of-scope link.
@@ -184,17 +208,7 @@ test('a weak pointer-only control is crawled unless the judge rules it out', asy
   await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
   const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
   const run = async (yes: boolean) => {
-    const jev = {
-      name: 'jev',
-      model: 'jev',
-      async decide(request: { state: unknown }) {
-        return {
-          model: 'jev',
-          value: Object.fromEntries(Object.keys(request.state as object).map(k => [k, yes ? 0.95 : 0.05])),
-        };
-      },
-    };
-    const judge = new ModelJudge({ jev });
+    const judge = new ModelJudge({ jev: fakeJev(() => (yes ? 0.95 : 0.05)) });
     const events: CrawlEvent[] = [];
     await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, judge, log: e => events.push(e) }).run();
     return events
@@ -812,6 +826,166 @@ test('an open-then-close loop with no visible effect is dropped from the replay 
   }
 }, 120000);
 
+test('a replay leaves out steps that only revealed text and values typed over before the next step', () => {
+  const step = (kind: string, label: string, classKey: string, extra: object = {}) =>
+    ({ kind, label, classKey, ...extra }) as Parameters<typeof trimReplay>[0][number];
+  const steps = [
+    step('click', 'Open', 'click|open'),
+    step('click', '24h low', 'click|tip', { textOnly: true }),
+    step('fill', '0', 'fill|amount|normal'),
+    step('fill', '0', 'fill|amount|boundary'),
+    step('fill', '0', 'fill|amount|zero'),
+    step('click', 'Convert', 'click|convert'),
+    step('click', 'Market cap', 'click|tip2', { textOnly: true }),
+  ];
+  // The last fill is the value the field holds when Convert is clicked; the final step always stays.
+  expect(trimReplay(steps).map(s => `${s.label}:${s.classKey}`)).toEqual([
+    'Open:click|open',
+    '0:fill|amount|zero',
+    'Convert:click|convert',
+    'Market cap:click|tip2',
+  ]);
+});
+
+test('a choice the site remembers is undone before a reload, so a replay starts from the same page', async () => {
+  // The page shows the currency it finds in a cookie or localStorage; nothing is stored at first.
+  const html = `<!doctype html><title>Remember</title><main><p id="cur"></p></main>
+    <script>
+      const eur = document.cookie.includes('cur=EUR') || localStorage.getItem('cur') === 'EUR' || sessionStorage.getItem('cur') === 'EUR';
+      document.getElementById('cur').textContent = eur ? 'EUR' : 'USD';
+    </script>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const crawler = new SampledCrawler({ url, durationMs: 5000, settleMs: 100 });
+    const internals = crawler as unknown as {
+      page: import('playwright').Page;
+      restoreInitialStorage(): Promise<void>;
+      choose(): undefined;
+    };
+    // Stop right after the start, with the page open and the initial storage saved.
+    let shown: string[] = [];
+    internals.choose = () => undefined;
+    const backtrack = (crawler as unknown as { backtrack: () => Promise<boolean> }).backtrack;
+    (crawler as unknown as { backtrack: () => Promise<boolean> }).backtrack = async () => {
+      const page = internals.page;
+      const read = () => page.locator('#cur').textContent();
+      shown.push((await read()) ?? '');
+      // The site remembers a choice in every place it can.
+      await page.evaluate(() => {
+        document.cookie = 'cur=EUR;path=/';
+        localStorage.setItem('cur', 'EUR');
+        sessionStorage.setItem('cur', 'EUR');
+      });
+      await page.reload();
+      shown.push((await read()) ?? '');
+      // What a backtrack does before it reloads.
+      await internals.restoreInitialStorage();
+      await page.reload();
+      shown.push((await read()) ?? '');
+      return false;
+    };
+    const summary = await crawler.run();
+    void backtrack;
+    expect(shown).toEqual(['USD', 'EUR', 'USD']);
+    expect(summary.storageRestores).toBe(1);
+    shown = [];
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
+test('a target covered on the first try is retried once later, ranked last, in another state', async () => {
+  // A banner covers Next whenever the click is aimed at it, until Dismiss removes the banner and
+  // shows Done (a new state). The cover is applied in the crawler's own pre-click check.
+  const html = `<!doctype html><title>Cover</title><main>
+    <button id="next" onclick="document.getElementById('p2').hidden=false">Next</button>
+    <p id="p2" hidden>Page two</p>
+    <button onclick="window.dismissed=true;document.getElementById('done').hidden=false">Dismiss</button>
+    <button id="done" hidden>Done</button></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) });
+    // Stand-in for a cover that arrives between capture and click: Next is covered until dismissed.
+    const internals = crawler as unknown as {
+      ensureActionable(c: { name: string }): Promise<void>;
+      page: { evaluate(f: string): Promise<unknown> };
+    };
+    const check = internals.ensureActionable.bind(crawler);
+    internals.ensureActionable = async c => {
+      if (c.name === 'Next' && !(await internals.page.evaluate('window.dismissed')))
+        throw new Error('Target not actionable: covered by div.banner');
+      return check(c);
+    };
+    await crawler.run();
+    const actions = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+    const next = actions.filter(a => a.step.label === 'Next');
+    expect(next.map(a => [a.outcome, !!a.step.retry])).toEqual([
+      ['failed', false],
+      ['ok', true],
+    ]);
+    // The retry waited for the rest of its state: Done was tried before Next came back.
+    const order = actions.map(a => a.step.label);
+    expect(order.indexOf('Done')).toBeLessThan(order.lastIndexOf('Next'));
+    // Retried once: a second cover would have been final.
+    expect(next).toHaveLength(2);
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
+test('text the page shows by itself while an action runs is not credited to the action', async () => {
+  // Clicking the checkbox does nothing visible; a chart finishes loading at the same moment.
+  const html = `<!doctype html><title>Load</title><main>
+    <label><input type="checkbox" onclick="setTimeout(()=>document.getElementById('c').textContent='USD/BTC close: 0.0000121 BTC',50)">Don't show for 7 days</label>
+    <p id="c">USD/BTC close: --</p></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  const crawl = async (effect: Record<'yes' | 'no' | 'unrelated', number>) => {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({
+      url,
+      durationMs: 30000,
+      settleMs: 200,
+      judge: new ModelJudge({ jev: fakeJev(() => 0.9, effect) }),
+      log: e => events.push(e),
+    }).run();
+    const check = events.find(
+      (e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action' && /show for 7 days/.test(e.step.label),
+    );
+    const judged = events.find(
+      (e): e is Extract<CrawlEvent, { type: 'judgement' }> => e.type === 'judgement' && e.question === 'effect',
+    );
+    return { check, judged };
+  };
+  try {
+    // JEV is sure the text is unrelated to the click: no new state.
+    const unrelated = await crawl({ yes: 0.1, no: 0.02, unrelated: 0.88 });
+    expect(unrelated.judged).toMatchObject({ verdict: 'no', unrelated: 0.88 });
+    expect(unrelated.check).toMatchObject({ outcome: 'no_change', newState: false });
+    // A close call between yes and unrelated keeps the text: real content is never dropped on a guess.
+    const close = await crawl({ yes: 0.5, no: 0.07, unrelated: 0.43 });
+    expect(close.judged?.verdict).toBe('yes');
+    expect(close.check).toMatchObject({ outcome: 'ok', newState: true });
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
 test('a tooltip revealed inside its trigger is a new state, and the trigger is not taken for a new control', async () => {
   const html = `<!doctype html><title>Tips</title><main>
     <div style="cursor:pointer" onclick="this.querySelector('span').hidden=false">24h low<span hidden>The lowest price in 24 hours</span></div>
@@ -826,21 +1000,7 @@ test('a tooltip revealed inside its trigger is a new state, and the trigger is n
   try {
     const { ModelJudge } = await import('@interaction/crawler');
     // Weak triggers are uncertain to JEV, so they are tried; revealed text counts as new content.
-    const jev = {
-      name: 'jev',
-      model: 'jev',
-      async decide(request: { state: unknown }) {
-        return {
-          model: 'jev',
-          value: Object.fromEntries(
-            Object.keys(request.state as object).map(k => [
-              k,
-              (request.state as Record<string, { kind: string }>)[k].kind === 'effect' ? 0.9 : 0.5,
-            ]),
-          ),
-        };
-      },
-    };
+    const jev = fakeJev(() => 0.5);
     const events: CrawlEvent[] = [];
     await new SampledCrawler({
       url,
@@ -878,25 +1038,11 @@ test('a list of different functions is split and each member sampled; a list of 
   try {
     const { ModelJudge } = await import('@interaction/crawler');
     const asked: string[][] = [];
-    const jev = {
-      name: 'jev',
-      model: 'jev',
-      async decide(request: { state: unknown }) {
-        const state = request.state as Record<string, { kind: string; members?: string[] }>;
-        return {
-          model: 'jev',
-          value: Object.fromEntries(
-            Object.entries(state).map(([k, q]) => {
-              if (q.kind === 'same-kind') {
-                asked.push(q.members!);
-                return [k, q.members!.includes('Github') ? 0.05 : 0.95];
-              }
-              return [k, 0.9];
-            }),
-          ),
-        };
-      },
-    };
+    const jev = fakeJev(q => {
+      if (q.kind !== 'same-kind') return 0.9;
+      asked.push(q.members!);
+      return q.members!.includes('Github') ? 0.05 : 0.95;
+    });
     const events: CrawlEvent[] = [];
     const summary = await new SampledCrawler({
       url,
