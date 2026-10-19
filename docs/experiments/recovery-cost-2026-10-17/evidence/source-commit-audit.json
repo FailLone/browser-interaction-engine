@@ -1,8 +1,0 @@
-{
-  "revision": "0d01be1ee41850994ad30ac70516dbfce5da46ff",
-  "snapshot": "suite-source-before.json",
-  "sourceFileCount": 413,
-  "mismatches": [],
-  "allMatchCommitAndWorkingTree": true,
-  "note": "Pre-completion provenance check; final suite/protocol manifests separately assert unchanged source throughout."
-}

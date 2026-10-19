@@ -1,7 +1,0 @@
-
-> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
-> tsc --noEmit && tsc -p packages/core/tsconfig.json
-
-tests/explorer-receipt-condition.test.ts(55,16): error TS2352: Conversion of type '{ id: string; sessionId: string; observationId: string; stateId: string; localId: string; controlId: string; kind: string; label: string; risk: "interface"; replayable: true; excluded: false; basis: { ...; }; preconditions: { ...; }; }' to type 'ActionCandidate' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-  Type '{ id: string; sessionId: string; observationId: string; stateId: string; localId: string; controlId: string; kind: string; label: string; risk: "interface"; replayable: true; excluded: false; basis: { ...; }; preconditions: { ...; }; }' is missing the following properties from type 'ActionCandidate': source, sampleValidity
- ELIFECYCLE  Command failed with exit code 2.

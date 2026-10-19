@@ -1,1 +1,0 @@
-tests/reviewed-operation-correspondence.test.ts(72,30): error TS2322: Type '"other-rules"' is not assignable to type '"observable-v1" | "observable-v2" | "observable-v3" | "observable-v3-live-v1" | "observable-v3-live-v2" | "observable-v4" | "observable-v5" | "observable-v6" | "observable-v7"'.

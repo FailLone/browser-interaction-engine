@@ -1,8 +1,0 @@
-{
-  "source": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v8/engine/engine.sqlite",
-  "sourceSha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8",
-  "directory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-intervention-material-20261017-v1/engine",
-  "copiedSha256": "664500f08e9fb1610a2248cafebdb46afbf49d68e0ad482169130a77647e5af8",
-  "scope": "One offline interventionMaterial query on owned SQLite copy; constructor restart bookkeeping only touches copy; no browser, task database, service, or provider.",
-  "timeoutSeconds": 30
-}

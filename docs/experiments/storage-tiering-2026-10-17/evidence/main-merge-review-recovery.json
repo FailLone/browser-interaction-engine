@@ -1,8 +1,0 @@
-{
-  "mainBefore": "cdb8a67a9f7646d71823ef4153c027bc3cf660d9",
-  "mainAfter": "3885c581dc4381251e29d0d663d25bf6048f495a",
-  "autonomous": "4857ad571c19995480a4c149abd9b2868a94c965",
-  "autonomousAncestorVerified": true,
-  "mode": "fast-forward",
-  "mainClean": true
-}

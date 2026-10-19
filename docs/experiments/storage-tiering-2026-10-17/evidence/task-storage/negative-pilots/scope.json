@@ -1,3 +1,0 @@
-{
-  "scope": "Exploratory diagnostics retained for negative results, excluded from final summary. These older probes record store.ts and script hashes but not the then-transient codec; they are not the frozen final comparison. Initial zlib/object-row variants were slower; final dictionary+zstd+bounded statement cache comparison is the 36 adjacent JSON reports."
-}

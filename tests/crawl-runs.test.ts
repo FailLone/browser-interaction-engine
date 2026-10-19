@@ -3,8 +3,6 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { InteractionEngine } from '@interaction/browser';
-import { MemoryStore } from '@interaction/storage-memory';
 import { CrawlManager, CrawlStore } from '@interaction/crawler';
 import { createServer } from '../apps/server/src/server.js';
 
@@ -27,9 +25,8 @@ const waitFor = async <T>(read: () => Promise<T>, done: (value: T) => boolean) =
 
 test('crawl runs are started, stored and inspected over HTTP, and a resumed run does not repeat tested work', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'crawls-'));
-  const engine = new InteractionEngine({ persistence: new MemoryStore() });
   const crawls = new CrawlManager(new CrawlStore(join(dir, 'crawls.sqlite')));
-  const app = await createServer(engine, { crawls });
+  const app = await createServer(crawls);
   await app.listen({ host: '127.0.0.1', port: 0 });
   const api = `http://127.0.0.1:${(app.server.address() as { port: number }).port}`;
   const json = async (path: string, init?: RequestInit) => (await fetch(`${api}${path}`, { ...init, headers: { 'content-type': 'application/json' } })).json();
@@ -61,5 +58,25 @@ test('crawl runs are started, stored and inspected over HTTP, and a resumed run 
     const stopped = await json(`/v1/crawls/${third.id}/stop`, { method: 'POST', body: '{}' });
     expect(stopped.run.status).toBe('finished');
     expect((await json(`/v1/crawls/${third.id}/events`)).at(-1)).toMatchObject({ type: 'stop', reason: 'stopped' });
-  } finally { await app.close(); await crawls.close(); await engine.close(); }
+  } finally { await app.close(); await crawls.close(); }
 }, 180000);
+
+test('a run loads only the host plugins it names and records their findings', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'crawls-'));
+  const crawls = new CrawlManager(new CrawlStore(join(dir, 'crawls.sqlite')), {}, {
+    titles: () => ({ id: 'titles', onState: ({ snapshot }) => [{ rule: 'title', severity: 'warning', selector: 'title', text: snapshot.title, detail: 'Short title' }] }),
+  });
+  const app = await createServer(crawls);
+  await app.listen({ host: '127.0.0.1', port: 0 });
+  const api = `http://127.0.0.1:${(app.server.address() as { port: number }).port}`;
+  const post = (body: unknown) => fetch(`${api}/v1/crawls`, { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+  try {
+    expect(await (await fetch(`${api}/v1/crawl-plugins`)).json()).toEqual(['titles']);
+    expect((await post({ url, durationMs: 10000, models: false, plugins: ['missing'] })).status).toBe(409);
+    const run = await (await post({ url, durationMs: 10000, models: false, plugins: ['titles'] })).json();
+    await waitFor(async () => (await fetch(`${api}/v1/crawls/${run.id}`)).json(), r => r.status !== 'running');
+    const findings = (await (await fetch(`${api}/v1/crawls/${run.id}/events`)).json()).filter((e: { type: string }) => e.type === 'finding');
+    // The same finding on every state is reported once.
+    expect(findings).toEqual([expect.objectContaining({ plugin: 'titles', finding: expect.objectContaining({ rule: 'title', text: 'Run' }) })]);
+  } finally { await app.close(); await crawls.close(); }
+}, 60000);

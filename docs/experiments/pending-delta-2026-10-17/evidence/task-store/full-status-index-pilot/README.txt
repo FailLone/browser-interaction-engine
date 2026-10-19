@@ -1,1 +1,0 @@
-Full-status-index pilot, before switching to the smaller unfinished-plan partial index. This fixture places active rows first. Final root samples put active rows last to require skipping retained history; do not combine samples. All negative size results preserved.

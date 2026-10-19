@@ -1,8 +1,0 @@
-
-> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
-> tsc --noEmit && tsc -p packages/core/tsconfig.json
-
-tests/explorer-review-source-priority.test.ts(111,17): error TS2352: Conversion of type '{ tag: string; role: string; name: string; label: string; constraints: { type: string; required: false; valid: true; }; reviewBinding: { attributes: { href: string; }; }; actionBasis: { click: { status: "supported"; evidence: { ...; }[]; }; }; ... 37 more ...; identityContext?: { scope?: string; binding?: string; ev...' to type 'Control' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-  Types of property 'reviewBinding' are incompatible.
-    Property 'parentInstanceId' is missing in type '{ attributes: { href: string; }; }' but required in type '{ parentInstanceId: string; attributes: Record<string, string>; form?: { instanceId: string; action: string; method: string; target: string; } | undefined; }'.
- ELIFECYCLE  Command failed with exit code 2.

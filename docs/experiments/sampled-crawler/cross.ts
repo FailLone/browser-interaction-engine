@@ -1,11 +1,9 @@
 // Same component across documents: reload the page and navigate to a sibling page;
 // count how many classes survive (same class = crawler treats it as already sampled).
-import {BrowserAdapter,PlaywrightAdapter} from '@interaction/adapter-playwright';
-import {MemoryEvidenceStore} from '@interaction/storage-memory';
-import {controlClass,stateKey} from '@interaction/crawler';
-const a=new BrowserAdapter(new PlaywrightAdapter().parseOptions({url:'https://www.okx.com/convert/usd-to-btc',headless:true,listExploration:'review'}),new MemoryEvidenceStore());
+import {BrowserDriver,controlClass,stateKey} from '@interaction/crawler';
+const a=new BrowserDriver({url:'https://www.okx.com/convert/usd-to-btc',headless:true});
 await a.start();
-const take=async()=>{await a.page!.waitForTimeout(2500);const d:any=await a.readDOM(false,false);const cs=d.controls.filter((c:any)=>c.visible&&c.actions.length);return {classes:new Set(cs.map(controlClass)),chrome:new Set(cs.filter((c:any)=>c.landmark).map(controlClass)),key:stateKey({url:d.url,title:d.title,controls:d.controls,overlays:d.overlays}),doc:d.documentId};};
+const take=async()=>{await a.page!.waitForTimeout(2500);const d:any=await a.readDOM();const cs=d.controls.filter((c:any)=>c.visible&&c.actions.length);return {classes:new Set(cs.map(controlClass)),chrome:new Set(cs.filter((c:any)=>c.landmark).map(controlClass)),key:stateKey({url:d.url,title:d.title,controls:d.controls,overlays:d.overlays}),doc:d.documentId};};
 const A=await take();await a.page!.reload();const B=await take();
 await a.page!.goto('https://www.okx.com/convert/eur-to-btc');const C=await take();
 await a.page!.goto('https://www.okx.com/price/bitcoin-btc');const D=await take();

@@ -8,36 +8,12 @@ importers:
 
   .:
     dependencies:
-      '@interaction/adapter-playwright':
-        specifier: workspace:*
-        version: link:packages/adapter-playwright
-      '@interaction/browser':
-        specifier: workspace:*
-        version: link:packages/browser
-      '@interaction/client':
-        specifier: workspace:*
-        version: link:packages/client
-      '@interaction/core':
-        specifier: workspace:*
-        version: link:packages/core
       '@interaction/crawler':
         specifier: workspace:*
         version: link:packages/crawler
-      '@interaction/explorer-plugin':
-        specifier: workspace:*
-        version: link:packages/explorer-plugin
       '@interaction/rules':
         specifier: workspace:*
         version: link:packages/rules
-      '@interaction/storage-memory':
-        specifier: workspace:*
-        version: link:packages/storage-memory
-      '@interaction/storage-retained':
-        specifier: workspace:*
-        version: link:packages/storage-retained
-      '@interaction/storage-sqlite':
-        specifier: workspace:*
-        version: link:packages/storage-sqlite
     devDependencies:
       '@fastify/static':
         specifier: ^8.3.0
@@ -90,21 +66,12 @@ importers:
       '@fastify/static':
         specifier: ^8.3.0
         version: 8.3.0
-      '@interaction/browser':
-        specifier: workspace:*
-        version: link:../../packages/browser
       '@interaction/crawler':
         specifier: workspace:*
         version: link:../../packages/crawler
-      '@interaction/explorer-plugin':
-        specifier: workspace:*
-        version: link:../../packages/explorer-plugin
       '@interaction/rules':
         specifier: workspace:*
         version: link:../../packages/rules
-      '@interaction/storage-sqlite':
-        specifier: workspace:*
-        version: link:../../packages/storage-sqlite
       fastify:
         specifier: ^5.6.2
         version: 5.12.7
@@ -123,63 +90,12 @@ importers:
 
   apps/ui:
     dependencies:
-      '@interaction/browser':
-        specifier: workspace:*
-        version: link:../../packages/browser
-      '@interaction/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@interaction/explorer-plugin':
-        specifier: workspace:*
-        version: link:../../packages/explorer-plugin
       react:
         specifier: ^19.2.0
         version: 19.3.0
       react-dom:
         specifier: ^19.2.0
         version: 19.3.0(react@19.3.0)
-
-  packages/adapter-playwright:
-    dependencies:
-      '@interaction/core':
-        specifier: workspace:*
-        version: link:../core
-      playwright:
-        specifier: ^1.58.0
-        version: 1.64.1
-      zod:
-        specifier: ^4.1.12
-        version: 4.6.7
-
-  packages/browser:
-    dependencies:
-      '@interaction/adapter-playwright':
-        specifier: workspace:*
-        version: link:../adapter-playwright
-      '@interaction/core':
-        specifier: workspace:*
-        version: link:../core
-      '@interaction/storage-retained':
-        specifier: workspace:*
-        version: link:../storage-retained
-
-  packages/client:
-    dependencies:
-      '@interaction/browser':
-        specifier: workspace:*
-        version: link:../browser
-      '@interaction/rules':
-        specifier: workspace:*
-        version: link:../rules
-
-  packages/core:
-    dependencies:
-      '@noble/hashes':
-        specifier: ^2.0.1
-        version: 2.4.0
-      zod:
-        specifier: ^4.1.12
-        version: 4.6.7
 
   packages/crawler:
     dependencies:
@@ -193,24 +109,6 @@ importers:
         specifier: ^4.1.12
         version: 4.6.7
 
-  packages/explorer-plugin:
-    dependencies:
-      '@interaction/browser':
-        specifier: workspace:*
-        version: link:../browser
-      better-sqlite3:
-        specifier: ^12.4.1
-        version: 12.11.1
-      fastify:
-        specifier: ^5.6.2
-        version: 5.12.7
-      react:
-        specifier: ^19.2.0
-        version: 19.3.0
-      zod:
-        specifier: ^4.1.12
-        version: 4.6.7
-
   packages/rules:
     dependencies:
       '@interaction/crawler':
@@ -219,27 +117,6 @@ importers:
       zod:
         specifier: ^4.1.12
         version: 4.6.7
-
-  packages/storage-memory:
-    dependencies:
-      '@interaction/core':
-        specifier: workspace:*
-        version: link:../core
-
-  packages/storage-retained:
-    dependencies:
-      '@interaction/core':
-        specifier: workspace:*
-        version: link:../core
-
-  packages/storage-sqlite:
-    dependencies:
-      '@interaction/core':
-        specifier: workspace:*
-        version: link:../core
-      better-sqlite3:
-        specifier: ^12.4.1
-        version: 12.11.1
 
 packages:
 
@@ -541,10 +418,6 @@ packages:
     engines: {node: ^22.20 || ^24.12 || >=25}
     cpu: [x64]
     os: [linux]
-
-  '@noble/hashes@2.4.0':
-    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
-    engines: {node: '>= 20.19.0'}
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
@@ -1697,8 +1570,6 @@ snapshots:
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
-
-  '@noble/hashes@2.4.0': {}
 
   '@pinojs/redact@0.4.0': {}
 

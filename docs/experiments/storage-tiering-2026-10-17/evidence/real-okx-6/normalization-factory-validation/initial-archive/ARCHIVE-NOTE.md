@@ -1,1 +1,0 @@
-首次归档与 root 提交 900edf7 存在竞态。测试在提交前完成，但归档读取 HEAD 和工作树 diff 时提交已经完成，因此错误记录 baseHead=900edf7、sourceState=uncommitted，并产生空 product.patch。本目录完整保留三个首次归档文件，不重写原始日志。父目录正式报告使用明确的 d103747→900edf7 提交差异，并核对已验证源码 SHA 与提交内字节一致。

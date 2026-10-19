@@ -1,9 +1,0 @@
-{
-  "baseCommit": "8b9f6934988dd60cccbff74721d13003560317e2",
-  "files": {
-    "packages/adapter-playwright/src/browser.ts": "c327d21e04432c3f51464ca48b654cba38ed3417f4841e88defa109f8f0f0ca0",
-    "packages/adapter-playwright/src/owner-dependencies.ts": "f20f7729f2bc31d5fcae59aefb784c9e8a93b3fcdec6812ad0aba9d9f8d9fb2c",
-    "tests/owner-dependency-active-boundary.test.ts": "3f9cd151ce6b198cfc6de14c4985ed5bb73b9af227084cc5a87994b633351dac"
-  },
-  "refinement": "Original global prerequisites first, then observed exit IDs, other active-boundary IDs, capped optional. Existing overlay exit evidence only; no new label inference."
-}

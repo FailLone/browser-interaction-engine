@@ -1,5 +1,0 @@
-Started: 2026-10-16T20:37:35.673Z
-Command: PATH=/Users/xietian/.local/share/fnm/node-versions/v24.22.0/installation/bin:$PATH pnpm exec tsc --noEmit
-Exit code: 0
-Wall seconds: 6.124252542
-

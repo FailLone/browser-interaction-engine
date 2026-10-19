@@ -1,13 +1,11 @@
 // Audit the crawler's component classes on live OKX pages: over-merges (distinct
 // controls sharing a class) and under-merges (one control changing class).
-import {BrowserAdapter,PlaywrightAdapter} from '@interaction/adapter-playwright';
-import {MemoryEvidenceStore} from '@interaction/storage-memory';
-import {controlClass} from '@interaction/crawler';
+import {BrowserDriver,controlClass} from '@interaction/crawler';
 const pages=['https://www.okx.com/convert/usd-to-btc','https://www.okx.com/price/bitcoin-btc'];
 for(const url of pages){
  const a=new BrowserAdapter(new PlaywrightAdapter().parseOptions({url,headless:true,listExploration:'review'}),new MemoryEvidenceStore());
  await a.start();await a.page!.waitForTimeout(2000);
- const take=async()=>((await a.readDOM(false,false)) as any).controls.filter((c:any)=>c.visible&&c.actions.length);
+ const take=async()=>((await a.readDOM()) as any).controls.filter((c:any)=>c.visible&&c.actions.length);
  const first=await take();
  const groups=new Map<string,any[]>();for(const c of first){const k=controlClass(c);groups.set(k,[...(groups.get(k)||[]),c]);}
  const multi=[...groups.entries()].filter(([,v])=>v.length>1);

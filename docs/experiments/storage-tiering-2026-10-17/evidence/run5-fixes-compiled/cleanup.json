@@ -1,6 +1,0 @@
-{
-  "ownedArchive": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-run4-compiled-edd32f9-x27o0th_",
-  "removed": true,
-  "error": null,
-  "scope": "Only matching-marker archive removed. Child commands used owned process groups; smoke scripts own and close fixture resources."
-}

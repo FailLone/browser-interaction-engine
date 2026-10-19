@@ -1,8 +1,0 @@
-{
-  "revision": "900edf7d5c60c3ddcf9265538758033ccecc5832",
-  "tarBytes": 148736000,
-  "tarSha256": "a0e2d41ef97e9a3080f8f49f0f87189af31356f1e6cc91b49f23975fc535820c",
-  "source": "git archive --format=tar of the complete fixed commit; not the working tree",
-  "runnerOrigin": "run6-ui-fixes-compiled/runner.py",
-  "runnerOriginSha256": "016c347b4c76170e23c9fb91c6bf50f897bce847e5649e758bea30bc62802d2c"
-}

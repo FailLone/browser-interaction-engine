@@ -9,35 +9,17 @@
   },
   "scripts": {
     "demo": "tsx --conditions=development scripts/demo.ts",
-    "demo:rule-defects": "tsx --conditions=development scripts/rule-defect-demo.ts",
     "dev": "tsx --conditions=development apps/server/src/main.ts",
+    "crawl": "tsx --conditions=development scripts/sampled-crawl.ts",
     "build": "node scripts/clean-build.mjs && tsc -p tsconfig.build.json && node scripts/package-build.mjs && pnpm --filter @interaction/ui build && pnpm --filter @interaction/test-site build",
-    "typecheck": "tsc --noEmit && tsc -p packages/core/tsconfig.json",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/apps/server/src/main.js",
     "test": "vitest run",
-    "test:e2e": "vitest run tests/engine.e2e.test.ts tests/overlays.e2e.test.ts tests/boundary-regressions.test.ts tests/observation-lifecycle.test.ts tests/action-evidence.test.ts tests/evidence-query.test.ts tests/snapshot-events.test.ts tests/evidence-ui.test.ts tests/http.test.ts tests/diff-details-http.test.ts tests/ui-history.e2e.test.ts tests/frontier-ui.e2e.test.ts tests/ui.e2e.test.ts tests/crash.test.ts tests/identity-lists.e2e.test.ts tests/identity-ui.test.ts tests/identity-review.test.ts tests/components.e2e.test.ts tests/components-ui.test.ts",
-    "report": "tsx --conditions=development scripts/report.ts",
-    "smoke:built": "node scripts/smoke-built.mjs",
-    "example:strategy": "tsx --conditions=development examples/external-strategy.ts",
-    "experiment:inspection": "tsx --conditions=development scripts/inspection-blind-experiment.ts",
-    "browser:install": "playwright install chromium",
-    "example:core": "tsx --conditions=development examples/core-memory.ts",
-    "test:core": "vitest run tests/core.test.ts tests/storage-contract.test.ts tests/architecture.test.ts tests/retention.test.ts tests/identity-matching.test.ts",
-    "experiment:identity": "tsx --conditions=development scripts/identity-blind-experiment.ts",
-    "smoke:explorer": "node scripts/smoke-explorer.mjs",
-    "test:explorer": "vitest run tests/explorer-plugin-providers.test.ts tests/explorer-plugin.test.ts tests/explorer-plugin-semantic.test.ts tests/explorer-plugin-ui.test.ts tests/explorer-scheduling.test.ts tests/explorer-plugin-sync.test.ts tests/explorer-plugin-sync-ui.test.ts tests/explorer-completion-evidence.test.ts"
+    "browser:install": "playwright install chromium"
   },
   "dependencies": {
-    "@interaction/rules": "workspace:*",
-    "@interaction/core": "workspace:*",
-    "@interaction/adapter-playwright": "workspace:*",
-    "@interaction/storage-memory": "workspace:*",
-    "@interaction/storage-sqlite": "workspace:*",
-    "@interaction/browser": "workspace:*",
-    "@interaction/client": "workspace:*",
-    "@interaction/storage-retained": "workspace:*",
-    "@interaction/explorer-plugin": "workspace:*",
-    "@interaction/crawler": "workspace:*"
+    "@interaction/crawler": "workspace:*",
+    "@interaction/rules": "workspace:*"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

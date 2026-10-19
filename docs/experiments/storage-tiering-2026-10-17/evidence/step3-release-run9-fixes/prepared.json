@@ -1,9 +1,0 @@
-{
-  "status": "prepared-not-executed",
-  "awaiting": "Parent supplies frozen runtime patch commit and authorizes one release execution",
-  "files": {
-    "runner.py": "f9b5df66f2644dba77f28f3c66c41544e8e9dcbce6268ed40696bacb9158c395",
-    "compiled-smoke.mjs": "27268c31929bfddcf509bd57154d5d9400980aa146ac252d5b924c26fb45c5f2"
-  },
-  "scope": "Same isolated archive/typecheck/build flow as compact-v3 checkpoint; only new compiled public imports + seventh collector argument declaration check, no receipt fixtures/batches/browser/service/database/protocol/performance."
-}

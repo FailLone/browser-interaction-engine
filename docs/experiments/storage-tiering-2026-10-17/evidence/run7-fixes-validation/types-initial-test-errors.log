@@ -1,3 +1,0 @@
-tests/explorer-review-source-visibility.test.ts(44,64): error TS18048: 'o.boundaries' is possibly 'undefined'.
-tests/explorer-review-source-visibility.test.ts(44,96): error TS18048: 'o.overlays' is possibly 'undefined'.
-tests/explorer-review-source-visibility.test.ts(80,31): error TS18048: 'f.source.boundaries' is possibly 'undefined'.

@@ -1,1 +1,0 @@
-Initial exact-tree assertion failed for private copy: readonly SQLite created engine/engine.sqlite-wal (0 bytes) and engine/engine.sqlite-shm (32768 bytes). No original file changed or disappeared. Frozen tree remained exact. Sidecars retained; corrected verification distinguishes unchanged input files from readonly private sidecars.

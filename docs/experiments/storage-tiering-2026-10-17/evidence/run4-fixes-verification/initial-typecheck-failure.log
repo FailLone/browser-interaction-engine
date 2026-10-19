@@ -1,9 +1,0 @@
-
-> browser-interaction-engine@0.1.0 typecheck /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
-> tsc --noEmit && tsc -p packages/core/tsconfig.json
-
-tests/action-observation-query.test.ts(6,8): error TS2440: Import declaration conflicts with local declaration of 'Database'.
-tests/action-observation-query.test.ts(14,7): error TS7022: 'Database' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
-tests/action-observation-query.test.ts(14,128): error TS2694: Namespace 'Database' has no exported member 'DatabaseConstructor'.
-tests/explorer-recovery-failure-condition.test.ts(50,61): error TS2741: Property 'value' is missing in type '{ status: "unknown"; source: string; }' but required in type '{ value: Json; status: "unknown" | "known"; source: string; }'.
- ELIFECYCLE  Command failed with exit code 2.

@@ -1,6 +1,0 @@
-tests/review-target-live-recovery.test.ts(101,41): error TS2322: Type 'Promise<ReachResult> | Promise<ControlReviewTargetReachResult>' is not assignable to type 'Promise<ReachResult>'.
-  Type 'Promise<ControlReviewTargetReachResult>' is not assignable to type 'Promise<ReachResult>'.
-    Type 'ControlReviewTargetReachResult' is not assignable to type 'ReachResult'.
-      Types of property 'status' are incompatible.
-        Type '"PRECONDITIONS_CHANGED" | "UNREACHABLE" | "UNVERIFIED" | "CURRENT_REVIEWABLE"' is not assignable to type 'ReachStatus'.
-          Type '"CURRENT_REVIEWABLE"' is not assignable to type 'ReachStatus'.

@@ -1,8 +1,0 @@
-{
-  "cases": 12,
-  "model": "gpt-5.6-sol",
-  "reasoningEffort": "low",
-  "context": "none",
-  "acceptance": "12/12 exact decisions including exact candidate for same; no unsupported historical merges; every decision cites real evidence refs; uncertain states missing evidence.",
-  "limitations": "Controlled local fixture, six sessions with two correlated cases each; procedural file-access blinding, not filesystem isolation; results do not estimate real-world accuracy."
-}

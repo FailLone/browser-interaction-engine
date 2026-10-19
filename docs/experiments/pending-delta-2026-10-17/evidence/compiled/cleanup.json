@@ -1,5 +1,0 @@
-{
-  "removedArchive": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-compiled-62ed873-wf8t99us",
-  "removed": true,
-  "resources": "Both smoke scripts completed with exit 0 and closed their own browser, HTTP servers, engine and plugin resources; all archive-owned .data databases and compiled output removed after evidence copy."
-}

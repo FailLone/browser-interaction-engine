@@ -1,9 +1,0 @@
-{
-  "sourceDatabase": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-recovery-acceptance-20261017-v20/engine/engine.sqlite",
-  "sourceSha256": "1ad5ffab46a00e0f144cee36db70799a77ab9da9c6f883b5e438d1a7f6a2bb7f",
-  "diagnosticDirectory": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-receipt-identity-ddsjf694",
-  "baseCommit": "72b1e5aa1779d2dea01938625092b9adcb91a3e4",
-  "browserStarted": false,
-  "taskDatabaseOpened": false,
-  "sourceUnchanged": true
-}

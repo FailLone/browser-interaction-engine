@@ -1,9 +1,0 @@
-{
-  "baseCommit": "8b9f6934988dd60cccbff74721d13003560317e2",
-  "files": {
-    "packages/adapter-playwright/src/browser.ts": "7bf23557999d1b2fc7ba2dc41f843d3c422d330a059cfd1186a2c6fdc60794fc",
-    "packages/adapter-playwright/src/owner-dependencies.ts": "1d70541305982310d6fe1ec112a3fd52bf58ab01ebb3efd4fcb2574d3c1381ae",
-    "tests/owner-dependency-active-boundary.test.ts": "06685968d4af8370ebf4cd6021122bdd51e8cd9e8e79a70a095fd6d67db009ab"
-  },
-  "finalRefinement": "Original global selector/native/editable roots first; observed active boundary priority second; capped optional last. Global selector fixture occurs after boundary in DOM."
-}

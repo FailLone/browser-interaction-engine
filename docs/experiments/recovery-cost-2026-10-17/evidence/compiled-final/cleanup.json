@@ -1,5 +1,0 @@
-{
-  "removedArchive": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-5jf98gai",
-  "removed": true,
-  "resources": "Only the owned archive was removed; smoke scripts close their own fixture browser, HTTP servers and stores."
-}

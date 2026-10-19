@@ -1,9 +1,0 @@
-{
-  "@interaction/core": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/core/dist/index.js",
-  "@interaction/browser": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/browser/dist/index.js",
-  "@interaction/explorer-plugin": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/explorer-plugin/dist/index.js",
-  "@interaction/storage-sqlite": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/storage-sqlite/dist/index.js",
-  "@interaction/storage-memory": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/storage-memory/dist/index.js",
-  "@interaction/storage-retained": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/storage-retained/dist/index.js",
-  "@interaction/adapter-playwright": "file:///private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-pending-baseline-reproduction-w9u4nxng/packages/adapter-playwright/dist/index.js"
-}

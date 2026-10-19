@@ -1,5 +1,0 @@
-{
-  "check": "harness syntax only; no browser startup",
-  "exitCode": 0,
-  "output": ""
-}

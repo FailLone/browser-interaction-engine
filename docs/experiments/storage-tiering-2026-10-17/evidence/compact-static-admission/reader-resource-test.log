@@ -1,9 +1,0 @@
-
- RUN  v3.2.7 /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
-
- ✓ tests/owner-dependency-absence.test.ts (29 tests | 28 skipped) 252ms
-
- Test Files  1 passed (1)
-      Tests  1 passed | 28 skipped (29)
-   Start at  13:16:05
-   Duration  989ms (transform 308ms, setup 0ms, collect 592ms, tests 252ms, environment 0ms, prepare 36ms)

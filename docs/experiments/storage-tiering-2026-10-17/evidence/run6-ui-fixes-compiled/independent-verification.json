@@ -1,9 +1,0 @@
-{
-  "sourceManifestsExactlyEqual": true,
-  "commandsAllExitZero": true,
-  "workspaceLinksAllInsideArchive": true,
-  "publishedModulePathsInsideArchive": true,
-  "publishedDeclarationPathsInsideArchive": true,
-  "originalArtifactHashesValid": true,
-  "ownedArchiveRemoved": true
-}

@@ -30,7 +30,6 @@
     "apps/**/*.tsx",
     "scripts/**/*.ts",
     "tests/**/*.ts",
-    "examples/**/*.ts",
     "vitest.config.ts",
     "packages/**/*.tsx"
   ],

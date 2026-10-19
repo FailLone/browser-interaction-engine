@@ -1,7 +1,0 @@
-{
-  "matchesSavedVerification": true,
-  "sourceUnchanged": true,
-  "recordWrites": 0,
-  "browserStarted": false,
-  "reason": "After limiting conflict scoping to existing identity rejections and adding dependency uniqueness, both real receipt proofs remain exactly equal to the saved positive verification."
-}

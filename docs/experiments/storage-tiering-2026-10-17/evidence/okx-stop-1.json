@@ -1,9 +1,0 @@
-{
-  "at": "2026-10-16T20:15:46.536745+00:00",
-  "ownedDirectory": "/Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine/.data/okx-storage-acceptance-20261017-v1",
-  "reason": "First recovery returned UNVERIFIED: replay_target_not_unique_or_missing after history and entry reopen. Pause to inspect before continuing.",
-  "signal": "SIGINT",
-  "verifiedLockOwnerPids": [
-    65368
-  ]
-}

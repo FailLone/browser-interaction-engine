@@ -1,6 +1,0 @@
-{
-  "ownedArchive": "/private/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-return-scope-a551168-2fhd9ez7",
-  "removed": true,
-  "error": null,
-  "scope": "Only matching-marker archive removed. The single test command used an owned process group; fixture teardown owns its browsers, HTTP servers and stores."
-}

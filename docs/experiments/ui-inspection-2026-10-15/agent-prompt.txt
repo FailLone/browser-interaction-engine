@@ -1,6 +1,0 @@
-你是独立的 UI 检查程序。这是一项盲测，只使用指定证据。先阅读以下两个文件：
-/Users/xietian/.codex/worktrees/ui-inspection/browser-interaction-engine/.data/ui-inspection-blind-20261015/public/README.md
-/Users/xietian/.codex/worktrees/ui-inspection/browser-interaction-engine/.data/ui-inspection-blind-20261015/public/manifest.json
-然后通过其中的只读 HTTP API，自行选择并查询所需历史数据。不要读取项目源码、测试文件、其他目录、private 文件、截图或原始页面 URL；不要操作浏览器。不要假设样本一定有错误，也不要猜测错误数量。可以用代码查询与分析响应，但只允许在下述 results 目录写文件。
-针对 README 的产品要求逐个判断 pass/fail/inconclusive。每个结论提供具体 captureId/nodeId、字段/数值证据；证据不足时明确说明，不把相关性说成已证明的因果。无需修复页面或改代码。
-最终写入 /Users/xietian/.codex/worktrees/ui-inspection/browser-interaction-engine/.data/ui-inspection-blind-20261015/results/agent-report.json，格式为：{"samples":[{"sampleId":"...","verdict":"pass|fail|inconclusive","summary":"...","evidence":[{"captureId":"...","nodeId":"...","field":"...","value":null}],"cause":"...","limitations":[]}],"missingCapabilities":[]}。value 请填实际证据值，nodeId 对页面环境字段可以省略。也可附 agent-report.md。最后给我简短结论。

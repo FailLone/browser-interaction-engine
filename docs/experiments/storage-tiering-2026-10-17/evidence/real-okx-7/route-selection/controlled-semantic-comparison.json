@@ -1,6 +1,0 @@
-{
-  "equal": true,
-  "policy": "Complete input/selected/task/events; no field normalization",
-  "sqliteSha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399",
-  "memorySha256": "d6e1240f36433e051cefa69f986a94a0e285a84a20a4f2f115c32d0d291f2399"
-}

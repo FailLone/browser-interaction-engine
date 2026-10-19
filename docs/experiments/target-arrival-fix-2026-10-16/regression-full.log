@@ -1,5 +1,0 @@
-
-> browser-interaction-engine@0.1.0 test /Users/xietian/.codex/worktrees/exploration-layered-refactor/browser-interaction-engine
-> vitest run --reporter=json --outputFile=/tmp/target-arrival-fix-full.json
-
-JSON report written to /tmp/target-arrival-fix-full.json

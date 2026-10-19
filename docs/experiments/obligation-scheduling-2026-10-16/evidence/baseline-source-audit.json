@@ -1,8 +1,0 @@
-{
-  "revision": "db3cbeaf045dde8528cc159c2fb10e81de0d3ed8",
-  "root": "/var/folders/s9/dy_jbdrs3fn1qzt_gnsy4tgw0000gn/T/bie-obligation-scheduler-base-ycsijdrt",
-  "productFiles": 200,
-  "mismatches": [],
-  "script": "scripts/verify-exploration-recovery.ts",
-  "scriptSha256": "005a8e58223e70f95b27a2f3a4e45833ba61930cd0caca5ce85faf5ef11ee57f"
-}

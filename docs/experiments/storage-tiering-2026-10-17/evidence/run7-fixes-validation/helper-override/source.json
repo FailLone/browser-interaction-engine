@@ -1,8 +1,0 @@
-{
-  "revision": "1f7cb65b50d84343c92e85b199840e3834585a5f",
-  "files": {
-    "packages/browser/src/index.ts": "05abfca5b9a978a9258c2c5e4886b1e54ebca7f49df9bd9d84432c0e124f496f",
-    "tests/recovery-source-material.test.ts": "5c84dc9dce84105de9e6684444310c98ba851ae5368467c132539d3568429931",
-    "packages/browser/README.md": "3b567b1ccd22199c33793da23650a697f84d9081ac5d1b9773df6e24ae6718ae"
-  }
-}

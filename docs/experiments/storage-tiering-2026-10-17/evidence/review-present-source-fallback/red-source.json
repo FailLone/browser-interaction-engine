@@ -1,8 +1,0 @@
-{
-  "baseCommit": "4f868d68494dd59853f2a6d03afb5d80e695e532",
-  "files": {
-    "packages/explorer-plugin/src/runtime.ts": "d946fecc4e7dabaa46bcd6445d00d2cfbdf16cbcade132989c89bfc1a5e7829e",
-    "tests/explorer-review-source-visibility.test.ts": "088146236c62edc854f774a4461eac7cf510c9281deabd2c2cab99a40ad2b966"
-  },
-  "phase": "red: unchanged product, new regression only"
-}

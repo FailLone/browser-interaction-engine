@@ -1,9 +1,0 @@
-{
-  "baseCommit": "6f906eac11d14411e071122a1287f91d2c6758d8",
-  "files": {
-    "packages/adapter-playwright/src/owner-dependencies.ts": "7ba05dcc4aad7303cbb40541c4754a0f265a993dd7fdbb9f56ec6ff07f2aeda0",
-    "tests/owner-dependency-compact-capture.test.ts": "411b216f170a89788e138a242358bf696fe8005e3a95cb7a371864cb9cff6313",
-    "packages/adapter-playwright/src/owner-dependency-codec.ts": "924df89641d5fafc8a4edaf2e4d53478e2efe8a257a1ca94dd694731bf8c239e"
-  },
-  "scope": "Compact-only default 768 nodes/192 KiB; raw and explicit legacy profile unchanged. Optional payload capped after complete required phase. Owned local fixture only."
-}
