@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-interface Run { id: string; url: string; status: 'running' | 'finished' | 'failed' | 'interrupted'; summary?: Summary; error?: string; createdAt: string; options: { resumeFrom?: string } }
+interface Run { id: string; url: string; status: 'running' | 'finished' | 'failed' | 'interrupted'; summary?: Summary; error?: string; createdAt: string; options: { resumeFrom?: string; plugins?: string[] } }
 interface Summary {
   elapsedMs: number; actions: number; states: number; resumedStates?: number; failed: number; onEntryPage: number;
   models?: { jev: { calls: number; costUsd: number }; llm: { calls: number; costUsd: number } };
@@ -12,9 +12,13 @@ type Event =
   | { seq: number; type: 'action'; at: number; step: { kind: string; label: string; value?: string }; tier: string; outcome: string; newState: boolean; overlay?: string; error?: string }
   | { seq: number; type: 'navigation'; at: number; kind: string; to: string; action: string; outcome: string }
   | { seq: number; type: 'judgement'; at: number; question: string; label: string; verdict: string; source: string; probability?: number }
-  | { seq: number; type: 'backtrack' | 'stop'; at: number; reason: string };
+  | { seq: number; type: 'backtrack' | 'stop'; at: number; reason: string }
+  | { seq: number; type: 'finding'; at: number; plugin: string; state: string; url: string; finding: { rule: string; severity: 'info' | 'warning' | 'error'; selector: string; text: string; detail: string } }
+  | { seq: number; type: 'plugin_error'; at: number; plugin: string; state: string; error: string };
 
 const statusText: Record<Run['status'], string> = { running: '运行中', finished: '已完成', failed: '失败', interrupted: '已中断' };
+const pluginText: Record<string, string> = { rules: 'UI 规则', checks: '轻量检查' };
+const severityText: Record<string, string> = { info: '提示', warning: '警告', error: '错误' };
 const outcomeText: Record<string, string> = { ok: '成功', no_change: '无变化', failed: '失败' };
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -32,12 +36,14 @@ export function CrawlPanel() {
   const [url, setUrl] = useState('https://www.okx.com/convert/usd-to-btc');
   const [minutes, setMinutes] = useState(5);
   const [models, setModels] = useState(true);
+  const [available, setAvailable] = useState<string[]>([]);
+  const [plugins, setPlugins] = useState<string[]>([]);
   const [state, setState] = useState('');
   const [error, setError] = useState('');
   const run = runs.find(r => r.id === selected);
 
   const refresh = useCallback(async () => { try { setRuns(await call<Run[]>('/v1/crawls')); } catch (e) { setError(String((e as Error).message)); } }, []);
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => { void refresh(); call<string[]>('/v1/crawl-plugins').then(setAvailable).catch(() => {}); }, [refresh]);
   // Poll the selected run's new events while it is running.
   useEffect(() => {
     if (!selected) return;
@@ -58,13 +64,14 @@ export function CrawlPanel() {
   const start = async (resumeFrom?: string) => {
     setError('');
     try {
-      const created = await call<Run>('/v1/crawls', { method: 'POST', body: JSON.stringify({ url: resumeFrom ? run!.url : url, durationMs: minutes * 60000, models, ...(resumeFrom ? { resumeFrom } : {}) }) });
+      const created = await call<Run>('/v1/crawls', { method: 'POST', body: JSON.stringify({ url: resumeFrom ? run!.url : url, durationMs: minutes * 60000, models, plugins: resumeFrom ? run!.options.plugins ?? [] : plugins, ...(resumeFrom ? { resumeFrom } : {}) }) });
       setRuns(prev => [created, ...prev]); setSelected(created.id);
     } catch (e) { setError(String((e as Error).message)); }
   };
   const stopRun = async () => { try { await call(`/v1/crawls/${selected}/stop`, { method: 'POST', body: '{}' }); await refresh(); } catch (e) { setError(String((e as Error).message)); } };
 
   const states = useMemo(() => events.filter((e): e is Extract<Event, { type: 'state' }> => e.type === 'state'), [events]);
+  const findings = useMemo(() => events.filter((e): e is Extract<Event, { type: 'finding' | 'plugin_error' }> => e.type === 'finding' || e.type === 'plugin_error'), [events]);
   const summary = run?.summary;
 
   return <section className="crawl-panel">
@@ -73,6 +80,8 @@ export function CrawlPanel() {
       <label>网址<input value={url} onChange={e => setUrl(e.target.value)} /></label>
       <label>时长（分钟）<input type="number" min={1} max={60} value={minutes} onChange={e => setMinutes(Number(e.target.value))} /></label>
       <label className="check"><input type="checkbox" checked={models} onChange={e => setModels(e.target.checked)} />使用模型（JEV / LLM）</label>
+      {available.map(name => <label key={name} className="check"><input type="checkbox" checked={plugins.includes(name)}
+        onChange={e => setPlugins(prev => e.target.checked ? [...prev, name] : prev.filter(p => p !== name))} />{pluginText[name] ?? name}</label>)}
       <button onClick={() => start()}>开始遍历</button>
       <small className="muted">只测当前页：跳转被拦截并记录，不会离开页面。</small>
     </div>
@@ -97,7 +106,7 @@ export function CrawlPanel() {
         </div>
         <div className="crawl-columns">
           <section className="panel"><div className="panel-title"><h2>动作</h2><span>{events.filter(e => e.type === 'action').length}</span></div>
-            <ol className="crawl-events">{events.filter(e => e.type !== 'state').map(e => <li key={e.seq} className={`crawl-${e.type}`}>
+            <ol className="crawl-events">{events.filter(e => e.type !== 'state' && e.type !== 'finding' && e.type !== 'plugin_error').map(e => <li key={e.seq} className={`crawl-${e.type}`}>
               <span className="mono">{seconds(e.at)}</span>
               {e.type === 'action' && <><span className="kind">{e.step.kind}</span><b>{e.step.label || '未命名'}</b>{e.step.value && <code>{e.step.value}</code>}<small>{e.tier}{e.overlay ? ` · ${e.overlay}` : ''} · {outcomeText[e.outcome] ?? e.outcome}{e.newState ? ' · 新状态' : ''}{e.error ? ` · ${e.error.slice(0, 80)}` : ''}</small></>}
               {e.type === 'navigation' && <><span className="kind">跳转</span><small>{e.kind} · {e.outcome} · {e.action} → {e.to}</small></>}
@@ -109,6 +118,15 @@ export function CrawlPanel() {
               <span className="mono">{seconds(e.at)}</span> {e.state.overlay || '页面'} <small>{e.state.controls} 个可见控件</small></button></li>)}</ol>
             {state && <img className="crawl-shot" alt="状态截图" src={`/v1/crawls/${selected}/screenshot?state=${encodeURIComponent(state)}`} />}
           </section>
+          {!!run.options.plugins?.length && <section className="panel"><div className="panel-title"><h2>插件结果</h2><span>{findings.length}</span></div>
+            <ol className="crawl-events">{findings.map(e => <li key={e.seq} className={`crawl-${e.type}`}>
+              <span className="mono">{seconds(e.at)}</span><span className="kind">{pluginText[e.plugin] ?? e.plugin}</span>
+              {e.type === 'finding' ? <><b className={`severity-${e.finding.severity}`}>{severityText[e.finding.severity]} · {e.finding.rule}</b>
+                <small>{e.finding.text || e.finding.selector} · {e.finding.detail.slice(0, 160)}</small>
+                <button className="link" onClick={() => setState(e.state)}>状态截图</button></>
+                : <small className="error">插件出错：{e.error}</small>}
+            </li>)}</ol>
+            {!findings.length && <p className="muted">还没有发现问题。</p>}</section>}
         </div>
       </div> : <div className="welcome"><h2>选择或开始一次遍历</h2><p>遍历在服务端运行；关闭页面不会中断。中断后可以续跑，已测过的动作不会重测。</p></div>}
     </div>

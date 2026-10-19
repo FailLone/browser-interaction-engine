@@ -1,3 +1,4 @@
+import type { CrawlPlugin } from './plugin.js';
 import type { Providers } from './providers.js';
 import { SampledCrawler, type CrawlOptions } from './crawler.js';
 import { ModelJudge } from './judge.js';
@@ -15,12 +16,17 @@ export interface StartCrawl {
   models?: boolean;
   /** Continue a previous run of the same URL: its tested classes and judgements are not repeated. */
   resumeFrom?: string;
+  /** Names of host-registered plugins to run on every new state. */
+  plugins?: string[];
 }
+
+/** Plugins the host offers by name; each run gets fresh instances. */
+export type PluginFactories = Record<string, () => CrawlPlugin>;
 
 /** Starts crawls in the background, one browser each, persisting every event and screenshot. */
 export class CrawlManager {
   private readonly active = new Map<string, { controller: AbortController; done: Promise<void> }>();
-  constructor(readonly store: CrawlStore, private readonly providers: Providers = {}) {
+  constructor(readonly store: CrawlStore, private readonly providers: Providers = {}, readonly pluginFactories: PluginFactories = {}) {
     // A previous process may have exited mid-run; those runs can be resumed but not continued.
     store.markInterrupted();
   }
@@ -30,6 +36,8 @@ export class CrawlManager {
     const resume = input.resumeFrom ? this.store.run(input.resumeFrom) : undefined;
     if (input.resumeFrom && (!resume || resume.url !== url)) throw new Error('resumeFrom must name a run of the same URL');
     if (resume && this.active.has(resume.id)) throw new Error('The run to resume is still active');
+    const unknown = (input.plugins ?? []).filter(name => !this.pluginFactories[name]);
+    if (unknown.length) throw new Error(`Unknown plugins: ${unknown.join(', ')}`);
     const id = crypto.randomUUID();
     const run = this.store.createRun(id, url, { ...input, url });
     const policy = defaultPolicy(url);
@@ -40,6 +48,7 @@ export class CrawlManager {
     const options: CrawlOptions = {
       url, policy, signal: controller.signal, durationMs: input.durationMs ?? 240_000, maxActions: 2000,
       followNavigation: input.followNavigation ?? false, ...(ledger ? { ledger } : {}),
+      plugins: [...new Set(input.plugins ?? [])].map(name => this.pluginFactories[name]()),
       ...(models ? { judge: new ModelJudge({ jev: this.providers.jev, llm: this.providers.llm }), ...(this.providers.jev ? { inputJudge: metered(this.providers.jev) } : {}) } : {}),
       log: event => this.store.appendEvent(id, event),
       onScreenshot: (state, png) => this.store.saveScreenshot(id, state, png),

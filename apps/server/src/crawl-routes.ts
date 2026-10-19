@@ -9,12 +9,14 @@ const startSchema = z.object({
   followNavigation: z.boolean().optional(),
   models: z.boolean().optional(),
   resumeFrom: z.string().uuid().optional(),
+  plugins: z.array(z.string().min(1).max(64)).max(10).optional(),
 }).strict();
 
 /** Sampled crawler runs: start, list, inspect events and state screenshots, stop. */
 export function registerCrawlRoutes(app: FastifyInstance, crawls: CrawlManager) {
   const notFound = (reply: { code(n: number): { send(b: unknown): unknown } }) => reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Crawl run not found' } });
   app.get('/v1/crawls', async () => crawls.store.runs());
+  app.get('/v1/crawl-plugins', async () => Object.keys(crawls.pluginFactories));
   app.post('/v1/crawls', async (request, reply) => {
     try { return reply.code(201).send(crawls.start(startSchema.parse(request.body))); }
     catch (error) { if (error instanceof z.ZodError) throw error; return reply.code(409).send({ error: { code: 'CRAWL_REJECTED', message: String((error as Error).message) } }); }

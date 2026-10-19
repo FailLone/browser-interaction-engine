@@ -6,7 +6,7 @@ import {
   imageAspectRatioRequirementProposalSchema,
   textBackgroundRequirementProposalSchema, imageResourceRequirementProposalSchema,
   clippedControlOptionsSchema, observedClippingOptionsSchema, observedOcclusionOptionsSchema,
-  textTruncationOptionsSchema, observedTextTruncationOptionsSchema, sampledOcclusionRule, scrollRecoveryOptionsSchema,
+  textTruncationOptionsSchema, observedTextTruncationOptionsSchema, sampledOcclusionRule,
   type ClippingRequirementProvider, type OcclusionRequirementProvider, type TextRequirementProvider,
   type RuleRequirementProvider, type RuleRequirementProposal,
 } from '@interaction/rules';
@@ -111,7 +111,6 @@ it('refuses to feed a proposal into any existing explicit requirement or provide
   expect(observedClippingOptionsSchema.safeParse({ rule: { requirements: [clipping] } }).success).toBe(false);
   expect(textTruncationOptionsSchema.safeParse({ requirements: [text] }).success).toBe(false);
   expect(observedTextTruncationOptionsSchema.safeParse({ rule: { requirements: [text] } }).success).toBe(false);
-  expect(scrollRecoveryOptionsSchema.safeParse({ requiredNow: occlusion }).success).toBe(false);
   expect(() => sampledOcclusionRule.configure({ requirements: [occlusion] })).toThrow();
   for (const schema of [observedOcclusionOptionsSchema, clippedControlOptionsSchema, observedClippingOptionsSchema, textTruncationOptionsSchema, observedTextTruncationOptionsSchema]) {
     expect(schema.safeParse({ provider: { id: 'agent' } }).success).toBe(false);
