@@ -5,11 +5,13 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
 import {
   AccountStore,
+  Auth,
+  type AuthAdapter,
+  authSessionFactory,
   encodeSealedJsonPreset,
   keyFrom,
   parsePresetName,
-  PresetAuth,
-  presetSessionFactory,
+  PresetAdapter,
   type SessionSnapshot,
   type SiteProfile,
   Vault,
@@ -86,8 +88,9 @@ const profile = (): SiteProfile => ({
 });
 const setup = () => {
   const store = new AccountStore(join(mkdtempSync(join(tmpdir(), 'auth-')), 'accounts.sqlite'));
-  const auth = new PresetAuth({ store, vaultKey, presetKey, sites: [profile()] });
-  return { store, auth, preset: encodeSealedJsonPreset(snapshot(), keyFrom(presetKey)) };
+  const adapter = new PresetAdapter({ presetKey, sites: [profile()] });
+  const auth = new Auth({ store, vaultKey, adapter });
+  return { store, auth, adapter, preset: encodeSealedJsonPreset(snapshot(), keyFrom(presetKey)) };
 };
 
 test('preset names map to site, market and entity, and must match the registry', () => {
@@ -99,29 +102,26 @@ test('preset names map to site, market and entity, and must match the registry',
   });
   expect(parsePresetName('global-hk-eid3')).toMatchObject({ market: 'hk', entity: 'eid3' });
   expect(() => parsePresetName('global')).toThrow(/site\[-market\]-entity/);
-  const { auth } = setup();
-  expect(() => auth.identify('asia-eid14')).toThrow(/unknown site/);
-  expect(() => auth.identify('global-eid99')).toThrow(/no entity/);
-  expect(() => auth.identify('global-hk-eid14')).toThrow(/no market/);
+  const { adapter } = setup();
+  expect(() => adapter.identify('asia-eid14')).toThrow(/unknown site/);
+  expect(() => adapter.identify('global-eid99')).toThrow(/no entity/);
+  expect(() => adapter.identify('global-hk-eid14')).toThrow(/no market/);
 });
 
 test('an import is activated only when the logged-in heartbeat passes and the anonymous one is refused', async () => {
   const { auth, store, preset } = setup();
-  const { account, verification } = await auth.import({
-    name: 'global-eid14.enc',
-    data: preset,
-    permissions: ['trade'],
-  });
+  const { account, verification } = await auth.import(
+    { name: 'global-eid14.enc', data: preset },
+    { permissions: ['trade'] },
+  );
   expect(verification).toMatchObject({
     ok: true,
-    loggedIn: { outcome: 'accepted', code: 0 },
-    anonymous: { outcome: 'rejected' },
+    facts: { loggedIn: { outcome: 'accepted', code: 0 }, anonymous: { outcome: 'rejected' } },
   });
   expect(account).toMatchObject({
     status: 'active',
-    site: 'global',
-    entity: 'eid14',
-    environment: 'test',
+    key: 'global-eid14',
+    labels: { site: 'global', market: 'global', entity: 'eid14', environment: 'test' },
     locale: 'en-US',
   });
   // Stored under this project's key, refreshed with what the site set during verification.
@@ -147,7 +147,7 @@ test('unreadable presets are not stored and refused sessions are not enabled', a
       name: 'global-eid14',
       data: encodeSealedJsonPreset({ ...snapshot(), device: {} } as never, keyFrom(presetKey)),
     }),
-  ).rejects.toThrow(/could not be read/);
+  ).rejects.toThrow(/no usable session/);
   expect(store.accounts()).toHaveLength(0);
   expect(preset.length).toBeGreaterThan(0);
 
@@ -156,14 +156,21 @@ test('unreadable presets are not stored and refused sessions are not enabled', a
     name: 'global-eid15',
     data: encodeSealedJsonPreset(expired, keyFrom(presetKey)),
   });
-  expect(verification).toMatchObject({ ok: false, loggedIn: { outcome: 'rejected' }, reason: 'login_route' });
-  expect(store.byPreset('global-eid15')!.status).toBe('invalid');
+  expect(verification).toMatchObject({
+    ok: false,
+    facts: { loggedIn: { outcome: 'rejected' } },
+    reason: 'login_route',
+  });
+  expect(store.byKey('global-eid15')!.status).toBe('invalid');
 });
 
 test('accounts are chosen by scope and locked per task', async () => {
   const { auth, store, preset } = setup();
-  const { account } = await auth.import({ name: 'global-eid14', data: preset, permissions: ['trade'] });
-  expect(store.find({ entity: 'eid14', permissions: ['trade'], host: '127.0.0.1', locale: 'en' })).toHaveLength(1);
+  const { account } = await auth.import({ name: 'global-eid14', data: preset }, { permissions: ['trade'] });
+  expect(
+    store.find({ labels: { entity: 'eid14' }, permissions: ['trade'], host: '127.0.0.1', locale: 'en' }),
+  ).toHaveLength(1);
+  expect(store.find({ labels: { entity: 'eid15' } })).toHaveLength(0);
   expect(store.find({ permissions: ['withdraw'] })).toHaveLength(0);
   expect(store.find({ host: 'example.com' })).toHaveLength(0);
   expect(store.find({ mobile: true })).toHaveLength(0);
@@ -183,7 +190,7 @@ test('accounts are chosen by scope and locked per task', async () => {
   await expect(b.prepare(target)).rejects.toThrow(/in use/);
   await second.release({ verified: false });
   const third = await b.prepare(target);
-  expect(third.describe).toMatchObject({ account: account.id, preset: 'global-eid14' });
+  expect(third.describe).toMatchObject({ account: account.id, key: 'global-eid14', entity: 'eid14' });
   expect(third.context).toMatchObject({ userAgent: 'Mozilla/5.0 TestBrowser', locale: 'en-US', hasTouch: false });
   await third.release({ verified: false });
   expect(store.lockOwner(account.id)).toBeUndefined();
@@ -207,7 +214,7 @@ test('a crawl runs in the restored session, re-checks it, and is stopped when it
     {},
     {},
     {
-      preset: presetSessionFactory(auth),
+      preset: authSessionFactory(auth),
     },
   );
   try {
@@ -215,7 +222,7 @@ test('a crawl runs in the restored session, re-checks it, and is stopped when it
       url: `${origin}/trade`,
       durationMs: 60_000,
       models: false,
-      session: { provider: 'preset', options: { select: { entity: 'eid14' } } },
+      session: { provider: 'preset', options: { select: { labels: { entity: 'eid14' } } } },
     });
     const done = await waitFor(
       () => crawls.store.run(run.id)!,
@@ -262,4 +269,61 @@ test('a crawl runs in the restored session, re-checks it, and is stopped when it
   await expect(new SampledCrawler({ url: `${origin}/trade`, session: auth.provider() }).run()).rejects.toThrow(
     /No verified account/,
   );
+});
+
+test('an adapter alone decides where accounts come from and what counts as logged in', async () => {
+  const store = new AccountStore(join(mkdtempSync(join(tmpdir(), 'auth-')), 'accounts.sqlite'));
+  const calls: string[] = [];
+  // A host whose accounts come from a token service and whose check is a DOM marker, not a heartbeat.
+  const adapter: AuthAdapter<{ user: string }> = {
+    id: 'token-service',
+    acquire: async ({ user }) => ({
+      key: `svc-${user}`,
+      labels: { tenant: 'acme' },
+      permissions: ['read'],
+      domains: ['127.0.0.1'],
+      snapshot: { ...snapshot(), origins: [] },
+    }),
+    verify: async (account, verifier) => {
+      calls.push(`verify ${account.key}`);
+      const page = await verifier.open();
+      await page.goto(`${origin}/trade`);
+      return page.url().endsWith('/trade') ? { ok: true, facts: { url: page.url() } } : { ok: false, reason: 'login' };
+    },
+    check: async (page, account) => {
+      calls.push(`check ${account.key}`);
+      const ok = (await page.locator('main').count()) > 0;
+      return ok ? { ok } : { ok, reason: 'no_app', invalidate: true };
+    },
+  };
+  const auth = new Auth({ store, vaultKey, adapter });
+  const { account, verification } = await auth.import({ user: 'u1' }, { labels: { environment: 'test' } });
+  expect(verification).toMatchObject({ ok: true, facts: { url: `${origin}/trade` } });
+  expect(account).toMatchObject({
+    key: 'svc-u1',
+    labels: { tenant: 'acme', environment: 'test' },
+    permissions: ['read'],
+    status: 'active',
+  });
+  await expect(
+    new Auth({
+      store,
+      vaultKey,
+      adapter: { ...adapter, acquire: async () => ({ key: 'x', domains: [], snapshot: {} }) },
+    }).import({
+      user: 'x',
+    }),
+  ).rejects.toThrow(/no usable session/);
+  expect(store.byKey('x')).toBeUndefined();
+
+  const events: CrawlEvent[] = [];
+  const summary = await new SampledCrawler({
+    url: `${origin}/trade`,
+    durationMs: 60_000,
+    session: auth.provider({ select: { accountId: account.id, labels: { tenant: 'acme' } } }),
+    log: e => events.push(e),
+  }).run();
+  expect(summary.sessions).toMatchObject([{ provider: 'token-service', verified: true }]);
+  expect(events.find(e => e.type === 'session')).toMatchObject({ session: { key: 'svc-u1', tenant: 'acme' } });
+  expect(calls).toContain('check svc-u1');
 });

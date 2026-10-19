@@ -3,7 +3,15 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
-import { AccountStore, encodeSealedJsonPreset, keyFrom, PresetAuth, type SiteProfile, Vault } from '@interaction/auth';
+import {
+  AccountStore,
+  Auth,
+  encodeSealedJsonPreset,
+  keyFrom,
+  PresetAdapter,
+  type SiteProfile,
+  Vault,
+} from '@interaction/auth';
 import {
   composeSessions,
   CrawlManager,
@@ -227,7 +235,7 @@ test('a login and an experiment combine, and the variant stays out of the saved 
     tradeUrl: `${origin}/shop`,
     heartbeat: { url: '/api/heartbeat' },
   };
-  const auth = new PresetAuth({ store, vaultKey, presetKey, sites: [profile] });
+  const auth = new Auth({ store, vaultKey, adapter: new PresetAdapter({ presetKey, sites: [profile] }) });
   const snapshot = {
     cookies: [
       {

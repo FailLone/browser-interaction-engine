@@ -49,39 +49,75 @@ CRAWL_VIEWPORT=desktop-edge pnpm crawl OUT_DIR URL   # 视口，见下文
 
 会话从哪来、怎么选账号、什么算"已登录"或"已进入分组"，由提供者决定。项目自带两种提供者。
 
-### 登录快照（`@interaction/auth`）
+### 登录账号（`@interaction/auth`）
 
-`@interaction/auth` 是一种现成的提供者，对应"从导出工具（如 playwright-auth）导入登录快照"的接法：
+`@interaction/auth` 分两层：通用的账号底座 `Auth`，和决定具体做法的适配器 `AuthAdapter`（见 `packages/auth/src/adapter.ts`）。每个 `Auth` 用一个适配器。
 
-1. **导入**：读取 `preset.enc`，用导出方的密钥解密（格式可替换：`decode` 选项，默认 `sealedJsonPreset`），得到 cookie、localStorage、IndexedDB 和设备信息（UA、语言、时区、触摸、像素比），校验格式后用本项目密钥（AES-256-GCM）重新加密保存。读不出或格式不对的快照不会入库。
-2. **命名映射**：`global-eid14` → 站点 `global`、市场 `global`、实体 `eid14`（`global-hk-eid14` 带市场）。站点必须在注册表 `sites` 里，市场和实体必须属于该站点，已有账号的映射不能被改。命名规则可替换：`parseName` 选项。
-3. **验证**：启动 Chromium，恢复快照，打开站点的交易页，请求心跳接口，必须返回 `code: 0`，且没有落在登录路由或其他域名上；再开一个不带登录态的 context 请求同一心跳，必须被**明确拒绝**（非 0 的 `code` 或 401/403）。网络失败、非 JSON、缺 `code` 都不算通过也不算拒绝。两者都满足才启用账号，并保存验证记录和刷新后的加密快照。
-4. **选账号**：按站点、市场、实体、环境、权限、域名（取自页面）、语言、设备（取自视口）和剩余有效期筛选已启用账号。
-5. **占用锁**：同一任务（`task`）的多次运行可以共用一个账号检查多个页面，各自独立 context；其他任务要等全部释放（或锁过期）。
-6. **巡检中复查**：心跳、域名、登录路由、页面语言（`<html lang>`）任一不符即阻止继续检查；心跳被拒或落到登录页时账号退出轮换，需要重新验证。正常结束时保存站点刷新过的存储，但会去掉同一次运行里其他会话（如实验分桶 cookie）写入的键，不会污染账号快照。
+`Auth` 负责与账号来源无关的部分：
+
+1. **加密保存**：适配器给出的会话快照（cookie、localStorage、IndexedDB、设备信息）先校验格式，再用本项目密钥（AES-256-GCM）加密入库。格式不对的不入库。
+2. **启用**：导入后先是 `pending`，适配器的 `verify` 通过才变 `active`，并保存验证记录和刷新后的快照。验证时 `Auth` 提供全新的 context（带或不带登录态），用完关闭。
+3. **选账号**：按标签（`labels`，由适配器定义，如 `{ site, entity }`）、权限、域名（取自页面）、语言、设备（取自视口）和剩余有效期筛选已启用账号。
+4. **占用锁**：同一任务（`task`）的多次运行可以共用一个账号检查多个页面，各自独立 context；其他任务要等全部释放（或锁过期）。
+5. **巡检**：打开页面后、以及每隔 `recheckMs` 调用适配器的 `check`；失败即阻止继续检查，适配器返回 `invalidate: true` 时账号退出轮换，需要重新验证。正常结束时保存站点刷新过的存储，但去掉同一次运行里其他会话（如实验分桶 cookie）写入的键。
+
+适配器负责与具体来源和站点有关的部分：
+
+| 方法 | 作用 |
+| --- | --- |
+| `acquire(input)` | 把一次导入（文件、账号密码、令牌服务……）变成账号：唯一 `key`、`labels`、`permissions`、`domains` 和快照 |
+| `verify(account, verifier)` | 证明会话可用；`verifier.open({ withSession })` 打开新页面 |
+| `check(page, account)` | 运行中确认页面仍在该账号下 |
 
 ```ts
-import { AccountStore, PresetAuth, presetSessionFactory } from '@interaction/auth';
+import { AccountStore, Auth, authSessionFactory, type AuthAdapter } from '@interaction/auth';
 
-const auth = new PresetAuth({
+const adapter: AuthAdapter<{ user: string }> = {
+  id: 'my-login',
+  acquire: async ({ user }) => ({ key: user, labels: { tenant: 'acme' }, domains: ['.example.com'], snapshot: await loginAndCapture(user) }),
+  verify: async (account, verifier) => {
+    const page = await verifier.open();
+    await page.goto('https://www.example.com/account');
+    return { ok: !page.url().includes('/login') };
+  },
+  check: async page => (page.url().includes('/login') ? { ok: false, reason: 'login_route', invalidate: true } : { ok: true }),
+};
+const auth = new Auth({ store: new AccountStore('.data/accounts.sqlite'), vaultKey: process.env.SESSION_VAULT_KEY!, adapter });
+await auth.import({ user: 'alice' }, { permissions: ['trade'], labels: { environment: 'staging' } });
+
+// 服务端：按名字提供，运行请求里带 { session: { provider: 'login', options: { select: { labels: { tenant: 'acme' } } } } }
+new CrawlManager(store, providers, plugins, { login: authSessionFactory(auth) });
+// 或直接：new SampledCrawler({ url, session: auth.provider({ select: { labels: { tenant: 'acme' } }, task }) })
+```
+
+#### 参考适配器：preset 文件 + 登录心跳（`PresetAdapter`）
+
+对应"从导出工具（如 playwright-auth）导入登录快照、站点有登录心跳接口"的接法，可直接使用，也可作为写适配器的范例：
+
+- **导入**：用导出方的密钥解密 `preset.enc`（格式可替换：`decode`，默认 `sealedJsonPreset`）。`global-eid14` → 标签 `site: global`、`market: global`、`entity: eid14`（`global-hk-eid14` 带市场），命名规则可替换（`parseName`）。站点必须在 `sites` 里，市场和实体必须属于该站点，已有账号的映射不能被改。
+- **验证**：打开站点交易页，心跳必须返回 `code: 0`，且没有落在登录路由或其他域名上；不带登录态时同一心跳必须被**明确拒绝**（非 0 的 `code` 或 401/403）。网络失败、非 JSON、缺 `code` 都不算通过也不算拒绝。
+- **巡检**：心跳、域名、登录路由、页面语言（`<html lang>`）任一不符即失败；心跳被拒或落到登录页时作废账号。
+
+```ts
+import { AccountStore, Auth, PresetAdapter } from '@interaction/auth';
+
+const auth = new Auth({
   store: new AccountStore('.data/accounts.sqlite'),
   vaultKey: process.env.SESSION_VAULT_KEY!,   // 本项目密钥
-  presetKey: process.env.PRESET_KEY!,         // 导出方密钥，只用于读 preset
-  sites: [{
-    site: 'global',
-    entities: ['eid14'],
-    domains: ['.example.com'],
-    environment: 'staging',
-    tradeUrl: 'https://www.example.com/trade',
-    heartbeat: { url: '/api/user/heartbeat' },  // 可加 headers(page)、classify(response)
-    loginRoute: /\/login/,
-  }],
+  adapter: new PresetAdapter({
+    presetKey: process.env.PRESET_KEY!,       // 导出方密钥，只用于读 preset
+    sites: [{
+      site: 'global',
+      entities: ['eid14'],
+      domains: ['.example.com'],
+      environment: 'staging',
+      tradeUrl: 'https://www.example.com/trade',
+      heartbeat: { url: '/api/user/heartbeat' },  // 可加 headers(page)、classify(response)
+      loginRoute: /\/login/,
+    }],
+  }),
 });
-await auth.import({ file: 'presets/global-eid14.enc', permissions: ['trade'] });
-
-// 服务端：按名字提供，运行请求里带 { session: { provider: 'preset', options: { select: { entity: 'eid14' } } } }
-new CrawlManager(store, providers, plugins, { preset: presetSessionFactory(auth) });
-// 或直接：new SampledCrawler({ url, session: auth.provider({ select: { entity: 'eid14' }, task }) })
+await auth.import({ file: 'presets/global-eid14.enc' }, { permissions: ['trade'] });
 ```
 
 ### A/B 实验（`experimentSession`，在 `@interaction/crawler` 里）
@@ -109,7 +145,7 @@ const variantB = experimentSession({
   headers: { 'x-ab-variant': 'B' },
 });
 // 登录后看 B 组
-new SampledCrawler({ url, session: [auth.provider({ select: { entity: 'eid14' } }), variantB] });
+new SampledCrawler({ url, session: [auth.provider({ select: { labels: { entity: 'eid14' } } }), variantB] });
 ```
 
 服务端默认以 `experiment` 的名字提供它（选项即上表，不含 `check`），HTTP 请求里可以组合：
