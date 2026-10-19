@@ -50,6 +50,8 @@ test('crawl runs are started, stored and inspected over HTTP, and a resumed run 
       run => run.status !== 'running',
     );
     expect(done.status).toBe('finished');
+    // Everything on the page was tested well before the limit: the run says why it ended early.
+    expect(done.summary.stopReason).toBe('scope_exhausted');
     expect(done.summary.actions).toBeGreaterThan(0);
     expect((await json('/v1/crawls')).map((r: { id: string }) => r.id)).toContain(first.id);
 

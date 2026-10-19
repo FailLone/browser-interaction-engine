@@ -1,6 +1,19 @@
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CircleAlert, ImageIcon, ListTree, Loader2, Play, RefreshCw, RotateCw, Square, X } from 'lucide-react';
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleStop,
+  Clock,
+  ImageIcon,
+  ListTree,
+  Loader2,
+  Play,
+  RefreshCw,
+  RotateCw,
+  Square,
+  X,
+} from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,10 +31,12 @@ interface Run {
   summary?: Summary;
   error?: string;
   createdAt: string;
-  options: { resumeFrom?: string; plugins?: string[] };
+  options: { resumeFrom?: string; plugins?: string[]; durationMs?: number };
 }
+type StopReason = 'scope_exhausted' | 'no_progress' | 'time_limit' | 'action_limit' | 'stopped' | 'error';
 interface Summary {
   elapsedMs: number;
+  stopReason?: StopReason;
   actions: number;
   states: number;
   resumedStates?: number;
@@ -76,10 +91,28 @@ const statusText: Record<Run['status'], string> = {
   failed: '失败',
   interrupted: '已中断',
 };
-const pluginText: Record<string, string> = { rules: 'UI 规则', checks: '轻量检查' };
+const pluginText: Record<string, string> = { rules: 'UI 规则' };
 const severityText: Record<string, string> = { info: '提示', warning: '警告', error: '错误' };
 const outcomeText: Record<string, string> = { ok: '成功', no_change: '无变化', failed: '失败' };
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+const duration = (ms: number) => {
+  const s = Math.round(ms / 1000);
+  return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${String(s % 60).padStart(2, '0')} 秒`;
+};
+/** Stop reasons as the user should read them; older runs only recorded budget_exhausted. */
+const stopText: Record<string, string> = {
+  scope_exhausted: '页面已测完',
+  no_progress: '页面反复回到同一状态，停止',
+  time_limit: '到达时长上限',
+  action_limit: '到达动作数上限',
+  budget_exhausted: '到达时长或动作数上限',
+  stopped: '手动停止',
+  error: '运行出错',
+};
+const backtrackText: Record<string, string> = {
+  state_exhausted: '当前状态已测完，返回上一步',
+  left_scope: '离开了当前页面，返回',
+};
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, { ...init, headers: { 'content-type': 'application/json' } });
   const body = await response.json();
@@ -179,6 +212,8 @@ export function CrawlPanel() {
     [events],
   );
   const summary = run?.summary;
+  const stopEvent = events.findLast(e => e.type === 'stop');
+  const stopReason = summary?.stopReason ?? (stopEvent?.type === 'stop' ? stopEvent.reason : undefined);
 
   const actionEvents = events.filter(e => e.type !== 'state' && e.type !== 'finding' && e.type !== 'plugin_error');
 
@@ -213,7 +248,9 @@ export function CrawlPanel() {
             <Input id="crawl-url" value={url} onChange={e => setUrl(e.target.value)} />
           </div>
           <div className="grid w-28 gap-2">
-            <Label htmlFor="crawl-minutes">时长（分钟）</Label>
+            <Label htmlFor="crawl-minutes" title="测完就会提前结束，不会等满">
+              最长时长（分钟）
+            </Label>
             <Input
               id="crawl-minutes"
               type="number"
@@ -275,6 +312,9 @@ export function CrawlPanel() {
                   {new Date(r.createdAt).toLocaleString()}
                   {r.options.resumeFrom ? ' · 续跑' : ''}
                   {r.summary ? ` · ${r.summary.actions} 动作 / ${r.summary.states} 状态` : ''}
+                  {r.summary?.stopReason && r.summary.stopReason !== 'scope_exhausted'
+                    ? ` · ${stopText[r.summary.stopReason]}`
+                    : ''}
                 </span>
               </button>
             ))}
@@ -306,13 +346,16 @@ export function CrawlPanel() {
                   )}
                 </CardAction>
               </CardHeader>
-              {(run.error || summary) && (
+              {(run.error || summary || (run.status !== 'running' && stopReason)) && (
                 <CardContent className="flex flex-col gap-4 px-5">
                   {run.error && (
                     <Alert variant="destructive">
                       <CircleAlert />
                       <AlertDescription className="break-all">{run.error}</AlertDescription>
                     </Alert>
+                  )}
+                  {run.status !== 'running' && stopReason && (
+                    <StopNotice reason={stopReason} elapsedMs={summary?.elapsedMs} limitMs={run.options.durationMs} />
                   )}
                   {summary && (
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -411,7 +454,9 @@ export function CrawlPanel() {
                         {(e.type === 'backtrack' || e.type === 'stop') && (
                           <div className="flex min-w-0 items-center gap-2">
                             <Kind>{e.type === 'stop' ? '结束' : '回退'}</Kind>
-                            <span className="text-xs break-all text-muted-foreground">{e.reason}</span>
+                            <span className="text-xs break-all text-muted-foreground">
+                              {(e.type === 'stop' ? stopText[e.reason] : backtrackText[e.reason]) ?? e.reason}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -519,6 +564,27 @@ const severityClass: Record<string, string> = {
   warning: 'border-warning/40 bg-warning/10 text-warning',
   error: 'border-destructive/30 bg-destructive/10 text-destructive',
 };
+
+/** Why a finished run ended, against the time limit it was given. */
+function StopNotice({ reason, elapsedMs, limitMs }: { reason: string; elapsedMs?: number; limitMs?: number }) {
+  const early = reason === 'scope_exhausted';
+  const Icon = early ? CircleCheck : reason === 'stopped' ? CircleStop : reason === 'error' ? CircleAlert : Clock;
+  return (
+    <Alert className={cn(early && 'border-success/30 bg-success/5')}>
+      <Icon className={cn(early && 'text-success')} />
+      <AlertDescription>
+        <span className="font-medium text-foreground">{stopText[reason] ?? reason}</span>
+        {elapsedMs !== undefined && (
+          <span>
+            用时 {duration(elapsedMs)}
+            {limitMs ? `，上限 ${duration(limitMs)}` : ''}
+            {early && limitMs && elapsedMs < limitMs ? '。能测的都测完了，所以提前结束。' : '。'}
+          </span>
+        )}
+      </AlertDescription>
+    </Alert>
+  );
+}
 
 function StatusBadge({ status }: { status: Run['status'] }) {
   return (

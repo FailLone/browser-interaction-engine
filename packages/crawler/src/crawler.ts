@@ -123,7 +123,14 @@ export type CrawlEvent =
       probability?: number;
       detail?: string;
     }
-  | { type: 'stop'; at: number; reason: string };
+  | { type: 'stop'; at: number; reason: StopReason };
+
+/**
+ * Why a crawl ended: everything reachable was tested (scope_exhausted), the page kept
+ * reopening something without progress (no_progress), a limit was reached, the caller
+ * stopped it, or it failed.
+ */
+export type StopReason = 'scope_exhausted' | 'no_progress' | 'time_limit' | 'action_limit' | 'stopped' | 'error';
 
 interface Candidate {
   control: Control;
@@ -151,6 +158,7 @@ export class SampledCrawler {
   /** Executions per action class (state independent): the sampling budget. */
   readonly classCounts = new Map<string, number>();
   readonly failedClasses = new Set<string>();
+  private stopReason?: StopReason;
   /**
    * Mode groups (tab rows, radio groups) whose first sampled member revealed
    * nothing new: the rest only redraw something we cannot inspect (e.g. a canvas chart).
@@ -342,7 +350,7 @@ export class SampledCrawler {
     });
     let actions = 0,
       idleBacktracks = 0,
-      stop = 'budget_exhausted';
+      stop: StopReason = 'time_limit';
     try {
       await this.settle();
       while (this.now() < this.options.durationMs && actions < this.options.maxActions) {
@@ -375,6 +383,10 @@ export class SampledCrawler {
         idleBacktracks = 0;
         await this.act(snapshot, candidate);
       }
+      if (stop === 'time_limit' && actions >= this.options.maxActions) stop = 'action_limit';
+    } catch (error) {
+      stop = 'error';
+      throw error;
     } finally {
       for (const plugin of this.options.plugins) {
         try {
@@ -389,6 +401,7 @@ export class SampledCrawler {
           });
         }
       }
+      this.stopReason = stop;
       this.emit({ type: 'stop', at: this.now(), reason: stop });
       await this.adapter.close();
     }
@@ -400,6 +413,7 @@ export class SampledCrawler {
     const entry = pagePath(this.options.url);
     return {
       elapsedMs: this.now(),
+      stopReason: this.stopReason,
       actions: actions.length,
       states: [...this.states.values()].filter(st => st.firstSeenAt >= 0).length,
       resumedStates: [...this.states.values()].filter(st => st.firstSeenAt < 0).length,
