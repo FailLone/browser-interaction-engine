@@ -21,10 +21,42 @@ export interface RulePlugin extends RulePluginInfo {
 }
 
 export const builtinRulePlugins: readonly RulePlugin[] = [
-  { ...observedOcclusionRule, name: '控件遮盖', description: '检查点击采样点是否被遮挡，结合探索记录复核。', create: () => new ObservedOcclusionTracker() },
-  { ...observedClippingRule, name: '控件裁切', description: '检查控件边界是否被容器裁切，区分可滚动范围。', create: () => new ClippedControlTracker() },
-  { ...observedTextTruncationRule, name: '文字截断', description: '检查控件文字的裁切与省略；省略号本身不判为错误。', create: () => new TextTruncationTracker() },
-  { ...imageAspectRatioRule, effects: 'read-history', name: '图片拉伸', description: '检查图片是否被非等比拉伸，区分等比裁切与明确允许的变形。', create: () => new ImageAspectRatioTracker() },
-  { ...observedTextBackgroundRule, name: '文字与背景同色', description: '检查控件文字是否与纯色背景相同；复杂绘制单独标明范围限制。', create: () => new TextBackgroundTracker() },
-  { ...imageResourceRule, effects: 'read-history', name: '图片资源加载', description: '区分原生加载失败、加载中和未配置资源；替代图是否合理另行判断。', create: () => new ImageResourceTracker() },
+  {
+    ...observedOcclusionRule,
+    name: '控件遮盖',
+    description: '检查点击采样点是否被遮挡，结合探索记录复核。',
+    create: () => new ObservedOcclusionTracker(),
+  },
+  {
+    ...observedClippingRule,
+    name: '控件裁切',
+    description: '检查控件边界是否被容器裁切，区分可滚动范围。',
+    create: () => new ClippedControlTracker(),
+  },
+  {
+    ...observedTextTruncationRule,
+    name: '文字截断',
+    description: '检查控件文字的裁切与省略；省略号本身不判为错误。',
+    create: () => new TextTruncationTracker(),
+  },
+  {
+    ...imageAspectRatioRule,
+    effects: 'read-history',
+    name: '图片拉伸',
+    description: '检查图片是否被非等比拉伸，区分等比裁切与明确允许的变形。',
+    create: () => new ImageAspectRatioTracker(),
+  },
+  {
+    ...observedTextBackgroundRule,
+    name: '文字与背景同色',
+    description: '检查控件文字是否与纯色背景相同；复杂绘制单独标明范围限制。',
+    create: () => new TextBackgroundTracker(),
+  },
+  {
+    ...imageResourceRule,
+    effects: 'read-history',
+    name: '图片资源加载',
+    description: '区分原生加载失败、加载中和未配置资源；替代图是否合理另行判断。',
+    create: () => new ImageResourceTracker(),
+  },
 ];

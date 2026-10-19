@@ -10,10 +10,14 @@ export interface CrawlPolicy {
   forbiddenLabel: RegExp;
 }
 
-export const defaultForbiddenLabel = /登录|注册|登陆|购买|卖出|买入|下单|确认|提交|充值|提现|身份认证|居住|地区|国家|下载|log\s*in|sign\s*(in|up)|register|buy|sell|place order|confirm|submit|deposit|withdraw|verify|country|residen|download|install/i;
+export const defaultForbiddenLabel =
+  /登录|注册|登陆|购买|卖出|买入|下单|确认|提交|充值|提现|身份认证|居住|地区|国家|下载|log\s*in|sign\s*(in|up)|register|buy|sell|place order|confirm|submit|deposit|withdraw|verify|country|residen|download|install/i;
 
 export function defaultPolicy(entry: string): CrawlPolicy {
-  return { allowedPaths: [new RegExp(`^${escape(new URL(entry).pathname.replace(/\/+$/, ''))}/?$`)], forbiddenLabel: defaultForbiddenLabel };
+  return {
+    allowedPaths: [new RegExp(`^${escape(new URL(entry).pathname.replace(/\/+$/, ''))}/?$`)],
+    forbiddenLabel: defaultForbiddenLabel,
+  };
 }
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -21,7 +25,11 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export function linkTarget(c: Control, base: string): string | undefined {
   const href = c.reviewBinding?.attributes.href ?? c.purposeBinding?.attributes.href;
   if (c.tag !== 'a' || !href || /^(javascript:|#)/i.test(href)) return;
-  try { return new URL(href, base).href; } catch { return; }
+  try {
+    return new URL(href, base).href;
+  } catch {
+    return;
+  }
 }
 
 export type Placement = 'stay' | 'navigate' | 'outside';
@@ -30,11 +38,20 @@ export type Placement = 'stay' | 'navigate' | 'outside';
 export function placement(c: Control, current: string, entry: string, policy: CrawlPolicy): Placement {
   const target = linkTarget(c, current);
   if (!target) return 'stay';
-  const t = new URL(target), e = new URL(entry);
-  if (pagePath(target) === pagePath(current) && t.pathname.replace(/\/+$/, '') === new URL(current).pathname.replace(/\/+$/, '')) return 'stay';
+  const t = new URL(target),
+    e = new URL(entry);
+  if (
+    pagePath(target) === pagePath(current) &&
+    t.pathname.replace(/\/+$/, '') === new URL(current).pathname.replace(/\/+$/, '')
+  )
+    return 'stay';
   if (t.origin !== e.origin || c.reviewBinding?.attributes.target === '_blank') return 'outside';
   // The same page in another language is another page: it re-renders everything.
-  if (pagePath(target) === pagePath(entry) && t.pathname.replace(/\/+$/, '') === new URL(current).pathname.replace(/\/+$/, '')) return 'stay';
+  if (
+    pagePath(target) === pagePath(entry) &&
+    t.pathname.replace(/\/+$/, '') === new URL(current).pathname.replace(/\/+$/, '')
+  )
+    return 'stay';
   return policy.allowedPaths.some(p => p.test(t.pathname)) ? 'navigate' : 'outside';
 }
 

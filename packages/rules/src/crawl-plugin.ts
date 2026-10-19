@@ -34,17 +34,37 @@ export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
   };
 }
 
-async function rulePage(context: CrawlStateContext, sessionId: string, identities: Map<string, string>): Promise<RulePage> {
-  return pageFromCapture(await context.detail(), { sessionId, sequence: context.sequence, state: context.state, runtime: context.runtime(), identities });
+async function rulePage(
+  context: CrawlStateContext,
+  sessionId: string,
+  identities: Map<string, string>,
+): Promise<RulePage> {
+  return pageFromCapture(await context.detail(), {
+    sessionId,
+    sequence: context.sequence,
+    state: context.state,
+    runtime: context.runtime(),
+    identities,
+  });
 }
 
 /**
  * Build the page rules read from one detailed crawler capture. `identities` maps a control's
  * stable description to a logical id, so trackers can follow the same control across captures.
  */
-export function pageFromCapture(capture: DOMSnapshot, input: { sessionId: string; sequence: number; state?: string; runtime: RuntimeEvidence; identities: Map<string, string> }): RulePage {
+export function pageFromCapture(
+  capture: DOMSnapshot,
+  input: {
+    sessionId: string;
+    sequence: number;
+    state?: string;
+    runtime: RuntimeEvidence;
+    identities: Map<string, string>;
+  },
+): RulePage {
   const { sessionId, identities } = input;
-  const observationId = `${input.state ?? capture.documentId}#${input.sequence}`, captureId = `capture:${observationId}`;
+  const observationId = `${input.state ?? capture.documentId}#${input.sequence}`,
+    captureId = `capture:${observationId}`;
   const controls: Control[] = capture.controls.map(c => {
     const key = JSON.stringify([c.role, c.tag, c.stableKey ?? c.name, c.landmark ?? '']);
     if (!identities.has(key)) identities.set(key, crypto.randomUUID());
@@ -57,16 +77,41 @@ export function pageFromCapture(capture: DOMSnapshot, input: { sessionId: string
   const overlay = capture.overlays.at(-1);
   return {
     inspection: {
-      id: `inspection:${observationId}`, sessionId, captureId, observationId, sequence: input.sequence, protocolVersion: 1,
-      focus: { regionKey: overlay?.key ?? 'document', scopeId: overlay?.key, kind: overlay ? 'overlay' : 'document', confidence: 'observed' },
+      id: `inspection:${observationId}`,
+      sessionId,
+      captureId,
+      observationId,
+      sequence: input.sequence,
+      protocolVersion: 1,
+      focus: {
+        regionKey: overlay?.key ?? 'document',
+        scopeId: overlay?.key,
+        kind: overlay ? 'overlay' : 'document',
+        confidence: 'observed',
+      },
     },
     capture: {
-      id: captureId, sessionId, observationId, documentId: capture.documentId, capturedAt: capture.dom?.capturedAt ?? new Date().toISOString(),
-      quality: { status: capture.dom && !capture.gaps.some(g => g.critical) ? 'complete' : 'incomplete', missingRequired: capture.dom ? [] : ['web.dom'] },
+      id: captureId,
+      sessionId,
+      observationId,
+      documentId: capture.documentId,
+      capturedAt: capture.dom?.capturedAt ?? new Date().toISOString(),
+      quality: {
+        status: capture.dom && !capture.gaps.some(g => g.critical) ? 'complete' : 'incomplete',
+        missingRequired: capture.dom ? [] : ['web.dom'],
+      },
     },
     observation: {
-      id: observationId, documentId: capture.documentId, url: capture.url, stable: !capture.gaps.some(g => g.critical), context: {},
-      controls, overlays: capture.overlays, boundaries: capture.overlays.filter(o => o.kind === 'modal' || o.kind === 'dialog').map(o => ({ key: o.key, name: o.name })),
+      id: observationId,
+      documentId: capture.documentId,
+      url: capture.url,
+      stable: !capture.gaps.some(g => g.critical),
+      context: {},
+      controls,
+      overlays: capture.overlays,
+      boundaries: capture.overlays
+        .filter(o => o.kind === 'modal' || o.kind === 'dialog')
+        .map(o => ({ key: o.key, name: o.name })),
     },
     snapshot: { observationId, documentId: capture.documentId, dom: capture.dom, runtime: input.runtime },
   };
@@ -77,8 +122,11 @@ function finding(rule: string, check: RuleCheck, page: RulePage): Finding {
   const control = page.observation.controls.find(c => c.localId === nodeId);
   const node = page.snapshot.dom?.nodes.find(n => n.id === nodeId);
   return {
-    rule, severity: check.severity, selector: control?.selector ?? node?.tag ?? nodeId ?? '',
-    text: (control?.name || control?.label || node?.text || '').slice(0, 80), detail: `${check.code}: ${check.actual}`,
+    rule,
+    severity: check.severity,
+    selector: control?.selector ?? node?.tag ?? nodeId ?? '',
+    text: (control?.name || control?.label || node?.text || '').slice(0, 80),
+    detail: `${check.code}: ${check.actual}`,
     facts: { code: check.code, verdict: check.verdict, expected: check.expected, facts: check.facts },
   };
 }

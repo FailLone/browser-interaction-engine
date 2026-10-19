@@ -26,7 +26,11 @@ export type PluginFactories = Record<string, () => CrawlPlugin>;
 /** Starts crawls in the background, one browser each, persisting every event and screenshot. */
 export class CrawlManager {
   private readonly active = new Map<string, { controller: AbortController; done: Promise<void> }>();
-  constructor(readonly store: CrawlStore, private readonly providers: Providers = {}, readonly pluginFactories: PluginFactories = {}) {
+  constructor(
+    readonly store: CrawlStore,
+    private readonly providers: Providers = {},
+    readonly pluginFactories: PluginFactories = {},
+  ) {
     // A previous process may have exited mid-run; those runs can be resumed but not continued.
     store.markInterrupted();
   }
@@ -34,7 +38,8 @@ export class CrawlManager {
   start(input: StartCrawl): CrawlRun {
     const url = new URL(input.url).href;
     const resume = input.resumeFrom ? this.store.run(input.resumeFrom) : undefined;
-    if (input.resumeFrom && (!resume || resume.url !== url)) throw new Error('resumeFrom must name a run of the same URL');
+    if (input.resumeFrom && (!resume || resume.url !== url))
+      throw new Error('resumeFrom must name a run of the same URL');
     if (resume && this.active.has(resume.id)) throw new Error('The run to resume is still active');
     const unknown = (input.plugins ?? []).filter(name => !this.pluginFactories[name]);
     if (unknown.length) throw new Error(`Unknown plugins: ${unknown.join(', ')}`);
@@ -46,20 +51,40 @@ export class CrawlManager {
     const controller = new AbortController();
     const ledger = resume && this.store.ledger(resume.id);
     const options: CrawlOptions = {
-      url, policy, signal: controller.signal, durationMs: input.durationMs ?? 240_000, maxActions: 2000,
-      followNavigation: input.followNavigation ?? false, ...(ledger ? { ledger } : {}),
+      url,
+      policy,
+      signal: controller.signal,
+      durationMs: input.durationMs ?? 240_000,
+      maxActions: 2000,
+      followNavigation: input.followNavigation ?? false,
+      ...(ledger ? { ledger } : {}),
       plugins: [...new Set(input.plugins ?? [])].map(name => this.pluginFactories[name]()),
-      ...(models ? { judge: new ModelJudge({ jev: this.providers.jev, llm: this.providers.llm }), ...(this.providers.jev ? { inputJudge: metered(this.providers.jev) } : {}) } : {}),
+      ...(models
+        ? {
+            judge: new ModelJudge({ jev: this.providers.jev, llm: this.providers.llm }),
+            ...(this.providers.jev ? { inputJudge: metered(this.providers.jev) } : {}),
+          }
+        : {}),
       log: event => this.store.appendEvent(id, event),
       onScreenshot: (state, png) => this.store.saveScreenshot(id, state, png),
     };
     const crawler = new SampledCrawler(options);
     // Persist the ledger as work happens, so an interrupted run can still be resumed.
     const ledgerTimer = setInterval(() => this.store.saveLedger(id, crawler.ledger()), 5000);
-    const done = crawler.run()
-      .then(summary => { this.store.saveLedger(id, crawler.ledger()); this.store.finish(id, 'finished', summary); })
-      .catch(error => { this.store.saveLedger(id, crawler.ledger()); this.store.finish(id, 'failed', undefined, String(error)); })
-      .finally(() => { clearInterval(ledgerTimer); this.active.delete(id); });
+    const done = crawler
+      .run()
+      .then(summary => {
+        this.store.saveLedger(id, crawler.ledger());
+        this.store.finish(id, 'finished', summary);
+      })
+      .catch(error => {
+        this.store.saveLedger(id, crawler.ledger());
+        this.store.finish(id, 'failed', undefined, String(error));
+      })
+      .finally(() => {
+        clearInterval(ledgerTimer);
+        this.active.delete(id);
+      });
     this.active.set(id, { controller, done });
     return run;
   }

@@ -6,74 +6,114 @@ import { imageSourceBindingSchema } from './image-resource.js';
 
 /** Future integration contract only. Providers propose; the host must separately
  * verify authority, scope, binding and conflicts before accepting a requirement. */
-export const requirementTargetSchema = z.object({
-  sessionId: z.string().min(1), observationId: z.string().min(1), captureId: z.string().min(1),
-  documentId: z.string().min(1), nodeId: z.string().min(1), instanceId: z.string().min(1),
-  identityId: z.string().min(1).optional(), scopeId: z.string().min(1).optional(),
-}).strict();
+export const requirementTargetSchema = z
+  .object({
+    sessionId: z.string().min(1),
+    observationId: z.string().min(1),
+    captureId: z.string().min(1),
+    documentId: z.string().min(1),
+    nodeId: z.string().min(1),
+    instanceId: z.string().min(1),
+    identityId: z.string().min(1).optional(),
+    scopeId: z.string().min(1).optional(),
+  })
+  .strict();
 export type RequirementTarget = z.infer<typeof requirementTargetSchema>;
 
 /** A source is a claim to be verified, not an authority or execution grant. */
 export const requirementSourceSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('project-specification'), reference: z.string().trim().min(1).max(2000) }).strict(),
-  z.object({ kind: z.literal('agent-judgment'), agentId: z.string().trim().min(1).max(200), basis: z.enum(['cited-specification', 'inference']) }).strict(),
+  z
+    .object({
+      kind: z.literal('agent-judgment'),
+      agentId: z.string().trim().min(1).max(200),
+      basis: z.enum(['cited-specification', 'inference']),
+    })
+    .strict(),
 ]);
 export type RequirementSource = z.infer<typeof requirementSourceSchema>;
 
 /** Common envelope only; a complete proposal also needs a supported rule/version
  * and that rule's requirement. Parsing this shape never accepts the requirement. */
-export const requirementProposalBaseSchema = z.object({
-  schemaVersion: z.literal(1), status: z.literal('proposed'),
-  target: requirementTargetSchema,
-  source: requirementSourceSchema,
-  reason: z.string().trim().min(1).max(4000),
-  evidence: z.array(z.string().trim().min(1).max(2000)).min(1).max(32),
-}).strict();
+export const requirementProposalBaseSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    status: z.literal('proposed'),
+    target: requirementTargetSchema,
+    source: requirementSourceSchema,
+    reason: z.string().trim().min(1).max(4000),
+    evidence: z.array(z.string().trim().min(1).max(2000)).min(1).max(32),
+  })
+  .strict();
 export type RequirementProposalBase = z.infer<typeof requirementProposalBaseSchema>;
 
 /** The history rule owns this contract. The one-point sampled-occlusion rule
  * does not establish a five-point requirement or a cross-observation failure. */
-export const occlusionRequirementProposalSchema = requirementProposalBaseSchema.extend({
-  ruleId: z.literal('observed-occlusion'), ruleVersion: z.literal('1.0.0'),
-  requirement: z.literal('sampled-pointer-at-observed-position'),
-}).strict();
+export const occlusionRequirementProposalSchema = requirementProposalBaseSchema
+  .extend({
+    ruleId: z.literal('observed-occlusion'),
+    ruleVersion: z.literal('1.0.0'),
+    requirement: z.literal('sampled-pointer-at-observed-position'),
+  })
+  .strict();
 export type OcclusionRequirementProposal = z.infer<typeof occlusionRequirementProposalSchema>;
 
-export const clippingRequirementProposalSchema = requirementProposalBaseSchema.extend({
-  ruleId: z.literal('clipped-control'), ruleVersion: z.literal('1.0.0'),
-  requirement: z.literal('unclipped-by-nonscroll-container'),
-}).strict();
+export const clippingRequirementProposalSchema = requirementProposalBaseSchema
+  .extend({
+    ruleId: z.literal('clipped-control'),
+    ruleVersion: z.literal('1.0.0'),
+    requirement: z.literal('unclipped-by-nonscroll-container'),
+  })
+  .strict();
 export type ClippingRequirementProposal = z.infer<typeof clippingRequirementProposalSchema>;
 
 // Keep the existing text proposal's wire format and export names compatible.
-export const textRequirementProposalSchema = requirementProposalBaseSchema.extend({
-  ruleId: z.literal('text-truncation'), ruleVersion: z.literal('1.0.0'),
-  requirement: z.enum(['full-text-inline', 'allow-elision', 'full-text-via-alternative']),
-}).strict();
+export const textRequirementProposalSchema = requirementProposalBaseSchema
+  .extend({
+    ruleId: z.literal('text-truncation'),
+    ruleVersion: z.literal('1.0.0'),
+    requirement: z.enum(['full-text-inline', 'allow-elision', 'full-text-via-alternative']),
+  })
+  .strict();
 export type TextRequirementProposal = z.infer<typeof textRequirementProposalSchema>;
 
-export const imageAspectRatioRequirementProposalSchema = requirementProposalBaseSchema.extend({
-  ruleId: z.literal('image-aspect-ratio'), ruleVersion: z.literal('1.0.0'),
-  requirement: z.enum(['preserve-aspect-ratio', 'allow-distortion']), resource: imageResourceBindingSchema,
-}).strict();
+export const imageAspectRatioRequirementProposalSchema = requirementProposalBaseSchema
+  .extend({
+    ruleId: z.literal('image-aspect-ratio'),
+    ruleVersion: z.literal('1.0.0'),
+    requirement: z.enum(['preserve-aspect-ratio', 'allow-distortion']),
+    resource: imageResourceBindingSchema,
+  })
+  .strict();
 export type ImageAspectRatioRequirementProposal = z.infer<typeof imageAspectRatioRequirementProposalSchema>;
 
-export const textBackgroundRequirementProposalSchema = requirementProposalBaseSchema.extend({
-  ruleId: z.literal('text-background'), ruleVersion: z.literal('1.0.0'),
-  requirement: z.enum(['distinct-solid-label-colors', 'allow-matching-label-colors']), label: labelTextBindingSchema,
-}).strict();
+export const textBackgroundRequirementProposalSchema = requirementProposalBaseSchema
+  .extend({
+    ruleId: z.literal('text-background'),
+    ruleVersion: z.literal('1.0.0'),
+    requirement: z.enum(['distinct-solid-label-colors', 'allow-matching-label-colors']),
+    label: labelTextBindingSchema,
+  })
+  .strict();
 export type TextBackgroundRequirementProposal = z.infer<typeof textBackgroundRequirementProposalSchema>;
 
-export const imageResourceRequirementProposalSchema = requirementProposalBaseSchema.extend({
-  ruleId: z.literal('image-resource'), ruleVersion: z.literal('1.0.0'),
-  requirement: z.enum(['no-image-load-error', 'allow-unavailable-image']), resource: imageSourceBindingSchema,
-}).strict();
+export const imageResourceRequirementProposalSchema = requirementProposalBaseSchema
+  .extend({
+    ruleId: z.literal('image-resource'),
+    ruleVersion: z.literal('1.0.0'),
+    requirement: z.enum(['no-image-load-error', 'allow-unavailable-image']),
+    resource: imageSourceBindingSchema,
+  })
+  .strict();
 export type ImageResourceRequirementProposal = z.infer<typeof imageResourceRequirementProposalSchema>;
 
 /** Built-in proposals only. The discriminant prevents cross-rule requirements
  * and unknown versions from being silently reinterpreted. */
 export const ruleRequirementProposalSchema = z.discriminatedUnion('ruleId', [
-  occlusionRequirementProposalSchema, clippingRequirementProposalSchema, textRequirementProposalSchema, imageAspectRatioRequirementProposalSchema,
+  occlusionRequirementProposalSchema,
+  clippingRequirementProposalSchema,
+  textRequirementProposalSchema,
+  imageAspectRatioRequirementProposalSchema,
   textBackgroundRequirementProposalSchema,
   imageResourceRequirementProposalSchema,
 ]);

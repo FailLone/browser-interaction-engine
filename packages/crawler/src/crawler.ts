@@ -1,6 +1,17 @@
 import { BrowserDriver, type DOMSnapshot } from './browser/driver.js';
 import type { Control } from './browser/types.js';
-import { activeOverlay, controlClass as baseClass, listClass, maskVolatile, modeGroup, modeSiblings, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
+import {
+  activeOverlay,
+  controlClass as baseClass,
+  listClass,
+  maskVolatile,
+  modeGroup,
+  modeSiblings,
+  pagePath,
+  pageTemplate,
+  stateKey,
+  type Snapshot,
+} from './abstraction.js';
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
 import { findingKey, type CrawlPlugin, type CrawlStateContext, type Finding } from './plugin.js';
 import type { Judge, Question } from './judge.js';
@@ -52,8 +63,19 @@ export interface CrawlOptions {
   log?: (event: CrawlEvent) => void;
 }
 
-export interface CrawlState { key: string; url: string; overlay?: string; firstSeenAt: number; controls: number }
-export interface Step { kind: CrawlKind; classKey: string; label: string; value?: string; purpose?: string;
+export interface CrawlState {
+  key: string;
+  url: string;
+  overlay?: string;
+  firstSeenAt: number;
+  controls: number;
+}
+export interface Step {
+  kind: CrawlKind;
+  classKey: string;
+  label: string;
+  value?: string;
+  purpose?: string;
   /** Page the step was taken on; used to rewind past a whole page when backtracking. */
   from?: string;
   /** Page after the step; differs from `from` when the step navigated. */
@@ -61,21 +83,59 @@ export interface Step { kind: CrawlKind; classKey: string; label: string; value?
   /** Abstract state the step was taken in. */
   state?: string;
   /** Visible page (state + masked text) before / after the step; equal ends mark a removable loop. */
-  sigBefore?: string; sigAfter?: string }
+  sigBefore?: string;
+  sigAfter?: string;
+}
 export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
-  | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
+  | {
+      type: 'action';
+      at: number;
+      step: Step;
+      url: string;
+      overlay?: string;
+      tier: string;
+      outcome: 'ok' | 'failed' | 'no_change';
+      error?: string;
+      newState: boolean;
+      after: string;
+    }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
   | { type: 'plugin_error'; at: number; plugin: string; state: string; error: string }
   /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
-  | { type: 'navigation'; at: number; kind: 'document' | 'same-document' | 'popup'; from: string; to: string; action: string; outcome: 'intercepted' | 'kept' | 'reverted' | 'followed' }
-  | { type: 'judgement'; at: number; question: string; label: string; verdict: 'yes' | 'no' | 'uncertain'; source: string; probability?: number; detail?: string }
+  | {
+      type: 'navigation';
+      at: number;
+      kind: 'document' | 'same-document' | 'popup';
+      from: string;
+      to: string;
+      action: string;
+      outcome: 'intercepted' | 'kept' | 'reverted' | 'followed';
+    }
+  | {
+      type: 'judgement';
+      at: number;
+      question: string;
+      label: string;
+      verdict: 'yes' | 'no' | 'uncertain';
+      source: string;
+      probability?: number;
+      detail?: string;
+    }
   | { type: 'stop'; at: number; reason: string };
 
-interface Candidate { control: Control; kind: CrawlKind; classKey: string; tier: number; tierName: string; value?: string; relevance?: number;
+interface Candidate {
+  control: Control;
+  kind: CrawlKind;
+  classKey: string;
+  tier: number;
+  tierName: string;
+  value?: string;
+  relevance?: number;
   /** For fill: which sample of the input's kind (e.g. existing / empty search). */
-  purpose?: string }
+  purpose?: string;
+}
 
 // Everything that stays on the current page (including site-chrome menus) runs
 // before any navigation; otherwise the entry page's own UI waits behind other pages.
@@ -115,7 +175,10 @@ export class SampledCrawler {
   /** Popup opened during the current dispatch. */
   private popup?: string;
   /** Outgoing navigations recorded per (page, target page). */
-  readonly links = new Map<string, { from: string; to: string; kind: 'document' | 'same-document' | 'popup'; action: string; count: number }>();
+  readonly links = new Map<
+    string,
+    { from: string; to: string; kind: 'document' | 'same-document' | 'popup'; action: string; count: number }
+  >();
   /** Backtracks served by browser history instead of replay. */
   private historyBacks = 0;
   /** Backtracks that loaded the last page by URL and replayed only its in-page steps. */
@@ -125,7 +188,10 @@ export class SampledCrawler {
   /** True from dispatch until the post-action settle completes. */
   private dispatching = false;
   private readonly started = Date.now();
-  private readonly options: Required<Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>> & Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>;
+  private readonly options: Required<
+    Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>
+  > &
+    Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>;
   /** Weak controls the judge confirmed as interactive, by component class. */
   private readonly confirmed = new Set<string>();
   /** Input kind per input component class: structural, judged by JEV, or defaulted. */
@@ -148,14 +214,17 @@ export class SampledCrawler {
    */
   private ownerNames = new Map<string, string>();
   private listOf(c: Control) {
-    const list = listClass(c), owner = c.structuralItem?.ownerInstanceId;
-    return list && `${list}@${owner ? this.ownerNames.get(owner) ?? '' : ''}`;
+    const list = listClass(c),
+      owner = c.structuralItem?.ownerInstanceId;
+    return list && `${list}@${owner ? (this.ownerNames.get(owner) ?? '') : ''}`;
   }
 
   /** Component class, with judged-heterogeneous lists split into their members. */
   private classOf = (c: Control) => {
     const list = this.listOf(c);
-    return list && this.splitLists.has(list) ? `${list}|${maskVolatile(c.name || c.label || c.displayedText || '')}` : baseClass(c);
+    return list && this.splitLists.has(list)
+      ? `${list}|${maskVolatile(c.name || c.label || c.displayedText || '')}`
+      : baseClass(c);
   };
 
   /** Action classes whose effect was a same-document route change; ranked last. */
@@ -166,14 +235,36 @@ export class SampledCrawler {
   private readonly asked = new Set<string>();
 
   constructor(options: CrawlOptions) {
-    this.options = { headless: true, durationMs: 240_000, maxActions: 200, samples: 1, listSamples: 2, pageSamples: 2, pageActions: 20, followNavigation: false, inPageRoutes: 'explore', settleMs: 600,
-      policy: defaultPolicy(options.url), plugins: [], ...options };
+    this.options = {
+      headless: true,
+      durationMs: 240_000,
+      maxActions: 200,
+      samples: 1,
+      listSamples: 2,
+      pageSamples: 2,
+      pageActions: 20,
+      followNavigation: false,
+      inPageRoutes: 'explore',
+      settleMs: 600,
+      policy: defaultPolicy(options.url),
+      plugins: [],
+      ...options,
+    };
   }
   /** Everything a later run needs to continue where this one stopped. */
   ledger(): CrawlLedger {
-    return { classCounts: [...this.classCounts], failedClasses: [...this.failedClasses], confirmed: [...this.confirmed], asked: [...this.asked],
-      splitLists: [...this.splitLists], askedLists: [...this.askedLists], inputKinds: [...this.inputKinds], flatModeGroups: [...this.flatModeGroups],
-      resolvedFills: [...this.resolvedFills], states: [...this.states.keys()] };
+    return {
+      classCounts: [...this.classCounts],
+      failedClasses: [...this.failedClasses],
+      confirmed: [...this.confirmed],
+      asked: [...this.asked],
+      splitLists: [...this.splitLists],
+      askedLists: [...this.askedLists],
+      inputKinds: [...this.inputKinds],
+      flatModeGroups: [...this.flatModeGroups],
+      resolvedFills: [...this.resolvedFills],
+      states: [...this.states.keys()],
+    };
   }
 
   private restore(ledger: CrawlLedger) {
@@ -183,17 +274,24 @@ export class SampledCrawler {
     for (const k of ledger.asked) this.asked.add(k);
     for (const k of ledger.splitLists) this.splitLists.add(k);
     for (const k of ledger.askedLists) this.askedLists.add(k);
-    for (const [k, v] of ledger.inputKinds) this.inputKinds.set(k, v as { kind: InputKind; source: 'structure' | 'jev' | 'default' });
+    for (const [k, v] of ledger.inputKinds)
+      this.inputKinds.set(k, v as { kind: InputKind; source: 'structure' | 'jev' | 'default' });
     for (const k of ledger.flatModeGroups) this.flatModeGroups.add(k);
     for (const k of ledger.resolvedFills) this.resolvedFills.add(k);
     // Known states stay known (not re-announced or re-checked), stamped as found before this run.
     for (const k of ledger.states) this.states.set(k, { key: k, url: this.options.url, firstSeenAt: -1, controls: 0 });
   }
 
-
-  private emit(event: CrawlEvent) { this.events.push(event); this.options.log?.(event); }
-  private now() { return Date.now() - this.started; }
-  private get page() { return this.adapter.page!; }
+  private emit(event: CrawlEvent) {
+    this.events.push(event);
+    this.options.log?.(event);
+  }
+  private now() {
+    return Date.now() - this.started;
+  }
+  private get page() {
+    return this.adapter.page!;
+  }
 
   async run() {
     if (this.options.ledger) this.restore(this.options.ledger);
@@ -207,7 +305,12 @@ export class SampledCrawler {
       const request = route.request();
       if (!request.isNavigationRequest()) return route.continue();
       // A popup's first request is issued before its frame exists.
-      let frame; try { frame = request.frame(); } catch { frame = undefined; }
+      let frame;
+      try {
+        frame = request.frame();
+      } catch {
+        frame = undefined;
+      }
       if (frame && frame.page() === this.page) return route.fallback();
       if (this.dispatching) this.popup = request.url();
       return route.abort('aborted');
@@ -216,23 +319,42 @@ export class SampledCrawler {
     await this.page.route('**/*', async route => {
       const request = route.request();
       if (!request.isNavigationRequest() || request.frame() !== this.page.mainFrame()) return route.fallback();
-      const target = request.url(), current = this.page.url();
+      const target = request.url(),
+        current = this.page.url();
       // A different path, or the same page under another locale prefix (re-renders everything).
       const leaving = pagePath(target) !== pagePath(current) || rawPath(target) !== rawPath(current);
-      const intercept = this.dispatching && (placementOfUrl(target, this.options) === 'outside' || leaving && !this.options.followNavigation);
-      if (intercept) { this.intercepted = target; return route.abort('aborted'); }
+      const intercept =
+        this.dispatching &&
+        (placementOfUrl(target, this.options) === 'outside' || (leaving && !this.options.followNavigation));
+      if (intercept) {
+        this.intercepted = target;
+        return route.abort('aborted');
+      }
       // Outside an action (initial load, explicit backtrack) only out-of-scope loads are refused.
       if (!this.dispatching && placementOfUrl(target, this.options) === 'outside') return route.abort('aborted');
       return route.fallback();
     });
     // Popups (window.open, target=_blank) are recorded and closed; the current page is unaffected.
-    this.adapter.context!.on('page', popup => { if (popup === this.page) return; if (this.dispatching && !this.popup && popup.url() !== 'about:blank') this.popup = popup.url(); void popup.close(); });
-    let actions = 0, idleBacktracks = 0, stop = 'budget_exhausted';
+    this.adapter.context!.on('page', popup => {
+      if (popup === this.page) return;
+      if (this.dispatching && !this.popup && popup.url() !== 'about:blank') this.popup = popup.url();
+      void popup.close();
+    });
+    let actions = 0,
+      idleBacktracks = 0,
+      stop = 'budget_exhausted';
     try {
       await this.settle();
       while (this.now() < this.options.durationMs && actions < this.options.maxActions) {
-        if (this.options.signal?.aborted) { stop = 'stopped'; break; }
-        if (!this.page.url().startsWith('http')) { await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {}); await this.settle(); this.path = []; }
+        if (this.options.signal?.aborted) {
+          stop = 'stopped';
+          break;
+        }
+        if (!this.page.url().startsWith('http')) {
+          await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
+          await this.settle();
+          this.path = [];
+        }
         const snapshot = await this.snapshot();
         if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
         await this.visit(snapshot);
@@ -245,16 +367,27 @@ export class SampledCrawler {
           // A page that keeps reopening an overlay or redirecting must not spin until the deadline.
           // Each backtrack rewinds the path, so a run of them ends at the entry page; the cap
           // only guards pages that keep reopening an overlay or redirecting.
-          if (++idleBacktracks <= 8 && await this.backtrack(snapshot, 'state_exhausted')) continue;
-          stop = idleBacktracks > 8 ? 'no_progress' : 'scope_exhausted'; break;
+          if (++idleBacktracks <= 8 && (await this.backtrack(snapshot, 'state_exhausted'))) continue;
+          stop = idleBacktracks > 8 ? 'no_progress' : 'scope_exhausted';
+          break;
         }
-        actions++; idleBacktracks = 0;
+        actions++;
+        idleBacktracks = 0;
         await this.act(snapshot, candidate);
       }
     } finally {
       for (const plugin of this.options.plugins) {
-        try { if (plugin.onEnd) this.report(plugin.id, await plugin.onEnd(), this.page?.url() ?? this.options.url, ''); }
-        catch (error) { this.emit({ type: 'plugin_error', at: this.now(), plugin: plugin.id, state: '', error: String(error).slice(0, 300) }); }
+        try {
+          if (plugin.onEnd) this.report(plugin.id, await plugin.onEnd(), this.page?.url() ?? this.options.url, '');
+        } catch (error) {
+          this.emit({
+            type: 'plugin_error',
+            at: this.now(),
+            plugin: plugin.id,
+            state: '',
+            error: String(error).slice(0, 300),
+          });
+        }
       }
       this.emit({ type: 'stop', at: this.now(), reason: stop });
       await this.adapter.close();
@@ -266,7 +399,9 @@ export class SampledCrawler {
     const actions = this.events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
     const entry = pagePath(this.options.url);
     return {
-      elapsedMs: this.now(), actions: actions.length, states: [...this.states.values()].filter(st => st.firstSeenAt >= 0).length,
+      elapsedMs: this.now(),
+      actions: actions.length,
+      states: [...this.states.values()].filter(st => st.firstSeenAt >= 0).length,
       resumedStates: [...this.states.values()].filter(st => st.firstSeenAt < 0).length,
       onEntryPage: actions.filter(a => pagePath(a.url) === entry).length,
       inOverlay: actions.filter(a => a.overlay).length,
@@ -278,24 +413,59 @@ export class SampledCrawler {
       prunedSteps: this.prunedSteps,
       navigations: {
         intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
-        sameDocument: [...this.links.values()].filter(l => l.kind === 'same-document').map(l => ({ from: l.from, to: l.to, action: l.action })),
-        outgoingPages: [...new Set([...this.links.values()].filter(l => l.kind !== 'same-document').map(l => pagePath(l.to)))].length,
+        sameDocument: [...this.links.values()]
+          .filter(l => l.kind === 'same-document')
+          .map(l => ({ from: l.from, to: l.to, action: l.action })),
+        outgoingPages: [
+          ...new Set([...this.links.values()].filter(l => l.kind !== 'same-document').map(l => pagePath(l.to))),
+        ].length,
       },
       directLoads: this.directLoads,
       judge: this.options.judge?.stats,
-      models: modelCost([this.options.judge?.stats.jev, this.options.relevance?.meter], [this.options.judge?.stats.llm]),
+      models: modelCost(
+        [this.options.judge?.stats.jev, this.options.relevance?.meter],
+        [this.options.judge?.stats.llm],
+      ),
       weakControlsConfirmed: this.confirmed.size,
       splitLists: this.splitLists.size,
-      inputs: { classes: this.inputKinds.size, kinds: Object.fromEntries([...this.inputKinds.values()].reduce((m, k) => m.set(`${k.kind}:${k.source}`, (m.get(`${k.kind}:${k.source}`) || 0) + 1), new Map<string, number>())),
-        filled: actions.filter(a => a.step.kind === 'fill').map(a => ({ label: a.step.label, purpose: a.step.purpose, value: a.step.value?.slice(0, 20), outcome: a.outcome, newState: a.newState })) },
+      inputs: {
+        classes: this.inputKinds.size,
+        kinds: Object.fromEntries(
+          [...this.inputKinds.values()].reduce(
+            (m, k) => m.set(`${k.kind}:${k.source}`, (m.get(`${k.kind}:${k.source}`) || 0) + 1),
+            new Map<string, number>(),
+          ),
+        ),
+        filled: actions
+          .filter(a => a.step.kind === 'fill')
+          .map(a => ({
+            label: a.step.label,
+            purpose: a.step.purpose,
+            value: a.step.value?.slice(0, 20),
+            outcome: a.outcome,
+            newState: a.newState,
+          })),
+      },
       hovers: actions.filter(a => a.step.kind === 'hover').length,
       modeGroups: { sampled: this.sampledModeGroups.size, flat: this.flatModeGroups.size },
       coverage: this.coverageReport(),
-      goal: this.options.relevance && { plan: this.options.relevance.plan, jevCalls: this.options.relevance.calls, prunedClasses: this.pruned.size },
-      lists: { classes: this.listMembers.size, membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
-        executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0) },
+      goal: this.options.relevance && {
+        plan: this.options.relevance.plan,
+        jevCalls: this.options.relevance.calls,
+        prunedClasses: this.pruned.size,
+      },
+      lists: {
+        classes: this.listMembers.size,
+        membersSeen: [...this.listMembers.values()].reduce((n, m) => n + m.size, 0),
+        executed: [...this.listMembers.keys()].reduce((n, k) => n + (this.classCounts.get(k) || 0), 0),
+      },
       pages: [...new Set([...this.states.values()].map(st => pagePath(st.url)))].length,
-      findings: Object.fromEntries([...new Set([...this.findings.values()].map(f => `${f.plugin}/${f.rule}`))].map(rule => [rule, [...this.findings.values()].filter(f => `${f.plugin}/${f.rule}` === rule).length])),
+      findings: Object.fromEntries(
+        [...new Set([...this.findings.values()].map(f => `${f.plugin}/${f.rule}`))].map(rule => [
+          rule,
+          [...this.findings.values()].filter(f => `${f.plugin}/${f.rule}` === rule).length,
+        ]),
+      ),
     };
   }
 
@@ -314,14 +484,28 @@ export class SampledCrawler {
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM();
     const byOwner = new Map<string, string[]>();
-    for (const c of dom.controls as Control[]) if (c.structuralItem) { const list = byOwner.get(c.structuralItem.ownerInstanceId) || []; list.push(maskVolatile(c.name)); byOwner.set(c.structuralItem.ownerInstanceId, list); }
+    for (const c of dom.controls as Control[])
+      if (c.structuralItem) {
+        const list = byOwner.get(c.structuralItem.ownerInstanceId) || [];
+        list.push(maskVolatile(c.name));
+        byOwner.set(c.structuralItem.ownerInstanceId, list);
+      }
     this.ownerNames = new Map([...byOwner].map(([owner, names]) => [owner, names.slice(0, 3).join('|')]));
     for (const c of dom.controls as Control[]) {
       const first = this.firstNames.get(c.instanceId);
       if (first === undefined) this.firstNames.set(c.instanceId, c.name);
       else if (first && c.name !== first && c.name.startsWith(first) && !c.label) c.name = first;
     }
-    return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions, documentId: dom.documentId, capture: dom };
+    return {
+      url: dom.url,
+      title: dom.title,
+      text: dom.text,
+      controls: dom.controls as Control[],
+      overlays: dom.overlays,
+      regions: dom.regions,
+      documentId: dom.documentId,
+      capture: dom,
+    };
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -341,27 +525,45 @@ export class SampledCrawler {
     const page = pagePath(s.url);
     let row = this.coverage.get(page);
     const blocks = textBlocks(s.text || '');
-    if (!row) { row = { seen: new Set(), text: new Set(), initialText: new Set(blocks) }; this.coverage.set(page, row); }
-    for (const c of s.controls) if (c.visible && (c.actions.length || this.confirmed.has(this.classOf(c)))) for (const kind of kindsFor(c, this.confirmed, this.classOf)) row.seen.add(`${kind}|${this.classOf(c)}`);
+    if (!row) {
+      row = { seen: new Set(), text: new Set(), initialText: new Set(blocks) };
+      this.coverage.set(page, row);
+    }
+    for (const c of s.controls)
+      if (c.visible && (c.actions.length || this.confirmed.has(this.classOf(c))))
+        for (const kind of kindsFor(c, this.confirmed, this.classOf)) row.seen.add(`${kind}|${this.classOf(c)}`);
     for (const b of blocks) row.text.add(b);
   }
 
   /** Per-page coverage and the discovery curve (new states per minute). */
   coverageReport() {
     const executed = new Map<string, Set<string>>();
-    for (const e of this.events) if (e.type === 'action' && e.outcome !== 'failed') {
-      const set = executed.get(pagePath(e.url)) || new Set(); set.add(e.step.kind === 'fill' ? e.step.classKey.slice(0, e.step.classKey.lastIndexOf('|')) : e.step.classKey); executed.set(pagePath(e.url), set);
-    }
+    for (const e of this.events)
+      if (e.type === 'action' && e.outcome !== 'failed') {
+        const set = executed.get(pagePath(e.url)) || new Set();
+        set.add(e.step.kind === 'fill' ? e.step.classKey.slice(0, e.step.classKey.lastIndexOf('|')) : e.step.classKey);
+        executed.set(pagePath(e.url), set);
+      }
     const pages = [...this.coverage.entries()].map(([page, row]) => {
       const done = executed.get(page) || new Set();
       const sampledLists = [...row.seen].filter(k => k.includes('|list:')).length;
       const executedClasses = [...row.seen].filter(k => done.has(k)).length;
-      return { page, classesSeen: row.seen.size, classesExecuted: executedClasses, classCoverage: row.seen.size ? +(executedClasses / row.seen.size).toFixed(2) : 0, listClasses: sampledLists,
-        textBlocksSeen: row.text.size, textBlocksRevealedByActions: [...row.text].filter(t => !row.initialText.has(t)).length };
+      return {
+        page,
+        classesSeen: row.seen.size,
+        classesExecuted: executedClasses,
+        classCoverage: row.seen.size ? +(executedClasses / row.seen.size).toFixed(2) : 0,
+        listClasses: sampledLists,
+        textBlocksSeen: row.text.size,
+        textBlocksRevealedByActions: [...row.text].filter(t => !row.initialText.has(t)).length,
+      };
     });
     const minutes = Math.max(1, Math.ceil(this.now() / 60000));
     const fresh = [...this.states.values()].filter(st => st.firstSeenAt >= 0);
-    const curve = Array.from({ length: minutes }, (_, m) => fresh.filter(st => st.firstSeenAt < (m + 1) * 60000).length);
+    const curve = Array.from(
+      { length: minutes },
+      (_, m) => fresh.filter(st => st.firstSeenAt < (m + 1) * 60000).length,
+    );
     const last = [...this.states.values()].reduce((t, st) => Math.max(t, st.firstSeenAt), 0);
     return { pages, statesPerMinute: curve, lastNewStateAtMs: last };
   }
@@ -378,23 +580,50 @@ export class SampledCrawler {
   }
 
   private async visit(s: Snapshot) {
-    const template = pageTemplate(s.url), pages = this.templatePages.get(template) || new Set<string>();
-    pages.add(pagePath(s.url)); this.templatePages.set(template, pages);
+    const template = pageTemplate(s.url),
+      pages = this.templatePages.get(template) || new Set<string>();
+    pages.add(pagePath(s.url));
+    this.templatePages.set(template, pages);
     this.observeCoverage(s);
     const key = stateKey(s);
     if (this.states.has(key)) return false;
     const overlay = activeOverlay(s);
-    const state: CrawlState = { key, url: s.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, firstSeenAt: this.now(), controls: s.controls.filter(c => c.visible).length };
+    const state: CrawlState = {
+      key,
+      url: s.url,
+      overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`,
+      firstSeenAt: this.now(),
+      controls: s.controls.filter(c => c.visible).length,
+    };
     this.states.set(key, state);
     this.emit({ type: 'state', at: this.now(), state, path: this.path.length });
-    if (this.options.onScreenshot) { const png = await this.page.screenshot({ timeout: 3000 }).catch(() => undefined); if (png) await this.options.onScreenshot(key, png); }
+    if (this.options.onScreenshot) {
+      const png = await this.page.screenshot({ timeout: 3000 }).catch(() => undefined);
+      if (png) await this.options.onScreenshot(key, png);
+    }
     if (this.options.plugins.length) {
       let detail: Promise<DOMSnapshot> | undefined;
-      const context: CrawlStateContext = { state: key, sequence: ++this.stateSequence, url: s.url, snapshot: s.capture!, page: this.page,
-        detail: () => detail ??= this.adapter.readDOM(true), runtime: () => this.adapter.runtime() };
+      const context: CrawlStateContext = {
+        state: key,
+        sequence: ++this.stateSequence,
+        url: s.url,
+        snapshot: s.capture!,
+        page: this.page,
+        detail: () => (detail ??= this.adapter.readDOM(true)),
+        runtime: () => this.adapter.runtime(),
+      };
       for (const plugin of this.options.plugins) {
-        try { this.report(plugin.id, await plugin.onState(context), s.url, key); }
-        catch (error) { this.emit({ type: 'plugin_error', at: this.now(), plugin: plugin.id, state: key, error: String(error).slice(0, 300) }); }
+        try {
+          this.report(plugin.id, await plugin.onState(context), s.url, key);
+        } catch (error) {
+          this.emit({
+            type: 'plugin_error',
+            at: this.now(),
+            plugin: plugin.id,
+            state: key,
+            error: String(error).slice(0, 300),
+          });
+        }
       }
     }
     await this.options.onState?.(state, this.page);
@@ -405,27 +634,58 @@ export class SampledCrawler {
   private async reviewWeakControls(s: Snapshot) {
     const judge = this.options.judge;
     if (!judge) return;
-    const overlay = activeOverlay(s), scope = overlay && new Set(overlay.controlIds);
+    const overlay = activeOverlay(s),
+      scope = overlay && new Set(overlay.controlIds);
     const batch: { cls: string; label: string; question: Question }[] = [];
     for (const c of s.controls) {
-      if (!c.visible || c.actions.length || !c.interactionHints?.length || c.actionable.occludedBy || (scope && !scope.has(c.localId))) continue;
+      if (
+        !c.visible ||
+        c.actions.length ||
+        !c.interactionHints?.length ||
+        c.actionable.occludedBy ||
+        (scope && !scope.has(c.localId))
+      )
+        continue;
       const name = c.name || c.displayedText;
       if (!name || this.options.policy.forbiddenLabel.test(name)) continue;
       const cls = this.classOf(c);
       if (this.asked.has(cls)) continue;
       this.asked.add(cls);
-      batch.push({ cls, label: name.slice(0, 60), question: { kind: 'interactive', control: { tag: c.tag, role: c.role, name: maskVolatile(name), hints: c.interactionHints.map(h => h.rule), text: maskVolatile(c.displayedText || ''), context: [c.landmark, s.regions?.find(r => r.key === c.region)?.label].filter(Boolean).map(x => maskVolatile(String(x))).join(' / ') || undefined } } });
+      batch.push({
+        cls,
+        label: name.slice(0, 60),
+        question: {
+          kind: 'interactive',
+          control: {
+            tag: c.tag,
+            role: c.role,
+            name: maskVolatile(name),
+            hints: c.interactionHints.map(h => h.rule),
+            text: maskVolatile(c.displayedText || ''),
+            context:
+              [c.landmark, s.regions?.find(r => r.key === c.region)?.label]
+                .filter(Boolean)
+                .map(x => maskVolatile(String(x)))
+                .join(' / ') || undefined,
+          },
+        },
+      });
     }
     // Lists whose members look different ask whether they are one kind of thing (same batch).
     const lists = new Map<string, Control[]>();
     for (const c of s.controls) {
       const list = this.listOf(c);
-      if (!list || !c.visible || !c.actions.length || this.askedLists.has(list) || (scope && !scope.has(c.localId))) continue;
-      const members = lists.get(list) || []; members.push(c); lists.set(list, members);
+      if (!list || !c.visible || !c.actions.length || this.askedLists.has(list) || (scope && !scope.has(c.localId)))
+        continue;
+      const members = lists.get(list) || [];
+      members.push(c);
+      lists.set(list, members);
     }
     const listBatch: { list: string; question: Question }[] = [];
     for (const [list, members] of lists) {
-      const names = [...new Set(members.map(c => maskVolatile(c.name || c.label || c.displayedText || '')).filter(Boolean))].slice(0, 12);
+      const names = [
+        ...new Set(members.map(c => maskVolatile(c.name || c.label || c.displayedText || '')).filter(Boolean)),
+      ].slice(0, 12);
       if (names.length < 2 || !distinctNames(names)) continue;
       this.askedLists.add(list);
       listBatch.push({ list, question: { kind: 'same-kind', role: members[0].role, members: names } });
@@ -436,19 +696,37 @@ export class SampledCrawler {
     const answers = results.slice(0, batch.length);
     listBatch.forEach(({ list, question }, i) => {
       const answer = results[batch.length + i];
-      this.emit({ type: 'judgement', at: this.now(), question: 'same-kind', label: (question as { members: string[] }).members.slice(0, 4).join(' / ').slice(0, 60), verdict: answer.verdict, source: answer.source, probability: answer.probability });
+      this.emit({
+        type: 'judgement',
+        at: this.now(),
+        question: 'same-kind',
+        label: (question as { members: string[] }).members.slice(0, 4).join(' / ').slice(0, 60),
+        verdict: answer.verdict,
+        source: answer.source,
+        probability: answer.probability,
+      });
       // Only a confident "different functions" splits the list; uncertain keeps sampling it as one.
       if (answer.verdict === 'no') this.splitLists.add(list);
     });
     batch.forEach(({ cls, label }, i) => {
       const answer = answers[i];
-      this.emit({ type: 'judgement', at: this.now(), question: 'interactive', label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
+      this.emit({
+        type: 'judgement',
+        at: this.now(),
+        question: 'interactive',
+        label,
+        verdict: answer.verdict,
+        source: answer.source,
+        probability: answer.probability,
+      });
       // Uncertain weak controls are tried once: a click is cheaper and more accurate than an LLM.
       if (answer.verdict !== 'no') this.confirmed.add(cls);
     });
   }
 
-  private budget(classKey: string) { return classKey.startsWith('list:') ? this.options.listSamples : this.options.samples; }
+  private budget(classKey: string) {
+    return classKey.startsWith('list:') ? this.options.listSamples : this.options.samples;
+  }
 
   /** All currently executable, still-unsampled candidates, ranked by tier. */
   candidates(s: Snapshot, applyGoal = true): Candidate[] {
@@ -464,23 +742,59 @@ export class SampledCrawler {
       const where = placement(c, s.url, this.options.url, this.options.policy);
       // Testing the current page only: a link's destination is recorded, never visited, so a
       // link elsewhere needs no click at all (its href is already the record).
-      if (where === 'outside' || where === 'navigate' && !this.options.followNavigation) { if (where === 'navigate' || where === 'outside') this.noteLink(c, s.url); continue; }
+      if (where === 'outside' || (where === 'navigate' && !this.options.followNavigation)) {
+        if (where === 'navigate' || where === 'outside') this.noteLink(c, s.url);
+        continue;
+      }
       if (where === 'navigate' && !this.pageAllowed(linkTarget(c, s.url)!)) continue;
       for (const kind of kindsFor(c, this.confirmed, this.classOf)) {
         if (!allowed(c, kind, this.options.policy)) continue;
         const classKey = `${kind}|${this.classOf(c)}`;
-        if (classKey.includes('|list:')) { const seen = this.listMembers.get(classKey) || new Set(); seen.add(`${pagePath(s.url)}|${c.name}`); this.listMembers.set(classKey, seen); }
-        if (kind !== 'fill' && (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey))) continue;
+        if (classKey.includes('|list:')) {
+          const seen = this.listMembers.get(classKey) || new Set();
+          seen.add(`${pagePath(s.url)}|${c.name}`);
+          this.listMembers.set(classKey, seen);
+        }
+        if (
+          kind !== 'fill' &&
+          (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey))
+        )
+          continue;
         const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
         if (group && this.flatModeGroups.has(group)) continue;
-        const disclosure = c.expanded !== null || ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) || kind === 'hover' || kind === 'fill';
+        const disclosure =
+          c.expanded !== null ||
+          ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) ||
+          kind === 'hover' ||
+          kind === 'fill';
         if (this.routeClasses.has(classKey) && this.options.inPageRoutes === 'skip') continue;
-        const tierName = scope ? 'overlay' : this.routeClasses.has(classKey) ? 'route' : where === 'navigate' ? 'navigate' : c.landmark ? 'chrome' : disclosure ? 'in-page-disclosure' : 'body';
+        const tierName = scope
+          ? 'overlay'
+          : this.routeClasses.has(classKey)
+            ? 'route'
+            : where === 'navigate'
+              ? 'navigate'
+              : c.landmark
+                ? 'chrome'
+                : disclosure
+                  ? 'in-page-disclosure'
+                  : 'body';
         const relevance = applyGoal ? this.options.relevance : undefined;
         // An open overlay must still be handled even when its contents are off-goal.
         if (relevance && !scope && !relevance.relevant(classKey)) continue;
-        const row = { control: c, kind, classKey, tier: TIERS.indexOf(tierName), tierName, value: kind === 'check' ? String(!c.checked) : undefined, relevance: relevance?.score(classKey) };
-        if (kind !== 'fill') { rows.push(row); continue; }
+        const row = {
+          control: c,
+          kind,
+          classKey,
+          tier: TIERS.indexOf(tierName),
+          tierName,
+          value: kind === 'check' ? String(!c.checked) : undefined,
+          relevance: relevance?.score(classKey),
+        };
+        if (kind !== 'fill') {
+          rows.push(row);
+          continue;
+        }
         // Each sample purpose of an input is its own class; its kind is settled at first use.
         const inputKind = this.inputKinds.get(this.classOf(c))?.kind;
         for (const purpose of inputKind ? inputSamples(inputKind, emptyFacts, '').map(x => x.purpose) : ['first']) {
@@ -492,10 +806,18 @@ export class SampledCrawler {
     }
     // Stable ranking: tier, then reading order (top-left first).
     // Within a mode group, try an unselected member first: it is the one that can switch content.
-    const isSelected = (r: Candidate) => Number(r.control.selected.length > 0 || r.control.checked === true || r.control.pressed === true);
+    const isSelected = (r: Candidate) =>
+      Number(r.control.selected.length > 0 || r.control.checked === true || r.control.pressed === true);
     // Goal mode ranks by relevance inside the overlay-first rule; otherwise tier then reading order.
-    const goal = (r: Candidate) => r.tierName === 'overlay' ? 2 : r.relevance ?? 0.5;
-    return rows.sort((a, b) => (applyGoal && this.options.relevance ? goal(b) - goal(a) : 0) || a.tier - b.tier || isSelected(a) - isSelected(b) || a.control.rect.y - b.control.rect.y || a.control.rect.x - b.control.rect.x);
+    const goal = (r: Candidate) => (r.tierName === 'overlay' ? 2 : (r.relevance ?? 0.5));
+    return rows.sort(
+      (a, b) =>
+        (applyGoal && this.options.relevance ? goal(b) - goal(a) : 0) ||
+        a.tier - b.tier ||
+        isSelected(a) - isSelected(b) ||
+        a.control.rect.y - b.control.rect.y ||
+        a.control.rect.x - b.control.rect.x,
+    );
   }
 
   /** Goal mode: score this state's new action classes in one JEV batch. */
@@ -503,17 +825,35 @@ export class SampledCrawler {
     const relevance = this.options.relevance;
     if (!relevance) return;
     const rows = this.candidates(s, false);
-    await relevance.assess(rows.map(r => ({ classKey: r.classKey, description: `${r.kind} ${r.control.role} "${maskVolatile(r.control.name || r.control.label)}"${r.control.landmark ? ` in site ${r.control.landmark}` : ''}` })));
-    for (const r of rows) if (!relevance.relevant(r.classKey) && !this.pruned.has(r.classKey)) {
-      this.pruned.add(r.classKey);
-      this.emit({ type: 'judgement', at: this.now(), question: 'relevance', label: r.control.name.slice(0, 60), verdict: 'no', source: 'jev', probability: relevance.score(r.classKey) });
-    }
+    await relevance.assess(
+      rows.map(r => ({
+        classKey: r.classKey,
+        description: `${r.kind} ${r.control.role} "${maskVolatile(r.control.name || r.control.label)}"${r.control.landmark ? ` in site ${r.control.landmark}` : ''}`,
+      })),
+    );
+    for (const r of rows)
+      if (!relevance.relevant(r.classKey) && !this.pruned.has(r.classKey)) {
+        this.pruned.add(r.classKey);
+        this.emit({
+          type: 'judgement',
+          at: this.now(),
+          question: 'relevance',
+          label: r.control.name.slice(0, 60),
+          verdict: 'no',
+          source: 'jev',
+          probability: relevance.score(r.classKey),
+        });
+      }
   }
 
   private choose(s: Snapshot): Candidate | undefined {
     // A secondary page with its budget spent: only overlays (to close them) or a way back.
-    const page = pagePath(s.url), spent = page !== pagePath(this.options.url) && (this.pageCounts.get(page) || 0) >= this.options.pageActions;
-    if (spent && !activeOverlay(s)) { this.lastCandidates = []; return; }
+    const page = pagePath(s.url),
+      spent = page !== pagePath(this.options.url) && (this.pageCounts.get(page) || 0) >= this.options.pageActions;
+    if (spent && !activeOverlay(s)) {
+      this.lastCandidates = [];
+      return;
+    }
     const rows = this.candidates(s);
     this.lastCandidates = rows.map(r => r.classKey);
     const overlay = activeOverlay(s);
@@ -528,69 +868,123 @@ export class SampledCrawler {
   private async act(before: Snapshot, c: Candidate) {
     this.lastText = before.text || '';
     this.pageCounts.set(pagePath(before.url), (this.pageCounts.get(pagePath(before.url)) || 0) + 1);
-    const beforeKey = stateKey(before), overlay = activeOverlay(before);
-    let outcome: 'ok' | 'failed' | 'no_change' = 'ok', error: string | undefined;
-    this.intercepted = undefined; this.popup = undefined;
+    const beforeKey = stateKey(before),
+      overlay = activeOverlay(before);
+    let outcome: 'ok' | 'failed' | 'no_change' = 'ok',
+      error: string | undefined;
+    this.intercepted = undefined;
+    this.popup = undefined;
     const urlBefore = this.page.url();
     this.dispatching = true;
     try {
       await this.dispatch(c);
       await this.settle();
     } catch (e) {
-      outcome = 'failed'; error = String(e).slice(0, 200);
+      outcome = 'failed';
+      error = String(e).slice(0, 200);
       this.failedClasses.add(c.classKey);
-    } finally { this.dispatching = false; }
+    } finally {
+      this.dispatching = false;
+    }
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
     this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 0) + 1);
-    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose, from: pagePath(before.url), state: beforeKey };
+    const step: Step = {
+      kind: c.kind,
+      classKey: c.classKey,
+      label: (c.control.name || c.control.label || c.control.role).slice(0, 60),
+      value: c.value,
+      purpose: c.purpose,
+      from: pagePath(before.url),
+      state: beforeKey,
+    };
     // Navigations are recorded, never followed by default. Set asynchronously during dispatch.
-    const intercepted = this.intercepted as string | undefined, popup = this.popup as string | undefined;
+    const intercepted = this.intercepted as string | undefined,
+      popup = this.popup as string | undefined;
     if (intercepted) this.recordLink('document', before.url, intercepted, step.label, 'intercepted');
     if (popup) this.recordLink('popup', before.url, popup, step.label, 'intercepted');
     // A navigation is the expected result of a link: it worked, so it is not a failure.
-    if ((intercepted || popup) && outcome === 'failed' && /aborted|ERR_ABORTED/.test(error || '')) { outcome = 'ok'; error = undefined; }
+    if ((intercepted || popup) && outcome === 'failed' && /aborted|ERR_ABORTED/.test(error || '')) {
+      outcome = 'ok';
+      error = undefined;
+    }
     const urlAfter = this.page.url();
     let routeChanged = false;
-    if (urlAfter !== urlBefore && !this.routeClasses.has(c.classKey) && await this.sameDocument(before)) {
+    if (urlAfter !== urlBefore && !this.routeClasses.has(c.classKey) && (await this.sameDocument(before))) {
       // Same document, new URL: hash change or history.pushState (SPA route).
       // Recorded on discovery and undone (history back, same document). The class then ranks
       // last; with inPageRoutes 'explore' it is re-run once all other in-page work is done.
       routeChanged = true;
       this.recordLink('same-document', urlBefore, urlAfter, step.label, 'reverted');
-      await this.page.goBack({ timeout: 2000 }).catch(() => {}); await this.settle();
-      if (this.options.inPageRoutes === 'explore' && !this.routeClasses.has(c.classKey)) this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 1) - 1);
+      await this.page.goBack({ timeout: 2000 }).catch(() => {});
+      await this.settle();
+      if (this.options.inPageRoutes === 'explore' && !this.routeClasses.has(c.classKey))
+        this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 1) - 1);
     }
-    if (!this.page.url().startsWith('http')) { await this.backtrack(before, 'capture_failed', true); return; }
+    if (!this.page.url().startsWith('http')) {
+      await this.backtrack(before, 'capture_failed', true);
+      return;
+    }
     let after: Snapshot;
-    try { after = await this.snapshot(); } catch { await this.backtrack(before, 'capture_failed', true); return; }
+    try {
+      after = await this.snapshot();
+    } catch {
+      await this.backtrack(before, 'capture_failed', true);
+      return;
+    }
     let afterKey = stateKey(after);
     // An input's effect is usually on other fields' values (a conversion result), not on structure.
     if (outcome === 'ok' && afterKey === beforeKey && c.kind === 'fill') {
-      const values = (x: Snapshot) => x.controls.filter(k => k.visible && k.localId !== c.control.localId && ['input', 'textarea'].includes(k.tag)).map(k => k.value).join('\u0000');
+      const values = (x: Snapshot) =>
+        x.controls
+          .filter(k => k.visible && k.localId !== c.control.localId && ['input', 'textarea'].includes(k.tag))
+          .map(k => k.value)
+          .join('\u0000');
       if (values(before) !== values(after)) afterKey = `${afterKey}|value:${c.classKey}`;
     }
     if (outcome === 'ok' && afterKey === beforeKey) {
       outcome = 'no_change';
       // Structure is unchanged; content may not be (chart range, panel text). Ask once per action class.
-      const textBefore = before.text || '', textAfter = after.text || '';
+      const textBefore = before.text || '',
+        textAfter = after.text || '';
       // Text that appeared (tooltips, expanded answers, popovers without dialog semantics),
       // as whole lines with live numbers masked; lines that only moved or ticked are ignored.
-      const shown = new Set(textBlocks(textBefore)), appeared = textBlocks(textAfter).filter(line => !shown.has(line));
+      const shown = new Set(textBlocks(textBefore)),
+        appeared = textBlocks(textAfter).filter(line => !shown.has(line));
       if (textBefore && appeared.length) {
         // Without a judge, a text change beyond live numbers (e.g. an empty-result message) is new content.
         let changed = true;
         if (this.options.judge) {
-          const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: appeared.slice(0, 12).join('\n') });
-          this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
+          const answer = await this.options.judge.ask({
+            kind: 'effect',
+            action: `${c.kind} ${step.label}`,
+            before: excerpt(textBefore, textAfter),
+            after: appeared.slice(0, 12).join('\n'),
+          });
+          this.emit({
+            type: 'judgement',
+            at: this.now(),
+            question: 'effect',
+            label: step.label,
+            verdict: answer.verdict,
+            source: answer.source,
+            probability: answer.probability,
+          });
           // Text did appear; only a confident "no" (live data drift, same content) rejects it.
           changed = answer.verdict !== 'no';
         }
         // The new state is keyed by what appeared, so the same tooltip reached twice is one state.
-        if (changed) { outcome = 'ok'; afterKey = `${afterKey}|content:${appeared.slice(0, 6).join('|')}`; }
+        if (changed) {
+          outcome = 'ok';
+          afterKey = `${afterKey}|content:${appeared.slice(0, 6).join('|')}`;
+        }
       }
     }
     step.to = pagePath(after.url);
-    if (outcome === 'ok') { step.sigBefore = pageSignature(before, beforeKey); step.sigAfter = pageSignature(after, afterKey); this.pushStep(step); }
+    if (outcome === 'ok') {
+      step.sigBefore = pageSignature(before, beforeKey);
+      step.sigAfter = pageSignature(after, afterKey);
+      this.pushStep(step);
+    }
     const isNew = !this.states.has(afterKey);
     // The first member of a mode group decides whether the rest are worth sampling.
     const group = c.kind === 'click' ? modeGroup(c.control, before.url, modeSiblings(before)) : undefined;
@@ -600,40 +994,82 @@ export class SampledCrawler {
       this.sampledModeGroups.set(group, isNew);
       if (!isNew && outcome !== 'failed') this.flatModeGroups.add(group);
     }
-    if (isNew && /\|(content|value):/.test(afterKey)) this.states.set(afterKey, { key: afterKey, url: after.url, firstSeenAt: this.now(), controls: after.controls.filter(x => x.visible).length });
-    this.emit({ type: 'action', at: this.now(), step, url: before.url, overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`, tier: c.tierName, outcome, error, newState: isNew, after: pagePath(after.url) });
+    if (isNew && /\|(content|value):/.test(afterKey))
+      this.states.set(afterKey, {
+        key: afterKey,
+        url: after.url,
+        firstSeenAt: this.now(),
+        controls: after.controls.filter(x => x.visible).length,
+      });
+    this.emit({
+      type: 'action',
+      at: this.now(),
+      step,
+      url: before.url,
+      overlay: overlay && `${overlay.kind}:${maskVolatile(overlay.name)}`,
+      tier: c.tierName,
+      outcome,
+      error,
+      newState: isNew,
+      after: pagePath(after.url),
+    });
     if (routeChanged) this.routeClasses.add(c.classKey);
     // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
     // A same-document route change (kept) is still the entry page's document, not a departure.
-    const departed = !this.options.followNavigation && pagePath(after.url) !== pagePath(this.options.url) && after.documentId !== this.entryDocument;
+    const departed =
+      !this.options.followNavigation &&
+      pagePath(after.url) !== pagePath(this.options.url) &&
+      after.documentId !== this.entryDocument;
     if (placementOfUrl(after.url, this.options) === 'outside' || departed) {
-      this.failedClasses.add(c.classKey); await this.backtrack(after, 'left_scope');
+      this.failedClasses.add(c.classKey);
+      await this.backtrack(after, 'left_scope');
     }
   }
 
   private async dispatch(c: Candidate) {
     await this.ensureActionable(c.control);
     if (c.kind === 'fill') return this.fill(c);
-    await this.adapter.execute({ kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined }, c.control);
+    await this.adapter.execute(
+      { kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined },
+      c.control,
+    );
   }
 
   /** Static links are recorded from their href without clicking (once per destination page). */
   private noteLink(c: Control, base: string) {
     const target = linkTarget(c, base);
-    if (target) this.recordLink(c.reviewBinding?.attributes.target === '_blank' ? 'popup' : 'document', base, target, (c.name || c.label).slice(0, 60), 'intercepted');
+    if (target)
+      this.recordLink(
+        c.reviewBinding?.attributes.target === '_blank' ? 'popup' : 'document',
+        base,
+        target,
+        (c.name || c.label).slice(0, 60),
+        'intercepted',
+      );
   }
 
-  private recordLink(kind: 'document' | 'same-document' | 'popup', from: string, to: string, action: string, outcome: 'intercepted' | 'kept' | 'reverted' | 'followed') {
+  private recordLink(
+    kind: 'document' | 'same-document' | 'popup',
+    from: string,
+    to: string,
+    action: string,
+    outcome: 'intercepted' | 'kept' | 'reverted' | 'followed',
+  ) {
     const key = `${kind === 'same-document' ? kind : 'leave'}|${pagePath(from)}|${kind === 'same-document' ? to : pagePath(to)}`;
     const row = this.links.get(key);
-    if (row) { row.count++; return; }
+    if (row) {
+      row.count++;
+      return;
+    }
     this.links.set(key, { from: pagePath(from), to, kind, action, count: 1 });
     this.emit({ type: 'navigation', at: this.now(), kind, from, to, action, outcome });
   }
 
   /** True when the document that produced `before` is still loaded (no full page load happened). */
   private async sameDocument(before: Snapshot) {
-    const id = await this.page.evaluate('window.__interactionEvidenceTracker && window.__interactionEvidenceTracker.documentId').catch(() => undefined);
+    const id = await this.page
+      .evaluate('window.__interactionEvidenceTracker && window.__interactionEvidenceTracker.documentId')
+      .catch(() => undefined);
     return !!id && id === before.documentId;
   }
 
@@ -643,7 +1079,7 @@ export class SampledCrawler {
    */
   private async ensureActionable(control: Control) {
     const target = this.page.locator(control.selector);
-    if (await target.count() !== 1) throw new Error('Target is no longer unique');
+    if ((await target.count()) !== 1) throw new Error('Target is no longer unique');
     await target.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(() => {});
     const blocker = await target.evaluate(hitTestInPage).catch(() => 'detached');
     if (blocker) throw new Error(`Target not actionable: ${blocker}`);
@@ -659,17 +1095,40 @@ export class SampledCrawler {
       const structural = classifyInput(facts);
       if (structural) known = { kind: structural, source: 'structure' };
       else if (this.options.inputJudge) {
-        try { known = { kind: await judgeInputKind(this.options.inputJudge, facts, maskVolatile(c.control.displayedText || this.lastText.slice(0, 400))), source: 'jev' }; }
-        catch { known = { kind: 'text', source: 'default' }; }
+        try {
+          known = {
+            kind: await judgeInputKind(
+              this.options.inputJudge,
+              facts,
+              maskVolatile(c.control.displayedText || this.lastText.slice(0, 400)),
+            ),
+            source: 'jev',
+          };
+        } catch {
+          known = { kind: 'text', source: 'default' };
+        }
       } else known = { kind: 'text', source: 'default' };
       this.inputKinds.set(cls, known);
-      this.emit({ type: 'judgement', at: this.now(), question: 'input-kind', label: (facts.placeholder || facts.name || c.control.name).slice(0, 60), verdict: 'yes', source: known.source, probability: undefined, detail: known.kind });
+      this.emit({
+        type: 'judgement',
+        at: this.now(),
+        question: 'input-kind',
+        label: (facts.placeholder || facts.name || c.control.name).slice(0, 60),
+        verdict: 'yes',
+        source: known.source,
+        probability: undefined,
+        detail: known.kind,
+      });
     }
     const samples = inputSamples(known.kind, facts, this.lastText);
     const sample = samples.find(x => x.purpose === c.purpose) || samples[0];
-    c.value = sample.value; c.purpose = sample.purpose;
+    c.value = sample.value;
+    c.purpose = sample.purpose;
     // Re-key the first sample under its real purpose so the remaining samples stay pending.
-    if (c.classKey.endsWith('|first')) { this.resolvedFills.add(c.classKey); c.classKey = c.classKey.replace(/\|first$/, `|${sample.purpose}`); }
+    if (c.classKey.endsWith('|first')) {
+      this.resolvedFills.add(c.classKey);
+      c.classKey = c.classKey.replace(/\|first$/, `|${sample.purpose}`);
+    }
     const target = this.page.locator(c.control.selector);
     await target.click({ timeout: 2000 });
     await target.fill(sample.value, { timeout: 2000 });
@@ -684,7 +1143,11 @@ export class SampledCrawler {
       await this.page.keyboard.press('Escape').catch(() => {});
       await this.settle();
       const after = await this.snapshot();
-      if (stateKey(after) !== stateKey(current)) { this.path.pop(); this.emit({ type: 'backtrack', at: this.now(), reason: `${reason}:escape`, url: current.url }); return true; }
+      if (stateKey(after) !== stateKey(current)) {
+        this.path.pop();
+        this.emit({ type: 'backtrack', at: this.now(), reason: `${reason}:escape`, url: current.url });
+        return true;
+      }
     }
     if (!restore && !this.path.length && pagePath(current.url) === pagePath(this.options.url)) return false;
 
@@ -723,7 +1186,9 @@ export class SampledCrawler {
     await this.settle();
     if (start > 0 && pagePath(this.page.url()) !== resume) {
       // Redirected or blocked: fall back to the full replay from the entry.
-      start = 0; await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {}); await this.settle();
+      start = 0;
+      await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
+      await this.settle();
     }
     if (start > 0) this.directLoads++;
     this.path = replay.slice(0, start);
@@ -731,7 +1196,13 @@ export class SampledCrawler {
       const s = await this.snapshot();
       const target = this.candidatesForReplay(s, step);
       if (!target) break;
-      try { await this.dispatch(target); await this.settle(); this.path.push(step); } catch { break; }
+      try {
+        await this.dispatch(target);
+        await this.settle();
+        this.path.push(step);
+      } catch {
+        break;
+      }
     }
     return true;
   }
@@ -769,7 +1240,10 @@ export class SampledCrawler {
     return keys.some(key => {
       // A fill's placeholder key ('|first') is resolved to its real sample keys at dispatch.
       if (key.endsWith('|first')) return !this.resolvedFills.has(key);
-      return !this.failedClasses.has(key) && (this.classCounts.get(key) || 0) < (key.startsWith('fill|') ? 1 : this.budget(key));
+      return (
+        !this.failedClasses.has(key) &&
+        (this.classCounts.get(key) || 0) < (key.startsWith('fill|') ? 1 : this.budget(key))
+      );
     });
   }
 
@@ -781,7 +1255,10 @@ export class SampledCrawler {
     // A dropped in-page step on the target itself would be state that back cannot undo.
     if (dropped.some(step => step.from === target && step.to === target)) return false;
     for (let i = 0; i < navigations; i++) {
-      const ok = await this.page.goBack({ waitUntil: 'domcontentloaded', timeout: 5000 }).then(r => !!r).catch(() => false);
+      const ok = await this.page
+        .goBack({ waitUntil: 'domcontentloaded', timeout: 5000 })
+        .then(r => !!r)
+        .catch(() => false);
       if (!ok) return false;
     }
     await this.settle();
@@ -798,63 +1275,141 @@ export class SampledCrawler {
       if (!c.visible) continue;
       // Fill keys carry a sample purpose suffix; replay types the recorded sample again.
       const base = step.kind === 'fill' ? step.classKey.slice(0, step.classKey.lastIndexOf('|')) : step.classKey;
-      for (const kind of kindsFor(c, this.confirmed, this.classOf)) if (kind === step.kind && `${kind}|${this.classOf(c)}` === base && (c.name || c.label || c.role).slice(0, 60) === step.label)
-        return { control: c, kind, classKey: step.classKey, tier: 0, tierName: 'replay', value: step.value, purpose: step.purpose };
+      for (const kind of kindsFor(c, this.confirmed, this.classOf))
+        if (
+          kind === step.kind &&
+          `${kind}|${this.classOf(c)}` === base &&
+          (c.name || c.label || c.role).slice(0, 60) === step.label
+        )
+          return {
+            control: c,
+            kind,
+            classKey: step.classKey,
+            tier: 0,
+            tierName: 'replay',
+            value: step.value,
+            purpose: step.purpose,
+          };
     }
   }
 }
 
 // Built with new Function so the bundler cannot inject helpers into the serialized source.
-const hitTestInPage = new Function('el', `const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+const hitTestInPage = new Function(
+  'el',
+  `const r = el.getBoundingClientRect(), s = getComputedStyle(el);
   if (r.width < 1 || r.height < 1 || s.visibility === 'hidden' || s.display === 'none') return 'hidden';
   const x = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), y = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2));
   const hit = document.elementFromPoint(x, y);
   if (!hit || el === hit || el.contains(hit) || hit.contains(el)) return '';
-  return 'covered by ' + hit.tagName.toLowerCase() + (hit.className && typeof hit.className === 'string' ? '.' + hit.className.split(' ')[0] : '');`) as (el: Element) => string;
+  return 'covered by ' + hit.tagName.toLowerCase() + (hit.className && typeof hit.className === 'string' ? '.' + hit.className.split(' ')[0] : '');`,
+) as (el: Element) => string;
 
-const emptyFacts = { type: '', inputmode: '', placeholder: '', pattern: '', autocomplete: '', ariaAutocomplete: '', ariaHaspopup: '', role: '', name: '', min: '', max: '', step: '', value: '' };
+const emptyFacts = {
+  type: '',
+  inputmode: '',
+  placeholder: '',
+  pattern: '',
+  autocomplete: '',
+  ariaAutocomplete: '',
+  ariaHaspopup: '',
+  role: '',
+  name: '',
+  min: '',
+  max: '',
+  step: '',
+  value: '',
+};
 
-function kindsFor(c: Control, confirmed?: ReadonlySet<string>, classOf: (c: Control) => string = baseClass): CrawlKind[] {
-  const basis = c.actionBasis || {} as NonNullable<Control['actionBasis']>;
+function kindsFor(
+  c: Control,
+  confirmed?: ReadonlySet<string>,
+  classOf: (c: Control) => string = baseClass,
+): CrawlKind[] {
+  const basis = c.actionBasis || ({} as NonNullable<Control['actionBasis']>);
   const kinds: CrawlKind[] = [];
   if (c.actions.includes('fill') && c.editable && ['input', 'textarea'].includes(c.tag)) return ['fill'];
   if (c.actions.includes('check')) kinds.push('check');
   else if (c.actions.includes('click') || confirmed?.has(classOf(c))) kinds.push('click');
   // Hover only where the page declares a hover-driven disclosure.
   // Hover where the page declares or hints at a hover-driven disclosure (menus, tooltips).
-  const popup = c.reviewBinding?.attributes['aria-haspopup'] || c.reviewBinding?.attributes['aria-describedby'] || c.reviewBinding?.attributes.title;
-  if (c.actions.includes('hover') && (basis.hover?.status === 'supported' || c.expanded !== null || c.controls || popup || basis.hover?.status === 'tentative' && c.landmark)) kinds.push('hover');
+  const popup =
+    c.reviewBinding?.attributes['aria-haspopup'] ||
+    c.reviewBinding?.attributes['aria-describedby'] ||
+    c.reviewBinding?.attributes.title;
+  if (
+    c.actions.includes('hover') &&
+    (basis.hover?.status === 'supported' ||
+      c.expanded !== null ||
+      c.controls ||
+      popup ||
+      (basis.hover?.status === 'tentative' && c.landmark))
+  )
+    kinds.push('hover');
   return kinds;
 }
 
 function placementOfUrl(url: string, options: { url: string; policy: CrawlPolicy }) {
   try {
-    const u = new URL(url), e = new URL(options.url);
+    const u = new URL(url),
+      e = new URL(options.url);
     if (pagePath(url) === pagePath(options.url)) return 'stay';
     return u.origin === e.origin && options.policy.allowedPaths.some(p => p.test(u.pathname)) ? 'navigate' : 'outside';
-  } catch { return 'outside'; }
+  } catch {
+    return 'outside';
+  }
 }
 
 /** The differing middle of two page texts, bounded for a model question. */
 function excerpt(text: string, other: string, size = 600) {
-  let start = 0; while (start < text.length && text[start] === other[start]) start++;
+  let start = 0;
+  while (start < text.length && text[start] === other[start]) start++;
   return text.slice(Math.max(0, start - 100), start - 100 + size);
 }
 
 /** Combined JEV / LLM spend for the run summary (planning calls are added by the host). */
 function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | undefined)[]) {
-  const sum = (meters: (ProviderMeter | undefined)[]) => meters.filter((m): m is ProviderMeter => !!m).reduce((t, m) => ({
-    calls: t.calls + m.calls, failures: t.failures + m.failures, judgments: t.judgments + m.judgments, inputTokens: t.inputTokens + m.inputTokens,
-    outputTokens: t.outputTokens + m.outputTokens, costUsd: t.costUsd + m.costUsd, unpricedCalls: t.unpricedCalls + m.unpricedCalls,
-    avgMs: 0, elapsedMs: t.elapsedMs + m.elapsedMs,
-  }), { calls: 0, failures: 0, judgments: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, unpricedCalls: 0, avgMs: 0, elapsedMs: 0 });
+  const sum = (meters: (ProviderMeter | undefined)[]) =>
+    meters
+      .filter((m): m is ProviderMeter => !!m)
+      .reduce(
+        (t, m) => ({
+          calls: t.calls + m.calls,
+          failures: t.failures + m.failures,
+          judgments: t.judgments + m.judgments,
+          inputTokens: t.inputTokens + m.inputTokens,
+          outputTokens: t.outputTokens + m.outputTokens,
+          costUsd: t.costUsd + m.costUsd,
+          unpricedCalls: t.unpricedCalls + m.unpricedCalls,
+          avgMs: 0,
+          elapsedMs: t.elapsedMs + m.elapsedMs,
+        }),
+        {
+          calls: 0,
+          failures: 0,
+          judgments: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          costUsd: 0,
+          unpricedCalls: 0,
+          avgMs: 0,
+          elapsedMs: 0,
+        },
+      );
   const withAvg = (t: ReturnType<typeof sum>) => ({ ...t, avgMs: t.calls ? Math.round(t.elapsedMs / t.calls) : 0 });
   return { jev: withAvg(sum(jev)), llm: withAvg(sum(llm)) };
 }
 
 /** Visible text split into comparable blocks, live numbers masked, tiny fragments dropped. */
 function textBlocks(text: string) {
-  return [...new Set(text.split(/\n+/).map(line => maskVolatile(line, 200)).filter(line => line.length >= 3))];
+  return [
+    ...new Set(
+      text
+        .split(/\n+/)
+        .map(line => maskVolatile(line, 200))
+        .filter(line => line.length >= 3),
+    ),
+  ];
 }
 
 /** What a replay must reproduce: the abstract state plus the visible text with live numbers masked. */
@@ -867,15 +1422,30 @@ function pageSignature(s: Snapshot, key: string) {
  * usually share words (e.g. "BTC to PKR", "BTC to EUR"); different functions usually share none.
  */
 function distinctNames(names: string[]) {
-  const words = names.map(n => new Set(n.toLowerCase().split(/[^\p{L}\p{N}#]+/u).filter(w => w.length > 1)));
-  let shared = 0, pairs = 0;
-  for (let i = 0; i < words.length; i++) for (let j = i + 1; j < words.length; j++) {
-    pairs++; if ([...words[i]].some(w => words[j].has(w))) shared++;
-  }
+  const words = names.map(
+    n =>
+      new Set(
+        n
+          .toLowerCase()
+          .split(/[^\p{L}\p{N}#]+/u)
+          .filter(w => w.length > 1),
+      ),
+  );
+  let shared = 0,
+    pairs = 0;
+  for (let i = 0; i < words.length; i++)
+    for (let j = i + 1; j < words.length; j++) {
+      pairs++;
+      if ([...words[i]].some(w => words[j].has(w))) shared++;
+    }
   return pairs > 0 && shared / pairs < 0.5;
 }
 
 /** Pathname without trailing slash, locale prefix kept. */
 function rawPath(url: string) {
-  try { return new URL(url).pathname.replace(/\/+$/, ''); } catch { return url; }
+  try {
+    return new URL(url).pathname.replace(/\/+$/, '');
+  } catch {
+    return url;
+  }
 }

@@ -2,7 +2,12 @@ import type { Control, Overlay, Region } from './browser/types.js';
 
 /** Minimal capture the crawler needs; produced by the adapter's DOM collector. */
 export interface Snapshot {
-  url: string; title: string; text?: string; controls: Control[]; overlays?: Overlay[]; regions?: Region[];
+  url: string;
+  title: string;
+  text?: string;
+  controls: Control[];
+  overlays?: Overlay[];
+  regions?: Region[];
   /** Adapter document identity; changes on every full page load. */
   documentId?: string;
   /** The full capture this projection came from (for plugins). */
@@ -11,14 +16,23 @@ export interface Snapshot {
 
 /** Live values (prices, times, percentages, counts) never make a new state or component. */
 export function maskVolatile(text: string, max = 80): string {
-  return text.replace(/\s+/g, ' ').trim().replace(/[-+]?[\d₀-₉][\d₀-₉.,:%/]*/g, '#').slice(0, max);
+  return text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[-+]?[\d₀-₉][\d₀-₉.,:%/]*/g, '#')
+    .slice(0, max);
 }
 
 /** Region/script locale prefixes (/zh-hans/, /en-au/) are the same page in another language. */
 const localePrefix = /^\/[a-z]{2}-(?:[a-z]{2}|hans|hant)(?=\/|$)/i;
 
 export function pagePath(url: string): string {
-  try { const u = new URL(url); return u.origin + u.pathname.replace(localePrefix, '').replace(/\/+$/, ''); } catch { return url; }
+  try {
+    const u = new URL(url);
+    return u.origin + u.pathname.replace(localePrefix, '').replace(/\/+$/, '');
+  } catch {
+    return url;
+  }
 }
 
 /**
@@ -26,8 +40,14 @@ export function pagePath(url: string): string {
  * and /convert/btc-to-pkr are the same template. The entry page stays itself.
  */
 export function pageTemplate(url: string): string {
-  try { const u = new URL(url), parts = u.pathname.replace(localePrefix, '').replace(/\/+$/, '').split('/'); if (parts.length > 2) parts[parts.length - 1] = '*'; return u.origin + parts.join('/'); }
-  catch { return url; }
+  try {
+    const u = new URL(url),
+      parts = u.pathname.replace(localePrefix, '').replace(/\/+$/, '').split('/');
+    if (parts.length > 2) parts[parts.length - 1] = '*';
+    return u.origin + parts.join('/');
+  } catch {
+    return url;
+  }
 }
 
 /** The innermost open overlay owns interaction; everything beneath a modal is masked. */
@@ -47,7 +67,11 @@ export const modeRoles = new Set(['tab', 'radio', 'menuitemradio', 'option', 'sw
  * The mode group a selector belongs to (its tablist/radiogroup/row), independent
  * of document instance IDs: same page path, role and parent selector.
  */
-export function modeGroup(c: Control, url: string, siblings?: (parentInstanceId: string) => string[]): string | undefined {
+export function modeGroup(
+  c: Control,
+  url: string,
+  siblings?: (parentInstanceId: string) => string[],
+): string | undefined {
   // Segmented controls are often plain buttons in a row: short, label-only names
   // ("1h", "24h", "1W") sharing a parent behave as one mode group.
   const segmented = c.role === 'button' && !c.landmark && /^[\w.%+-]{1,4}$/.test((c.name || '').trim());
@@ -62,14 +86,18 @@ export function modeGroup(c: Control, url: string, siblings?: (parentInstanceId:
 /** A list member's class: one entry per (list owner, template slot), not per row. */
 export function listClass(c: Control): string | undefined {
   if (modeRoles.has(c.role)) return;
-  return c.structuralItem ? `list:${c.structuralItem.template}:${c.structuralItem.slot}` : c.list ? `list:${c.list.selector}:${c.role}` : undefined;
+  return c.structuralItem
+    ? `list:${c.structuralItem.template}:${c.structuralItem.slot}`
+    : c.list
+      ? `list:${c.list.selector}:${c.role}`
+      : undefined;
 }
 
 /** Component class, stable across live-value changes and list membership. */
 export function controlClass(c: Control): string {
   const name = c.name || c.label || c.displayedText || '';
   // Short labels are static ("1h", "24h", "1Y", "2Y"); masking their digits would merge them.
-  const short = name.trim().length <= 4 || modeRoles.has(c.role) && name.length <= 24;
+  const short = name.trim().length <= 4 || (modeRoles.has(c.role) && name.length <= 24);
   return listClass(c) || [c.landmark || '', c.role, c.tag, short ? name : maskVolatile(name)].join('|');
 }
 
@@ -83,8 +111,22 @@ export function stateKey(s: Snapshot): string {
   // Visible named content counts too: a hover card or expanded answer adds text, not always controls.
   const classes = new Set(s.controls.filter(c => c.visible && (c.actions.length || c.name)).map(controlClass));
   // Status messages (empty results, errors, alerts) are states even when they add no controls.
-  const status = (s.text || '').split(/\n+/).map(line => line.trim()).filter(line => /^(no |nothing|not found|没有|暂无|无结果|未找到)|result|empty|error|failed|错误|失败/i.test(line) && line.length <= 80).map(line => maskVolatile(line)).sort();
-  return JSON.stringify([pagePath(s.url), overlay ? `${overlay.kind}:${maskVolatile(overlay.name)}` : '', [...classes].sort(), [...new Set(status)]]);
+  const status = (s.text || '')
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(
+      line =>
+        /^(no |nothing|not found|没有|暂无|无结果|未找到)|result|empty|error|failed|错误|失败/i.test(line) &&
+        line.length <= 80,
+    )
+    .map(line => maskVolatile(line))
+    .sort();
+  return JSON.stringify([
+    pagePath(s.url),
+    overlay ? `${overlay.kind}:${maskVolatile(overlay.name)}` : '',
+    [...classes].sort(),
+    [...new Set(status)],
+  ]);
 }
 
 /** Names of mode controls under each parent, for keying mode groups within one snapshot. */
@@ -93,7 +135,9 @@ export function modeSiblings(s: Snapshot): (parentInstanceId: string) => string[
   for (const c of s.controls) {
     const parent = c.domAncestry?.instanceIds[0];
     if (!parent || !c.visible) continue;
-    const list = byParent.get(parent) || []; list.push(`${c.role}:${c.name}`); byParent.set(parent, list);
+    const list = byParent.get(parent) || [];
+    list.push(`${c.role}:${c.name}`);
+    byParent.set(parent, list);
   }
   return parent => (byParent.get(parent) || []).slice(0, 12);
 }

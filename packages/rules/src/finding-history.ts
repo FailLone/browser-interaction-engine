@@ -8,7 +8,10 @@ export function findingSnapshot(check: RuleCheck, captureId: string, label: stri
 }
 
 export function currentCaptureOnly(check: RuleCheck): RuleCheck {
-  return { ...check, facts: { ...check.facts, identityId: null, tracking: 'current-capture-only', trackingReason: 'IDENTITY_UNCERTAIN' } };
+  return {
+    ...check,
+    facts: { ...check.facts, identityId: null, tracking: 'current-capture-only', trackingReason: 'IDENTITY_UNCERTAIN' },
+  };
 }
 
 /** Observation and compliance are independent: an observed warning may still

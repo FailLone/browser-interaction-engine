@@ -8,21 +8,12 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "lib": [
-      "ES2023",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "types": [
-      "node",
-      "vite/client"
-    ],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client"],
     "outDir": "dist",
     "rootDir": ".",
     "declaration": true,
-    "customConditions": [
-      "development"
-    ]
+    "customConditions": ["development"]
   },
   "include": [
     "packages/**/*.ts",
@@ -33,9 +24,5 @@
     "vitest.config.ts",
     "packages/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "apps/*/dist"
-  ]
+  "exclude": ["node_modules", "dist", "apps/*/dist"]
 }
