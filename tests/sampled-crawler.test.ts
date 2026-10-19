@@ -589,7 +589,44 @@ test('inputs are classified from structure and filled with kind-specific samples
     { value: 'BTC', purpose: 'existing' },
     { value: 'zzqx-no-result-7319', purpose: 'empty' },
   ]);
+  // The box's own items win over the page-wide favourite.
+  expect(inputSamples('search', facts({}), 'BTC BTC BTC', ['English', 'Español'])[0].value).toBe('English');
   expect(inputSamples('number', facts({ max: '50' }), '').map(x => x.value)).toEqual(['100', '50', '0', 'abc']);
+});
+
+test('each search box is tried with a term from the items it filters, not the page-wide favourite', async () => {
+  // Both panels sit under the same "USD" heavy page; only the currency list contains USD.
+  const html = `<!doctype html><title>Settings</title><main>
+    <p>USD USD USD USD rates in USD</p>
+    <div class="panel"><div>Language</div><input placeholder="Search" data-list="lang"><ul id="lang"><li><a href="#en">English</a></li><li><a href="#zh">简体中文</a></li><li><a href="#es">Español</a></li></ul></div>
+    <div class="panel"><div>Local currency</div><input placeholder="Search" data-list="cur"><ul id="cur"><li><a href="#usd">USD</a></li><li><a href="#cny">CNY</a></li><li><a href="#eur">EUR</a></li></ul></div>
+    <script>for (const q of document.querySelectorAll('input')) q.addEventListener('keydown', e => { if (e.key !== 'Enter') return;
+      const ul = document.getElementById(q.dataset.list);
+      for (const li of ul.querySelectorAll('li')) li.hidden = !li.textContent.toLowerCase().includes(q.value.toLowerCase());
+      ul.dataset.hits = [...ul.querySelectorAll('li')].filter(li => !li.hidden).length; });</script></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) });
+    await crawler.run();
+    const existing = events
+      .filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action' && e.step.kind === 'fill')
+      .filter(f => f.step.purpose === 'existing')
+      .map(f => [f.step.classKey.split('|')[4], f.step.value]);
+    expect(existing).toEqual(
+      expect.arrayContaining([
+        ['Search@Language', 'English'],
+        ['Search@Local currency', 'USD'],
+      ]),
+    );
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
 });
 
 test('a search box is tried with a matching term and with one that exposes the empty state', async () => {
