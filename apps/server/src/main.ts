@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { CrawlManager, CrawlStore, providersFromEnv } from '@interaction/crawler';
+import { CrawlManager, CrawlStore, experimentSessionFactory, providersFromEnv } from '@interaction/crawler';
 import { rulesPlugin } from '@interaction/rules';
 import { createServer } from './server.js';
 
@@ -11,6 +11,9 @@ const crawls = new CrawlManager(
   {
     rules: () => rulesPlugin(),
   },
+  // Experiment variants need no secrets, so they are offered by default; a login provider
+  // (`presetSessionFactory` from @interaction/auth) is added by hosts that have accounts.
+  { experiment: experimentSessionFactory },
 );
 const app = await createServer(crawls, { logger: true });
 await app.listen({ host: '127.0.0.1', port: Number(process.env.PORT || 4173) });

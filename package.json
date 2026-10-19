@@ -20,6 +20,7 @@
     "lint": "biome check ."
   },
   "dependencies": {
+    "@interaction/auth": "workspace:*",
     "@interaction/crawler": "workspace:*",
     "@interaction/rules": "workspace:*"
   },

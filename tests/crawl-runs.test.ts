@@ -135,3 +135,43 @@ test('a run loads only the host plugins it names and records their findings', as
     await crawls.close();
   }
 }, 60000);
+
+test('a run crawls on the viewport it asks for, and a resumed run keeps it', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'crawls-'));
+  const crawls = new CrawlManager(new CrawlStore(join(dir, 'crawls.sqlite')));
+  const app = await createServer(crawls);
+  await app.listen({ host: '127.0.0.1', port: 0 });
+  const api = `http://127.0.0.1:${(app.server.address() as { port: number }).port}`;
+  const post = (body: unknown) =>
+    fetch(`${api}/v1/crawls`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'content-type': 'application/json' },
+    });
+  const finished = (id: string) =>
+    waitFor(
+      async () => (await fetch(`${api}/v1/crawls/${id}`)).json(),
+      r => r.status !== 'running',
+    );
+  try {
+    expect((await post({ url, models: false, viewport: 'tablet' })).status).toBe(400);
+    expect((await post({ url, models: false, viewport: { width: 100, height: 800 } })).status).toBe(400);
+    const mobile = await (await post({ url, durationMs: 10000, models: false, viewport: 'mobile' })).json();
+    expect(mobile.options.viewport).toBe('mobile');
+    const done = await finished(mobile.id);
+    expect(done.summary.viewport).toMatchObject({ preset: 'mobile', width: 393, mobile: true });
+    const events = await (await fetch(`${api}/v1/crawls/${mobile.id}/events`)).json();
+    expect(events[0]).toMatchObject({ type: 'viewport', viewport: { preset: 'mobile' } });
+
+    expect((await post({ url, models: false, resumeFrom: mobile.id, viewport: 'desktop' })).status).toBe(409);
+    const resumed = await (await post({ url, durationMs: 10000, models: false, resumeFrom: mobile.id })).json();
+    expect((await finished(resumed.id)).summary.viewport).toMatchObject({ preset: 'mobile' });
+
+    // No breakpoints on this page: desktop-edge falls back to 1024x768 and says so.
+    const edge = await (await post({ url, durationMs: 10000, models: false, viewport: 'desktop-edge' })).json();
+    expect((await finished(edge.id)).summary.viewport).toMatchObject({ width: 1024, source: 'fallback' });
+  } finally {
+    await app.close();
+    await crawls.close();
+  }
+}, 90000);

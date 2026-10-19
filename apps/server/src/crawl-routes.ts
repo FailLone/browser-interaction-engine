@@ -2,10 +2,26 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { CrawlManager } from '@interaction/crawler';
 
+const sessionRequest = z
+  .object({ provider: z.string().min(1).max(64), options: z.record(z.string(), z.unknown()).optional() })
+  .strict();
+
 const startSchema = z
   .object({
     url: z.url().refine(v => ['http:', 'https:'].includes(new URL(v).protocol), 'Only HTTP(S) URLs are supported'),
     durationMs: z.number().int().min(10_000).max(3_600_000).optional(),
+    viewport: z
+      .union([
+        z.enum(['desktop', 'desktop-edge', 'mobile']),
+        z
+          .object({
+            width: z.number().int().min(240).max(3840),
+            height: z.number().int().min(240).max(2160),
+            mobile: z.boolean().optional(),
+          })
+          .strict(),
+      ])
+      .optional(),
     allowedPaths: z
       .array(
         z
@@ -27,6 +43,7 @@ const startSchema = z
     models: z.boolean().optional(),
     resumeFrom: z.string().uuid().optional(),
     plugins: z.array(z.string().min(1).max(64)).max(10).optional(),
+    session: z.union([sessionRequest, z.array(sessionRequest).min(1).max(5)]).optional(),
   })
   .strict();
 
@@ -36,6 +53,7 @@ export function registerCrawlRoutes(app: FastifyInstance, crawls: CrawlManager) 
     reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Crawl run not found' } });
   app.get('/v1/crawls', async () => crawls.store.runs());
   app.get('/v1/crawl-plugins', async () => Object.keys(crawls.pluginFactories));
+  app.get('/v1/crawl-sessions', async () => Object.keys(crawls.sessionFactories));
   app.post('/v1/crawls', async (request, reply) => {
     try {
       return reply.code(201).send(crawls.start(startSchema.parse(request.body)));

@@ -1,5 +1,14 @@
 import { BrowserDriver, type DOMSnapshot } from './browser/driver.js';
 import type { Control } from './browser/types.js';
+import { initialViewport, type ResolvedViewport, type ViewportOption } from './browser/viewport.js';
+import {
+  composeSessions,
+  type PreparedSession,
+  type SessionCheck,
+  type SessionKeys,
+  type SessionProvider,
+  sessionKeys,
+} from './session.js';
 import {
   activeOverlay,
   controlClass as baseClass,
@@ -24,6 +33,13 @@ import type { Provider } from './providers.js';
 export interface CrawlOptions {
   url: string;
   headless?: boolean;
+  /** Screen to crawl on: `desktop` (default), `desktop-edge`, `mobile` or a custom size. */
+  viewport?: ViewportOption;
+  /**
+   * Browser state to restore and keep checking: a logged-in account, an experiment variant, or
+   * several combined (e.g. `[login, experiment]`); they must not set the same cookie or header.
+   */
+  session?: SessionProvider | SessionProvider[];
   durationMs?: number;
   maxActions?: number;
   /** Samples per action class; list members default to `listSamples`. */
@@ -87,6 +103,10 @@ export interface Step {
   sigAfter?: string;
 }
 export type CrawlEvent =
+  /** The viewport the crawl runs in, emitted once the page is open. */
+  | { type: 'viewport'; at: number; viewport: ResolvedViewport }
+  /** The session restored into the browser, and each check of it. */
+  | { type: 'session'; at: number; provider: string; session: Record<string, unknown>; check?: SessionCheck }
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | {
       type: 'action';
@@ -128,9 +148,16 @@ export type CrawlEvent =
 /**
  * Why a crawl ended: everything reachable was tested (scope_exhausted), the page kept
  * reopening something without progress (no_progress), a limit was reached, the caller
- * stopped it, or it failed.
+ * stopped it, the session's check failed (session_invalid), or it failed.
  */
-export type StopReason = 'scope_exhausted' | 'no_progress' | 'time_limit' | 'action_limit' | 'stopped' | 'error';
+export type StopReason =
+  | 'scope_exhausted'
+  | 'no_progress'
+  | 'time_limit'
+  | 'action_limit'
+  | 'stopped'
+  | 'session_invalid'
+  | 'error';
 
 interface Candidate {
   control: Control;
@@ -174,6 +201,15 @@ export class SampledCrawler {
   readonly classCounts = new Map<string, number>();
   readonly failedClasses = new Set<string>();
   private stopReason?: StopReason;
+  /** Prepared sessions not yet released, with whether every check of each passed so far. */
+  private sessions: { provider: SessionProvider; session: PreparedSession; verified: boolean; lastCheck: number }[] =
+    [];
+  private get providers() {
+    const session = this.options.session;
+    return session ? (Array.isArray(session) ? session : [session]) : [];
+  }
+  /** Verification per provider, kept after release for the summary. */
+  private readonly sessionResults = new Map<string, boolean>();
   /**
    * Mode groups (tab rows, radio groups) whose first sampled member revealed
    * nothing new: the rest only redraw something we cannot inspect (e.g. a canvas chart).
@@ -212,9 +248,15 @@ export class SampledCrawler {
   private dispatching = false;
   private readonly started = Date.now();
   private readonly options: Required<
-    Omit<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>
+    Omit<
+      CrawlOptions,
+      'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot' | 'session'
+    >
   > &
-    Pick<CrawlOptions, 'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot'>;
+    Pick<
+      CrawlOptions,
+      'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot' | 'session'
+    >;
   /** Weak controls the judge confirmed as interactive, by component class. */
   private readonly confirmed = new Set<string>();
   /** Input kind per input component class: structural, judged by JEV, or defaulted. */
@@ -260,6 +302,7 @@ export class SampledCrawler {
   constructor(options: CrawlOptions) {
     this.options = {
       headless: true,
+      viewport: 'desktop',
       durationMs: 240_000,
       maxActions: 200,
       samples: 1,
@@ -318,15 +361,35 @@ export class SampledCrawler {
 
   async run() {
     if (this.options.ledger) this.restore(this.options.ledger);
-    this.adapter = new BrowserDriver({ url: this.options.url, headless: this.options.headless, actionTimeoutMs: 2000 });
-    await this.adapter.start();
+    const target = { url: this.options.url, viewport: initialViewport(this.options.viewport) };
+    try {
+      // Prepared in order; one that fails releases those before it (an account lock, say).
+      for (const provider of this.providers)
+        this.sessions.push({ provider, session: await provider.prepare(target), verified: false, lastCheck: 0 });
+      const composed = composeSessions(this.sessions.map(s => ({ id: s.provider.id, session: s.session })));
+      this.adapter = new BrowserDriver({
+        url: this.options.url,
+        headless: this.options.headless,
+        viewport: this.options.viewport,
+        actionTimeoutMs: 2000,
+        ...(this.sessions.length ? composed : {}),
+      });
+      await this.adapter.start();
+    } catch (error) {
+      await this.releaseSessions();
+      await this.adapter?.close();
+      throw error;
+    }
+    this.emit({ type: 'viewport', at: this.now(), viewport: this.adapter.viewport });
+    for (const { provider, session } of this.sessions)
+      this.emit({ type: 'session', at: this.now(), provider: provider.id, session: session.describe });
     // Document navigations are decided before they happen. Aborting with 'aborted' cancels the
     // load and leaves the current document, its DOM and its state untouched (no error page).
     // Popups (window.open, target=_blank) are stopped before they load. Page routes take
     // precedence over context routes, so popups are the only navigations this one sees.
     await this.adapter.context!.route('**/*', async route => {
       const request = route.request();
-      if (!request.isNavigationRequest()) return route.continue();
+      if (!request.isNavigationRequest()) return route.fallback();
       // A popup's first request is issued before its frame exists.
       let frame: ReturnType<typeof request.frame> | undefined;
       try {
@@ -368,7 +431,9 @@ export class SampledCrawler {
       stop: StopReason = 'time_limit';
     try {
       await this.settle();
-      while (this.now() < this.options.durationMs && actions < this.options.maxActions) {
+      // A crawl never runs on a page whose session check failed: it would test the login page.
+      if (!(await this.checkSession(true))) stop = 'session_invalid';
+      while (stop !== 'session_invalid' && this.now() < this.options.durationMs && actions < this.options.maxActions) {
         if (this.options.signal?.aborted) {
           stop = 'stopped';
           break;
@@ -377,6 +442,10 @@ export class SampledCrawler {
           await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
           await this.settle();
           this.path = [];
+        }
+        if (!(await this.checkSession())) {
+          stop = 'session_invalid';
+          break;
         }
         const snapshot = await this.snapshot();
         if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
@@ -418,9 +487,58 @@ export class SampledCrawler {
       }
       this.stopReason = stop;
       this.emit({ type: 'stop', at: this.now(), reason: stop });
+      await this.releaseSessions();
       await this.adapter.close();
     }
     return this.summary();
+  }
+
+  /** Run each session's check now (`force`) or when its recheck interval has passed; false stops the crawl. */
+  private async checkSession(force = false) {
+    for (const entry of this.sessions) {
+      const { provider, session } = entry;
+      if (!session.check) {
+        entry.verified = true;
+        continue;
+      }
+      if (!force && this.now() - entry.lastCheck < (session.recheckMs ?? 60_000)) continue;
+      entry.lastCheck = this.now();
+      const check = await session.check(this.page).catch(
+        (error): SessionCheck => ({
+          ok: false,
+          reason: 'check_error',
+          facts: { error: String(error).slice(0, 300) },
+        }),
+      );
+      entry.verified = check.ok && (force || entry.verified);
+      this.emit({ type: 'session', at: this.now(), provider: provider.id, session: session.describe, check });
+      if (!check.ok) return false;
+    }
+    return true;
+  }
+
+  /** Hand every session back exactly once (unlock the account, remove temporary files). */
+  private async releaseSessions() {
+    const sessions = this.sessions;
+    this.sessions = [];
+    const keys = sessions.map(s => sessionKeys(s.session));
+    for (const [i, { provider, session, verified }] of sessions.entries()) {
+      this.sessionResults.set(provider.id, verified);
+      // What the other sessions put in, so a session saving storage does not take it along.
+      const foreign: SessionKeys = {
+        cookies: keys.filter((_, j) => j !== i).flatMap(k => k.cookies),
+        localStorage: keys.filter((_, j) => j !== i).flatMap(k => k.localStorage),
+      };
+      await session.release({ context: this.adapter?.context, verified, foreign }).catch(error =>
+        this.emit({
+          type: 'plugin_error',
+          at: this.now(),
+          plugin: provider.id,
+          state: '',
+          error: String(error).slice(0, 300),
+        }),
+      );
+    }
   }
 
   summary() {
@@ -429,6 +547,16 @@ export class SampledCrawler {
     return {
       elapsedMs: this.now(),
       stopReason: this.stopReason,
+      viewport: this.adapter?.viewport,
+      ...(this.providers.length
+        ? {
+            sessions: this.providers.map(p => ({
+              provider: p.id,
+              verified: this.sessionResults.get(p.id) ?? this.sessions.find(s => s.provider === p)?.verified ?? false,
+              checks: this.events.filter(e => e.type === 'session' && e.check && e.provider === p.id).length,
+            })),
+          }
+        : {}),
       actions: actions.length,
       states: [...this.states.values()].filter(st => st.firstSeenAt >= 0).length,
       resumedStates: [...this.states.values()].filter(st => st.firstSeenAt < 0).length,

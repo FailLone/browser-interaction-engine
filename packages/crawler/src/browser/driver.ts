@@ -1,4 +1,4 @@
-import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
+import { chromium, type Browser, type BrowserContext, type BrowserContextOptions, type Page } from 'playwright';
 import { collectDOM } from './capture.js';
 import { collectOverlays } from './overlays.js';
 import { collectActionEvidence } from './action-evidence.js';
@@ -10,6 +10,15 @@ import { describeStructuralLists, discoverStructuralLists } from './structural-l
 import { collectEvidence } from './collect-evidence.js';
 import { installImageResourceEvidence } from './image-resource-evidence.js';
 import { RuntimeRecorder } from './runtime-evidence.js';
+import { hostMatches, type ScopedHeaders, type SessionCookie } from '../session.js';
+import {
+  contextOptions,
+  detectDesktopEdge,
+  initialViewport,
+  installMediaQueryRecorder,
+  type ResolvedViewport,
+  type ViewportOption,
+} from './viewport.js';
 import type {
   BrowserComponent,
   Control,
@@ -26,9 +35,18 @@ import type {
 export interface DriverOptions {
   url: string;
   headless?: boolean;
-  viewport?: { width: number; height: number };
+  /** A preset or a custom size; defaults to the `desktop` preset. */
+  viewport?: ViewportOption;
   /** Playwright default timeout for clicks, fills and waits. */
   actionTimeoutMs?: number;
+  /** Extra context options (a restored session's storage and device); the viewport size is kept. */
+  context?: BrowserContextOptions;
+  /** Scripts run before page scripts in every document. */
+  initScripts?: string[];
+  /** Request headers added only for matching hosts. */
+  headers?: ScopedHeaders[];
+  /** Cookies held at their value: restored when a response or page script changes them, rewritten on the wire. */
+  pinnedCookies?: SessionCookie[];
 }
 
 /** One capture of the current page. `dom` is present only for a detailed capture. */
@@ -69,15 +87,24 @@ export class BrowserDriver {
   browser?: Browser;
   context?: BrowserContext;
   page?: Page;
+  /** The viewport the page runs in; final once `start()` resolves. */
+  viewport: ResolvedViewport;
   private recorder = new RuntimeRecorder(detailOptions.maxRuntimeEntries, detailOptions.maxTextLength);
-  constructor(readonly options: DriverOptions) {}
+  constructor(readonly options: DriverOptions) {
+    this.viewport = initialViewport(options.viewport);
+  }
 
   async start() {
     this.browser = await chromium.launch({ headless: this.options.headless ?? true });
+    const own = contextOptions(this.viewport);
     this.context = await this.browser.newContext({
-      viewport: this.options.viewport ?? { width: 1440, height: 900 },
+      ...own,
+      ...this.options.context,
+      viewport: own.viewport,
       acceptDownloads: false,
     });
+    for (const script of this.options.initScripts ?? []) await this.context.addInitScript(script);
+    await this.installScopedState();
     this.page = await this.context.newPage();
     this.page.setDefaultTimeout(this.options.actionTimeoutMs ?? 2000);
     this.recorder.attach(this.page);
@@ -87,7 +114,62 @@ export class BrowserDriver {
     // Native dialogs (alert/confirm) would block the page; downloads are never taken.
     this.page.on('dialog', dialog => void dialog.dismiss().catch(() => {}));
     this.page.on('download', download => void download.cancel().catch(() => {}));
+    const edge = this.viewport.preset === 'desktop-edge';
+    if (edge)
+      await this.page.addInitScript(
+        `(() => { const __name = fn => fn; (${installMediaQueryRecorder.toString()})(); })()`,
+      );
     await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' });
+    if (!edge) return;
+    // Breakpoints are read from the loaded page; it is then reloaded at that width, so layouts
+    // chosen once at startup (from innerWidth or matchMedia) are chosen for the new width too.
+    this.viewport = await detectDesktopEdge(this.page);
+    await this.page.setViewportSize({ width: this.viewport.width, height: this.viewport.height });
+    await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' });
+  }
+
+  /**
+   * Scoped headers and pinned cookies. Both go through one context route, registered before the
+   * crawler's own routes so it runs last and sees the request as it will be sent. Pinned cookies
+   * are also kept in the jar (re-added after a response sets them) and guarded against
+   * `document.cookie` and `cookieStore` writes, so the page reads the pinned value too.
+   */
+  private async installScopedState() {
+    const context = this.context!;
+    const scoped = this.options.headers ?? [],
+      pinned = this.options.pinnedCookies ?? [];
+    if (!scoped.length && !pinned.length) return;
+    if (pinned.length) {
+      await context.addCookies(pinned);
+      await context.addInitScript(
+        `(${guardCookies.toString()})(${JSON.stringify([...new Set(pinned.map(c => c.name))])})`,
+      );
+      context.on('response', async response => {
+        const host = hostOf(response.url());
+        const reset = (await response.headersArray().catch(() => [] as { name: string; value: string }[])).some(
+          h =>
+            h.name.toLowerCase() === 'set-cookie' &&
+            pinned.some(c => h.value.trimStart().startsWith(`${c.name}=`) && hostMatches(host, [c.domain])),
+        );
+        if (reset) void context.addCookies(pinned).catch(() => {});
+      });
+    }
+    await context.route('**/*', async route => {
+      const request = route.request();
+      const host = hostOf(request.url());
+      const extra = Object.assign({}, ...scoped.filter(s => hostMatches(host, s.domains)).map(s => s.headers));
+      const pins = pinned.filter(c => hostMatches(host, [c.domain]));
+      if (!Object.keys(extra).length && !pins.length) return route.fallback();
+      const headers = { ...(await request.allHeaders()), ...extra };
+      if (pins.length) {
+        const names = new Set(pins.map(c => c.name));
+        headers.cookie = [
+          ...(headers.cookie ?? '').split(/;\s*/).filter((part: string) => part && !names.has(part.split('=')[0]!)),
+          ...pins.map(c => `${c.name}=${c.value}`),
+        ].join('; ');
+      }
+      return route.fallback({ headers });
+    });
   }
 
   /** Capture the page; `detailed` adds the full DOM evidence (styles, layout, text geometry). */
@@ -129,5 +211,44 @@ export class BrowserDriver {
 
   async close() {
     await this.browser?.close();
+  }
+}
+
+const hostOf = (url: string) => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return '';
+  }
+};
+
+/** In-page: writes to the named cookies from page scripts are ignored. Serialized into an init script. */
+function guardCookies(names: string[]) {
+  const blocked = (text: string) => names.includes(String(text).split('=')[0]!.trim());
+  const descriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+  if (descriptor?.set && descriptor.get) {
+    const { get, set } = descriptor;
+    Object.defineProperty(Document.prototype, 'cookie', {
+      configurable: true,
+      get() {
+        return get.call(this);
+      },
+      set(value: string) {
+        if (!blocked(value)) set.call(this, value);
+      },
+    });
+  }
+  const store = (
+    globalThis as unknown as { CookieStore?: { prototype: Record<string, (...args: unknown[]) => unknown> } }
+  ).CookieStore;
+  if (!store) return;
+  for (const method of ['set', 'delete']) {
+    const original = store.prototype[method];
+    if (!original) continue;
+    store.prototype[method] = function (this: unknown, ...args: unknown[]) {
+      const first = args[0] as string | { name?: string };
+      const name = typeof first === 'string' ? first : first?.name;
+      return name && names.includes(name) ? Promise.resolve() : original.apply(this, args);
+    };
   }
 }

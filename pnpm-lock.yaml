@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@interaction/auth':
+        specifier: workspace:*
+        version: link:packages/auth
       '@interaction/crawler':
         specifier: workspace:*
         version: link:packages/crawler
@@ -123,6 +126,21 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+
+  packages/auth:
+    dependencies:
+      '@interaction/crawler':
+        specifier: workspace:*
+        version: link:../crawler
+      better-sqlite3:
+        specifier: ^12.4.1
+        version: 12.11.1
+      playwright:
+        specifier: ^1.58.0
+        version: 1.64.1
+      zod:
+        specifier: ^4.1.12
+        version: 4.6.7
 
   packages/crawler:
     dependencies:

@@ -8,6 +8,7 @@ import {
   ImageIcon,
   ListTree,
   Loader2,
+  Monitor,
   Play,
   RefreshCw,
   RotateCw,
@@ -31,12 +32,31 @@ interface Run {
   summary?: Summary;
   error?: string;
   createdAt: string;
-  options: { resumeFrom?: string; plugins?: string[]; durationMs?: number };
+  options: { resumeFrom?: string; plugins?: string[]; durationMs?: number; viewport?: ViewportOption };
 }
-type StopReason = 'scope_exhausted' | 'no_progress' | 'time_limit' | 'action_limit' | 'stopped' | 'error';
+type ViewportPreset = 'desktop' | 'desktop-edge' | 'mobile';
+type ViewportOption = ViewportPreset | { width: number; height: number; mobile?: boolean };
+interface ResolvedViewport {
+  preset?: ViewportPreset;
+  width: number;
+  height: number;
+  mobile: boolean;
+  source: 'preset' | 'custom' | 'detected' | 'fallback';
+  breakpoints?: number[];
+  note?: string;
+}
+type StopReason =
+  | 'scope_exhausted'
+  | 'no_progress'
+  | 'time_limit'
+  | 'action_limit'
+  | 'stopped'
+  | 'session_invalid'
+  | 'error';
 interface Summary {
   elapsedMs: number;
   stopReason?: StopReason;
+  viewport?: ResolvedViewport;
   actions: number;
   states: number;
   resumedStates?: number;
@@ -50,6 +70,7 @@ interface Summary {
   };
 }
 type Event =
+  | { seq: number; type: 'viewport'; at: number; viewport: ResolvedViewport }
   | { seq: number; type: 'state'; at: number; state: { key: string; url: string; overlay?: string; controls: number } }
   | {
       seq: number;
@@ -92,6 +113,20 @@ const statusText: Record<Run['status'], string> = {
   interrupted: '已中断',
 };
 const pluginText: Record<string, string> = { rules: 'UI 规则' };
+const viewportText: Record<ViewportPreset | 'custom', string> = {
+  desktop: '桌面 1280×800',
+  'desktop-edge': '桌面临界（按页面断点）',
+  mobile: '移动 iPhone 393×852',
+  custom: '自定义',
+};
+const presetText: Record<ViewportPreset, string> = { desktop: '桌面', 'desktop-edge': '桌面临界', mobile: '移动' };
+/** The requested viewport in a few words, for runs whose actual viewport is not known yet. */
+const requestedViewport = (v: ViewportOption = { width: 1440, height: 900 }) =>
+  typeof v === 'string' ? presetText[v] : `${v.width}×${v.height}${v.mobile ? ' 移动' : ''}`;
+/** The viewport a run used, with how desktop-edge chose its width. */
+const resolvedViewport = (v: ResolvedViewport) =>
+  `${v.preset ? presetText[v.preset] : '自定义'} ${v.width}×${v.height}${v.mobile && v.preset !== 'mobile' ? ' 移动' : ''}` +
+  (v.source === 'detected' ? '（页面断点）' : v.source === 'fallback' ? '（未探测到断点，用默认值）' : '');
 const severityText: Record<string, string> = { info: '提示', warning: '警告', error: '错误' };
 const outcomeText: Record<string, string> = { ok: '成功', no_change: '无变化', failed: '失败' };
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
@@ -107,6 +142,7 @@ const stopText: Record<string, string> = {
   action_limit: '到达动作数上限',
   budget_exhausted: '到达时长或动作数上限',
   stopped: '手动停止',
+  session_invalid: '登录态校验未通过，已阻止继续检查',
   error: '运行出错',
 };
 const backtrackText: Record<string, string> = {
@@ -128,6 +164,8 @@ export function CrawlPanel() {
   const [url, setUrl] = useState('https://www.okx.com/convert/usd-to-btc');
   const [minutes, setMinutes] = useState(5);
   const [models, setModels] = useState(true);
+  const [viewport, setViewport] = useState<ViewportPreset | 'custom'>('desktop');
+  const [custom, setCustom] = useState({ width: 1280, height: 800, mobile: false });
   const [available, setAvailable] = useState<string[]>([]);
   const [plugins, setPlugins] = useState<string[]>([]);
   const [state, setState] = useState('');
@@ -179,6 +217,8 @@ export function CrawlPanel() {
         body: JSON.stringify({
           url: resumeFrom ? run!.url : url,
           durationMs: minutes * 60000,
+          // A resumed run keeps the viewport of the run it continues.
+          ...(resumeFrom ? {} : { viewport: viewport === 'custom' ? custom : viewport }),
           models,
           plugins: resumeFrom ? (run!.options.plugins ?? []) : plugins,
           ...(resumeFrom ? { resumeFrom } : {}),
@@ -212,10 +252,14 @@ export function CrawlPanel() {
     [events],
   );
   const summary = run?.summary;
+  const viewportEvent = events.find(e => e.type === 'viewport');
+  const usedViewport = summary?.viewport ?? (viewportEvent?.type === 'viewport' ? viewportEvent.viewport : undefined);
   const stopEvent = events.findLast(e => e.type === 'stop');
   const stopReason = summary?.stopReason ?? (stopEvent?.type === 'stop' ? stopEvent.reason : undefined);
 
-  const actionEvents = events.filter(e => e.type !== 'state' && e.type !== 'finding' && e.type !== 'plugin_error');
+  const actionEvents = events.filter(
+    e => e.type !== 'state' && e.type !== 'finding' && e.type !== 'plugin_error' && e.type !== 'viewport',
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -260,6 +304,59 @@ export function CrawlPanel() {
               onChange={e => setMinutes(Number(e.target.value))}
             />
           </div>
+          <div className="grid w-56 gap-2">
+            <Label
+              htmlFor="crawl-viewport"
+              title="桌面临界：读取页面的 CSS / matchMedia 断点，取桌面布局的最窄宽度；读不到时用 1024×768"
+            >
+              视口
+            </Label>
+            <select
+              id="crawl-viewport"
+              value={viewport}
+              onChange={e => setViewport(e.target.value as ViewportPreset | 'custom')}
+              className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
+            >
+              {Object.entries(viewportText).map(([value, text]) => (
+                <option key={value} value={value}>
+                  {text}
+                </option>
+              ))}
+            </select>
+          </div>
+          {viewport === 'custom' && (
+            <div className="flex items-end gap-2">
+              <div className="grid w-24 gap-2">
+                <Label htmlFor="crawl-width">宽</Label>
+                <Input
+                  id="crawl-width"
+                  type="number"
+                  min={240}
+                  max={3840}
+                  value={custom.width}
+                  onChange={e => setCustom(c => ({ ...c, width: Number(e.target.value) }))}
+                />
+              </div>
+              <div className="grid w-24 gap-2">
+                <Label htmlFor="crawl-height">高</Label>
+                <Input
+                  id="crawl-height"
+                  type="number"
+                  min={240}
+                  max={2160}
+                  value={custom.height}
+                  onChange={e => setCustom(c => ({ ...c, height: Number(e.target.value) }))}
+                />
+              </div>
+              <Label className="h-9 font-normal" title="触摸、移动端 UA、3 倍像素比">
+                <Checkbox
+                  checked={custom.mobile}
+                  onCheckedChange={v => setCustom(c => ({ ...c, mobile: v === true }))}
+                />
+                移动设备
+              </Label>
+            </div>
+          )}
           <div className="flex h-9 flex-wrap items-center gap-x-5 gap-y-2">
             <Label className="font-normal">
               <Checkbox checked={models} onCheckedChange={v => setModels(v === true)} />
@@ -310,6 +407,7 @@ export function CrawlPanel() {
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {new Date(r.createdAt).toLocaleString()}
+                  {` · ${r.summary?.viewport ? `${r.summary.viewport.width}×${r.summary.viewport.height}` : requestedViewport(r.options.viewport)}`}
                   {r.options.resumeFrom ? ' · 续跑' : ''}
                   {r.summary ? ` · ${r.summary.actions} 动作 / ${r.summary.states} 状态` : ''}
                   {r.summary?.stopReason && r.summary.stopReason !== 'scope_exhausted'
@@ -346,65 +444,70 @@ export function CrawlPanel() {
                   )}
                 </CardAction>
               </CardHeader>
-              {(run.error || summary || (run.status !== 'running' && stopReason)) && (
-                <CardContent className="flex flex-col gap-4 px-5">
-                  {run.error && (
-                    <Alert variant="destructive">
-                      <CircleAlert />
-                      <AlertDescription className="break-all">{run.error}</AlertDescription>
-                    </Alert>
+              <CardContent className="flex flex-col gap-4 px-5">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                  <Monitor className="size-4 shrink-0" />
+                  <span className="text-foreground">
+                    {usedViewport ? resolvedViewport(usedViewport) : requestedViewport(run.options.viewport)}
+                  </span>
+                  {usedViewport?.breakpoints && (
+                    <span className="text-xs">页面桌面断点：{usedViewport.breakpoints.join(' / ')}px</span>
                   )}
-                  {run.status !== 'running' && stopReason && (
-                    <StopNotice reason={stopReason} elapsedMs={summary?.elapsedMs} limitMs={run.options.durationMs} />
-                  )}
-                  {summary && (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                      {[
-                        ['用时', seconds(summary.elapsedMs)],
-                        ['动作', summary.actions],
-                        ['新状态', summary.states],
-                        ['续跑沿用状态', summary.resumedStates ?? 0],
-                        ['失败', summary.failed],
-                        ['拦截的跳转', summary.navigations?.intercepted ?? 0],
-                        [
-                          'JEV',
-                          `${summary.models?.jev.calls ?? 0} 次 $${(summary.models?.jev.costUsd ?? 0).toFixed(5)}`,
-                        ],
-                        ['LLM', `${summary.models?.llm.calls ?? 0} 次`],
-                      ].map(([k, v]) => (
-                        <div key={String(k)} className="rounded-lg border bg-muted/40 px-3 py-2.5">
-                          <div className="text-xs text-muted-foreground">{k}</div>
-                          <div className="mt-1 text-lg font-semibold tabular-nums">{v}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {summary?.coverage && (
-                    <div className="rounded-lg border">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>页面</TableHead>
-                            <TableHead>执行的控件类 / 出现的</TableHead>
-                            <TableHead>动作揭示的文本块</TableHead>
+                  {usedViewport?.note && <span className="text-xs break-all">· {usedViewport.note}</span>}
+                </div>
+                {run.error && (
+                  <Alert variant="destructive">
+                    <CircleAlert />
+                    <AlertDescription className="break-all">{run.error}</AlertDescription>
+                  </Alert>
+                )}
+                {run.status !== 'running' && stopReason && (
+                  <StopNotice reason={stopReason} elapsedMs={summary?.elapsedMs} limitMs={run.options.durationMs} />
+                )}
+                {summary && (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      ['用时', seconds(summary.elapsedMs)],
+                      ['动作', summary.actions],
+                      ['新状态', summary.states],
+                      ['续跑沿用状态', summary.resumedStates ?? 0],
+                      ['失败', summary.failed],
+                      ['拦截的跳转', summary.navigations?.intercepted ?? 0],
+                      ['JEV', `${summary.models?.jev.calls ?? 0} 次 $${(summary.models?.jev.costUsd ?? 0).toFixed(5)}`],
+                      ['LLM', `${summary.models?.llm.calls ?? 0} 次`],
+                    ].map(([k, v]) => (
+                      <div key={String(k)} className="rounded-lg border bg-muted/40 px-3 py-2.5">
+                        <div className="text-xs text-muted-foreground">{k}</div>
+                        <div className="mt-1 text-lg font-semibold tabular-nums">{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {summary?.coverage && (
+                  <div className="rounded-lg border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>页面</TableHead>
+                          <TableHead>执行的控件类 / 出现的</TableHead>
+                          <TableHead>动作揭示的文本块</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {summary.coverage.pages.map(p => (
+                          <TableRow key={p.page}>
+                            <TableCell className="font-mono text-xs">{new URL(p.page).pathname}</TableCell>
+                            <TableCell className="tabular-nums">
+                              {p.classesExecuted} / {p.classesSeen}
+                            </TableCell>
+                            <TableCell className="tabular-nums">{p.textBlocksRevealedByActions}</TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {summary.coverage.pages.map(p => (
-                            <TableRow key={p.page}>
-                              <TableCell className="font-mono text-xs">{new URL(p.page).pathname}</TableCell>
-                              <TableCell className="tabular-nums">
-                                {p.classesExecuted} / {p.classesSeen}
-                              </TableCell>
-                              <TableCell className="tabular-nums">{p.textBlocksRevealedByActions}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              )}
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
             </Card>
 
             <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">

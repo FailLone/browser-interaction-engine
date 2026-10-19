@@ -1,6 +1,8 @@
 // Run the sampled crawler against a real page and write events + summary.
 // Usage: tsx --conditions=development scripts/sampled-crawl.ts OUT_DIR [URL] [DURATION_MS] [PATH_PATTERN] [GOAL]
 // Model plugin and goal mode use the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
+// Screen: CRAWL_VIEWPORT=desktop (default, 1280x800) | desktop-edge (narrowest desktop width from
+// the page's breakpoints, else 1024x768) | mobile (iPhone 15) | WIDTHxHEIGHT[@mobile].
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -10,6 +12,7 @@ import {
   SampledCrawler,
   defaultPolicy,
   metered,
+  parseViewport,
   planGoal,
   providersFromEnv,
 } from '@interaction/crawler';
@@ -18,6 +21,7 @@ import { rulesPlugin } from '@interaction/rules';
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
 const durationMs = Number(process.argv[4] || 240000);
+const viewport = parseViewport(process.env.CRAWL_VIEWPORT || 'desktop');
 // Longer runs can spend more per secondary page and visit more pages per template:
 // CRAWL_PAGE_ACTIONS (default 20), CRAWL_PAGE_SAMPLES (default 2).
 // Optional UI rules as a side observation (not an acceptance target): CRAWL_RULES=1.
@@ -40,7 +44,7 @@ let relevance: GoalRelevance | undefined;
 let planning: import('@interaction/crawler').ProviderMeter | undefined;
 if (goal) {
   if (!providers.llm || !providers.jev) throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
-  const driver = new BrowserDriver({ url });
+  const driver = new BrowserDriver({ url, viewport });
   await driver.start();
   await driver.page!.waitForTimeout(1500);
   const dom = await driver.readDOM();
@@ -59,6 +63,7 @@ if (goal) {
 }
 const crawler = new SampledCrawler({
   url,
+  viewport,
   durationMs,
   policy,
   judge,
@@ -104,6 +109,18 @@ const crawler = new SampledCrawler({
         JSON.stringify(event.label),
       );
     else if (event.type === 'plugin_error') console.log(t, 'plugin error', event.plugin, event.error);
+    else if (event.type === 'viewport') {
+      const v = event.viewport;
+      console.log(
+        t,
+        'viewport',
+        `${v.preset ?? 'custom'} ${v.width}x${v.height}${v.mobile ? ' mobile' : ''}`,
+        v.source,
+        v.breakpoints ? `breakpoints=${v.breakpoints.join(',')}` : '',
+        v.note || '',
+      );
+    } else if (event.type === 'session')
+      console.log(t, 'session', event.provider, JSON.stringify(event.check ?? event.session));
     else if (event.type === 'navigation')
       console.log(t, 'navigation', event.kind, event.outcome, event.to, JSON.stringify(event.action));
     else console.log(t, event.type, event.reason);
