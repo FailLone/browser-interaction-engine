@@ -78,9 +78,11 @@ export interface ScrollContainer {
   width: number;
   height: number;
 }
+/** Site-wide page areas: header, navigation, footer. */
+export type Landmark = 'banner' | 'navigation' | 'contentinfo';
 export interface Control {
-  /** Structural header/navigation containment, not a page label or logical identity. */
-  landmark?: 'banner' | 'navigation';
+  /** Structural header/navigation/footer containment, not a page label or logical identity. */
+  landmark?: Landmark;
   /** Current document ancestry for dependency checks, never portable identity. */
   domAncestry?: { documentId: string; instanceIds: string[]; complete: boolean };
   /** Actual native HTML readOnly property. Missing in legacy observations;

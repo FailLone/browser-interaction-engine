@@ -226,7 +226,9 @@ test('goal mode explores goal-relevant actions and prunes the rest', async () =>
   };
   const relevance = new GoalRelevance(jev, {
     goal: 'Pick a trading pair',
+    stayOnPage: true,
     allowedPaths: [],
+    areas: [],
     focus: ['pair list'],
     tasks: ['pick a pair'],
   });
@@ -240,6 +242,113 @@ test('goal mode explores goal-relevant actions and prunes the rest', async () =>
   expect(labels).not.toContain('Details');
   expect(relevance.calls).toBeGreaterThan(0);
 }, 120000);
+
+test('goal scope leaves the header, navigation and footer alone unless the goal names them', async () => {
+  const { GoalRelevance } = await import('@interaction/crawler');
+  const html = `<!doctype html><title>Scope</title>
+    <header><button onclick="this.textContent='Searched'">Search site</button></header>
+    <nav aria-label="Menu"><button onclick="this.textContent='Opened'">Products</button></nav>
+    <main><button onclick="document.getElementById('out').textContent='EUR'">Pick EUR</button><p id="out"></p></main>
+    <footer><button onclick="document.getElementById('lang').hidden=false">Language</button>
+      <div id="lang" role="dialog" aria-modal="true" aria-label="Languages" hidden><button onclick="this.parentElement.hidden=true">Close languages</button></div></footer>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  // Every class is relevant: only the area scope decides.
+  const jev = {
+    name: 'jev',
+    model: 'jev',
+    async decide(request: { checks?: Record<string, unknown> }) {
+      return { model: 'jev', value: Object.fromEntries(Object.keys(request.checks || {}).map(k => [k, 0.9])) };
+    },
+  };
+  const run = async (areas: ('banner' | 'navigation' | 'contentinfo')[]) => {
+    const relevance = new GoalRelevance(jev, {
+      goal: 'Switch currency',
+      stayOnPage: true,
+      allowedPaths: [],
+      areas,
+      focus: [],
+      tasks: [],
+    });
+    const events: CrawlEvent[] = [];
+    const summary = await new SampledCrawler({
+      url,
+      durationMs: 30000,
+      settleMs: 100,
+      relevance,
+      log: e => events.push(e),
+    }).run();
+    const labels = events
+      .filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action')
+      .map(a => a.step.label);
+    return { labels, summary };
+  };
+  try {
+    const page = await run([]);
+    expect(page.labels).toContain('Pick EUR');
+    for (const off of ['Search site', 'Products', 'Language', 'Close languages'])
+      expect(page.labels).not.toContain(off);
+    expect(page.summary.goal).toMatchObject({
+      excludedAreas: ['banner', 'navigation', 'contentinfo'],
+      offAreaClasses: 3,
+    });
+    // A goal about the footer brings it, and the overlay it opens, into scope.
+    const footer = await run(['contentinfo']);
+    expect(footer.labels).toEqual(expect.arrayContaining(['Pick EUR', 'Language', 'Close languages']));
+    expect(footer.labels).not.toContain('Search site');
+    expect(footer.labels).not.toContain('Products');
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
+test('a goal plan stays on the page unless it asks for other pages, and maps named areas', async () => {
+  const { planGoal } = await import('@interaction/crawler');
+  const llm = (value: unknown) => ({
+    name: 'llm',
+    model: 'llm',
+    async decide() {
+      return { model: 'llm', value };
+    },
+  });
+  const controls = [{ role: 'button', name: 'USD' }];
+  const onPage = await planGoal(
+    llm({ stayOnPage: true, allowedPaths: ['^/convert/[^/]+$'], areas: [], focus: ['x'], tasks: ['y'] }),
+    'switch currency',
+    'https://example.com/convert/usd-to-btc',
+    controls,
+  );
+  expect(onPage).toMatchObject({ stayOnPage: true, allowedPaths: [], areas: [] });
+  const pages = await planGoal(
+    llm({
+      stayOnPage: false,
+      allowedPaths: ['^/convert/[^/]+$', '/no-anchor', '^(bad'],
+      areas: ['footer', 'header', 'sidebar'],
+      focus: [],
+      tasks: [],
+    }),
+    'compare pairs',
+    'https://example.com/convert/usd-to-btc',
+    controls,
+  );
+  expect(pages).toMatchObject({
+    stayOnPage: false,
+    allowedPaths: ['^/convert/[^/]+$'],
+    areas: ['contentinfo', 'banner'],
+  });
+  // Leaving the page with nowhere valid to go is staying.
+  const nowhere = await planGoal(
+    llm({ stayOnPage: false, allowedPaths: ['/x'], areas: [], focus: [], tasks: [] }),
+    'g',
+    'https://example.com/',
+    controls,
+  );
+  expect(nowhere).toMatchObject({ stayOnPage: true, allowedPaths: [] });
+});
 
 test('mode selectors stay distinct while repeated records merge', async () => {
   const { controlClass } = await import('@interaction/crawler');

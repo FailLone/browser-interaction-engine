@@ -24,7 +24,7 @@ import {
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
 import { findingKey, type CrawlPlugin, type CrawlStateContext, type Finding } from './plugin.js';
 import type { Judge, Question } from './judge.js';
-import type { GoalRelevance } from './goal.js';
+import { excludedAreas, type GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
 import type { CrawlLedger } from './store.js';
 import { classifyInput, inputSamples, judgeInputKind, readInputFacts, type InputKind } from './inputs.js';
@@ -64,7 +64,10 @@ export interface CrawlOptions {
   judge?: Judge;
   /** JEV used to classify input fields whose structure does not settle their kind. */
   inputJudge?: Provider;
-  /** Goal mode: JEV prunes action classes irrelevant to the goal; relevant ones run first. */
+  /**
+   * Goal mode: site-wide areas (header, navigation, footer) the plan leaves out are not acted on;
+   * JEV prunes the remaining action classes irrelevant to the goal; relevant ones run first.
+   */
   relevance?: GoalRelevance;
   /** Resume: work recorded by an earlier run of the same target is not repeated. */
   ledger?: CrawlLedger;
@@ -296,6 +299,8 @@ export class SampledCrawler {
   private readonly routeClasses = new Set<string>();
   /** Action classes JEV judged irrelevant to the goal. */
   private readonly pruned = new Set<string>();
+  /** Goal mode: control classes skipped because they sit in a site-wide area outside the plan. */
+  private readonly offArea = new Set<string>();
   /** Weak control classes already asked about. */
   private readonly asked = new Set<string>();
 
@@ -610,6 +615,8 @@ export class SampledCrawler {
         plan: this.options.relevance.plan,
         jevCalls: this.options.relevance.calls,
         prunedClasses: this.pruned.size,
+        excludedAreas: excludedAreas(this.options.relevance.plan),
+        offAreaClasses: this.offArea.size,
       },
       lists: {
         classes: this.listMembers.size,
@@ -803,15 +810,13 @@ export class SampledCrawler {
     if (!judge) return;
     const overlay = activeOverlay(s),
       scope = overlay && new Set(overlay.controlIds);
+    const offAreas = this.options.relevance ? excludedAreas(this.options.relevance.plan) : [];
+    // Controls the goal leaves out are never acted on, so there is nothing to ask about them.
+    const outOfScope = (c: Control) =>
+      (scope && !scope.has(c.localId)) || (!scope && !!c.landmark && offAreas.includes(c.landmark));
     const batch: { cls: string; label: string; question: Question }[] = [];
     for (const c of s.controls) {
-      if (
-        !c.visible ||
-        c.actions.length ||
-        !c.interactionHints?.length ||
-        c.actionable.occludedBy ||
-        (scope && !scope.has(c.localId))
-      )
+      if (!c.visible || c.actions.length || !c.interactionHints?.length || c.actionable.occludedBy || outOfScope(c))
         continue;
       const name = c.name || c.displayedText;
       if (!name || this.options.policy.forbiddenLabel.test(name)) continue;
@@ -842,8 +847,7 @@ export class SampledCrawler {
     const lists = new Map<string, Control[]>();
     for (const c of s.controls) {
       const list = this.listOf(c);
-      if (!list || !c.visible || !c.actions.length || this.askedLists.has(list) || (scope && !scope.has(c.localId)))
-        continue;
+      if (!list || !c.visible || !c.actions.length || this.askedLists.has(list) || outOfScope(c)) continue;
       const members = lists.get(list) || [];
       members.push(c);
       lists.set(list, members);
@@ -902,7 +906,15 @@ export class SampledCrawler {
     const siblings = modeSiblings(s);
     const rows: Candidate[] = [];
     let icons = 0;
+    const plan = applyGoal ? this.options.relevance?.plan : undefined;
+    const offAreas = plan ? excludedAreas(plan) : [];
     for (const c of s.controls) {
+      // Goal scope: site-wide areas the goal is not about are left alone, links included.
+      // An open overlay is still handled (it may have to be closed), wherever it was rendered.
+      if (c.landmark && offAreas.includes(c.landmark) && !scope?.has(c.localId)) {
+        if (c.visible) this.offArea.add(this.classOf(c));
+        continue;
+      }
       // A small unnamed icon with a pointer cursor often shows a tooltip on hover (an info icon).
       // Hovering is safe; one per icon kind and a few per state keep it cheap.
       if (

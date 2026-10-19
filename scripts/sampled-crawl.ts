@@ -41,6 +41,8 @@ console.log(
 // Goal mode: the LLM plans scope from the entry page's controls; JEV prunes off-goal actions.
 const goal = process.argv[6];
 let relevance: GoalRelevance | undefined;
+// Without a goal, a path pattern is an explicit request to visit those pages.
+let followNavigation = !!scope;
 let planning: import('@interaction/crawler').ProviderMeter | undefined;
 if (goal) {
   if (!providers.llm || !providers.jev) throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
@@ -58,6 +60,7 @@ if (goal) {
   );
   planning = planner.meter;
   for (const pattern of plan.allowedPaths) policy.allowedPaths.push(new RegExp(pattern));
+  followNavigation = !plan.stayOnPage;
   relevance = new GoalRelevance(providers.jev, plan);
   console.log('goal plan', JSON.stringify(plan));
 }
@@ -68,6 +71,7 @@ const crawler = new SampledCrawler({
   policy,
   judge,
   relevance,
+  followNavigation,
   inputJudge,
   maxActions: 2000,
   ...(process.env.CRAWL_RULES ? { plugins: [rulesPlugin()] } : {}),

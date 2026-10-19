@@ -49,16 +49,15 @@ export function collectDOM(
     ancestryCache.set(el, result);
     return result;
   };
-  const landmark = (el: Element): 'banner' | 'navigation' | undefined => {
+  const landmark = (el: Element): 'banner' | 'navigation' | 'contentinfo' | undefined => {
     let navigation = false,
       parent: Element | null = el;
     while (parent) {
       const explicit = parent.getAttribute('role')?.split(/\s+/)[0];
-      if (
-        explicit === 'banner' ||
-        (!explicit && parent.tagName === 'HEADER' && !parent.parentElement?.closest('article,aside,main,nav,section'))
-      )
-        return 'banner';
+      // <header>/<footer> are site-wide only outside sectioning content (HTML-AAM).
+      const siteWide = !explicit && !parent.parentElement?.closest('article,aside,main,nav,section');
+      if (explicit === 'banner' || (siteWide && parent.tagName === 'HEADER')) return 'banner';
+      if (explicit === 'contentinfo' || (siteWide && parent.tagName === 'FOOTER')) return 'contentinfo';
       if (explicit === 'navigation' || (!explicit && parent.tagName === 'NAV')) navigation = true;
       parent = parent.parentElement;
     }
