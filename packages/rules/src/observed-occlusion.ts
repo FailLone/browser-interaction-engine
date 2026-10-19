@@ -377,6 +377,8 @@ export class ObservedOcclusionTracker {
           };
       if (['Error: TARGET_EXCEEDS_VIEWPORT', 'Error: TARGET_EXCEEDS_CLIP_BOUNDS'].includes(reason)) {
         currentCheck.code = reason.slice('Error: '.length);
+        // Not observable with five points, so nothing is asserted: a note, not a warning.
+        currentCheck.severity = 'info';
         currentCheck.actual =
           'The target is larger than the captured viewport or clipping bounds; scrolling alone cannot satisfy full-view coverage';
         currentCheck.facts = {

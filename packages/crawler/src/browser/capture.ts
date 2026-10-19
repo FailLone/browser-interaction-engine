@@ -158,9 +158,10 @@ export function collectDOM(
     for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
       const s = getComputedStyle(a);
       if (s.opacity === '0') return false;
+      // A clipping box of a pixel or less is the screen-reader-only pattern (OKX's a11y text).
       if (s.overflow !== 'visible') {
         const b = a.getBoundingClientRect();
-        if (b.width < 1 || b.height < 1) return false;
+        if (b.width <= 1 || b.height <= 1) return false;
       }
     }
     return true;

@@ -157,7 +157,11 @@ it('recognizes an oversized scroll child without suppressing actual non-scroll c
     });
     expect(
       (await new ObservedOcclusionTracker().run(page)).checks.find(c => c.target?.nodeId === nodeId),
-    ).toMatchObject({ code: 'TARGET_EXCEEDS_CLIP_BOUNDS', facts: { observationStatus: 'unsupported' } });
+    ).toMatchObject({
+      code: 'TARGET_EXCEEDS_CLIP_BOUNDS',
+      severity: 'info',
+      facts: { observationStatus: 'unsupported' },
+    });
     await f.page.locator('#clip').evaluate(el => ((el as HTMLElement).style.overflow = 'hidden'));
     expect((await tracker.run(await f.inspect())).checks.find(c => c.target?.nodeId === nodeId)).toMatchObject({
       code: 'CONTROL_CLIPPING_SUSPECTED',

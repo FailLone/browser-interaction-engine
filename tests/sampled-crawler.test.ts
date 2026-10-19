@@ -638,11 +638,13 @@ test('a list of different functions is split and each member sampled; a list of 
 
 test('a control the user cannot see is not clicked; once a button reveals it, it is tested', async () => {
   // Like OKX's header: the real search input sits in a transparent zero-size wrapper, parked
-  // off the page, until its button opens it. A skip button is clipped to nothing until focused.
+  // off the page, until its button opens it. A skip button is clipped to nothing until focused,
+  // and a screen-reader-only close label sits in a 1px clipping box.
   const html = `<!doctype html><title>Hidden search</title><main>
     <button style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Skip to main content</button>
     <button onclick="document.getElementById('wrap').style.cssText='';document.getElementById('q').style.cssText=''">Open search</button>
     <div id="wrap" style="opacity:0;width:0;height:0;overflow:hidden"><input id="q" placeholder="Search coins" style="position:absolute;left:-9999px;top:-9999px"></div>
+    <span style="position:absolute;width:1px;height:1px;overflow:hidden"><span role="button" tabindex="0" onclick="">Close</span></span>
     <section><button>Plain action</button></section></main>`;
   const local = createServer((_req, res) => {
     res.setHeader('content-type', 'text/html');
