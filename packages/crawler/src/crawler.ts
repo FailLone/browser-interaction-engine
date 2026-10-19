@@ -52,7 +52,9 @@ export interface Step { kind: CrawlKind; classKey: string; label: string; value?
   /** Page after the step; differs from `from` when the step navigated. */
   to?: string;
   /** Abstract state the step was taken in. */
-  state?: string }
+  state?: string;
+  /** Visible page (state + masked text) before / after the step; equal ends mark a removable loop. */
+  sigBefore?: string; sigAfter?: string }
 export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
@@ -123,6 +125,8 @@ export class SampledCrawler {
   /** Candidate class keys each state offered when last seen. */
   private readonly pending = new Map<string, string[]>();
   private lastCandidates: string[] = [];
+  /** Replay steps removed because they formed a loop with no visible effect. */
+  private prunedSteps = 0;
   /** Fill placeholder keys ('...|first') whose input kind and samples are now known. */
   private readonly resolvedFills = new Set<string>();
   /** Action classes whose effect was a same-document route change; ranked last. */
@@ -214,6 +218,7 @@ export class SampledCrawler {
       maxPerClass: Math.max(0, ...this.classCounts.values()),
       backtracks: this.events.filter(e => e.type === 'backtrack').length,
       historyBacks: this.historyBacks,
+      prunedSteps: this.prunedSteps,
       navigations: {
         intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
         sameDocument: [...this.links.values()].filter(l => l.kind === 'same-document').map(l => ({ from: l.from, to: l.to, action: l.action })),
@@ -473,7 +478,7 @@ export class SampledCrawler {
       }
     }
     step.to = pagePath(after.url);
-    if (outcome === 'ok') this.path.push(step);
+    if (outcome === 'ok') { step.sigBefore = pageSignature(before, beforeKey); step.sigAfter = pageSignature(after, afterKey); this.pushStep(step); }
     const isNew = !this.states.has(afterKey);
     // The first member of a mode group decides whether the rest are worth sampling.
     const group = c.kind === 'click' ? modeGroup(c.control, before.url, modeSiblings(before)) : undefined;
@@ -626,6 +631,25 @@ export class SampledCrawler {
    * Leaving drops in-page state on the target too, so the kept path is trimmed to match.
    * The landing page is verified; anything unexpected falls back to replay from the entry.
    */
+  /**
+   * Append a step, then cut any loop it closes: if the page after this step looks exactly like
+   * the page before some earlier step (same state, same masked text), the steps in between
+   * (e.g. open a menu, close it) left nothing a replay needs to reproduce. Loops containing
+   * input, check or navigation are kept: their effects (field values, URLs) are not fully
+   * visible in the signature. Sampling counts are separate, so nothing tested is forgotten.
+   */
+  private pushStep(step: Step) {
+    this.path.push(step);
+    for (let i = this.path.length - 1; i >= 0; i--) {
+      if (this.path[i].sigBefore !== step.sigAfter) continue;
+      const loop = this.path.slice(i);
+      if (loop.some(x => x.kind === 'fill' || x.kind === 'check' || x.from !== x.to)) return;
+      this.path.splice(i);
+      this.prunedSteps += loop.length;
+      return;
+    }
+  }
+
   /** Whether a state still offers a candidate that has not been sampled or failed. */
   private hasPendingWork(state?: string) {
     if (!state) return true;
@@ -720,4 +744,9 @@ function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | und
 /** Visible text split into comparable blocks, live numbers masked, tiny fragments dropped. */
 function textBlocks(text: string) {
   return [...new Set(text.split(/\n+/).map(line => maskVolatile(line, 200)).filter(line => line.length >= 3))];
+}
+
+/** What a replay must reproduce: the abstract state plus the visible text with live numbers masked. */
+function pageSignature(s: Snapshot, key: string) {
+  return `${key}\u0000${maskVolatile(s.text || '', Infinity)}`;
 }

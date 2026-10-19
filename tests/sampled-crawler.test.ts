@@ -316,3 +316,31 @@ test('by default the crawler stays on the page: navigations are intercepted and 
     expect(summary.navigations.sameDocument.length).toBeGreaterThan(0);
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);
+
+test('an open-then-close loop with no visible effect is dropped from the replay path; one that changed the page is kept', async () => {
+  const html = `<!doctype html><title>Loops</title><main>
+    <button aria-expanded="false" onclick="const m=document.getElementById('menu');m.hidden=!m.hidden;this.setAttribute('aria-expanded',String(!m.hidden))">Menu</button>
+    <div id="menu" hidden><button onclick="document.getElementById('menu').hidden=true">Close menu</button></div>
+    <button aria-expanded="false" onclick="const p=document.getElementById('lang');p.hidden=!p.hidden">Language</button>
+    <div id="lang" hidden><button onclick="document.getElementById('cur').textContent='CNY';document.getElementById('lang').hidden=true">CNY</button></div>
+    <p>Currency: <span id="cur">USD</span></p>
+    <button onclick="document.getElementById('deep').hidden=false">Show deep</button>
+    <section id="deep" hidden><button>Deep action</button></section></main>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(html); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const crawler = new SampledCrawler({ url, durationMs: 30000, settleMs: 100 });
+    const pushes: string[][] = [];
+    const push = (crawler as unknown as { pushStep(step: { label: string }): void }).pushStep.bind(crawler);
+    (crawler as unknown as { pushStep(step: { label: string }): void }).pushStep = step => { push(step); pushes.push((crawler as unknown as { path: { label: string }[] }).path.map(x => x.label)); };
+    const summary = await crawler.run();
+    expect(summary.prunedSteps).toBeGreaterThan(0);
+    // After Menu > Close menu the path no longer contains the menu loop.
+    const afterClose = pushes.find(p => p.length === 0 || !p.includes('Close menu'));
+    expect(afterClose).toBeDefined();
+    expect(pushes.some(p => p.includes('Close menu'))).toBe(false);
+    // Language > CNY changed the visible currency: that loop stays in the path.
+    expect(pushes.some(p => p.includes('CNY'))).toBe(true);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);
