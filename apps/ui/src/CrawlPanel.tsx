@@ -46,6 +46,7 @@ interface ResolvedViewport {
   note?: string;
 }
 type StopReason =
+  | 'goal_answered'
   | 'scope_exhausted'
   | 'no_progress'
   | 'time_limit'
@@ -136,6 +137,7 @@ const duration = (ms: number) => {
 };
 /** Stop reasons as the user should read them; older runs only recorded budget_exhausted. */
 const stopText: Record<string, string> = {
+  goal_answered: '目标问题已得到回答',
   scope_exhausted: '页面已测完',
   no_progress: '页面反复回到同一状态，停止',
   time_limit: '到达时长上限',

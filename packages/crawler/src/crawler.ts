@@ -21,10 +21,19 @@ import {
   stateKey,
   type Snapshot,
 } from './abstraction.js';
-import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
+import {
+  SAFETY_RULES,
+  allowed,
+  defaultPolicy,
+  linkTarget,
+  placement,
+  submitsForm,
+  type CrawlKind,
+  type CrawlPolicy,
+} from './policy.js';
 import { findingKey, type CrawlPlugin, type CrawlStateContext, type Finding } from './plugin.js';
 import type { Judge, Question } from './judge.js';
-import { excludedAreas, type GoalRelevance } from './goal.js';
+import { excludedAreas, type GoalPursuit, type GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
 import type { CrawlLedger } from './store.js';
 import { classifyInput, inputSamples, judgeInputKind, readInputFacts, type InputKind } from './inputs.js';
@@ -69,6 +78,12 @@ export interface CrawlOptions {
    * JEV prunes the remaining action classes irrelevant to the goal; relevant ones run first.
    */
   relevance?: GoalRelevance;
+  /**
+   * Goal mode with a question: the LLM looks at every new state, steers toward the action most
+   * likely to answer it, and the crawl stops once the page answers it. When the LLM sees no
+   * promising action, the crawler keeps exploring the scope, which reveals hidden content.
+   */
+  pursuit?: GoalPursuit;
   /** Resume: work recorded by an earlier run of the same target is not repeated. */
   ledger?: CrawlLedger;
   /** Aborting stops the crawl after the current action; the summary is still produced. */
@@ -146,14 +161,29 @@ export type CrawlEvent =
       probability?: number;
       detail?: string;
     }
+  /** Goal pursuit: what the LLM concluded on a state, and which action (if any) it chose. */
+  | {
+      type: 'pursuit';
+      at: number;
+      state: string;
+      url: string;
+      answered: boolean;
+      /** The answer quotes the page; an answer from absence waits for the rest of the scope. */
+      found: boolean;
+      answer: string;
+      next?: string;
+      reason: string;
+    }
   | { type: 'stop'; at: number; reason: StopReason };
 
 /**
- * Why a crawl ended: everything reachable was tested (scope_exhausted), the page kept
+ * Why a crawl ended: the page answered the goal's question (goal_answered), everything
+ * reachable was tested (scope_exhausted), the page kept
  * reopening something without progress (no_progress), a limit was reached, the caller
  * stopped it, the session's check failed (session_invalid), or it failed.
  */
 export type StopReason =
+  | 'goal_answered'
   | 'scope_exhausted'
   | 'no_progress'
   | 'time_limit'
@@ -253,12 +283,30 @@ export class SampledCrawler {
   private readonly options: Required<
     Omit<
       CrawlOptions,
-      'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot' | 'session'
+      | 'onState'
+      | 'log'
+      | 'judge'
+      | 'relevance'
+      | 'pursuit'
+      | 'inputJudge'
+      | 'ledger'
+      | 'signal'
+      | 'onScreenshot'
+      | 'session'
     >
   > &
     Pick<
       CrawlOptions,
-      'onState' | 'log' | 'judge' | 'relevance' | 'inputJudge' | 'ledger' | 'signal' | 'onScreenshot' | 'session'
+      | 'onState'
+      | 'log'
+      | 'judge'
+      | 'relevance'
+      | 'pursuit'
+      | 'inputJudge'
+      | 'ledger'
+      | 'signal'
+      | 'onScreenshot'
+      | 'session'
     >;
   /** Weak controls the judge confirmed as interactive, by component class. */
   private readonly confirmed = new Set<string>();
@@ -301,6 +349,8 @@ export class SampledCrawler {
   private readonly pruned = new Set<string>();
   /** Goal mode: control classes skipped because they sit in a site-wide area outside the plan. */
   private readonly offArea = new Set<string>();
+  /** Form submit controls left alone, by label. */
+  private readonly submitsSkipped = new Set<string>();
   /** Weak control classes already asked about. */
   private readonly asked = new Set<string>();
 
@@ -457,6 +507,10 @@ export class SampledCrawler {
         await this.visit(snapshot);
         await this.reviewWeakControls(snapshot);
         await this.assessRelevance(snapshot);
+        if (await this.pursue(snapshot)) {
+          stop = 'goal_answered';
+          break;
+        }
         const candidate = this.choose(snapshot);
         this.pending.set(stateKey(snapshot), this.lastCandidates);
         if (!candidate) {
@@ -547,6 +601,14 @@ export class SampledCrawler {
   }
 
   summary() {
+    const origin = new URL(this.options.url).origin;
+    const offSite = (l: { kind: string; to: string }) => {
+      try {
+        return l.kind === 'popup' || new URL(l.to).origin !== origin;
+      } catch {
+        return true;
+      }
+    };
     const actions = this.events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
     const entry = pagePath(this.options.url);
     return {
@@ -573,6 +635,21 @@ export class SampledCrawler {
       backtracks: this.events.filter(e => e.type === 'backtrack').length,
       historyBacks: this.historyBacks,
       prunedSteps: this.prunedSteps,
+      // The rules in force for this run, and what each one kept the crawler from doing.
+      // Off-site: another origin or a new window; the rest are other pages of this site.
+      safety: SAFETY_RULES.map(rule => ({
+        ...rule,
+        skipped:
+          rule.id === 'form-submit'
+            ? [...this.submitsSkipped]
+            : rule.id === 'goal-area'
+              ? this.offArea.size
+              : rule.id === 'leave-page' || rule.id === 'outside-site'
+                ? [...this.links.values()].filter(
+                    l => l.kind !== 'same-document' && (rule.id === 'outside-site') === offSite(l),
+                  ).length
+                : undefined,
+      })),
       navigations: {
         intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
         sameDocument: [...this.links.values()]
@@ -611,6 +688,18 @@ export class SampledCrawler {
       hovers: actions.filter(a => a.step.kind === 'hover').length,
       modeGroups: { sampled: this.sampledModeGroups.size, flat: this.flatModeGroups.size },
       coverage: this.coverageReport(),
+      pursuit: this.options.pursuit && {
+        question: this.options.pursuit.plan.question,
+        answered: !!this.options.pursuit.result,
+        // An answer from absence stands once the scope is exhausted; any other stop leaves it open.
+        settled:
+          !!this.options.pursuit.result &&
+          (!this.options.pursuit.result.provisional || this.stopReason === 'scope_exhausted'),
+        result: this.options.pursuit.result,
+        llmCalls: this.options.pursuit.meter.calls,
+        costUsd: this.options.pursuit.meter.costUsd,
+        steeredActions: this.options.pursuit.steered,
+      },
       goal: this.options.relevance && {
         plan: this.options.relevance.plan,
         jevCalls: this.options.relevance.calls,
@@ -819,7 +908,7 @@ export class SampledCrawler {
       if (!c.visible || c.actions.length || !c.interactionHints?.length || c.actionable.occludedBy || outOfScope(c))
         continue;
       const name = c.name || c.displayedText;
-      if (!name || this.options.policy.forbiddenLabel.test(name)) continue;
+      if (!name) continue;
       const cls = this.classOf(c);
       if (this.asked.has(cls)) continue;
       this.asked.add(cls);
@@ -900,7 +989,7 @@ export class SampledCrawler {
   }
 
   /** All currently executable, still-unsampled candidates, ranked by tier. */
-  candidates(s: Snapshot, applyGoal = true): Candidate[] {
+  candidates(s: Snapshot, applyGoal = true, sampled = true): Candidate[] {
     const overlay = activeOverlay(s);
     const scope = overlay ? new Set(overlay.controlIds) : undefined;
     const siblings = modeSiblings(s);
@@ -945,7 +1034,11 @@ export class SampledCrawler {
       }
       if (where === 'navigate' && !this.pageAllowed(linkTarget(c, s.url)!)) continue;
       for (const kind of kindsFor(c, this.confirmed, this.classOf)) {
-        if (!allowed(c, kind, this.options.policy)) continue;
+        if (!allowed(c, kind)) {
+          if (c.visible && submitsForm(c))
+            this.submitsSkipped.add((c.name || c.label || c.reviewBinding?.attributes.alt || c.tag).slice(0, 60));
+          continue;
+        }
         const classKey = `${kind}|${this.classOf(c)}`;
         if (classKey.includes('|list:')) {
           const seen = this.listMembers.get(classKey) || new Set();
@@ -954,11 +1047,12 @@ export class SampledCrawler {
         }
         if (
           kind !== 'fill' &&
-          (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey))
+          (this.failedClasses.has(classKey) ||
+            (sampled && (this.classCounts.get(classKey) || 0) >= this.budget(classKey)))
         )
           continue;
         const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
-        if (group && this.flatModeGroups.has(group)) continue;
+        if (sampled && group && this.flatModeGroups.has(group)) continue;
         const disclosure =
           c.expanded !== null ||
           ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) ||
@@ -978,7 +1072,7 @@ export class SampledCrawler {
                   : 'body';
         const relevance = applyGoal ? this.options.relevance : undefined;
         // An open overlay must still be handled even when its contents are off-goal.
-        if (relevance && !scope && !relevance.relevant(classKey)) continue;
+        if (sampled && relevance && !scope && !relevance.relevant(classKey)) continue;
         const row = {
           control: c,
           kind,
@@ -996,7 +1090,7 @@ export class SampledCrawler {
         const inputKind = this.inputKinds.get(this.classOf(c))?.kind;
         for (const purpose of inputKind ? inputSamples(inputKind, emptyFacts, '').map(x => x.purpose) : ['first']) {
           const sampleKey = `${classKey}|${purpose}`;
-          if (this.failedClasses.has(sampleKey) || (this.classCounts.get(sampleKey) || 0) >= 1) continue;
+          if (this.failedClasses.has(sampleKey) || (sampled && (this.classCounts.get(sampleKey) || 0) >= 1)) continue;
           rows.push({ ...row, classKey: sampleKey, purpose });
         }
       }
@@ -1022,12 +1116,7 @@ export class SampledCrawler {
     const relevance = this.options.relevance;
     if (!relevance) return;
     const rows = this.candidates(s, false);
-    await relevance.assess(
-      rows.map(r => ({
-        classKey: r.classKey,
-        description: `${r.kind} ${r.control.role} "${maskVolatile(r.control.name || r.control.label)}"${r.control.landmark ? ` in site ${r.control.landmark}` : ''}`,
-      })),
-    );
+    await relevance.assess(rows.map(r => ({ classKey: r.classKey, description: describe(r) })));
     for (const r of rows)
       if (!relevance.relevant(r.classKey) && !this.pruned.has(r.classKey)) {
         this.pruned.add(r.classKey);
@@ -1043,6 +1132,51 @@ export class SampledCrawler {
       }
   }
 
+  /** Goal pursuit: the control and action the LLM picked for this state. */
+  private steer?: { state: string; row: Candidate };
+  /** Goal pursuit: specific actions already run; never offered again. */
+  private readonly picked = new Set<string>();
+
+  /** Goal pursuit: look at this state once; true when the page answered the question. */
+  private async pursue(s: Snapshot) {
+    const pursuit = this.options.pursuit;
+    if (!pursuit || !pursuit.plan.question) return false;
+    const key = stateKey(s);
+    // One option per control, not per class, and regardless of sampling budgets or relevance
+    // pruning: the answer may sit behind the one list member the sampler would skip.
+    const rows = [
+      ...new Map(
+        this.candidates(s, true, false)
+          .filter(r => !this.picked.has(pick(r)))
+          .map(r => [pick(r), r]),
+      ).values(),
+    ];
+    const options = rows.map(r => ({ classKey: pick(r), description: describe(r) }));
+    const before = pursuit.meter.calls;
+    const decision = await pursuit.decide(key, s.text || '', options);
+    if (!decision) return false;
+    if (pursuit.meter.calls > before)
+      this.emit({
+        type: 'pursuit',
+        at: this.now(),
+        state: key,
+        url: s.url,
+        answered: decision.answered,
+        found: decision.found,
+        answer: decision.answer.slice(0, 500),
+        next: decision.next,
+        reason: decision.reason.slice(0, 300),
+      });
+    if (decision.answered) {
+      // Absence is only proven by exhausting the scope: keep exploring, keep the answer as provisional.
+      pursuit.result = { ...decision, state: key, url: s.url, at: this.now(), provisional: !decision.found };
+      if (decision.found) return true;
+    } else if (pursuit.result?.provisional) pursuit.result = undefined;
+    const row = decision.next ? rows.find(r => pick(r) === decision.next) : undefined;
+    this.steer = row && { state: key, row };
+    return false;
+  }
+
   private choose(s: Snapshot): Candidate | undefined {
     // A secondary page with its budget spent: only overlays (to close them) or a way back.
     const page = pagePath(s.url),
@@ -1053,6 +1187,14 @@ export class SampledCrawler {
     }
     const rows = this.candidates(s);
     this.lastCandidates = rows.map(r => r.classKey);
+    // Goal pursuit: the action the LLM picked for this state goes first.
+    if (this.steer?.state === stateKey(s)) {
+      const picked = this.steer.row;
+      this.steer = undefined;
+      this.picked.add(pick(picked));
+      this.options.pursuit!.steered++;
+      return picked;
+    }
     const overlay = activeOverlay(s);
     // Inside an overlay, explore its content before its exits so it is not dismissed early.
     if (overlay) {
@@ -1210,6 +1352,7 @@ export class SampledCrawler {
       newState: isNew,
       after: pagePath(after.url),
     });
+    this.options.pursuit?.note(`${describe(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
     if (routeChanged) this.routeClasses.add(c.classKey);
     // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
     // A same-document route change (kept) is still the entry page's document, not a departure.
@@ -1597,6 +1740,15 @@ function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | und
       );
   const withAvg = (t: ReturnType<typeof sum>) => ({ ...t, avgMs: t.calls ? Math.round(t.elapsedMs / t.calls) : 0 });
   return { jev: withAvg(sum(jev)), llm: withAvg(sum(llm)) };
+}
+
+/** One specific action on one specific control, as the model picks it. */
+const pick = (r: Candidate) => `${r.kind}|${r.control.localId}|${r.purpose ?? ''}`;
+
+/** A candidate action as a model reads it. */
+function describe(r: Candidate) {
+  const c = r.control;
+  return `${r.kind} ${c.role} "${maskVolatile(c.name || c.label)}"${c.landmark ? ` in site ${c.landmark}` : ''}`;
 }
 
 /** Visible text split into comparable blocks, live numbers masked, tiny fragments dropped. */

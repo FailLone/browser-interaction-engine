@@ -7,6 +7,7 @@ import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   BrowserDriver,
+  GoalPursuit,
   GoalRelevance,
   ModelJudge,
   SampledCrawler,
@@ -41,6 +42,7 @@ console.log(
 // Goal mode: the LLM plans scope from the entry page's controls; JEV prunes off-goal actions.
 const goal = process.argv[6];
 let relevance: GoalRelevance | undefined;
+let pursuit: GoalPursuit | undefined;
 // Without a goal, a path pattern is an explicit request to visit those pages.
 let followNavigation = !!scope;
 let planning: import('@interaction/crawler').ProviderMeter | undefined;
@@ -62,6 +64,8 @@ if (goal) {
   for (const pattern of plan.allowedPaths) policy.allowedPaths.push(new RegExp(pattern));
   followNavigation = !plan.stayOnPage;
   relevance = new GoalRelevance(providers.jev, plan);
+  // A goal that asks something of the page is pursued step by step until the page answers it.
+  if (plan.question) pursuit = new GoalPursuit(providers.llm, plan);
   console.log('goal plan', JSON.stringify(plan));
 }
 const crawler = new SampledCrawler({
@@ -71,6 +75,7 @@ const crawler = new SampledCrawler({
   policy,
   judge,
   relevance,
+  pursuit,
   followNavigation,
   inputJudge,
   maxActions: 2000,
@@ -112,6 +117,13 @@ const crawler = new SampledCrawler({
         event.probability ?? '',
         JSON.stringify(event.label),
       );
+    else if (event.type === 'pursuit')
+      console.log(
+        t,
+        'pursuit',
+        event.answered ? (event.found ? 'ANSWERED' : 'PROVISIONAL') : `next=${event.next ?? 'explore'}`,
+        JSON.stringify(event.answered ? event.answer : event.reason),
+      );
     else if (event.type === 'plugin_error') console.log(t, 'plugin error', event.plugin, event.error);
     else if (event.type === 'viewport') {
       const v = event.viewport;
@@ -137,9 +149,11 @@ const summary = {
 };
 const inputCost = inputJudge?.meter.costUsd || 0,
   inputCalls = inputJudge?.meter.calls || 0;
-const total = (planning?.costUsd || 0) + inputCost + (summary.models.jev.costUsd + summary.models.llm.costUsd);
+const llmCost = summary.models.llm.costUsd + (planning?.costUsd || 0) + (pursuit?.meter.costUsd || 0),
+  llmCalls = summary.models.llm.calls + (planning?.calls || 0) + (pursuit?.meter.calls || 0);
+const total = inputCost + summary.models.jev.costUsd + llmCost;
 console.log(
-  `model spend: JEV ${summary.models.jev.calls + inputCalls} calls $${(summary.models.jev.costUsd + inputCost).toFixed(6)}, LLM ${summary.models.llm.calls + (planning?.calls || 0)} calls $${(summary.models.llm.costUsd + (planning?.costUsd || 0)).toFixed(6)}, total $${total.toFixed(6)}`,
+  `model spend: JEV ${summary.models.jev.calls + inputCalls} calls $${(summary.models.jev.costUsd + inputCost).toFixed(6)}, LLM ${llmCalls} calls $${llmCost.toFixed(6)}, total $${total.toFixed(6)}`,
 );
 writeFileSync(join(out, 'summary.json'), JSON.stringify(summary, null, 2));
 writeFileSync(join(out, 'findings.json'), JSON.stringify([...crawler.findings.values()], null, 2));

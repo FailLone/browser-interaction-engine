@@ -231,6 +231,7 @@ test('goal mode explores goal-relevant actions and prunes the rest', async () =>
     areas: [],
     focus: ['pair list'],
     tasks: ['pick a pair'],
+    question: '',
   });
   const events: CrawlEvent[] = [];
   await new SampledCrawler({ url: base, durationMs: 30000, settleMs: 100, relevance, log: e => events.push(e) }).run();
@@ -273,6 +274,7 @@ test('goal scope leaves the header, navigation and footer alone unless the goal 
       areas,
       focus: [],
       tasks: [],
+      question: '',
     });
     const events: CrawlEvent[] = [];
     const summary = await new SampledCrawler({
@@ -301,6 +303,143 @@ test('goal scope leaves the header, navigation and footer alone unless the goal 
     expect(footer.labels).toEqual(expect.arrayContaining(['Pick EUR', 'Language', 'Close languages']));
     expect(footer.labels).not.toContain('Search site');
     expect(footer.labels).not.toContain('Products');
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
+test('a goal question is pursued into hidden content and the crawl stops once the page answers it', async () => {
+  const { GoalPursuit } = await import('@interaction/crawler');
+  // The answer sits in the third collapsed FAQ; other sections are distractions.
+  const html = `<!doctype html><title>FAQ</title><main>
+    <div><button onclick="document.getElementById('a1').hidden=false">How do I convert?</button><p id="a1" hidden>Pick two currencies.</p></div>
+    <div><button onclick="document.getElementById('a2').hidden=false">Is it safe?</button><p id="a2" hidden>We use cold storage.</p></div>
+    <div><button onclick="document.getElementById('a3').hidden=false">What does it cost?</button><p id="a3" hidden>The trading fee is 0.1% per conversion.</p></div>
+    <div><button onclick="this.textContent='Liked'">Like</button></div></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  // Fake LLM: answers once the fee text was shown; otherwise picks a cost-looking action, or none.
+  const seen: string[] = [];
+  const llm = {
+    name: 'llm',
+    model: 'llm',
+    async decide(request: { state: unknown }) {
+      const state = request.state as { newText: string; actions: string[]; history: string[] };
+      seen.push(state.newText);
+      if (seen.join('\n').includes('trading fee'))
+        return {
+          model: 'llm',
+          value: { answered: true, found: true, answer: 'Yes: "The trading fee is 0.1%"', next: -1, reason: 'shown' },
+        };
+      const i = state.actions.findIndex(a => /cost/i.test(a));
+      return { model: 'llm', value: { answered: false, answer: '', next: i, reason: 'look for fees' } };
+    },
+  };
+  const plan = {
+    goal: 'Can a user find the trading fee?',
+    stayOnPage: true,
+    allowedPaths: [],
+    areas: [],
+    focus: [],
+    tasks: [],
+    question: 'Does the page explain the trading fee?',
+  };
+  try {
+    const pursuit = new GoalPursuit(llm, plan);
+    const events: CrawlEvent[] = [];
+    const summary = await new SampledCrawler({
+      url,
+      durationMs: 30000,
+      settleMs: 100,
+      pursuit,
+      log: e => events.push(e),
+    }).run();
+    const labels = events
+      .filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action')
+      .map(a => a.step.label);
+    expect(labels).toEqual(['What does it cost?']);
+    expect(summary.stopReason).toBe('goal_answered');
+    expect(summary.pursuit).toMatchObject({ answered: true, steeredActions: 1, llmCalls: 2 });
+    expect(summary.pursuit?.result?.answer).toContain('0.1%');
+    // Later looks only send text that is new since the last one.
+    expect(seen[1]).toContain('trading fee');
+    expect(seen[1]).not.toContain('How do I convert?');
+
+    // When the LLM sees no promising action, the crawler explores until the answer shows up.
+    // (A list of FAQ items is sampled, not exhausted: there only the LLM's pick reaches a member.)
+    const single = `<!doctype html><title>Pricing</title><main>
+      <div><button onclick="this.textContent='Liked'">Like</button></div>
+      <div><button aria-expanded="false" onclick="document.getElementById('p').hidden=false">More</button><p id="p" hidden>The trading fee is 0.1% per conversion.</p></div></main>`;
+    const other = createServer((_req, res) => {
+      res.setHeader('content-type', 'text/html');
+      res.end(single);
+    });
+    await new Promise<void>(resolve => other.listen(0, '127.0.0.1', resolve));
+    const blind = new GoalPursuit(
+      {
+        ...llm,
+        async decide(request: { state: unknown }) {
+          const state = request.state as { newText: string };
+          return state.newText.includes('trading fee')
+            ? { model: 'llm', value: { answered: true, found: true, answer: '0.1%', next: -1, reason: 'shown' } }
+            : { model: 'llm', value: { answered: false, answer: '', next: -1, reason: 'nothing obvious' } };
+        },
+      },
+      plan,
+    );
+    try {
+      const explored = await new SampledCrawler({
+        url: `http://127.0.0.1:${(other.address() as { port: number }).port}/`,
+        durationMs: 30000,
+        settleMs: 100,
+        pursuit: blind,
+      }).run();
+      expect(explored.stopReason).toBe('goal_answered');
+      expect(explored.pursuit).toMatchObject({ answered: true, settled: true, steeredActions: 0 });
+
+      // "Not on the page" is only provisional: the crawl explores the rest before it stands,
+      // and text revealed later overturns it.
+      const hasty = (reveals: boolean) =>
+        new GoalPursuit(
+          {
+            ...llm,
+            async decide(request: { state: unknown }) {
+              const state = request.state as { newText: string };
+              return reveals && state.newText.includes('trading fee')
+                ? { model: 'llm', value: { answered: true, found: true, answer: '0.1%', next: -1, reason: 'shown' } }
+                : {
+                    model: 'llm',
+                    value: { answered: true, found: false, answer: 'No fee is shown', next: -1, reason: 'none seen' },
+                  };
+            },
+          },
+          plan,
+        );
+      const crawl = (pursuit: InstanceType<typeof GoalPursuit>) =>
+        new SampledCrawler({
+          url: `http://127.0.0.1:${(other.address() as { port: number }).port}/`,
+          durationMs: 30000,
+          settleMs: 100,
+          pursuit,
+        }).run();
+      const overturned = await crawl(hasty(true));
+      expect(overturned.stopReason).toBe('goal_answered');
+      expect(overturned.pursuit?.result).toMatchObject({ found: true, provisional: false, answer: '0.1%' });
+      const absent = await crawl(hasty(false));
+      expect(absent.stopReason).toBe('scope_exhausted');
+      expect(absent.actions).toBeGreaterThan(0);
+      expect(absent.pursuit).toMatchObject({
+        answered: true,
+        settled: true,
+        result: { found: false, provisional: true },
+      });
+    } finally {
+      await new Promise<void>(resolve => other.close(() => resolve()));
+    }
   } finally {
     await new Promise<void>(resolve => local.close(() => resolve()));
   }
@@ -347,8 +486,42 @@ test('a goal plan stays on the page unless it asks for other pages, and maps nam
     'https://example.com/',
     controls,
   );
-  expect(nowhere).toMatchObject({ stayOnPage: true, allowedPaths: [] });
+  expect(nowhere).toMatchObject({ stayOnPage: true, allowedPaths: [], question: '' });
 });
+
+test('safety is structural: form submits are never clicked, whatever the wording', async () => {
+  const html = `<!doctype html><meta charset="utf-8"><title>Safety</title><main>
+    <div><button aria-expanded="false" onclick="document.getElementById('a').hidden=false">I just bought Bitcoin. How do I sell?</button><p id="a" hidden>Answer shown</p></div>
+    <form action="/never" onsubmit="document.title='SUBMITTED';return false">
+      <input name="q" placeholder="Amount">
+      <button onclick="document.getElementById('o').textContent='opened'" type="button">Подтвердить</button><p id="o"></p>
+      <button>Send</button>
+      <button type="submit">Confirm</button>
+      <input type="submit" value="Go">
+      <input type="image" alt="Pay" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width="20" height="20">
+    </form></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const events: CrawlEvent[] = [];
+    const summary = await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
+    const labels = events
+      .filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action')
+      .map(a => a.step.label);
+    // Words like "bought", "sell" or a Russian "confirm" no longer block anything.
+    expect(labels).toEqual(expect.arrayContaining(['I just bought Bitcoin. How do I sell?', 'Подтвердить']));
+    for (const submit of ['Send', 'Confirm', 'Go', 'Pay']) expect(labels).not.toContain(submit);
+    // The summary lists the rules and what each one held back, for reviewers.
+    const rule = summary.safety.find(r => r.id === 'form-submit');
+    expect(rule?.skipped).toEqual(expect.arrayContaining(['Send', 'Confirm', 'Go', 'Pay']));
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
 
 test('mode selectors stay distinct while repeated records merge', async () => {
   const { controlClass } = await import('@interaction/crawler');
