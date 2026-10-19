@@ -36,7 +36,7 @@ export interface HeartbeatSpec {
 }
 
 /**
- * What the registry knows about one site. Preset names are checked against it, verification
+ * What the preset adapter knows about one site. Preset names are checked against it, verification
  * opens `tradeUrl` and calls `heartbeat`, and crawls re-check `domains`, `loginRoute` and the
  * language against it.
  */
@@ -49,15 +49,13 @@ export interface SiteProfile {
   entities?: string[];
   /** Hosts the session is for; `.example.com` covers subdomains. */
   domains: string[];
-  /** Environment accounts of this site belong to unless the import says otherwise, e.g. `prod`. */
+  /** The `environment` label of this site's accounts, e.g. `prod`; an import's labels may override it. */
   environment?: string;
   tradeUrl: string | ((identity: PresetIdentity) => string);
   heartbeat: HeartbeatSpec;
   /** Pages that mean "not logged in" (matched against the full URL). */
   loginRoute?: RegExp;
 }
-
-export { hostMatches } from '@interaction/crawler';
 
 export const tradeUrlOf = (profile: SiteProfile, identity: PresetIdentity) =>
   typeof profile.tradeUrl === 'function' ? profile.tradeUrl(identity) : profile.tradeUrl;

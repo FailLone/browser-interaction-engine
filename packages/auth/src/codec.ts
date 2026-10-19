@@ -31,21 +31,6 @@ export function unseal(sealed: Buffer, key: Buffer): Buffer {
   return Buffer.concat([decipher.update(sealed.subarray(28)), decipher.final()]);
 }
 
-/**
- * Turns an exported preset file into a session snapshot. The format belongs to the tool that
- * exported it (e.g. a playwright-auth `preset.enc`); hosts plug in a decoder for theirs.
- * The result is validated, so a decoder may return loosely typed JSON.
- */
-export type PresetDecoder = (data: Buffer, key: Buffer) => unknown | Promise<unknown>;
-
-/**
- * Reference preset format: AES-256-GCM over the snapshot JSON (`seal`). Replace with the
- * exporting tool's own decoder when it differs.
- */
-export const sealedJsonPreset: PresetDecoder = (data, key) => JSON.parse(unseal(data, key).toString('utf8'));
-export const encodeSealedJsonPreset = (snapshot: SessionSnapshot, key: Buffer) =>
-  seal(Buffer.from(JSON.stringify(snapshot)), key);
-
 /** Snapshots at rest, encrypted with this project's own key (never the exporter's). */
 export class Vault {
   private readonly key: Buffer;

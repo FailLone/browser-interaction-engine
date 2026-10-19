@@ -1,18 +1,17 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { hostMatches, type HeartbeatResult } from './sites.js';
+import { hostMatches } from '@interaction/crawler';
 
 export type AccountStatus = 'pending' | 'active' | 'invalid';
 
 /** A test account: who it is, where it may be used, and its sealed session snapshot. */
 export interface Account {
   id: string;
-  preset: string;
-  site: string;
-  market: string;
-  entity: string;
-  environment: string;
+  /** The adapter's unique name for it, e.g. a preset name. */
+  key: string;
+  /** The adapter's scope, e.g. `{ site: 'global', entity: 'eid14' }`; crawls select by it. */
+  labels: Record<string, string>;
   permissions: string[];
   domains: string[];
   locale: string;
@@ -27,17 +26,15 @@ export interface Verification {
   accountId: string;
   at: string;
   ok: boolean;
-  /** Why it failed, e.g. 'logged_in_rejected', 'anonymous_accepted'. */
+  /** Why it failed, as the adapter put it, or 'error: …' when verification threw. */
   reason?: string;
-  loggedIn?: HeartbeatResult;
-  anonymous?: HeartbeatResult;
+  /** Non-secret facts from the adapter. */
+  facts?: Record<string, unknown>;
 }
 
 export interface AccountQuery {
-  site?: string;
-  market?: string;
-  entity?: string;
-  environment?: string;
+  /** Every one must equal the account's label. */
+  labels?: Record<string, string>;
   /** Every one must be granted to the account. */
   permissions?: string[];
   /** The page host; the account's domains must cover it. */
@@ -59,29 +56,30 @@ export class AccountStore {
     this.db = new Database(file);
     this.db.pragma('journal_mode = WAL');
     this.db.exec(`
-      CREATE TABLE IF NOT EXISTS accounts(id TEXT PRIMARY KEY, preset TEXT NOT NULL UNIQUE, site TEXT NOT NULL, market TEXT NOT NULL,
-        entity TEXT NOT NULL, environment TEXT NOT NULL, permissions TEXT NOT NULL, domains TEXT NOT NULL, locale TEXT NOT NULL,
+      CREATE TABLE IF NOT EXISTS accounts(id TEXT PRIMARY KEY, key TEXT NOT NULL UNIQUE, labels TEXT NOT NULL,
+        permissions TEXT NOT NULL, domains TEXT NOT NULL, locale TEXT NOT NULL,
         mobile INTEGER NOT NULL, status TEXT NOT NULL, expires_at TEXT, verified_at TEXT, imported_at TEXT NOT NULL,
         snapshot BLOB NOT NULL, lock_owner TEXT, lock_holders INTEGER NOT NULL DEFAULT 0, lock_until INTEGER);
       CREATE TABLE IF NOT EXISTS account_verifications(account_id TEXT NOT NULL, at TEXT NOT NULL, ok INTEGER NOT NULL,
         data TEXT NOT NULL);`);
   }
 
-  /** Insert or replace by preset name. A replaced snapshot must be verified again before use. */
+  /** Insert or replace by key. A replaced snapshot must be verified again before use. */
   save(account: Omit<Account, 'id' | 'status' | 'importedAt' | 'verifiedAt'>, snapshot: Buffer): Account {
-    const existing = this.byPreset(account.preset);
+    const existing = this.byKey(account.key);
     const id = existing?.id ?? crypto.randomUUID();
     this.db
       .prepare(
-        `INSERT INTO accounts(id,preset,site,market,entity,environment,permissions,domains,locale,mobile,status,expires_at,imported_at,snapshot)
-         VALUES(@id,@preset,@site,@market,@entity,@environment,@permissions,@domains,@locale,@mobile,'pending',@expiresAt,@importedAt,@snapshot)
-         ON CONFLICT(id) DO UPDATE SET site=@site,market=@market,entity=@entity,environment=@environment,permissions=@permissions,
+        `INSERT INTO accounts(id,key,labels,permissions,domains,locale,mobile,status,expires_at,imported_at,snapshot)
+         VALUES(@id,@key,@labels,@permissions,@domains,@locale,@mobile,'pending',@expiresAt,@importedAt,@snapshot)
+         ON CONFLICT(id) DO UPDATE SET labels=@labels,permissions=@permissions,
            domains=@domains,locale=@locale,mobile=@mobile,status='pending',expires_at=@expiresAt,verified_at=NULL,
            imported_at=@importedAt,snapshot=@snapshot`,
       )
       .run({
         ...account,
         id,
+        labels: JSON.stringify(account.labels),
         permissions: JSON.stringify(account.permissions),
         domains: JSON.stringify(account.domains),
         mobile: account.mobile ? 1 : 0,
@@ -96,12 +94,12 @@ export class AccountStore {
     const row = this.db.prepare('SELECT * FROM accounts WHERE id=?').get(id) as Row | undefined;
     return row && decode(row);
   }
-  byPreset(preset: string): Account | undefined {
-    const row = this.db.prepare('SELECT * FROM accounts WHERE preset=?').get(preset) as Row | undefined;
+  byKey(key: string): Account | undefined {
+    const row = this.db.prepare('SELECT * FROM accounts WHERE key=?').get(key) as Row | undefined;
     return row && decode(row);
   }
   accounts(): Account[] {
-    return (this.db.prepare('SELECT * FROM accounts ORDER BY preset').all() as Row[]).map(decode);
+    return (this.db.prepare('SELECT * FROM accounts ORDER BY key').all() as Row[]).map(decode);
   }
   snapshot(id: string): Buffer | undefined {
     return (this.db.prepare('SELECT snapshot FROM accounts WHERE id=?').get(id) as { snapshot: Buffer } | undefined)
@@ -132,7 +130,7 @@ export class AccountStore {
     ).map(r => JSON.parse(r.data));
   }
 
-  /** Taken out of use until verified again, e.g. after a crawl's heartbeat was refused. */
+  /** Taken out of use until verified again, e.g. after a crawl's check found it logged out. */
   invalidate(id: string) {
     this.db.prepare(`UPDATE accounts SET status='invalid' WHERE id=?`).run(id);
   }
@@ -145,10 +143,7 @@ export class AccountStore {
         a =>
           a.status === 'active' &&
           (!a.expiresAt || Date.parse(a.expiresAt) > until) &&
-          (!query.site || a.site === query.site) &&
-          (!query.market || a.market === query.market) &&
-          (!query.entity || a.entity === query.entity) &&
-          (!query.environment || a.environment === query.environment) &&
+          Object.entries(query.labels ?? {}).every(([name, value]) => a.labels[name] === value) &&
           (query.permissions ?? []).every(p => a.permissions.includes(p)) &&
           (!query.host || hostMatches(query.host, a.domains)) &&
           (!query.locale || localeMatches(a.locale, query.locale)) &&
@@ -202,11 +197,8 @@ export class AccountStore {
 
 const decode = (row: Row): Account => ({
   id: String(row.id),
-  preset: String(row.preset),
-  site: String(row.site),
-  market: String(row.market),
-  entity: String(row.entity),
-  environment: String(row.environment),
+  key: String(row.key),
+  labels: JSON.parse(String(row.labels)),
   permissions: JSON.parse(String(row.permissions)),
   domains: JSON.parse(String(row.domains)),
   locale: String(row.locale),

@@ -16,7 +16,7 @@ flowchart TD
 | --- | --- |
 | `@interaction/crawler` | 浏览器驱动与页面抓取、会话接口与 A/B 实验会话、抽象状态、控件类与列表抽样、动作选择与回退、跳转拦截、模型判断（JEV/LLM）与计费、输入分类、目标模式、运行存储（SQLite）、续跑、插件接口 |
 | `@interaction/rules` | UI 规则（遮挡、裁切、文字截断、图片资源、图片比例、文字与背景同色）与跨状态跟踪；`rulesPlugin()` 把它们接成遍历插件 |
-| `@interaction/auth` | 登录快照导入（解密、命名映射、重新加密）、登录心跳 + 匿名对照验证、账号库与占用锁；`PresetAuth.provider()` 是一个 `SessionProvider` |
+| `@interaction/auth` | 账号底座 `Auth`：加密保存会话快照、账号库（标签筛选）与占用锁、调度验证和巡检；`Auth.provider()` 是一个 `SessionProvider`。账号从哪来、什么算已登录由适配器 `AuthAdapter` 决定，自带参考实现 `PresetAdapter`（preset 文件 + 登录心跳） |
 | `apps/server` | `/v1/crawls` 路由；按名字提供插件（目前是 `rules`）和会话（目前是 `experiment`），每次运行由请求选择 |
 | `apps/ui` | 发起/停止/续跑遍历，查看动作、状态截图、覆盖统计和插件结果 |
 | `apps/test-site` | 本地演示站与规则夹具页 |

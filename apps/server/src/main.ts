@@ -12,7 +12,7 @@ const crawls = new CrawlManager(
     rules: () => rulesPlugin(),
   },
   // Experiment variants need no secrets, so they are offered by default; a login provider
-  // (`presetSessionFactory` from @interaction/auth) is added by hosts that have accounts.
+  // (`authSessionFactory` from @interaction/auth, with the host's own adapter) is added by hosts that have accounts.
   { experiment: experimentSessionFactory },
 );
 const app = await createServer(crawls, { logger: true });

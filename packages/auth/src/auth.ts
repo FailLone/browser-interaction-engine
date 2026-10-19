@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import { readFile } from 'node:fs/promises';
-import { basename } from 'node:path';
-import { chromium, type Browser, type BrowserContext, type BrowserContextOptions, type Page } from 'playwright';
+import { chromium, type BrowserContext, type BrowserContextOptions, type Page } from 'playwright';
 import {
   type PreparedSession,
   type SessionCheck,
@@ -9,35 +7,26 @@ import {
   type SessionTarget,
   withoutKeys,
 } from '@interaction/crawler';
-import { keyFrom, type PresetDecoder, sealedJsonPreset, Vault } from './codec.js';
-import { parsePresetName, type PresetIdentity, type PresetNameParser } from './names.js';
+import type { AccountCheck, AuthAdapter } from './adapter.js';
+import { Vault } from './codec.js';
 import { type SessionSnapshot, snapshotSchema, storageStateOf } from './snapshot.js';
-import { type Account, type AccountQuery, type AccountStore, localeMatches, type Verification } from './store.js';
-import { heartbeat, type HeartbeatResult, hostMatches, type SiteProfile, tradeUrlOf } from './sites.js';
+import type { Account, AccountQuery, AccountStore, Verification } from './store.js';
 
-export interface PresetAuthOptions {
+export interface AuthOptions<Input = unknown> {
   store: AccountStore;
   /** This project's key: snapshots are stored encrypted with it. */
   vaultKey: string | Buffer;
-  /** The exporter's key, used only to read preset files. */
-  presetKey: string | Buffer;
-  /** Reads the exporter's preset format; default `sealedJsonPreset`. */
-  decode?: PresetDecoder;
-  parseName?: PresetNameParser;
-  sites: SiteProfile[];
+  /** Where accounts come from and how they are judged. */
+  adapter: AuthAdapter<Input>;
   headless?: boolean;
-  /** Timeout for opening the trade page during verification. */
-  navigationTimeoutMs?: number;
 }
 
-export interface ImportPreset {
-  /** File to read, or `data` with the preset `name` (a file name works). */
-  file?: string;
-  data?: Buffer;
-  name?: string;
-  environment?: string;
+export interface ImportOptions {
+  /** Added to what the adapter grants. */
   permissions?: string[];
-  /** Overrides the snapshot's own expiry. */
+  /** Added to (and override) the adapter's labels, e.g. `{ environment: 'staging' }`. */
+  labels?: Record<string, string>;
+  /** Overrides the adapter's and the snapshot's expiry. */
   expiresAt?: string;
 }
 
@@ -63,82 +52,40 @@ export interface ProviderOptions {
 }
 
 /**
- * Logged-in test sessions from exported presets: import (decrypt, map the preset name to a known
- * site, re-encrypt with this project's key), verify (logged-in heartbeat accepted and an
- * anonymous one explicitly refused), and hand out verified accounts to crawls as a
- * `SessionProvider`, which restores the session into each crawl's own context and keeps
- * re-checking heartbeat, domain, route and language.
+ * Logged-in test sessions, independent of where they come from: the adapter acquires an account
+ * (from a preset file, a login script, a token service, …) and judges it; this class stores it
+ * encrypted, activates it only once the adapter's verification passes, and hands verified
+ * accounts out to crawls as a `SessionProvider`, which restores the session into each crawl's own
+ * context, has the adapter re-check it while the crawl runs and keeps what the site refreshed.
  */
-export class PresetAuth {
+export class Auth<Input = unknown> {
   readonly store: AccountStore;
+  readonly adapter: AuthAdapter<Input>;
   private readonly vault: Vault;
-  private readonly presetKey: Buffer;
-  private readonly decode: PresetDecoder;
-  private readonly parseName: PresetNameParser;
-  constructor(readonly options: PresetAuthOptions) {
+  constructor(readonly options: AuthOptions<Input>) {
     this.store = options.store;
+    this.adapter = options.adapter;
     this.vault = new Vault(options.vaultKey);
-    this.presetKey = keyFrom(options.presetKey);
-    this.decode = options.decode ?? sealedJsonPreset;
-    this.parseName = options.parseName ?? parsePresetName;
-  }
-
-  site(name: string) {
-    return this.options.sites.find(s => s.site === name);
-  }
-
-  /** The preset name, checked against the site registry and the account it would replace. */
-  identify(name: string): { identity: PresetIdentity; profile: SiteProfile } {
-    const identity = this.parseName(name);
-    const profile = this.site(identity.site);
-    if (!profile) throw new Error(`Preset ${identity.preset}: unknown site "${identity.site}"`);
-    if (!(profile.markets ?? [profile.site]).includes(identity.market))
-      throw new Error(`Preset ${identity.preset}: site ${identity.site} has no market "${identity.market}"`);
-    if (profile.entities && !profile.entities.includes(identity.entity))
-      throw new Error(`Preset ${identity.preset}: site ${identity.site} has no entity "${identity.entity}"`);
-    const existing = this.store.byPreset(identity.preset);
-    if (
-      existing &&
-      (existing.site !== identity.site || existing.market !== identity.market || existing.entity !== identity.entity)
-    )
-      throw new Error(
-        `Preset ${identity.preset} is mapped to ${existing.site}/${existing.market}/${existing.entity} already`,
-      );
-    return { identity, profile };
   }
 
   /**
-   * Import a preset and verify it. The account is stored as `pending` first and only becomes
-   * `active` when verification passes; a preset that cannot be read or validated is not stored.
+   * Import an account and verify it. It is stored as `pending` first and only becomes `active`
+   * when verification passes; an input the adapter cannot read or whose snapshot does not
+   * validate is not stored.
    */
-  async import(input: ImportPreset): Promise<{ account: Account; verification: Verification }> {
-    const name = input.name ?? (input.file && basename(input.file));
-    if (!name) throw new Error('A preset needs a name');
-    const { identity, profile } = this.identify(name);
-    const data = input.data ?? (input.file ? await readFile(input.file) : undefined);
-    if (!data) throw new Error('A preset needs a file or data');
-    let snapshot: SessionSnapshot;
-    try {
-      snapshot = snapshotSchema.parse(await this.decode(data, this.presetKey));
-    } catch (error) {
-      throw new Error(`Preset ${identity.preset} could not be read: ${String((error as Error).message).slice(0, 200)}`);
-    }
-    const hosts = [
-      ...snapshot.cookies.map(c => c.domain.replace(/^\./, '')),
-      ...snapshot.origins.map(o => new URL(o.origin).hostname),
-    ];
-    if (!hosts.some(h => hostMatches(h, profile.domains) || profile.domains.some(d => d.endsWith(`.${h}`))))
-      throw new Error(`Preset ${identity.preset} holds no storage for ${profile.domains.join(', ')}`);
-    const expiresAt = input.expiresAt ?? snapshot.expiresAt;
+  async import(input: Input, options: ImportOptions = {}): Promise<{ account: Account; verification: Verification }> {
+    const acquired = await this.adapter.acquire(input, key => this.store.byKey(key));
+    const parsed = snapshotSchema.safeParse(acquired.snapshot);
+    if (!parsed.success)
+      throw new Error(`Account ${acquired.key} has no usable session: ${parsed.error.message.slice(0, 200)}`);
+    const snapshot = parsed.data;
+    const expiresAt = options.expiresAt ?? acquired.expiresAt ?? snapshot.expiresAt;
     const account = this.store.save(
       {
-        preset: identity.preset,
-        site: identity.site,
-        market: identity.market,
-        entity: identity.entity,
-        environment: input.environment ?? profile.environment ?? 'default',
-        permissions: input.permissions ?? [],
-        domains: profile.domains,
+        key: acquired.key,
+        labels: { ...acquired.labels, ...options.labels },
+        permissions: [...new Set([...(acquired.permissions ?? []), ...(options.permissions ?? [])])],
+        domains: acquired.domains,
         locale: snapshot.device.locale,
         mobile: snapshot.device.isMobile,
         ...(expiresAt ? { expiresAt } : {}),
@@ -150,80 +97,47 @@ export class PresetAuth {
   }
 
   /**
-   * Restore the account in one fresh context and open its trade page: the heartbeat must be
-   * accepted (code 0) on an allowed host, off the login route. Then open the same page in a
-   * context without the session: its heartbeat must be explicitly refused. Network failures and
-   * unexpected responses fail either side. Only when both hold is the account activated and its
-   * refreshed snapshot kept.
+   * Have the adapter verify the account in fresh contexts. Only when it passes is the account
+   * activated and the storage of its first session context kept as the refreshed snapshot.
    */
   async verify(accountId: string): Promise<Verification> {
     const account = this.store.account(accountId);
     if (!account) throw new Error('Unknown account');
-    const { profile, identity } = this.identify(account.preset);
     const snapshot = this.vault.open(this.store.snapshot(accountId)!);
-    const url = tradeUrlOf(profile, identity);
     const at = new Date().toISOString();
     let verification: Verification = { accountId, at, ok: false };
     let refreshed: Buffer | undefined;
     const browser = await chromium.launch({ headless: this.options.headless ?? true });
+    const contexts: BrowserContext[] = [];
+    let sessionContext: BrowserContext | undefined;
     try {
-      const logged = await this.probe(browser, profile, url, contextFor(snapshot, true));
-      verification = { ...verification, loggedIn: logged.result };
-      if (logged.result.outcome !== 'accepted') {
-        verification.reason = logged.reason ?? 'logged_in_rejected';
-        return verification;
+      const result = await this.adapter.verify(account, {
+        open: async ({ withSession = true } = {}) => {
+          const context = await browser.newContext(contextFor(snapshot, withSession));
+          contexts.push(context);
+          if (withSession) sessionContext ??= context;
+          return context.newPage();
+        },
+      });
+      verification = { ...verification, ...result };
+      if (result.ok && sessionContext) {
+        const state = await sessionContext.storageState({ indexedDB: true });
+        refreshed = this.vault.seal({ ...snapshot, ...(state as Pick<SessionSnapshot, 'cookies' | 'origins'>) });
       }
-      const anonymous = await this.probe(browser, profile, url, contextFor(snapshot, false));
-      verification.anonymous = anonymous.result;
-      if (anonymous.result.outcome !== 'rejected') {
-        // An accepted anonymous heartbeat proves nothing about the session; an unreadable one is not a refusal.
-        verification.reason = anonymous.result.outcome === 'accepted' ? 'anonymous_accepted' : 'anonymous_invalid';
-        return verification;
-      }
-      verification.ok = true;
-      if (logged.state) refreshed = this.vault.seal({ ...snapshot, ...logged.state });
       return verification;
     } catch (error) {
-      verification.reason = `error: ${String(error).slice(0, 200)}`;
+      verification = { ...verification, ok: false, reason: `error: ${String(error).slice(0, 200)}` };
       return verification;
     } finally {
+      for (const context of contexts) await context.close().catch(() => {});
       await browser.close().catch(() => {});
       this.store.recordVerification(verification, refreshed);
     }
   }
 
-  private async probe(browser: Browser, profile: SiteProfile, url: string, options: BrowserContextOptions) {
-    const context = await browser.newContext(options);
-    try {
-      const page = await context.newPage();
-      let reason: string | undefined;
-      try {
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: this.options.navigationTimeoutMs ?? 30_000 });
-      } catch (error) {
-        return {
-          result: { outcome: 'invalid', error: String(error).slice(0, 200) } as HeartbeatResult,
-          reason: 'trade_page_unreachable',
-        };
-      }
-      const where = new URL(page.url());
-      if (!hostMatches(where.hostname, profile.domains)) reason = 'off_domain';
-      else if (profile.loginRoute?.test(page.url())) reason = 'login_route';
-      const result = await heartbeat(page, context, profile.heartbeat, url);
-      // With a session, landing on the login page or another host is a failure whatever the heartbeat said.
-      if (reason && options.storageState && result.outcome === 'accepted')
-        return { result: { ...result, outcome: 'invalid' as const }, reason };
-      const state = options.storageState
-        ? ((await context.storageState({ indexedDB: true })) as Pick<SessionSnapshot, 'cookies' | 'origins'>)
-        : undefined;
-      return { result, reason, state };
-    } finally {
-      await context.close().catch(() => {});
-    }
-  }
-
   /** A session provider for crawls; see `ProviderOptions`. */
   provider(options: ProviderOptions = {}): SessionProvider {
-    return new PresetSessionProvider(this, this.vault, options);
+    return new AuthSessionProvider(this, this.vault, options);
   }
 }
 
@@ -242,14 +156,15 @@ function contextFor(snapshot: SessionSnapshot, withStorage: boolean): BrowserCon
   };
 }
 
-class PresetSessionProvider implements SessionProvider {
-  readonly id = 'preset-auth';
+class AuthSessionProvider implements SessionProvider {
+  readonly id: string;
   private readonly task: string;
   constructor(
-    private readonly auth: PresetAuth,
+    private readonly auth: Auth<never>,
     private readonly vault: Vault,
     private readonly options: ProviderOptions,
   ) {
+    this.id = auth.adapter.id;
     this.task = options.task ?? crypto.randomUUID();
   }
 
@@ -290,18 +205,12 @@ class PresetSessionProvider implements SessionProvider {
     };
     try {
       const snapshot = this.vault.open(this.auth.store.snapshot(held.id)!);
-      const profile = this.auth.site(held.site);
-      if (!profile) throw new Error(`Site ${held.site} is no longer registered`);
-      const identity = { preset: held.preset, site: held.site, market: held.market, entity: held.entity };
       let invalid = false;
       return {
         describe: {
           account: held.id,
-          preset: held.preset,
-          site: held.site,
-          market: held.market,
-          entity: held.entity,
-          environment: held.environment,
+          key: held.key,
+          ...held.labels,
           locale: held.locale,
           mobile: held.mobile,
         },
@@ -309,8 +218,8 @@ class PresetSessionProvider implements SessionProvider {
         recheckMs: this.options.recheckMs ?? 60_000,
         check: async (page: Page): Promise<SessionCheck> => {
           this.auth.store.renew(held.id, this.task, ttl);
-          const check = await checkPage(page, held, profile, tradeUrlOf(profile, identity));
-          if (check.reason === 'heartbeat_rejected' || check.reason === 'login_route') invalid = true;
+          const { invalidate, ...check }: AccountCheck = await this.auth.adapter.check(page, held);
+          if (invalidate) invalid = true;
           return check;
         },
         release: async ({ context, verified, foreign }) => {
@@ -344,32 +253,10 @@ class PresetSessionProvider implements SessionProvider {
   }
 }
 
-/** The open page still runs in the account: right host, not the login route, its language, heartbeat accepted. */
-async function checkPage(page: Page, account: Account, profile: SiteProfile, base: string): Promise<SessionCheck> {
-  const url = page.url();
-  const host = new URL(url).hostname;
-  if (!hostMatches(host, account.domains)) return { ok: false, reason: 'off_domain', facts: { host } };
-  if (profile.loginRoute?.test(url)) return { ok: false, reason: 'login_route', facts: { url } };
-  const lang = await page.evaluate(() => document.documentElement.lang).catch(() => '');
-  // Compared by language, not region (en-GB pages on an en-US account pass); an undeclared language passes.
-  if (lang && !localeMatches(account.locale, lang.split('-')[0]!))
-    return { ok: false, reason: 'language_mismatch', facts: { lang, locale: account.locale } };
-  const result = await heartbeat(page, page.context(), profile.heartbeat, base);
-  if (result.outcome === 'accepted') return { ok: true, facts: { host, lang, heartbeat: result.status } };
-  return {
-    ok: false,
-    reason: result.outcome === 'rejected' ? 'heartbeat_rejected' : 'heartbeat_invalid',
-    facts: { ...result },
-  };
-}
-
 const selectionSchema = z
   .object({
     accountId: z.string().optional(),
-    site: z.string().optional(),
-    market: z.string().optional(),
-    entity: z.string().optional(),
-    environment: z.string().optional(),
+    labels: z.record(z.string(), z.string()).optional(),
     permissions: z.array(z.string()).optional(),
     locale: z.string().optional(),
     validForMs: z.number().int().min(0).optional(),
@@ -385,5 +272,5 @@ const providerOptionsSchema = z
   .strict();
 
 /** For `CrawlManager`'s session factories: run request options are validated, then a provider is made. */
-export const presetSessionFactory = (auth: PresetAuth) => (options: Record<string, unknown>) =>
+export const authSessionFactory = (auth: Auth<never>) => (options: Record<string, unknown>) =>
   auth.provider(providerOptionsSchema.parse(options));
