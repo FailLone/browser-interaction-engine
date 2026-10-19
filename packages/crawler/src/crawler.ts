@@ -50,7 +50,9 @@ export interface Step { kind: CrawlKind; classKey: string; label: string; value?
   /** Page the step was taken on; used to rewind past a whole page when backtracking. */
   from?: string;
   /** Page after the step; differs from `from` when the step navigated. */
-  to?: string }
+  to?: string;
+  /** Abstract state the step was taken in. */
+  state?: string }
 export type CrawlEvent =
   | { type: 'state'; at: number; state: CrawlState; path: number }
   | { type: 'action'; at: number; step: Step; url: string; overlay?: string; tier: string; outcome: 'ok' | 'failed' | 'no_change'; error?: string; newState: boolean; after: string }
@@ -118,6 +120,11 @@ export class SampledCrawler {
   private readonly confirmed = new Set<string>();
   /** Input kind per input component class: structural, judged by JEV, or defaulted. */
   readonly inputKinds = new Map<string, { kind: InputKind; source: 'structure' | 'jev' | 'default' }>();
+  /** Candidate class keys each state offered when last seen. */
+  private readonly pending = new Map<string, string[]>();
+  private lastCandidates: string[] = [];
+  /** Fill placeholder keys ('...|first') whose input kind and samples are now known. */
+  private readonly resolvedFills = new Set<string>();
   /** Action classes whose effect was a same-document route change; ranked last. */
   private readonly routeClasses = new Set<string>();
   /** Action classes JEV judged irrelevant to the goal. */
@@ -176,6 +183,7 @@ export class SampledCrawler {
         await this.reviewWeakControls(snapshot);
         await this.assessRelevance(snapshot);
         const candidate = this.choose(snapshot);
+        this.pending.set(stateKey(snapshot), this.lastCandidates);
         if (!candidate) {
           // Every action spends class budget, so action loops end; backtracks spend none.
           // A page that keeps reopening an overlay or redirecting must not spin until the deadline.
@@ -393,8 +401,9 @@ export class SampledCrawler {
   private choose(s: Snapshot): Candidate | undefined {
     // A secondary page with its budget spent: only overlays (to close them) or a way back.
     const page = pagePath(s.url), spent = page !== pagePath(this.options.url) && (this.pageCounts.get(page) || 0) >= this.options.pageActions;
-    if (spent && !activeOverlay(s)) return;
+    if (spent && !activeOverlay(s)) { this.lastCandidates = []; return; }
     const rows = this.candidates(s);
+    this.lastCandidates = rows.map(r => r.classKey);
     const overlay = activeOverlay(s);
     // Inside an overlay, explore its content before its exits so it is not dismissed early.
     if (overlay) {
@@ -421,7 +430,7 @@ export class SampledCrawler {
     } finally { this.dispatching = false; }
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
     this.classCounts.set(c.classKey, (this.classCounts.get(c.classKey) || 0) + 1);
-    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose, from: pagePath(before.url) };
+    const step: Step = { kind: c.kind, classKey: c.classKey, label: (c.control.name || c.control.label || c.control.role).slice(0, 60), value: c.value, purpose: c.purpose, from: pagePath(before.url), state: beforeKey };
     // Navigations are recorded, never followed by default. Set asynchronously during dispatch.
     const intercepted = this.intercepted as string | undefined, popup = this.popup as string | undefined;
     if (intercepted) this.recordLink('document', before.url, intercepted, step.label, 'intercepted');
@@ -544,7 +553,7 @@ export class SampledCrawler {
     const sample = samples.find(x => x.purpose === c.purpose) || samples[0];
     c.value = sample.value; c.purpose = sample.purpose;
     // Re-key the first sample under its real purpose so the remaining samples stay pending.
-    if (c.classKey.endsWith('|first')) c.classKey = c.classKey.replace(/\|first$/, `|${sample.purpose}`);
+    if (c.classKey.endsWith('|first')) { this.resolvedFills.add(c.classKey); c.classKey = c.classKey.replace(/\|first$/, `|${sample.purpose}`); }
     const target = this.page.locator(c.control.selector);
     await target.click({ timeout: 2000 });
     await target.fill(sample.value, { timeout: 2000 });
@@ -562,10 +571,23 @@ export class SampledCrawler {
       if (stateKey(after) !== stateKey(current)) { this.path.pop(); this.emit({ type: 'backtrack', at: this.now(), reason: `${reason}:escape`, url: current.url }); return true; }
     }
     if (!restore && !this.path.length && pagePath(current.url) === pagePath(this.options.url)) return false;
+
     // Restoring replays the whole path back to `current`. Otherwise drop the last step; on a
     // secondary page with nothing left, drop every step taken on it and the step that entered it,
     // so the replay does not land on the same exhausted page again.
     let replay = restore ? this.path : this.path.slice(0, -1);
+    // Jump straight to the deepest state on the path that still has work, instead of stepping
+    // back one replay at a time. A state's pending candidates are those it offered when last
+    // seen, minus everything sampled or failed since. Landing on path[i] means replaying i steps.
+    if (!restore) {
+      let land = replay.length;
+      while (land > 0 && !this.hasPendingWork(this.path[land].state)) land--;
+      if (land === 0 && !this.hasPendingWork(this.path[0]?.state)) {
+        // Nothing left anywhere on this path, the entry page included.
+        if (!this.options.followNavigation && pagePath(current.url) === pagePath(this.options.url)) return false;
+      }
+      replay = this.path.slice(0, land);
+    }
     const page = pagePath(current.url);
     if (!restore && page !== pagePath(this.options.url)) {
       let end = this.path.length;
@@ -604,6 +626,18 @@ export class SampledCrawler {
    * Leaving drops in-page state on the target too, so the kept path is trimmed to match.
    * The landing page is verified; anything unexpected falls back to replay from the entry.
    */
+  /** Whether a state still offers a candidate that has not been sampled or failed. */
+  private hasPendingWork(state?: string) {
+    if (!state) return true;
+    const keys = this.pending.get(state);
+    if (!keys) return true;
+    return keys.some(key => {
+      // A fill's placeholder key ('|first') is resolved to its real sample keys at dispatch.
+      if (key.endsWith('|first')) return !this.resolvedFills.has(key);
+      return !this.failedClasses.has(key) && (this.classCounts.get(key) || 0) < (key.startsWith('fill|') ? 1 : this.budget(key));
+    });
+  }
+
   private async historyBack(replay: Step[]): Promise<boolean> {
     const dropped = this.path.slice(replay.length);
     const target = replay.length ? replay.at(-1)!.to : pagePath(this.options.url);
