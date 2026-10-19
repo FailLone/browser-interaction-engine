@@ -101,7 +101,7 @@ it('keeps ordinary viewport overflow pending and skips disabled controls by defa
     expect(targetCheck(await run(page, { includeDisabled: true }), node).severity).toBe('warning');
   });
 });
-it.each(['scroll', 'horizontal'])('rechecks %s after ordinary scrolling', async mode => {
+it.each(['scroll', 'horizontal'])('does not track a %s-clipped control until it is scrolled into view', async mode => {
   await setup(mode, async (f, firstPage, _node, id) => {
     const tracker = new ClippedControlTracker({ rule: requirement(id) });
     const first = await tracker.run(firstPage),
@@ -110,27 +110,28 @@ it.each(['scroll', 'horizontal'])('rechecks %s after ordinary scrolling', async 
       verdict: 'unknown',
       severity: 'info',
       code: 'SCROLL_CLIP_RECHECK_PENDING',
-      facts: { lifecycle: 'pending' },
+      facts: { tracking: 'not-in-view' },
     });
+    expect(targetCheck(first, id).facts!.issueId).toBeUndefined();
     const { page } = await scroll(f);
     const report = await tracker.run(page),
       check = targetCheck(report, id);
-    expect(check, JSON.stringify(check)).toMatchObject({
-      verdict: 'pass',
-      code: 'CLIPPING_NO_LONGER_OBSERVED',
-      facts: { lifecycle: 'resolved', issueId: targetCheck(first, id).facts!.issueId },
-    });
-    expect(check.facts!.ancestorScrollChanges).toHaveLength(1);
+    expect(check, JSON.stringify(check)).toMatchObject({ verdict: 'pass', code: 'CONTROL_BOX_UNCLIPPED' });
     expect(first).toEqual(immutable);
     expect(await tracker.run(page)).toEqual(report);
     await expect(tracker.run(firstPage)).rejects.toThrow('OUT_OF_ORDER');
   });
 });
 it.each(['rebuild', 'rebind'])('does not claim recovery after %s', async mode => {
-  await setup(mode, async (f, page, _node, id) => {
+  await setup('default', async (f, page, _node, id) => {
     const tracker = new ClippedControlTracker();
-    await tracker.run(page);
-    expect(targetCheck(await tracker.run((await scroll(f)).page), id)).toMatchObject({
+    expect(targetCheck(await tracker.run(page), id).severity).toBe('warning');
+    await f.page.locator('#target').evaluate((el, mode) => {
+      if (mode === 'rebuild') el.replaceWith(el.cloneNode(true));
+      else (el as HTMLElement).dataset.recordId = 'another-record';
+    }, mode);
+    await f.page.locator('#clip').evaluate(el => ((el as HTMLElement).style.height = '160px'));
+    expect(targetCheck(await tracker.run(await f.inspect()), id)).toMatchObject({
       verdict: 'unknown',
       facts: { lifecycle: 'unverified' },
     });
@@ -174,7 +175,7 @@ it('does not infer a scroll or escalate when the page cancels movement', async (
     const tracker = new ClippedControlTracker({ rule: requirement(id) });
     await tracker.run(page);
     const check = targetCheck(await tracker.run((await scroll(f)).page), id);
-    expect(check).toMatchObject({ verdict: 'unknown', severity: 'info', facts: { ancestorScrollChanges: [] } });
+    expect(check).toMatchObject({ verdict: 'unknown', severity: 'info', facts: { tracking: 'not-in-view' } });
   });
 });
 it('treats missing and truncated evidence as unknown and validates rule configuration', async () => {
@@ -226,10 +227,11 @@ it('keeps an existing warning until ordinary scrolling actually reveals the whol
   });
 });
 it('does not transfer resolved geometry through ambiguous identity or another crawl', async () => {
-  await setup('scroll', async (f, page, _node, id) => {
+  await setup('default', async (f, page, _node, id) => {
     const tracker = new ClippedControlTracker();
     await tracker.run(page);
-    const source = structuredClone((await scroll(f)).page);
+    await f.page.locator('#clip').evaluate(el => ((el as HTMLElement).style.height = '160px'));
+    const source = structuredClone(await f.inspect());
     source.observation.controls.find(c => c.identityId === id)!.hypothesisId = 'unresolved';
     expect(targetCheck(await tracker.run(source), id)).toMatchObject({
       verdict: 'unknown',
@@ -258,7 +260,7 @@ it('does not transfer resolved geometry through ambiguous identity or another cr
     });
   });
 });
-it('does not partly revise issues when the tracker capacity is exceeded', async () => {
+it('keeps checking when the tracker is full, keeping existing warnings', async () => {
   await setup('default', async (f, page, _node, id) => {
     const tracker = new ClippedControlTracker({ maxTracked: 1 });
     await tracker.run(page);
@@ -271,11 +273,10 @@ it('does not partly revise issues when the tracker capacity is exceeded', async 
       el.after(other);
     });
     const next = await f.inspect();
-    await expect(tracker.run(next)).rejects.toThrow('CAPACITY_EXCEEDED');
-    // A retry after the caller supplies a reduced capture target set.
-    const reduced = structuredClone(next);
-    reduced.observation.controls = reduced.observation.controls.filter(c => c.selector !== '#other');
-    expect(targetCheck(await tracker.run(reduced), id).facts!.revision).toBe(2);
+    // A full tracker keeps checking: it never stops the crawl, and keeps the earlier warning.
+    const report = await tracker.run(next);
+    expect(targetCheck(report, id).facts!.revision).toBe(2);
+    expect(report.checks.filter(c => c.severity === 'warning').length).toBeGreaterThan(0);
   });
 });
 it('preserves confirmed clipping bounds separately from unavailable current evidence', async () => {

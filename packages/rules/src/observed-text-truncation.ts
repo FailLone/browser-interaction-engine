@@ -42,6 +42,8 @@ export class TextTruncationTracker extends ObservedControlTracker {
           'TEXT_SCROLL_RECHECK_PENDING',
           'TEXT_ELISION_OBSERVED',
         ],
+
+        pending: ['TEXT_SCROLL_RECHECK_PENDING'],
         unavailable: 'TEXT_RECHECK_UNAVAILABLE',
         baseline: 'TEXT_BASELINE_CHANGED',
         resolved: 'TEXT_CLIPPING_NO_LONGER_OBSERVED',

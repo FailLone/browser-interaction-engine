@@ -25,9 +25,15 @@ export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
     async onState(context) {
       const page = await rulePage(context, sessionId, identities);
       const findings: Finding[] = [];
+      // One rule failing must not discard the others' results for this state.
       for (const { rule, tracker } of rules) {
-        const result = await tracker.run(page);
-        for (const check of result.checks) if (report.has(check.severity)) findings.push(finding(rule.id, check, page));
+        try {
+          const result = await tracker.run(page);
+          for (const check of result.checks)
+            if (report.has(check.severity)) findings.push(finding(rule.id, check, page));
+        } catch (error) {
+          context.reportError(`${rule.id}: ${String(error)}`);
+        }
       }
       return findings;
     },

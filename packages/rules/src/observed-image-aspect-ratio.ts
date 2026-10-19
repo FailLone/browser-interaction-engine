@@ -76,7 +76,8 @@ export class ImageAspectRatioTracker {
         checks.push(check);
         continue;
       }
-      if (!prior && findings.size >= this.options.maxTracked) throw new Error('TRACKER_CAPACITY_EXCEEDED');
+      // On a long crawl, make room by dropping the oldest finding; never stop checking.
+      if (!prior && findings.size >= this.options.maxTracked) findings.delete(findings.keys().next().value!);
       const finding = prior ?? {
         id: `image-issue:${hash([task.captureId, key])}`,
         firstCaptureId: task.captureId,

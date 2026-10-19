@@ -147,22 +147,23 @@ it('keeps old captures, loading fonts, missing ancestors and truncated text unkn
 });
 
 it.each(['scroll', 'modal-scroll', 'inner-scroll', 'label-scroll'])(
-  'rechecks %s after ordinary scrolling and keeps an immutable report',
+  'does not track %s text that is out of view, and checks it once scrolled into view',
   async mode => {
     await setup(mode, async (f, firstPage, _node, id) => {
       const tracker = new TextTruncationTracker(),
         first = await tracker.run(firstPage),
         copy = structuredClone(first);
-      expect(target(first, id)).toMatchObject({ code: 'TEXT_SCROLL_RECHECK_PENDING', facts: { lifecycle: 'pending' } });
+      expect(target(first, id)).toMatchObject({
+        verdict: 'unknown',
+        severity: 'info',
+        code: 'TEXT_SCROLL_RECHECK_PENDING',
+        facts: { tracking: 'not-in-view' },
+      });
+      expect(target(first, id).facts!.issueId).toBeUndefined();
       const page = await scroll(f);
       const report = await tracker.run(page),
         check = target(report, id);
-      expect(check, JSON.stringify(check)).toMatchObject({
-        verdict: 'pass',
-        code: 'TEXT_CLIPPING_NO_LONGER_OBSERVED',
-        facts: { lifecycle: 'resolved', issueId: target(first, id).facts!.issueId },
-      });
-      expect(check.facts!.ancestorScrollChanges).toHaveLength(1);
+      expect(check, JSON.stringify(check)).toMatchObject({ verdict: 'pass', code: 'DOM_TEXT_BOXES_FIT' });
       expect(await f.page.evaluate(() => scrollY)).toBe(0);
       expect(first).toEqual(copy);
       expect(await tracker.run(page)).toEqual(report);
@@ -178,7 +179,8 @@ it('does not claim scrolling or upgrade severity when the page cancels movement'
     expect(target(await tracker.run(await scroll(f)), id)).toMatchObject({
       verdict: 'unknown',
       severity: 'info',
-      facts: { ancestorScrollChanges: [], lifecycle: 'pending' },
+      code: 'TEXT_SCROLL_RECHECK_PENDING',
+      facts: { tracking: 'not-in-view' },
     });
   });
 });
@@ -256,8 +258,9 @@ it('retains missing evidence and removed targets as unresolved, and processes ba
       severity: 'warning',
     });
   });
-  await setup('scroll', async (f, page, node, id) => {
-    const pages = [page, await scroll(f)];
+  await setup('hard-x', async (f, page, node, id) => {
+    await f.page.locator('#target').evaluate(el => ((el as HTMLElement).style.width = '500px'));
+    const pages = [page, await f.inspect()];
     await f.page.locator('#target').evaluate(el => el.remove());
     const tracker = new TextTruncationTracker();
     const reports = await Promise.all(pages.map(p => tracker.run(p)));

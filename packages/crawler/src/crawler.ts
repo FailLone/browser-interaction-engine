@@ -603,16 +603,26 @@ export class SampledCrawler {
     }
     if (this.options.plugins.length) {
       let detail: Promise<DOMSnapshot> | undefined;
-      const context: CrawlStateContext = {
-        state: key,
-        sequence: ++this.stateSequence,
-        url: s.url,
-        snapshot: s.capture!,
-        page: this.page,
-        detail: () => (detail ??= this.adapter.readDOM(true)),
-        runtime: () => this.adapter.runtime(),
-      };
+      const sequence = ++this.stateSequence;
       for (const plugin of this.options.plugins) {
+        const context: CrawlStateContext = {
+          state: key,
+          sequence,
+          url: s.url,
+          snapshot: s.capture!,
+          page: this.page,
+          // Taken once per state and shared by every plugin.
+          detail: () => (detail ??= this.adapter.readDOM(true)),
+          runtime: () => this.adapter.runtime(),
+          reportError: message =>
+            this.emit({
+              type: 'plugin_error',
+              at: this.now(),
+              plugin: plugin.id,
+              state: key,
+              error: message.slice(0, 300),
+            }),
+        };
         try {
           this.report(plugin.id, await plugin.onState(context), s.url, key);
         } catch (error) {

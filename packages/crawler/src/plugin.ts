@@ -29,6 +29,8 @@ export interface CrawlStateContext {
   detail(): Promise<DOMSnapshot>;
   /** Network, console and error records so far. */
   runtime(): RuntimeEvidence;
+  /** Record a partial failure (as a plugin_error event) while still returning other findings. */
+  reportError(message: string): void;
 }
 
 /**

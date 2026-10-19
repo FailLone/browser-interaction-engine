@@ -35,6 +35,8 @@ export class ClippedControlTracker extends ObservedControlTracker {
           'CONTROL_CLIPPING_SUSPECTED',
           'CLIPPING_REQUIREMENT_FAILED',
         ],
+
+        pending: ['SCROLL_CLIP_RECHECK_PENDING'],
         unavailable: 'CLIPPING_RECHECK_UNAVAILABLE',
         baseline: 'CLIPPING_BASELINE_CHANGED',
         resolved: 'CLIPPING_NO_LONGER_OBSERVED',

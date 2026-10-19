@@ -10,7 +10,15 @@ export interface ObservedControlOptions {
   selection: RuleSelection;
   report: { id: string; version: string; options: Record<string, Json> };
   maxTracked: number;
-  codes: { measurable: string[]; unavailable: string; baseline: string; resolved: string; unobserved: string };
+  codes: {
+    measurable: string[];
+    /** Measurable codes that only mean "not yet in view": reported for this capture, never tracked. */
+    pending: string[];
+    unavailable: string;
+    baseline: string;
+    resolved: string;
+    unobserved: string;
+  };
   binding?: (control: Control, dom: DomEvidence, check: RuleCheck) => unknown;
   relatedNodeIds?: (check: RuleCheck, dom: DomEvidence) => string[];
 }
@@ -85,6 +93,21 @@ function sample(
         : [];
     }),
   };
+}
+
+/**
+ * Make room for a new track on a long crawl: drop the oldest track that never warned
+ * (pending, resolved or unverified without a finding); only if none exists, the oldest of all.
+ * Map order is insertion order, so the first match is the oldest.
+ */
+function evict(tracks: Map<string, Track>) {
+  for (const [key, track] of tracks)
+    if (!track.warning) {
+      tracks.delete(key);
+      return;
+    }
+  const first = tracks.keys().next();
+  if (!first.done) tracks.delete(first.value);
 }
 
 /** Feed one session's saved inspections in sequence. No browser operations exist here. */
@@ -223,7 +246,13 @@ export class ObservedControlTracker {
         checks.push(check);
         continue;
       }
-      if (!track && tracks.size >= this.options.maxTracked) throw new Error('TRACKER_CAPACITY_EXCEEDED');
+      // A control not yet fully on screen is checked when exploration brings it into view;
+      // tracking it now would only hold an empty placeholder.
+      if (!track && this.options.codes.pending.includes(check.code)) {
+        checks.push({ ...check, facts: { ...check.facts, observationStatus: 'current', tracking: 'not-in-view' } });
+        continue;
+      }
+      if (!track && tracks.size >= this.options.maxTracked) evict(tracks);
       const active: Track = track ?? {
         id: crypto.randomUUID(),
         key,

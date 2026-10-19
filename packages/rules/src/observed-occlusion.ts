@@ -425,7 +425,8 @@ export class ObservedOcclusionTracker {
           });
           continue;
         }
-        if (tracks.size >= this.options.maxTracked) throw new Error('TRACKER_CAPACITY_EXCEEDED');
+        // On a long crawl, make room by dropping the oldest finding; never stop checking.
+        if (tracks.size >= this.options.maxTracked) tracks.delete(tracks.keys().next().value!);
         const created: Track = {
           id: crypto.randomUUID(),
           key,

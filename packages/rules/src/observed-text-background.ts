@@ -28,6 +28,8 @@ export class TextBackgroundTracker extends ObservedControlTracker {
       report: { ...observedTextBackgroundRule, options: JSON.parse(JSON.stringify(options)) as Record<string, Json> },
       codes: {
         measurable: ['TEXT_BACKGROUND_MATCH', 'TEXT_BACKGROUND_REQUIREMENT_FAILED', 'TEXT_BACKGROUND_DISTINCT'],
+
+        pending: [],
         unavailable: 'TEXT_BACKGROUND_RECHECK_UNAVAILABLE',
         baseline: 'TEXT_BACKGROUND_BASELINE_CHANGED',
         resolved: 'TEXT_BACKGROUND_RESTORED',
