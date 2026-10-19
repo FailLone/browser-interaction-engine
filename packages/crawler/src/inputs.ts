@@ -37,6 +37,38 @@ export async function readInputFacts(page: Page, c: Control): Promise<InputFacts
   return target.evaluate(inputFactsInPage);
 }
 
+// The items a search box filters: what aria-controls/aria-owns names, else the nearest
+// ancestor (within a few levels) holding at least two links, options or list items besides
+// the field. Each item contributes its first line of text. Structure only, never labels.
+const searchScopeInPage = new Function(
+  'el',
+  `const items = 'a,li,[role=option],[role=menuitem],[role=menuitemradio],[role=treeitem]';
+  const seen = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+  const firstLine = e => ((e.innerText || '').split('\\n').map(s => s.trim()).find(Boolean) || '').slice(0, 30);
+  const read = roots => {
+    const out = [];
+    for (const root of roots)
+      for (const e of root.querySelectorAll(items))
+        if (!e.contains(el) && !e.querySelector(items) && seen(e)) { const t = firstLine(e); if (t.length >= 2) out.push(t); }
+    return out;
+  };
+  const ids = ((el.getAttribute('aria-controls') || '') + ' ' + (el.getAttribute('aria-owns') || '')).split(/\\s+/).filter(Boolean);
+  const named = ids.map(id => document.getElementById(id)).filter(Boolean);
+  if (named.length) { const r = read(named); if (r.length) return r.slice(0, 50); }
+  for (let a = el.parentElement, depth = 0; a && a !== document.body && depth < 4; a = a.parentElement, depth++) {
+    const r = read([a]);
+    if (r.length >= 2) return r.slice(0, 50);
+  }
+  return [];`,
+) as (el: Element) => string[];
+
+/** Texts of the items this search box filters, in document order; empty when none are found. */
+export async function readSearchScope(page: Page, c: Control): Promise<string[]> {
+  const target = page.locator(c.selector);
+  if ((await target.count()) !== 1) return [];
+  return target.evaluate(searchScopeInPage).catch(() => []);
+}
+
 /** Structural classification; undefined when the evidence does not settle it. */
 export function classifyInput(f: InputFacts): InputKind | undefined {
   const text = `${f.placeholder} ${f.name}`.toLowerCase();
@@ -90,19 +122,21 @@ export async function judgeInputKind(
 }
 
 /**
- * Values to try per kind. Search gets one term that should match something on
- * the page and one that cannot match, to expose the empty state. Numbers get a
+ * Values to try per kind. Search gets one term that should match and one that
+ * cannot, to expose the empty state; the matching term is the first item the box
+ * itself filters (`scope`), else a word shown on the page. Numbers get a
  * normal value, a boundary and an invalid entry.
  */
 export function inputSamples(
   kind: InputKind,
   facts: InputFacts,
   pageText: string,
+  scope: string[] = [],
 ): { value: string; purpose: string }[] {
   switch (kind) {
     case 'search':
       return [
-        { value: searchTerm(pageText), purpose: 'existing' },
+        { value: scope[0] || searchTerm(pageText), purpose: 'existing' },
         { value: 'zzqx-no-result-7319', purpose: 'empty' },
       ];
     case 'number': {

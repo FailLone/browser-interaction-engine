@@ -36,7 +36,14 @@ import type { Judge, Question } from './judge.js';
 import { excludedAreas, type GoalPursuit, type GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
 import type { CrawlLedger } from './store.js';
-import { classifyInput, inputSamples, judgeInputKind, readInputFacts, type InputKind } from './inputs.js';
+import {
+  classifyInput,
+  inputSamples,
+  judgeInputKind,
+  readInputFacts,
+  readSearchScope,
+  type InputKind,
+} from './inputs.js';
 import type { Provider } from './providers.js';
 
 export interface CrawlOptions {
@@ -1460,7 +1467,9 @@ export class SampledCrawler {
         detail: known.kind,
       });
     }
-    const samples = inputSamples(known.kind, facts, this.lastText);
+    // Only the matching search term depends on the box; other samples skip the extra read.
+    const scope = known.kind === 'search' && c.purpose !== 'empty' ? await readSearchScope(this.page, c.control) : [];
+    const samples = inputSamples(known.kind, facts, this.lastText, scope);
     const sample = samples.find(x => x.purpose === c.purpose) || samples[0];
     c.value = sample.value;
     c.purpose = sample.purpose;
