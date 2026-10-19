@@ -119,6 +119,29 @@ export function collectDOM(
     const r = el?.getBoundingClientRect();
     return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : { x: 0, y: 0, width: 0, height: 0 };
   };
+  // Rendered is not the same as seen: a control can be parked off the page, shrunk to a
+  // screen-reader-only pixel, or kept inside a transparent or zero-size wrapper until something
+  // reveals it. A user cannot click those, so neither should the crawler; once revealed, the
+  // control becomes visible and the new state is tested.
+  const seenByUser = (
+    el: Element,
+    r: { x: number; y: number; width: number; height: number },
+    style: CSSStyleDeclaration,
+  ) => {
+    if (r.x + r.width + scrollX <= 0 || r.y + r.height + scrollY <= 0) return false;
+    const toggle = el.matches('input[type=checkbox],input[type=radio]');
+    if (!toggle && r.width <= 1 && r.height <= 1) return false;
+    if (!toggle && style.clip === 'rect(0px, 0px, 0px, 0px)') return false;
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const s = getComputedStyle(a);
+      if (s.opacity === '0') return false;
+      if (s.overflow !== 'visible') {
+        const b = a.getBoundingClientRect();
+        if (b.width < 1 || b.height < 1) return false;
+      }
+    }
+    return true;
+  };
   const body = document.body;
   const bodyText = body?.innerText ?? body?.textContent ?? '';
   const selector = (el: Element): string => {
@@ -621,7 +644,8 @@ export function collectDOM(
       r.width > 0 &&
       r.height > 0 &&
       style.visibility === 'visible' &&
-      !el.closest('[hidden],[inert]');
+      !el.closest('[hidden],[inert]') &&
+      seenByUser(el, r, style);
     const enabled =
       !e.disabled && !el.matches(':disabled') && el.getAttribute('aria-disabled') !== 'true' && !el.closest('[inert]');
     const semanticRole = role(el);

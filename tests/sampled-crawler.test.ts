@@ -1,6 +1,13 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { SampledCrawler, checksPlugin, maskVolatile, stateKey, type CrawlEvent } from '@interaction/crawler';
+import {
+  BrowserDriver,
+  SampledCrawler,
+  checksPlugin,
+  maskVolatile,
+  stateKey,
+  type CrawlEvent,
+} from '@interaction/crawler';
 
 // One page with: a blocking modal on load, a long list of identical rows, a
 // tab panel, a live price, an in-scope second page and an out-of-scope link.
@@ -613,6 +620,44 @@ test('a list of different functions is split and each member sampled; a list of 
     expect(summary.splitLists).toBe(1);
     expect(labels).toEqual(expect.arrayContaining(['Official website', 'White paper', 'Github', 'Block explorer']));
     expect(labels.filter(l => l.startsWith('BTC to')).length).toBeLessThanOrEqual(2);
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 120000);
+
+test('a control the user cannot see is not clicked; once a button reveals it, it is tested', async () => {
+  // Like OKX's header: the real search input sits in a transparent zero-size wrapper, parked
+  // off the page, until its button opens it. A skip button is clipped to nothing until focused.
+  const html = `<!doctype html><title>Hidden search</title><main>
+    <button style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Skip to main content</button>
+    <button onclick="document.getElementById('wrap').style.cssText='';document.getElementById('q').style.cssText=''">Open search</button>
+    <div id="wrap" style="opacity:0;width:0;height:0;overflow:hidden"><input id="q" placeholder="Search coins" style="position:absolute;left:-9999px;top:-9999px"></div>
+    <section><button>Plain action</button></section></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const driver = new BrowserDriver({ url });
+    await driver.start();
+    const visible = async () => (await driver.readDOM()).controls.filter(c => c.visible).map(c => c.name);
+    expect(await visible()).toEqual(['Open search', 'Plain action']);
+    await driver.page!.getByText('Open search').click();
+    expect(await visible()).toEqual(['Open search', 'Search coins', 'Plain action']);
+    await driver.close();
+
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
+    const actions = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+    expect(actions.filter(a => a.outcome === 'failed')).toEqual([]);
+    expect(actions.some(a => a.step.label === 'Skip to main content')).toBe(false);
+    const open = actions.findIndex(a => a.step.label === 'Open search');
+    const fills = actions.filter(a => a.step.kind === 'fill');
+    expect(open).toBeGreaterThanOrEqual(0);
+    expect(fills.length).toBeGreaterThan(0);
+    expect(actions.indexOf(fills[0])).toBeGreaterThan(open);
   } finally {
     await new Promise<void>(resolve => local.close(() => resolve()));
   }
