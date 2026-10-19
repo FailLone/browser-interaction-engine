@@ -228,7 +228,7 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
       issue('TEXT_GEOMETRY_MISSING', text);
       continue;
     }
-    if (/[\p{Extended_Pictographic}\p{Regional_Indicator}\u20e3\ufe0f]/u.test(text.text!)) {
+    if (/[\p{Extended_Pictographic}\p{Regional_Indicator}]|\u20e3|\ufe0f/u.test(text.text!)) {
       issue('COLOR_GLYPHS_UNSUPPORTED', text);
       continue;
     }

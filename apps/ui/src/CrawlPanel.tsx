@@ -174,7 +174,9 @@ export function CrawlPanel() {
       {error && (
         <div role="alert" className="error">
           {error}
-          <button onClick={() => setError('')}>×</button>
+          <button type="button" onClick={() => setError('')}>
+            ×
+          </button>
         </div>
       )}
       <div className="crawl-start panel">
@@ -200,17 +202,22 @@ export function CrawlPanel() {
             {pluginText[name] ?? name}
           </label>
         ))}
-        <button onClick={() => start()}>开始遍历</button>
+        <button type="button" onClick={() => start()}>
+          开始遍历
+        </button>
         <small className="muted">只测当前页：跳转被拦截并记录，不会离开页面。</small>
       </div>
       <div className="crawl-grid">
         <aside className="panel crawl-runs">
           <div className="panel-title">
             <h2>运行记录</h2>
-            <button onClick={refresh}>刷新</button>
+            <button type="button" onClick={refresh}>
+              刷新
+            </button>
           </div>
           {runs.map(r => (
             <button
+              type="button"
               key={r.id}
               className={`crawl-run${r.id === selected ? ' selected' : ''}`}
               onClick={() => setSelected(r.id)}
@@ -233,9 +240,13 @@ export function CrawlPanel() {
                 <h2>{run.url}</h2>
                 <span>
                   {run.status === 'running' ? (
-                    <button onClick={stopRun}>停止</button>
+                    <button type="button" onClick={stopRun}>
+                      停止
+                    </button>
                   ) : (
-                    <button onClick={() => start(run.id)}>续跑（跳过已测）</button>
+                    <button type="button" onClick={() => start(run.id)}>
+                      续跑（跳过已测）
+                    </button>
                   )}
                 </span>
               </div>
@@ -342,7 +353,11 @@ export function CrawlPanel() {
                 <ol className="crawl-states">
                   {states.map(e => (
                     <li key={e.seq}>
-                      <button className={state === e.state.key ? 'selected' : ''} onClick={() => setState(e.state.key)}>
+                      <button
+                        type="button"
+                        className={state === e.state.key ? 'selected' : ''}
+                        onClick={() => setState(e.state.key)}
+                      >
                         <span className="mono">{seconds(e.at)}</span> {e.state.overlay || '页面'}{' '}
                         <small>{e.state.controls} 个可见控件</small>
                       </button>
@@ -376,7 +391,7 @@ export function CrawlPanel() {
                             <small>
                               {e.finding.text || e.finding.selector} · {e.finding.detail.slice(0, 160)}
                             </small>
-                            <button className="link" onClick={() => setState(e.state)}>
+                            <button type="button" className="link" onClick={() => setState(e.state)}>
                               状态截图
                             </button>
                           </>

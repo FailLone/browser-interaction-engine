@@ -305,7 +305,7 @@ export class SampledCrawler {
       const request = route.request();
       if (!request.isNavigationRequest()) return route.continue();
       // A popup's first request is issued before its frame exists.
-      let frame;
+      let frame: ReturnType<typeof request.frame> | undefined;
       try {
         frame = request.frame();
       } catch {

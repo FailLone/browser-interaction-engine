@@ -15,11 +15,11 @@ export const defaultForbiddenLabel =
 
 export function defaultPolicy(entry: string): CrawlPolicy {
   return {
-    allowedPaths: [new RegExp(`^${escape(new URL(entry).pathname.replace(/\/+$/, ''))}/?$`)],
+    allowedPaths: [new RegExp(`^${escapeRegExp(new URL(entry).pathname.replace(/\/+$/, ''))}/?$`)],
     forbiddenLabel: defaultForbiddenLabel,
   };
 }
-const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** Where a click would navigate, if the control is a link. */
 export function linkTarget(c: Control, base: string): string | undefined {

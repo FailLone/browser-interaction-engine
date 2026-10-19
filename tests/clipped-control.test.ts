@@ -35,7 +35,7 @@ const run = async (page: RulePage, options: ClippedControlOptions = {}) =>
 async function setup(mode: string, fn: (f: RuleFixture, page: RulePage, nodeId: string, id: string) => Promise<void>) {
   await withFixture(`${fixture.url}/clipped-control.html?mode=${mode}`, async (f, page) => {
     const c = f.control(c => c.selector === '#target');
-    await fn(f, page, c?.localId, c?.identityId!);
+    await fn(f, page, c?.localId, c?.identityId as string);
   });
 }
 const scroll = (f: RuleFixture) => f.scroll('#clip');
