@@ -367,3 +367,33 @@ test('a tooltip revealed inside its trigger is a new state, and the trigger is n
     expect(tips.every(a => a.newState)).toBe(true);
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);
+
+test('a list of different functions is split and each member sampled; a list of records stays merged', async () => {
+  const links = (items: string[]) => items.map(n => `<li><a href="#" onclick="document.getElementById('out').textContent='${n}';return false">${n}</a></li>`).join('');
+  const html = `<!doctype html><title>Lists</title><main>
+    <ul>${links(['Official website', 'White paper', 'Github', 'Block explorer'])}</ul>
+    <ul>${links(['BTC to PKR', 'BTC to EUR', 'BTC to CNY', 'BTC to VND', 'BTC to TRY'])}</ul>
+    <p id="out"></p></main>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(html); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const { ModelJudge } = await import('@interaction/crawler');
+    const asked: string[][] = [];
+    const jev = { name: 'jev', model: 'jev', async decide(request: { state: unknown }) {
+      const state = request.state as Record<string, { kind: string; members?: string[] }>;
+      return { model: 'jev', value: Object.fromEntries(Object.entries(state).map(([k, q]) => {
+        if (q.kind === 'same-kind') { asked.push(q.members!); return [k, q.members!.includes('Github') ? 0.05 : 0.95]; }
+        return [k, 0.9];
+      })) };
+    } };
+    const events: CrawlEvent[] = [];
+    const summary = await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, judge: new ModelJudge({ jev }), log: e => events.push(e) }).run();
+    const labels = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action').map(a => a.step.label);
+    // The pair list shares words, so it is never asked about.
+    expect(asked).toHaveLength(1);
+    expect(summary.splitLists).toBe(1);
+    expect(labels).toEqual(expect.arrayContaining(['Official website', 'White paper', 'Github', 'Block explorer']));
+    expect(labels.filter(l => l.startsWith('BTC to')).length).toBeLessThanOrEqual(2);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);

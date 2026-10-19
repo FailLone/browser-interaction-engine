@@ -337,3 +337,24 @@ OKX 只测入口页：
 - View price、Forecast：这两个是跳转链接，跳转被拦截，页面本来就不该变。
 - 1h（图表时间范围）、Previous（已在第一页）、金额框填 `abc`（被过滤）：确实没有变化。
 - All-time low 一次判为没变化：与其它三个同类提示一样，但这次 JEV 判了"否"。
+
+### 4 列表成员拆分（2026-10-19）
+
+同一结构化列表的成员默认算一类、只抽样 1–2 个。成员名称之间几乎没有共同词（"官网 / 白皮书 / Github"）时，这一组问一次 JEV："这些是同一种东西，还是只是排版相同的不同功能？"（和弱控件问题合并在同一次 checklist 请求里）。只有 JEV 明确判"否"才拆开、每个成员单独抽样；拿不准的仍按一类。名称有共同词的列表（"BTC to PKR / BTC to EUR"）直接视为同类，不问。
+
+列表的标识用"模板 + 列表前三个成员名"，避免两个共用模板的列表（例如两个 `<ul>`）被当成一个。
+
+顺带修复：切换站点语言会跳到 `/zh-hans/...` 这样的地址。原来按"同一页面"放行，于是后面的动作都在中文版页面上重测了一遍。现在换语言也视为离开当前页面，跳转被拦截并记录。
+
+OKX 价格页（`/price/bitcoin-btc`，只测当前页）：
+
+| 列表 | JEV | 结果 |
+|---|---|---|
+| Official website / White Paper / Github / Block explorer | 否 0.15 | 拆开，4 个分别记录（都是站外链接，按 href 记录不点击） |
+| Buy crypto / Convert / Trade / All cryptocurrencies | 否 0.22 | 拆开 |
+| API / Historical market data / CEX fee schedule / … | 否 0.20 | 拆开 |
+| Support center / Channel verification / Announcements / … | 否 0.22 | 拆开 |
+| 交易对、币种、语言、货币、新闻列表 | 是 0.75–0.96 | 仍合并 |
+| About us / Careers…、社交媒体、页头产品菜单 | 拿不准 0.40–0.71 | 仍合并（保守） |
+
+整次运行：92 个动作、60 个状态，全部在 `/price/bitcoin-btc` 上（修复前有 31 个动作落在中文版页面）。JEV 20 次，共 $0.00072，LLM 0 次。

@@ -1,6 +1,6 @@
 import { BrowserAdapter, PlaywrightAdapter, type ActionCandidate, type Control } from '@interaction/adapter-playwright';
 import { MemoryEvidenceStore } from '@interaction/storage-memory';
-import { activeOverlay, controlClass, maskVolatile, modeGroup, modeSiblings, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
+import { activeOverlay, controlClass as baseClass, listClass, maskVolatile, modeGroup, modeSiblings, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
 import { findingKey, type Finding, type PageCheck } from './checks.js';
 import type { Judge, Question } from './judge.js';
@@ -129,6 +129,27 @@ export class SampledCrawler {
   private prunedSteps = 0;
   /** Fill placeholder keys ('...|first') whose input kind and samples are now known. */
   private readonly resolvedFills = new Set<string>();
+  /** List classes the judge found to hold different kinds of things: members are classed individually. */
+  private readonly splitLists = new Set<string>();
+  /** List classes already asked about. */
+  private readonly askedLists = new Set<string>();
+
+  /**
+   * The list a member belongs to, for the same-kind question: template plus the owner's member
+   * names (instance IDs change per document), so two lists sharing a template stay apart.
+   */
+  private ownerNames = new Map<string, string>();
+  private listOf(c: Control) {
+    const list = listClass(c), owner = c.structuralItem?.ownerInstanceId;
+    return list && `${list}@${owner ? this.ownerNames.get(owner) ?? '' : ''}`;
+  }
+
+  /** Component class, with judged-heterogeneous lists split into their members. */
+  private classOf = (c: Control) => {
+    const list = this.listOf(c);
+    return list && this.splitLists.has(list) ? `${list}|${maskVolatile(c.name || c.label || c.displayedText || '')}` : baseClass(c);
+  };
+
   /** Action classes whose effect was a same-document route change; ranked last. */
   private readonly routeClasses = new Set<string>();
   /** Action classes JEV judged irrelevant to the goal. */
@@ -167,7 +188,8 @@ export class SampledCrawler {
       const request = route.request();
       if (!request.isNavigationRequest() || request.frame() !== this.page.mainFrame()) return route.fallback();
       const target = request.url(), current = this.page.url();
-      const leaving = pagePath(target) !== pagePath(current);
+      // A different path, or the same page under another locale prefix (re-renders everything).
+      const leaving = pagePath(target) !== pagePath(current) || rawPath(target) !== rawPath(current);
       const intercept = this.dispatching && (placementOfUrl(target, this.options) === 'outside' || leaving && !this.options.followNavigation);
       if (intercept) { this.intercepted = target; return route.abort('aborted'); }
       // Outside an action (initial load, explicit backtrack) only out-of-scope loads are refused.
@@ -228,6 +250,7 @@ export class SampledCrawler {
       judge: this.options.judge?.stats,
       models: modelCost([this.options.judge?.stats.jev, this.options.relevance?.meter], [this.options.judge?.stats.llm]),
       weakControlsConfirmed: this.confirmed.size,
+      splitLists: this.splitLists.size,
       inputs: { classes: this.inputKinds.size, kinds: Object.fromEntries([...this.inputKinds.values()].reduce((m, k) => m.set(`${k.kind}:${k.source}`, (m.get(`${k.kind}:${k.source}`) || 0) + 1), new Map<string, number>())),
         filled: actions.filter(a => a.step.kind === 'fill').map(a => ({ label: a.step.label, purpose: a.step.purpose, value: a.step.value?.slice(0, 20), outcome: a.outcome, newState: a.newState })) },
       hovers: actions.filter(a => a.step.kind === 'hover').length,
@@ -255,6 +278,9 @@ export class SampledCrawler {
 
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM(false, false);
+    const byOwner = new Map<string, string[]>();
+    for (const c of dom.controls as Control[]) if (c.structuralItem) { const list = byOwner.get(c.structuralItem.ownerInstanceId) || []; list.push(maskVolatile(c.name)); byOwner.set(c.structuralItem.ownerInstanceId, list); }
+    this.ownerNames = new Map([...byOwner].map(([owner, names]) => [owner, names.slice(0, 3).join('|')]));
     for (const c of dom.controls as Control[]) {
       const first = this.firstNames.get(c.instanceId);
       if (first === undefined) this.firstNames.set(c.instanceId, c.name);
@@ -281,7 +307,7 @@ export class SampledCrawler {
     let row = this.coverage.get(page);
     const blocks = textBlocks(s.text || '');
     if (!row) { row = { seen: new Set(), text: new Set(), initialText: new Set(blocks) }; this.coverage.set(page, row); }
-    for (const c of s.controls) if (c.visible && (c.actions.length || this.confirmed.has(controlClass(c)))) for (const kind of kindsFor(c, this.confirmed)) row.seen.add(`${kind}|${controlClass(c)}`);
+    for (const c of s.controls) if (c.visible && (c.actions.length || this.confirmed.has(this.classOf(c)))) for (const kind of kindsFor(c, this.confirmed, this.classOf)) row.seen.add(`${kind}|${this.classOf(c)}`);
     for (const b of blocks) row.text.add(b);
   }
 
@@ -338,13 +364,35 @@ export class SampledCrawler {
       if (!c.visible || c.actions.length || !c.interactionHints?.length || c.actionable.occludedBy || (scope && !scope.has(c.localId))) continue;
       const name = c.name || c.displayedText;
       if (!name || this.options.policy.forbiddenLabel.test(name)) continue;
-      const cls = controlClass(c);
+      const cls = this.classOf(c);
       if (this.asked.has(cls)) continue;
       this.asked.add(cls);
       batch.push({ cls, label: name.slice(0, 60), question: { kind: 'interactive', control: { tag: c.tag, role: c.role, name: maskVolatile(name), hints: c.interactionHints.map(h => h.rule), text: maskVolatile(c.displayedText || ''), context: [c.landmark, s.regions?.find(r => r.key === c.region)?.label].filter(Boolean).map(x => maskVolatile(String(x))).join(' / ') || undefined } } });
     }
-    if (!batch.length) return;
-    const answers = judge.askAll ? await judge.askAll(batch.map(b => b.question)) : await Promise.all(batch.map(b => judge.ask(b.question)));
+    // Lists whose members look different ask whether they are one kind of thing (same batch).
+    const lists = new Map<string, Control[]>();
+    for (const c of s.controls) {
+      const list = this.listOf(c);
+      if (!list || !c.visible || !c.actions.length || this.askedLists.has(list) || (scope && !scope.has(c.localId))) continue;
+      const members = lists.get(list) || []; members.push(c); lists.set(list, members);
+    }
+    const listBatch: { list: string; question: Question }[] = [];
+    for (const [list, members] of lists) {
+      const names = [...new Set(members.map(c => maskVolatile(c.name || c.label || c.displayedText || '')).filter(Boolean))].slice(0, 12);
+      if (names.length < 2 || !distinctNames(names)) continue;
+      this.askedLists.add(list);
+      listBatch.push({ list, question: { kind: 'same-kind', role: members[0].role, members: names } });
+    }
+    if (!batch.length && !listBatch.length) return;
+    const all = [...batch.map(b => b.question), ...listBatch.map(b => b.question)];
+    const results = judge.askAll ? await judge.askAll(all) : await Promise.all(all.map(q => judge.ask(q)));
+    const answers = results.slice(0, batch.length);
+    listBatch.forEach(({ list, question }, i) => {
+      const answer = results[batch.length + i];
+      this.emit({ type: 'judgement', at: this.now(), question: 'same-kind', label: (question as { members: string[] }).members.slice(0, 4).join(' / ').slice(0, 60), verdict: answer.verdict, source: answer.source, probability: answer.probability });
+      // Only a confident "different functions" splits the list; uncertain keeps sampling it as one.
+      if (answer.verdict === 'no') this.splitLists.add(list);
+    });
     batch.forEach(({ cls, label }, i) => {
       const answer = answers[i];
       this.emit({ type: 'judgement', at: this.now(), question: 'interactive', label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
@@ -362,7 +410,7 @@ export class SampledCrawler {
     const siblings = modeSiblings(s);
     const rows: Candidate[] = [];
     for (const c of s.controls) {
-      if (!c.visible || (!c.actions.length && !this.confirmed.has(controlClass(c)))) continue;
+      if (!c.visible || (!c.actions.length && !this.confirmed.has(this.classOf(c)))) continue;
       // An open overlay masks the page beneath it: never fight the backdrop.
       if (scope && !scope.has(c.localId)) continue;
       if (!scope && c.actionable.occludedBy) continue;
@@ -371,9 +419,9 @@ export class SampledCrawler {
       // link elsewhere needs no click at all (its href is already the record).
       if (where === 'outside' || where === 'navigate' && !this.options.followNavigation) { if (where === 'navigate' || where === 'outside') this.noteLink(c, s.url); continue; }
       if (where === 'navigate' && !this.pageAllowed(linkTarget(c, s.url)!)) continue;
-      for (const kind of kindsFor(c, this.confirmed)) {
+      for (const kind of kindsFor(c, this.confirmed, this.classOf)) {
         if (!allowed(c, kind, this.options.policy)) continue;
-        const classKey = `${kind}|${controlClass(c)}`;
+        const classKey = `${kind}|${this.classOf(c)}`;
         if (classKey.includes('|list:')) { const seen = this.listMembers.get(classKey) || new Set(); seen.add(`${pagePath(s.url)}|${c.name}`); this.listMembers.set(classKey, seen); }
         if (kind !== 'fill' && (this.failedClasses.has(classKey) || (this.classCounts.get(classKey) || 0) >= this.budget(classKey))) continue;
         const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
@@ -387,7 +435,7 @@ export class SampledCrawler {
         const row = { control: c, kind, classKey, tier: TIERS.indexOf(tierName), tierName, value: kind === 'check' ? String(!c.checked) : undefined, relevance: relevance?.score(classKey) };
         if (kind !== 'fill') { rows.push(row); continue; }
         // Each sample purpose of an input is its own class; its kind is settled at first use.
-        const inputKind = this.inputKinds.get(controlClass(c))?.kind;
+        const inputKind = this.inputKinds.get(this.classOf(c))?.kind;
         for (const purpose of inputKind ? inputSamples(inputKind, emptyFacts, '').map(x => x.purpose) : ['first']) {
           const sampleKey = `${classKey}|${purpose}`;
           if (this.failedClasses.has(sampleKey) || (this.classCounts.get(sampleKey) || 0) >= 1) continue;
@@ -559,7 +607,7 @@ export class SampledCrawler {
   private async fill(c: Candidate) {
     const facts = await readInputFacts(this.page, c.control);
     if (!facts) throw new Error('Input target is no longer unique');
-    const cls = controlClass(c.control);
+    const cls = this.classOf(c.control);
     let known = this.inputKinds.get(cls);
     if (!known) {
       const structural = classifyInput(facts);
@@ -704,7 +752,7 @@ export class SampledCrawler {
       if (!c.visible) continue;
       // Fill keys carry a sample purpose suffix; replay types the recorded sample again.
       const base = step.kind === 'fill' ? step.classKey.slice(0, step.classKey.lastIndexOf('|')) : step.classKey;
-      for (const kind of kindsFor(c, this.confirmed)) if (kind === step.kind && `${kind}|${controlClass(c)}` === base && (c.name || c.label || c.role).slice(0, 60) === step.label)
+      for (const kind of kindsFor(c, this.confirmed, this.classOf)) if (kind === step.kind && `${kind}|${this.classOf(c)}` === base && (c.name || c.label || c.role).slice(0, 60) === step.label)
         return { control: c, kind, classKey: step.classKey, tier: 0, tierName: 'replay', value: step.value, purpose: step.purpose };
     }
   }
@@ -720,12 +768,12 @@ const hitTestInPage = new Function('el', `const r = el.getBoundingClientRect(), 
 
 const emptyFacts = { type: '', inputmode: '', placeholder: '', pattern: '', autocomplete: '', ariaAutocomplete: '', ariaHaspopup: '', role: '', name: '', min: '', max: '', step: '', value: '' };
 
-function kindsFor(c: Control, confirmed?: ReadonlySet<string>): CrawlKind[] {
+function kindsFor(c: Control, confirmed?: ReadonlySet<string>, classOf: (c: Control) => string = baseClass): CrawlKind[] {
   const basis = c.actionBasis || {} as NonNullable<Control['actionBasis']>;
   const kinds: CrawlKind[] = [];
   if (c.actions.includes('fill') && c.editable && ['input', 'textarea'].includes(c.tag)) return ['fill'];
   if (c.actions.includes('check')) kinds.push('check');
-  else if (c.actions.includes('click') || confirmed?.has(controlClass(c))) kinds.push('click');
+  else if (c.actions.includes('click') || confirmed?.has(classOf(c))) kinds.push('click');
   // Hover only where the page declares a hover-driven disclosure.
   // Hover where the page declares or hints at a hover-driven disclosure (menus, tooltips).
   const popup = c.reviewBinding?.attributes['aria-haspopup'] || c.reviewBinding?.attributes['aria-describedby'] || c.reviewBinding?.attributes.title;
@@ -766,4 +814,22 @@ function textBlocks(text: string) {
 /** What a replay must reproduce: the abstract state plus the visible text with live numbers masked. */
 function pageSignature(s: Snapshot, key: string) {
   return `${key}\u0000${maskVolatile(s.text || '', Infinity)}`;
+}
+
+/**
+ * Members worth asking about: names that are not variants of one pattern. Records of one kind
+ * usually share words (e.g. "BTC to PKR", "BTC to EUR"); different functions usually share none.
+ */
+function distinctNames(names: string[]) {
+  const words = names.map(n => new Set(n.toLowerCase().split(/[^\p{L}\p{N}#]+/u).filter(w => w.length > 1)));
+  let shared = 0, pairs = 0;
+  for (let i = 0; i < words.length; i++) for (let j = i + 1; j < words.length; j++) {
+    pairs++; if ([...words[i]].some(w => words[j].has(w))) shared++;
+  }
+  return pairs > 0 && shared / pairs < 0.5;
+}
+
+/** Pathname without trailing slash, locale prefix kept. */
+function rawPath(url: string) {
+  try { return new URL(url).pathname.replace(/\/+$/, ''); } catch { return url; }
 }

@@ -1,0 +1,265 @@
+{
+  "elapsedMs": 187168,
+  "actions": 92,
+  "states": 60,
+  "onEntryPage": 92,
+  "inOverlay": 21,
+  "failed": 3,
+  "byTier": {
+    "overlay": 21,
+    "body": 22,
+    "in-page-disclosure": 17,
+    "chrome": 32,
+    "navigate": 0,
+    "route": 0
+  },
+  "maxPerClass": 1,
+  "backtracks": 12,
+  "historyBacks": 0,
+  "prunedSteps": 11,
+  "navigations": {
+    "intercepted": 204,
+    "sameDocument": [],
+    "outgoingPages": 204
+  },
+  "directLoads": 0,
+  "judge": {
+    "questions": 49,
+    "cacheHits": 1,
+    "answeredByJev": 33,
+    "answeredByLlm": 0,
+    "uncertain": 15,
+    "unavailable": 0,
+    "yes": 27,
+    "no": 6,
+    "jevProbabilities": [
+      0,
+      3,
+      4,
+      5,
+      4,
+      0,
+      3,
+      3,
+      4,
+      22
+    ],
+    "jev": {
+      "calls": 20,
+      "failures": 0,
+      "judgments": 48,
+      "inputTokens": 17085,
+      "outputTokens": 908,
+      "costUsd": 0.00071757,
+      "unpricedCalls": 0,
+      "elapsedMs": 12967,
+      "byPurpose": {
+        "crawler-interactive": {
+          "calls": 5,
+          "costUsd": 0.000337218
+        },
+        "crawler-effect": {
+          "calls": 9,
+          "costUsd": 0.000206346
+        },
+        "crawler-same-kind": {
+          "calls": 6,
+          "costUsd": 0.00017400600000000001
+        }
+      }
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "elapsedMs": 0,
+      "byPurpose": {}
+    }
+  },
+  "models": {
+    "jev": {
+      "calls": 20,
+      "failures": 0,
+      "judgments": 48,
+      "inputTokens": 17085,
+      "outputTokens": 908,
+      "costUsd": 0.00071757,
+      "unpricedCalls": 0,
+      "avgMs": 648,
+      "elapsedMs": 12967
+    },
+    "llm": {
+      "calls": 0,
+      "failures": 0,
+      "judgments": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0,
+      "unpricedCalls": 0,
+      "avgMs": 0,
+      "elapsedMs": 0
+    }
+  },
+  "weakControlsConfirmed": 14,
+  "splitLists": 4,
+  "inputs": {
+    "classes": 7,
+    "kinds": {
+      "text:jev": 4,
+      "search:structure": 2,
+      "number:structure": 1
+    },
+    "filled": [
+      {
+        "label": "$BTC is at $82,565.8 right now – catch the latest on Bitcoin",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Test input",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "Test input",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "ok",
+        "newState": false
+      },
+      {
+        "label": "Search",
+        "purpose": "existing",
+        "value": "BTC",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "0",
+        "purpose": "normal",
+        "value": "100",
+        "outcome": "ok",
+        "newState": false
+      },
+      {
+        "label": "0",
+        "purpose": "boundary",
+        "value": "999999999",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "zero",
+        "value": "0",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "0",
+        "purpose": "invalid",
+        "value": "abc",
+        "outcome": "no_change",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "normal",
+        "value": "Test input",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "textbox",
+        "purpose": "long",
+        "value": "xxxxxxxxxxxxxxxxxxxx",
+        "outcome": "failed",
+        "newState": false
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "existing",
+        "value": "BTC",
+        "outcome": "ok",
+        "newState": true
+      },
+      {
+        "label": "Search crypto",
+        "purpose": "empty",
+        "value": "zzqx-no-result-7319",
+        "outcome": "ok",
+        "newState": true
+      }
+    ]
+  },
+  "hovers": 13,
+  "modeGroups": {
+    "sampled": 4,
+    "flat": 2
+  },
+  "coverage": {
+    "pages": [
+      {
+        "page": "https://www.okx.com/price/bitcoin-btc",
+        "classesSeen": 189,
+        "classesExecuted": 83,
+        "classCoverage": 0.44,
+        "listClasses": 42,
+        "textBlocksSeen": 552,
+        "textBlocksRevealedByActions": 250
+      }
+    ],
+    "statesPerMinute": [
+      26,
+      51,
+      57,
+      60
+    ],
+    "lastNewStateAtMs": 185698
+  },
+  "lists": {
+    "classes": 8,
+    "membersSeen": 80,
+    "executed": 8
+  },
+  "pages": 1,
+  "findings": {},
+  "inputClassification": {
+    "calls": 4,
+    "failures": 0,
+    "judgments": 4,
+    "inputTokens": 2156,
+    "outputTokens": 208,
+    "costUsd": 0.000090552,
+    "unpricedCalls": 0,
+    "elapsedMs": 2352,
+    "byPurpose": {
+      "crawler-input-kind": {
+        "calls": 4,
+        "costUsd": 0.000090552
+      }
+    }
+  }
+}

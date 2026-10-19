@@ -31,10 +31,10 @@ export function placement(c: Control, current: string, entry: string, policy: Cr
   const target = linkTarget(c, current);
   if (!target) return 'stay';
   const t = new URL(target), e = new URL(entry);
-  if (pagePath(target) === pagePath(current)) return 'stay';
+  if (pagePath(target) === pagePath(current) && t.pathname.replace(/\/+$/, '') === new URL(current).pathname.replace(/\/+$/, '')) return 'stay';
   if (t.origin !== e.origin || c.reviewBinding?.attributes.target === '_blank') return 'outside';
-  // Switching site language re-renders everything already covered; not new UI.
-  if (pagePath(target) === pagePath(entry)) return 'stay';
+  // The same page in another language is another page: it re-renders everything.
+  if (pagePath(target) === pagePath(entry) && t.pathname.replace(/\/+$/, '') === new URL(current).pathname.replace(/\/+$/, '')) return 'stay';
   return policy.allowedPaths.some(p => p.test(t.pathname)) ? 'navigate' : 'outside';
 }
 

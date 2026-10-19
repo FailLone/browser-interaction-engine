@@ -58,7 +58,7 @@ export function modeGroup(c: Control, url: string, siblings?: (parentInstanceId:
 }
 
 /** A list member's class: one entry per (list owner, template slot), not per row. */
-function listClass(c: Control): string | undefined {
+export function listClass(c: Control): string | undefined {
   if (modeRoles.has(c.role)) return;
   return c.structuralItem ? `list:${c.structuralItem.template}:${c.structuralItem.slot}` : c.list ? `list:${c.list.selector}:${c.role}` : undefined;
 }
