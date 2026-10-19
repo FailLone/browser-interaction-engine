@@ -15,7 +15,7 @@ flowchart TD
 | --- | --- |
 | `@interaction/crawler` | 浏览器驱动与页面抓取、抽象状态、控件类与列表抽样、动作选择与回退、跳转拦截、模型判断（JEV/LLM）与计费、输入分类、目标模式、运行存储（SQLite）、续跑、插件接口 |
 | `@interaction/rules` | UI 规则（遮挡、裁切、文字截断、图片资源、图片比例、文字与背景同色）与跨状态跟踪；`rulesPlugin()` 把它们接成遍历插件 |
-| `apps/server` | `/v1/crawls` 路由；按名字提供插件（`rules`、`checks`），每次运行由请求选择 |
+| `apps/server` | `/v1/crawls` 路由；按名字提供插件（目前是 `rules`），每次运行由请求选择 |
 | `apps/ui` | 发起/停止/续跑遍历，查看动作、状态截图、覆盖统计和插件结果 |
 | `apps/test-site` | 本地演示站与规则夹具页 |
 
@@ -41,7 +41,7 @@ interface CrawlPlugin {
 
 `onState` 在每个新状态上调用一次，只读不写：`context` 提供状态键、序号、URL、遍历用的抓取、`page`、按需的详细抓取 `detail()`（样式、布局、文字几何，只有插件需要时才抓）和运行记录 `runtime()`。同一插件、规则、元素和文本的问题每次运行只报一次；插件抛错记为 `plugin_error` 事件，不影响遍历。
 
-`checksPlugin` 是内置的轻量示例。`rulesPlugin(options)` 把每个状态的详细抓取组装成规则读的 `RulePage`，依次运行规则跟踪器，默认只上报 warning 和 error。
+`rulesPlugin(options)` 把每个状态的详细抓取组装成规则读的 `RulePage`，依次运行规则跟踪器，默认只上报 warning 和 error。
 
 ## 规则
 

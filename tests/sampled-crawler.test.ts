@@ -3,10 +3,10 @@ import { afterAll, beforeAll, expect, test } from 'vitest';
 import {
   BrowserDriver,
   SampledCrawler,
-  checksPlugin,
   maskVolatile,
   stateKey,
   type CrawlEvent,
+  type CrawlPlugin,
 } from '@interaction/crawler';
 
 // One page with: a blocking modal on load, a long list of identical rows, a
@@ -67,11 +67,22 @@ test('live values do not change component or state identity', () => {
 
 test('crawls the entry page: modal first, lists sampled, out-of-scope links skipped', async () => {
   const events: CrawlEvent[] = [];
+  // A plugin sees every new state once; the same finding on many states is reported once.
+  const seen: string[] = [];
+  const plugin: CrawlPlugin = {
+    id: 'probe',
+    onState: ({ state, snapshot }) => {
+      seen.push(state);
+      return [
+        { rule: 'title', severity: 'warning', selector: 'title', text: maskVolatile(snapshot.title), detail: '' },
+      ];
+    },
+  };
   const crawler = new SampledCrawler({
     url: base,
     durationMs: 60000,
     settleMs: 100,
-    plugins: [checksPlugin],
+    plugins: [plugin],
     log: e => events.push(e),
   });
   const summary = await crawler.run();
@@ -98,10 +109,10 @@ test('crawls the entry page: modal first, lists sampled, out-of-scope links skip
   expect(page.classesExecuted).toBeGreaterThan(0);
   expect(page.classCoverage).toBeGreaterThan(0.5);
   expect(summary.coverage.statesPerMinute.at(-1)).toBe(summary.states);
-  // Optional UI checks run on each new state and report each issue once.
-  const findings = [...crawler.findings.values()];
-  expect(findings.filter(f => f.rule === 'broken-image')).toHaveLength(1);
-  expect(findings.filter(f => f.rule === 'clipped-text' && f.text.includes('clipped label'))).toHaveLength(1);
+  expect(new Set(seen).size).toBe(seen.length);
+  expect(seen.length).toBeGreaterThan(1);
+  expect(seen.length).toBeLessThanOrEqual(summary.states);
+  expect(events.filter(e => e.type === 'finding')).toHaveLength(1);
 }, 120000);
 
 test('one JEV checklist per batch; uncertain items are left to a trial, LLM only on request; counts and cost are exact', async () => {

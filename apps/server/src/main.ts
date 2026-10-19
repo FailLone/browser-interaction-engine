@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { checksPlugin, CrawlManager, CrawlStore, providersFromEnv } from '@interaction/crawler';
+import { CrawlManager, CrawlStore, providersFromEnv } from '@interaction/crawler';
 import { rulesPlugin } from '@interaction/rules';
 import { createServer } from './server.js';
 
@@ -10,7 +10,6 @@ const crawls = new CrawlManager(
   providersFromEnv(),
   {
     rules: () => rulesPlugin(),
-    checks: () => checksPlugin,
   },
 );
 const app = await createServer(crawls, { logger: true });

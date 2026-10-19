@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { createServer as createViteServer } from 'vite';
-import { checksPlugin, CrawlManager, CrawlStore, providersFromEnv } from '@interaction/crawler';
+import { CrawlManager, CrawlStore, providersFromEnv } from '@interaction/crawler';
 import { rulesPlugin } from '@interaction/rules';
 import { createServer } from '../apps/server/src/server.js';
 
@@ -9,7 +9,6 @@ const crawls = new CrawlManager(
   providersFromEnv(),
   {
     rules: () => rulesPlugin(),
-    checks: () => checksPlugin,
   },
 );
 const api = await createServer(crawls);

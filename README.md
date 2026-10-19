@@ -34,7 +34,7 @@ pnpm crawl OUT_DIR URL [DURATION_MS]
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `GET` | `/v1/crawl-plugins` | 服务端提供的插件名（`rules`、`checks`） |
+| `GET` | `/v1/crawl-plugins` | 服务端提供的插件名（目前是 `rules`） |
 | `POST` | `/v1/crawls` | 开始一次遍历：`{ url, durationMs?, models?, plugins?, resumeFrom?, followNavigation?, allowedPaths? }` |
 | `GET` | `/v1/crawls` | 运行列表 |
 | `GET` | `/v1/crawls/:id` | 运行状态与汇总 |

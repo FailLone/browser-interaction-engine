@@ -8,19 +8,19 @@ import {
   GoalRelevance,
   ModelJudge,
   SampledCrawler,
-  checksPlugin,
   defaultPolicy,
   metered,
   planGoal,
   providersFromEnv,
 } from '@interaction/crawler';
+import { rulesPlugin } from '@interaction/rules';
 
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
 const durationMs = Number(process.argv[4] || 240000);
 // Longer runs can spend more per secondary page and visit more pages per template:
 // CRAWL_PAGE_ACTIONS (default 20), CRAWL_PAGE_SAMPLES (default 2).
-// Optional UI checks as a side observation (not an acceptance target): CRAWL_CHECKS=1.
+// Optional UI rules as a side observation (not an acceptance target): CRAWL_RULES=1.
 // Optional anchored pathname pattern for other in-scope pages (same origin as the entry).
 const scope = process.argv[5] || undefined;
 const policy = defaultPolicy(url);
@@ -65,7 +65,7 @@ const crawler = new SampledCrawler({
   relevance,
   inputJudge,
   maxActions: 2000,
-  ...(process.env.CRAWL_CHECKS ? { plugins: [checksPlugin] } : {}),
+  ...(process.env.CRAWL_RULES ? { plugins: [rulesPlugin()] } : {}),
   ...(process.env.CRAWL_PAGE_ACTIONS ? { pageActions: Number(process.env.CRAWL_PAGE_ACTIONS) } : {}),
   ...(process.env.CRAWL_PAGE_SAMPLES ? { pageSamples: Number(process.env.CRAWL_PAGE_SAMPLES) } : {}),
   log: event => {
