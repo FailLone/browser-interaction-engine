@@ -3,9 +3,7 @@
 // Model plugin and goal mode use the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { GoalRelevance, ModelJudge, SampledCrawler, defaultChecks, defaultPolicy, metered, planGoal, providersFromEnv } from '@interaction/crawler';
-import { BrowserAdapter, PlaywrightAdapter } from '@interaction/adapter-playwright';
-import { MemoryEvidenceStore } from '@interaction/storage-memory';
+import { BrowserDriver, GoalRelevance, ModelJudge, SampledCrawler, defaultChecks, defaultPolicy, metered, planGoal, providersFromEnv } from '@interaction/crawler';
 
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
@@ -29,9 +27,9 @@ let relevance: GoalRelevance | undefined;
 let planning: import('@interaction/crawler').ProviderMeter | undefined;
 if (goal) {
   if (!providers.llm || !providers.jev) throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
-  const adapter = new BrowserAdapter(new PlaywrightAdapter().parseOptions({ url, headless: true }), new MemoryEvidenceStore());
-  await adapter.start(); await adapter.page!.waitForTimeout(1500);
-  const dom = await adapter.readDOM(false, false); await adapter.close();
+  const driver = new BrowserDriver({ url });
+  await driver.start(); await driver.page!.waitForTimeout(1500);
+  const dom = await driver.readDOM(); await driver.close();
   const planner = metered(providers.llm);
   const plan = await planGoal(planner, goal, url, dom.controls.filter(c => c.visible));
   planning = planner.meter;

@@ -1,4 +1,4 @@
-import type { Control } from '@interaction/adapter-playwright';
+import type { Control } from './browser/types.js';
 import type { Provider } from './providers.js';
 import { metered, type ProviderMeter } from './meter.js';
 

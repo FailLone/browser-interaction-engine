@@ -1,4 +1,4 @@
-import type { Control, Overlay, Region } from '@interaction/adapter-playwright';
+import type { Control, Overlay, Region } from './browser/types.js';
 
 /** Minimal capture the crawler needs; produced by the adapter's DOM collector. */
 export interface Snapshot {

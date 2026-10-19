@@ -1,5 +1,5 @@
 import type { Provider } from './providers.js';
-import type { Control } from '@interaction/adapter-playwright';
+import type { Control } from './browser/types.js';
 import { maskVolatile } from './abstraction.js';
 import { metered, type ProviderMeter } from './meter.js';
 

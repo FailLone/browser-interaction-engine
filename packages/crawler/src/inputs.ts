@@ -1,4 +1,4 @@
-import type { Control } from '@interaction/adapter-playwright';
+import type { Control } from './browser/types.js';
 import type { Page } from 'playwright';
 import type { Provider } from './providers.js';
 

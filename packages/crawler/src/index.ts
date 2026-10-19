@@ -9,3 +9,5 @@ export * from './inputs.js';
 export * from './store.js';
 export * from './manager.js';
 export * from './providers.js';
+export * from './browser/driver.js';
+export type * from './browser/types.js';

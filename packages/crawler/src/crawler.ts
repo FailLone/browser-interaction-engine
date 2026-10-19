@@ -1,5 +1,5 @@
-import { BrowserAdapter, PlaywrightAdapter, type ActionCandidate, type Control } from '@interaction/adapter-playwright';
-import { MemoryEvidenceStore } from '@interaction/storage-memory';
+import { BrowserDriver } from './browser/driver.js';
+import type { Control } from './browser/types.js';
 import { activeOverlay, controlClass as baseClass, listClass, maskVolatile, modeGroup, modeSiblings, pagePath, pageTemplate, stateKey, type Snapshot } from './abstraction.js';
 import { allowed, defaultPolicy, linkTarget, placement, type CrawlKind, type CrawlPolicy } from './policy.js';
 import { findingKey, type Finding, type PageCheck } from './checks.js';
@@ -105,7 +105,7 @@ export class SampledCrawler {
   readonly listMembers = new Map<string, Set<string>>();
   readonly events: CrawlEvent[] = [];
   readonly findings = new Map<string, Finding & { url: string; state: string }>();
-  private adapter!: BrowserAdapter;
+  private adapter!: BrowserDriver;
   private path: Step[] = [];
   /** Document of the entry page currently loaded; route changes keep it, a page load replaces it. */
   private entryDocument?: string;
@@ -196,8 +196,7 @@ export class SampledCrawler {
 
   async run() {
     if (this.options.ledger) this.restore(this.options.ledger);
-    const sessionOptions = new PlaywrightAdapter().parseOptions({ url: this.options.url, headless: this.options.headless, listExploration: 'review', actionTimeoutMs: 2000 });
-    this.adapter = new BrowserAdapter(sessionOptions, new MemoryEvidenceStore());
+    this.adapter = new BrowserDriver({ url: this.options.url, headless: this.options.headless, actionTimeoutMs: 2000 });
     await this.adapter.start();
     // Document navigations are decided before they happen. Aborting with 'aborted' cancels the
     // load and leaves the current document, its DOM and its state untouched (no error page).
@@ -308,7 +307,7 @@ export class SampledCrawler {
   private readonly firstNames = new Map<string, string>();
 
   private async snapshot(): Promise<Snapshot> {
-    const dom = await this.adapter.readDOM(false, false);
+    const dom = await this.adapter.readDOM();
     const byOwner = new Map<string, string[]>();
     for (const c of dom.controls as Control[]) if (c.structuralItem) { const list = byOwner.get(c.structuralItem.ownerInstanceId) || []; list.push(maskVolatile(c.name)); byOwner.set(c.structuralItem.ownerInstanceId, list); }
     this.ownerNames = new Map([...byOwner].map(([owner, names]) => [owner, names.slice(0, 3).join('|')]));
@@ -600,8 +599,7 @@ export class SampledCrawler {
   private async dispatch(c: Candidate) {
     await this.ensureActionable(c.control);
     if (c.kind === 'fill') return this.fill(c);
-    const action = { id: `crawl:${this.now()}`, kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined } as unknown as ActionCandidate;
-    await this.adapter.execute(action, c.control);
+    await this.adapter.execute({ kind: c.kind, value: c.kind === 'check' ? c.value === 'true' : c.kind === 'press' ? 'Escape' : undefined }, c.control);
   }
 
   /** Static links are recorded from their href without clicking (once per destination page). */

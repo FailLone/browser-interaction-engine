@@ -1,4 +1,4 @@
-import type { Control } from '@interaction/adapter-playwright';
+import type { Control } from './browser/types.js';
 import { pagePath } from './abstraction.js';
 
 export type CrawlKind = 'click' | 'hover' | 'check' | 'press' | 'fill';
