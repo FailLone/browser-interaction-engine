@@ -1,5 +1,5 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { CrawlPanel } from './CrawlPanel.js';
 import './index.css';
 
@@ -10,7 +10,9 @@ applyScheme();
 dark.addEventListener('change', applyScheme);
 
 createRoot(document.getElementById('root')!).render(
-  <main className="mx-auto max-w-[1400px] p-4 sm:p-6">
-    <CrawlPanel />
-  </main>,
+  <TooltipProvider>
+    <main className="mx-auto max-w-[1600px] p-4 sm:p-6">
+      <CrawlPanel />
+    </main>
+  </TooltipProvider>,
 );

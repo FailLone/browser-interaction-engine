@@ -5,9 +5,18 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { CrawlManager } from '@interaction/crawler';
 import { registerCrawlRoutes } from './crawl-routes.js';
+import type { ModelCallLog } from './model-calls.js';
 
 /** HTTP API for crawl runs, plus the built UI when present. */
-export async function createServer(crawls: CrawlManager, options: { uiDirectory?: string; logger?: boolean } = {}) {
+export async function createServer(
+  crawls: CrawlManager,
+  options: {
+    uiDirectory?: string;
+    logger?: boolean;
+    modelCalls?: ModelCallLog;
+    models?: { jev: boolean; llm: boolean };
+  } = {},
+) {
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 1024 * 1024 });
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError)
@@ -19,7 +28,7 @@ export async function createServer(crawls: CrawlManager, options: { uiDirectory?
       .send({ error: { code: 'INTERNAL_ERROR', message: error instanceof Error ? error.message : String(error) } });
   });
   app.get('/v1/health', async () => ({ status: 'ok', version: '0.1.0' }));
-  registerCrawlRoutes(app, crawls);
+  registerCrawlRoutes(app, crawls, options.modelCalls, options.models);
   const ui = options.uiDirectory || resolve('apps/ui/dist');
   if (existsSync(ui)) {
     await app.register(fastifyStatic, { root: ui });

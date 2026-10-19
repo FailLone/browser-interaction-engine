@@ -1,5 +1,5 @@
 import { BrowserDriver, type DOMSnapshot } from './browser/driver.js';
-import type { Control } from './browser/types.js';
+import type { Control, Rect } from './browser/types.js';
 import { initialViewport, type ResolvedViewport, type ViewportOption } from './browser/viewport.js';
 import {
   composeSessions,
@@ -95,8 +95,8 @@ export interface CrawlOptions {
   ledger?: CrawlLedger;
   /** Aborting stops the crawl after the current action; the summary is still produced. */
   signal?: AbortSignal;
-  /** Called with a viewport screenshot of every newly discovered state. */
-  onScreenshot?: (state: string, png: Buffer) => void | Promise<void>;
+  /** Called with a viewport screenshot (WebP) of every newly discovered state. */
+  onScreenshot?: (state: string, image: Buffer) => void | Promise<void>;
   /** Plugins (UI rules, checks) that observe each newly discovered state; composed by the host. */
   plugins?: CrawlPlugin[];
   /** Called once per newly discovered abstract state, after checks. */
@@ -117,6 +117,8 @@ export interface Step {
   label: string;
   value?: string;
   purpose?: string;
+  /** A second try at a target that was covered by another element the first time. */
+  retry?: boolean;
   /** Page the step was taken on; used to rewind past a whole page when backtracking. */
   from?: string;
   /** Page after the step; differs from `from` when the step navigated. */
@@ -126,13 +128,29 @@ export interface Step {
   /** Visible page (state + masked text) before / after the step; equal ends mark a removable loop. */
   sigBefore?: string;
   sigAfter?: string;
+  /**
+   * The step only revealed text (a tooltip, an answer) and left the structural state as it was.
+   * A replay can skip it when no later step depends on it; see `trimReplay`.
+   */
+  textOnly?: boolean;
+  /** Structural state after the step: what a replay must land on. */
+  stateAfter?: string;
 }
 export type CrawlEvent =
   /** The viewport the crawl runs in, emitted once the page is open. */
   | { type: 'viewport'; at: number; viewport: ResolvedViewport }
   /** The session restored into the browser, and each check of it. */
   | { type: 'session'; at: number; provider: string; session: Record<string, unknown>; check?: SessionCheck }
-  | { type: 'state'; at: number; state: CrawlState; path: number }
+  | {
+      type: 'state';
+      at: number;
+      state: CrawlState;
+      path: number;
+      /** Scroll offset and viewport when the state's screenshot was taken, to place marks on it. */
+      view?: { scroll: { x: number; y: number }; viewport: { width: number; height: number } };
+      /** The action that revealed this state as text or a typed value; it is announced right after it. */
+      revealedBy?: string;
+    }
   | {
       type: 'action';
       at: number;
@@ -144,6 +162,16 @@ export type CrawlEvent =
       error?: string;
       newState: boolean;
       after: string;
+      /**
+       * Where the target was on screen when the action ran: its box in viewport pixels, the
+       * page's scroll offset and the viewport size. Lets a screenshot of that moment mark it.
+       */
+      target?: { box: Rect; scroll: { x: number; y: number }; viewport: { width: number; height: number } };
+      /**
+       * A screenshot taken just before the action, when the state's own screenshot was taken at
+       * another scroll position and so cannot show where the target is.
+       */
+      shot?: string;
     }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
@@ -167,6 +195,8 @@ export type CrawlEvent =
       source: string;
       probability?: number;
       detail?: string;
+      /** Effect questions: how sure JEV was that the text came from the page itself, not the action. */
+      unrelated?: number;
     }
   /** Goal pursuit: what the LLM concluded on a state, and which action (if any) it chose. */
   | {
@@ -209,6 +239,8 @@ interface Candidate {
   relevance?: number;
   /** For fill: which sample of the input's kind (e.g. existing / empty search). */
   purpose?: string;
+  /** A second try at a target that was covered the first time. */
+  retry?: boolean;
 }
 
 // Everything that stays on the current page (including site-chrome menus) runs
@@ -240,6 +272,12 @@ export class SampledCrawler {
   /** Executions per action class (state independent): the sampling budget. */
   readonly classCounts = new Map<string, number>();
   readonly failedClasses = new Set<string>();
+  /**
+   * Classes whose target was covered by another element when tried, with the state it was
+   * covered in. A cover is often temporary (a closing menu, an animation), so the class gets one
+   * more try later, ranked after everything else, in any other state.
+   */
+  private readonly covered = new Map<string, string>();
   private stopReason?: StopReason;
   /** Prepared sessions not yet released, with whether every check of each passed so far. */
   private sessions: { provider: SessionProvider; session: PreparedSession; verified: boolean; lastCheck: number }[] =
@@ -282,6 +320,30 @@ export class SampledCrawler {
   private historyBacks = 0;
   /** Backtracks that loaded the last page by URL and replayed only its in-page steps. */
   private directLoads = 0;
+  /** Replay steps skipped because they only revealed text, and replays that stopped short. */
+  private trimmedSteps = 0;
+  private brokenReplays = 0;
+  /** Backtracks done in place (pointer moved away, Escape) without reloading. */
+  private inPlaceBacks = 0;
+  /**
+   * Cookies and web storage as they were once the entry page had loaded. Sites remember choices
+   * (currency, language) there, so a reload after such a choice is not the page the crawl started
+   * from; restoring this first makes every replay start from the same page.
+   */
+  private initialStorage?: Awaited<ReturnType<import('playwright').BrowserContext['storageState']>> & {
+    session: { origin: string; entries: [string, string][] }[];
+  };
+  /** Reloads that restored the initial storage first. */
+  private storageRestores = 0;
+  /** Where the current action's target was on screen, measured just before it ran. */
+  private lastTarget?: Extract<CrawlEvent, { type: 'action' }>['target'];
+  /** Scroll position of each state's screenshot, to tell whether it shows where an action happens. */
+  private readonly shotScroll = new Map<string, { x: number; y: number }>();
+  /** The state the current action runs in, while its target may still need a screenshot. */
+  private shootFor?: string;
+  /** Screenshot taken just before the current action, when its state's screenshot does not show it. */
+  private actionShot?: string;
+  private actionShots = 0;
   /** Page text at the last dispatch, used to pick search terms that should match. */
   private lastText = '';
   /** True from dispatch until the post-action settle completes. */
@@ -495,12 +557,14 @@ export class SampledCrawler {
       await this.settle();
       // A crawl never runs on a page whose session check failed: it would test the login page.
       if (!(await this.checkSession(true))) stop = 'session_invalid';
+      else await this.saveInitialStorage();
       while (stop !== 'session_invalid' && this.now() < this.options.durationMs && actions < this.options.maxActions) {
         if (this.options.signal?.aborted) {
           stop = 'stopped';
           break;
         }
         if (!this.page.url().startsWith('http')) {
+          await this.restoreInitialStorage();
           await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
           await this.settle();
           this.path = [];
@@ -657,6 +721,10 @@ export class SampledCrawler {
                   ).length
                 : undefined,
       })),
+      trimmedSteps: this.trimmedSteps,
+      brokenReplays: this.brokenReplays,
+      inPlaceBacks: this.inPlaceBacks,
+      storageRestores: this.storageRestores,
       navigations: {
         intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
         sameDocument: [...this.links.values()]
@@ -839,13 +907,16 @@ export class SampledCrawler {
     }
   }
 
-  private async visit(s: Snapshot) {
+  /**
+   * Announces a state the first time it is seen: event, screenshot, plugins. `key` overrides the
+   * structural key for a state an action revealed as text only (a tooltip, an answer).
+   */
+  private async visit(s: Snapshot, key = stateKey(s), revealedBy?: Step) {
     const template = pageTemplate(s.url),
       pages = this.templatePages.get(template) || new Set<string>();
     pages.add(pagePath(s.url));
     this.templatePages.set(template, pages);
     this.observeCoverage(s);
-    const key = stateKey(s);
     if (this.states.has(key)) return false;
     const overlay = activeOverlay(s);
     const state: CrawlState = {
@@ -856,10 +927,24 @@ export class SampledCrawler {
       controls: s.controls.filter(c => c.visible).length,
     };
     this.states.set(key, state);
-    this.emit({ type: 'state', at: this.now(), state, path: this.path.length });
+    const view = this.options.onScreenshot
+      ? ((await this.page.evaluate(viewInPage).catch(() => undefined)) as
+          | Extract<CrawlEvent, { type: 'state' }>['view']
+          | undefined)
+      : undefined;
+    this.emit({
+      type: 'state',
+      at: this.now(),
+      state,
+      path: this.path.length,
+      ...(view ? { view } : {}),
+      ...(revealedBy ? { revealedBy: revealedBy.classKey } : {}),
+    });
+    if (view) this.shotScroll.set(key, view.scroll);
     if (this.options.onScreenshot) {
-      const png = await this.page.screenshot({ timeout: 3000 }).catch(() => undefined);
-      if (png) await this.options.onScreenshot(key, png);
+      // WebP at this quality is about a third of a PNG and still sharp enough to read page text.
+      const image = await this.page.screenshot({ type: 'webp', quality: 80, timeout: 3000 }).catch(() => undefined);
+      if (image) await this.options.onScreenshot(key, image);
     }
     if (this.options.plugins.length) {
       let detail: Promise<DOMSnapshot> | undefined;
@@ -1052,14 +1137,20 @@ export class SampledCrawler {
           seen.add(`${pagePath(s.url)}|${c.name}`);
           this.listMembers.set(classKey, seen);
         }
+        const coveredIn = this.covered.get(classKey);
+        const retry = coveredIn !== undefined;
+        // A covered target is retried once, and not in the state where it was covered.
+        if (retry && coveredIn === stateKey(s)) continue;
         if (
           kind !== 'fill' &&
+          !retry &&
           (this.failedClasses.has(classKey) ||
             (sampled && (this.classCounts.get(classKey) || 0) >= this.budget(classKey)))
         )
           continue;
         const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
-        if (sampled && group && this.flatModeGroups.has(group)) continue;
+        // A flat group's members are skipped as redundant; a retry was never tried, so it still goes.
+        if (sampled && group && !retry && this.flatModeGroups.has(group)) continue;
         const disclosure =
           c.expanded !== null ||
           ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) ||
@@ -1088,6 +1179,7 @@ export class SampledCrawler {
           tierName,
           value: kind === 'check' ? String(!c.checked) : undefined,
           relevance: relevance?.score(classKey),
+          ...(retry ? { retry: true } : {}),
         };
         if (kind !== 'fill') {
           rows.push(row);
@@ -1108,8 +1200,10 @@ export class SampledCrawler {
       Number(r.control.selected.length > 0 || r.control.checked === true || r.control.pressed === true);
     // Goal mode ranks by relevance inside the overlay-first rule; otherwise tier then reading order.
     const goal = (r: Candidate) => (r.tierName === 'overlay' ? 2 : (r.relevance ?? 0.5));
+    // Retries of covered targets come after everything else: they are a second chance, not new work.
     return rows.sort(
       (a, b) =>
+        Number(!!a.retry) - Number(!!b.retry) ||
         (applyGoal && this.options.relevance ? goal(b) - goal(a) : 0) ||
         a.tier - b.tier ||
         isSelected(a) - isSelected(b) ||
@@ -1221,6 +1315,9 @@ export class SampledCrawler {
     this.intercepted = undefined;
     this.popup = undefined;
     const urlBefore = this.page.url();
+    this.lastTarget = undefined;
+    this.actionShot = undefined;
+    this.shootFor = this.options.onScreenshot ? beforeKey : undefined;
     this.dispatching = true;
     try {
       await this.dispatch(c);
@@ -1228,8 +1325,11 @@ export class SampledCrawler {
     } catch (e) {
       outcome = 'failed';
       error = String(e).slice(0, 200);
-      this.failedClasses.add(c.classKey);
+      // Covered on the first try: try once more later. Any other failure, or a failed retry, is final.
+      if (!c.retry && /Target not actionable: covered by/.test(error)) this.covered.set(c.classKey, beforeKey);
+      else this.failedClasses.add(c.classKey);
     } finally {
+      if (c.retry) this.covered.delete(c.classKey);
       this.dispatching = false;
     }
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
@@ -1240,6 +1340,7 @@ export class SampledCrawler {
       label: (c.control.name || c.control.label || c.control.role).slice(0, 60),
       value: c.value,
       purpose: c.purpose,
+      ...(c.retry ? { retry: true } : {}),
       from: pagePath(before.url),
       state: beforeKey,
     };
@@ -1314,8 +1415,10 @@ export class SampledCrawler {
             verdict: answer.verdict,
             source: answer.source,
             probability: answer.probability,
+            ...(answer.unrelated !== undefined ? { unrelated: answer.unrelated } : {}),
           });
-          // Text did appear; only a confident "no" (live data drift, same content) rejects it.
+          // Text did appear; only a confident "no" (live data drift, same content, or the page
+          // changing by itself) rejects it.
           changed = answer.verdict !== 'no';
         }
         // The new state is keyed by what appeared, so the same tooltip reached twice is one state.
@@ -1329,6 +1432,11 @@ export class SampledCrawler {
     if (outcome === 'ok') {
       step.sigBefore = pageSignature(before, beforeKey);
       step.sigAfter = pageSignature(after, afterKey);
+      step.stateAfter = stateKey(after);
+      // Revealed text only: structure (controls, overlay, URL) is where it was. A value typed into
+      // a field is not text-only: later steps may read it.
+      if (step.stateAfter === beforeKey && c.kind !== 'fill' && c.kind !== 'check' && step.to === step.from)
+        step.textOnly = true;
       this.pushStep(step);
     }
     const isNew = !this.states.has(afterKey);
@@ -1340,13 +1448,9 @@ export class SampledCrawler {
       this.sampledModeGroups.set(group, isNew);
       if (!isNew && outcome !== 'failed') this.flatModeGroups.add(group);
     }
-    if (isNew && /\|(content|value):/.test(afterKey))
-      this.states.set(afterKey, {
-        key: afterKey,
-        url: after.url,
-        firstSeenAt: this.now(),
-        controls: after.controls.filter(x => x.visible).length,
-      });
+    // Revealed text and typed values are states of their own. They are announced after the action
+    // that produced them (below), like a structural state reached by it, while the page still shows them.
+    const revealed = isNew && /\|(content|value):/.test(afterKey);
     this.emit({
       type: 'action',
       at: this.now(),
@@ -1358,7 +1462,10 @@ export class SampledCrawler {
       error,
       newState: isNew,
       after: pagePath(after.url),
+      ...(this.lastTarget ? { target: this.lastTarget } : {}),
+      ...(this.actionShot ? { shot: this.actionShot } : {}),
     });
+    if (revealed) await this.visit(after, afterKey, step);
     this.options.pursuit?.note(`${describe(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
     if (routeChanged) this.routeClasses.add(c.classKey);
     // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
@@ -1428,8 +1535,27 @@ export class SampledCrawler {
     const target = this.page.locator(control.selector);
     if ((await target.count()) !== 1) throw new Error('Target is no longer unique');
     await target.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(() => {});
+    this.lastTarget = (await target.evaluate(measureInPage).catch(() => undefined)) as typeof this.lastTarget;
+    await this.shootIfUnseen();
     const blocker = await target.evaluate(hitTestInPage).catch(() => 'detached');
     if (blocker) throw new Error(`Target not actionable: ${blocker}`);
+  }
+
+  /**
+   * During an action (not a replay), screenshot the page as it is about to be acted on when the
+   * state's own screenshot was taken at another scroll position: there the target cannot be shown.
+   */
+  private async shootIfUnseen() {
+    const state = this.shootFor,
+      target = this.lastTarget;
+    this.shootFor = undefined;
+    if (!state || !target || !this.options.onScreenshot) return;
+    const seen = this.shotScroll.get(state);
+    if (seen && Math.abs(seen.x - target.scroll.x) <= 1 && Math.abs(seen.y - target.scroll.y) <= 1) return;
+    const image = await this.page.screenshot({ type: 'webp', quality: 80, timeout: 3000 }).catch(() => undefined);
+    if (!image) return;
+    this.actionShot = `action:${++this.actionShots}`;
+    await this.options.onScreenshot(this.actionShot, image);
   }
 
   /** Classify the input (structure first, then JEV once per input class) and type one sample. */
@@ -1526,33 +1652,123 @@ export class SampledCrawler {
     // Fast path: the replay target ends where an earlier page was entered and nothing was done
     // on that page since, so the browser history already holds it. Go back instead of replaying.
     if (await this.historyBack(replay)) return true;
+    // Cheaper still: the state to return to may be one gesture away (a hover to leave, a popup to
+    // close). Try that in place and keep it only if the page is in exactly that state.
+    if (!restore && (await this.undoInPlace(replay))) return true;
     // Every page here was reached by an ordinary link, so its URL loads it directly. Start the
     // replay from the last page boundary in the kept path; only that page's in-page steps remain.
     let start = replay.length;
     while (start > 0 && replay[start - 1].to === replay[start - 1].from) start--;
     const resume = start > 0 ? replay[start - 1].to! : pagePath(this.options.url);
+    await this.restoreInitialStorage();
     await this.page.goto(start > 0 ? resume : this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
     await this.settle();
     if (start > 0 && pagePath(this.page.url()) !== resume) {
       // Redirected or blocked: fall back to the full replay from the entry.
       start = 0;
+      await this.restoreInitialStorage();
       await this.page.goto(this.options.url, { waitUntil: 'domcontentloaded' }).catch(() => {});
       await this.settle();
     }
     if (start > 0) this.directLoads++;
-    this.path = replay.slice(0, start);
-    for (const step of replay.slice(start)) {
-      const s = await this.snapshot();
-      const target = this.candidatesForReplay(s, step);
-      if (!target) break;
-      try {
-        await this.dispatch(target);
-        await this.settle();
-        this.path.push(step);
-      } catch {
-        break;
+    const steps = replay.slice(start);
+    const trimmed = trimReplay(steps);
+    // A replay cannot always reach its old state: a step may have changed something the site keeps
+    // across loads (a chosen currency or language). Wherever it lands, the crawl carries on from
+    // there, as it always has; replaying again would only land in the same place.
+    this.trimmedSteps += steps.length - trimmed.length;
+    if (!(await this.replaySteps(replay.slice(0, start), trimmed))) this.brokenReplays++;
+    return true;
+  }
+
+  /** Cookies, localStorage and sessionStorage once the entry page has loaded. */
+  private async saveInitialStorage() {
+    const context = this.adapter.context;
+    if (!context) return;
+    try {
+      const state = await context.storageState();
+      const session = (await this.page.evaluate(
+        'Object.keys(sessionStorage).map(k => [k, sessionStorage.getItem(k)])',
+      )) as [string, string][];
+      this.initialStorage = { ...state, session: [{ origin: new URL(this.page.url()).origin, entries: session }] };
+    } catch {
+      /* Without a snapshot, reloads keep whatever the site stored, as before. */
+    }
+  }
+
+  /**
+   * Puts cookies and web storage back as they were at the start, before a reload, so a choice
+   * made during the crawl does not carry over. Storage is written from the page still loaded,
+   * which is on the entry's origin; the next document then starts from the saved values. Cookies
+   * a session pins stay pinned: the driver re-adds them on every response.
+   */
+  private async restoreInitialStorage() {
+    const context = this.adapter.context,
+      initial = this.initialStorage;
+    if (!context || !initial) return;
+    try {
+      await context.clearCookies();
+      if (initial.cookies.length) await context.addCookies(initial.cookies);
+      const origin = new URL(this.page.url()).origin;
+      const local = initial.origins.find(o => o.origin === origin)?.localStorage.map(e => [e.name, e.value]) ?? [];
+      const session = initial.session.find(o => o.origin === origin)?.entries ?? [];
+      await this.page.evaluate(writeStorageInPage, [local, session] as [string[][], string[][]]);
+      this.storageRestores++;
+    } catch {
+      /* A failed restore leaves the reload as it was before this existed. */
+    }
+  }
+
+  /**
+   * Reaches the end state of `replay` without reloading: move the pointer off whatever it hovers,
+   * then press Escape, checking the state after each. Only an exact match of the structural
+   * state counts; anything else leaves the reload and replay to do the work.
+   */
+  private async undoInPlace(replay: Step[]): Promise<boolean> {
+    const target = replay.length ? replay.at(-1)?.stateAfter : this.path[0]?.state;
+    if (!target) return false;
+    const quick = Math.min(this.options.settleMs, REPLAY_SETTLE_MS);
+    const gestures = [() => this.page.mouse.move(0, 0), () => this.page.keyboard.press('Escape')];
+    for (const gesture of gestures) {
+      await gesture().catch(() => {});
+      await this.page.waitForTimeout(quick);
+      if (stateKey(await this.snapshot()) === target) {
+        this.path = [...replay];
+        this.inPlaceBacks++;
+        return true;
       }
     }
+    return false;
+  }
+
+  /**
+   * Replays steps from the current page; false when a step could not be found or performed. A
+   * replayed step is a known action: it waits briefly, and the full settle time only when the next
+   * step's target is not there yet.
+   */
+  private async replaySteps(kept: Step[], steps: Step[]): Promise<boolean> {
+    this.path = [...kept];
+    const quick = Math.min(this.options.settleMs, REPLAY_SETTLE_MS);
+    for (const step of steps) {
+      // A stopped replay loses its place on the path, so a target that is not there yet (a late
+      // widget, a slow reload) is waited for, a few seconds at most.
+      let candidate = this.candidatesForReplay(await this.snapshot(), step);
+      for (let waited = 0; !candidate && waited < REPLAY_WAIT_MS; waited += this.options.settleMs) {
+        await this.page.waitForTimeout(this.options.settleMs);
+        candidate = this.candidatesForReplay(await this.snapshot(), step);
+      }
+      if (!candidate) return false;
+      try {
+        await this.dispatch(candidate);
+        await this.page.waitForLoadState('domcontentloaded').catch(() => {});
+        await this.page.waitForTimeout(quick);
+        this.path.push(step);
+      } catch {
+        return false;
+      }
+    }
+    // The last step's effect is the state to work in: give it the full settle time.
+    await this.page.waitForTimeout(Math.max(0, this.options.settleMs - quick));
     return true;
   }
 
@@ -1590,8 +1806,9 @@ export class SampledCrawler {
       // A fill's placeholder key ('|first') is resolved to its real sample keys at dispatch.
       if (key.endsWith('|first')) return !this.resolvedFills.has(key);
       return (
-        !this.failedClasses.has(key) &&
-        (this.classCounts.get(key) || 0) < (key.startsWith('fill|') ? 1 : this.budget(key))
+        (this.covered.has(key) && this.covered.get(key) !== state) ||
+        (!this.failedClasses.has(key) &&
+          (this.classCounts.get(key) || 0) < (key.startsWith('fill|') ? 1 : this.budget(key)))
       );
     });
   }
@@ -1644,6 +1861,49 @@ export class SampledCrawler {
     }
   }
 }
+
+/** Wait after each replayed step; replays are known actions, and a miss falls back to the full settle. */
+const REPLAY_SETTLE_MS = 150;
+/** How long a replay waits for a step's target to appear before it stops. */
+const REPLAY_WAIT_MS = 3000;
+
+/**
+ * The steps a replay needs. Left out:
+ * - a step that only revealed text (a tooltip, an answer): the structural state is where it was,
+ *   so the next step clicks the same place;
+ * - typing into a field that the next step types into again: only the last value stays in it.
+ * The last step always stays: its effect is the state to reach.
+ */
+export function trimReplay(steps: Step[]): Step[] {
+  const field = (step: Step) => step.classKey.slice(0, step.classKey.lastIndexOf('|'));
+  return steps.filter((step, i) => {
+    if (i === steps.length - 1) return true;
+    if (step.textOnly) return false;
+    const next = steps[i + 1];
+    return !(step.kind === 'fill' && next.kind === 'fill' && field(next) === field(step));
+  });
+}
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+const writeStorageInPage = new Function(
+  'args',
+  `const [local, session] = args;
+  try { localStorage.clear(); for (const [k, v] of local) localStorage.setItem(k, v); } catch {}
+  try { sessionStorage.clear(); for (const [k, v] of session) sessionStorage.setItem(k, v); } catch {}`,
+) as (args: [string[][], string[][]]) => void;
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+const viewInPage = new Function(
+  'return { scroll: { x: scrollX, y: scrollY }, viewport: { width: innerWidth, height: innerHeight } };',
+) as () => unknown;
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+const measureInPage = new Function(
+  'el',
+  `const r = el.getBoundingClientRect();
+  return { box: { x: r.left, y: r.top, width: r.width, height: r.height }, scroll: { x: scrollX, y: scrollY },
+    viewport: { width: innerWidth, height: innerHeight } };`,
+) as (el: Element) => unknown;
 
 // Built with new Function so the bundler cannot inject helpers into the serialized source.
 const hitTestInPage = new Function(

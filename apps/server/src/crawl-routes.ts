@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { CrawlManager } from '@interaction/crawler';
+import { DebugView, imageType } from './debug-view.js';
+import type { ModelCallLog } from './model-calls.js';
 
 const sessionRequest = z
   .object({ provider: z.string().min(1).max(64), options: z.record(z.string(), z.unknown()).optional() })
@@ -48,15 +50,23 @@ const startSchema = z
   .strict();
 
 /** Sampled crawler runs: start, list, inspect events and state screenshots, stop. */
-export function registerCrawlRoutes(app: FastifyInstance, crawls: CrawlManager) {
+export function registerCrawlRoutes(
+  app: FastifyInstance,
+  crawls: CrawlManager,
+  modelCalls?: ModelCallLog,
+  models: { jev: boolean; llm: boolean } = { jev: false, llm: false },
+) {
   const notFound = (reply: { code(n: number): { send(b: unknown): unknown } }) =>
     reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Crawl run not found' } });
   app.get('/v1/crawls', async () => crawls.store.runs());
   app.get('/v1/crawl-plugins', async () => Object.keys(crawls.pluginFactories));
+  /** Which model providers this server was started with; runs asking for models get none otherwise. */
+  app.get('/v1/crawl-models', async () => models);
   app.get('/v1/crawl-sessions', async () => Object.keys(crawls.sessionFactories));
   app.post('/v1/crawls', async (request, reply) => {
     try {
-      return reply.code(201).send(crawls.start(startSchema.parse(request.body)));
+      const input = startSchema.parse(request.body);
+      return reply.code(201).send(modelCalls ? modelCalls.track(() => crawls.start(input)) : crawls.start(input));
     } catch (error) {
       if (error instanceof z.ZodError) throw error;
       return reply.code(409).send({ error: { code: 'CRAWL_REJECTED', message: String((error as Error).message) } });
@@ -82,11 +92,75 @@ export function registerCrawlRoutes(app: FastifyInstance, crawls: CrawlManager) 
     const { state } = z.object({ state: z.string().min(1) }).parse(request.query);
     const png = crawls.store.screenshot(runId, state);
     if (!png) return notFound(reply);
-    return reply.type('image/png').header('Cache-Control', 'no-store').send(png);
+    return reply.type(imageType(png)).header('Cache-Control', 'no-store').send(png);
   });
   app.post('/v1/crawls/:runId/stop', async (request, reply) => {
     const { runId } = request.params as { runId: string };
     if (!crawls.store.run(runId)) return notFound(reply);
     return { stopped: await crawls.stop(runId), run: crawls.store.run(runId) };
+  });
+
+  registerDebugRoutes(app, crawls, modelCalls);
+}
+
+const page = z.object({
+  after: z.coerce.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).max(5000).default(1000),
+});
+
+/**
+ * What the debug page reads: slim events, then on demand one full event, a screenshot, and
+ * model calls (list first, request and answer only when opened).
+ */
+function registerDebugRoutes(app: FastifyInstance, crawls: CrawlManager, modelCalls?: ModelCallLog) {
+  const view = new DebugView(crawls.store);
+  const run = (request: { params: unknown }, reply: { code(n: number): { send(b: unknown): unknown } }) => {
+    const { runId } = request.params as { runId: string };
+    if (crawls.store.run(runId)) return runId;
+    reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Crawl run not found' } });
+  };
+  app.get('/v1/crawls/:runId/debug/events', async (request, reply) => {
+    const runId = run(request, reply);
+    if (!runId) return reply;
+    const query = page.parse(request.query);
+    return view.events(runId, query.after, query.limit);
+  });
+  app.get('/v1/crawls/:runId/debug/events/:seq', async (request, reply) => {
+    const runId = run(request, reply);
+    if (!runId) return reply;
+    const seq = z.coerce
+      .number()
+      .int()
+      .min(1)
+      .parse((request.params as { seq: string }).seq);
+    const [event] = crawls.store.events(runId, seq - 1, 1);
+    if (event?.seq !== seq) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Event not found' } });
+    return event;
+  });
+  app.get('/v1/crawls/:runId/debug/screenshot/:state', async (request, reply) => {
+    const runId = run(request, reply);
+    if (!runId) return reply;
+    const key = view.stateKey(runId, (request.params as { state: string }).state);
+    const png = key && crawls.store.screenshot(runId, key);
+    if (!png) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Screenshot not found' } });
+    return reply.type(imageType(png)).header('Cache-Control', 'private, max-age=86400').send(png);
+  });
+  app.get('/v1/crawls/:runId/debug/model-calls', async (request, reply) => {
+    const runId = run(request, reply);
+    if (!runId) return reply;
+    return { recorded: !!modelCalls, calls: modelCalls?.calls(runId) ?? [] };
+  });
+  app.get('/v1/crawls/:runId/debug/model-calls/:callId', async (request, reply) => {
+    const runId = run(request, reply);
+    if (!runId) return reply;
+    const id = z.coerce
+      .number()
+      .int()
+      .min(1)
+      .parse((request.params as { callId: string }).callId);
+    return (
+      modelCalls?.call(runId, id) ??
+      reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Model call not found' } })
+    );
   });
 }
