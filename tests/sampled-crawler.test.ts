@@ -344,3 +344,26 @@ test('an open-then-close loop with no visible effect is dropped from the replay 
     expect(pushes.some(p => p.includes('CNY'))).toBe(true);
   } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
 }, 120000);
+
+test('a tooltip revealed inside its trigger is a new state, and the trigger is not taken for a new control', async () => {
+  const html = `<!doctype html><title>Tips</title><main>
+    <div style="cursor:pointer" onclick="this.querySelector('span').hidden=false">24h low<span hidden>The lowest price in 24 hours</span></div>
+    <div style="cursor:pointer" onclick="this.querySelector('span').hidden=false">All-time high<span hidden>Data is collected from platforms</span></div>
+    <button>Plain</button></main>`;
+  const local = createServer((_req, res) => { res.setHeader('content-type', 'text/html'); res.end(html); });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(local.address() as { port: number }).port}/`;
+  try {
+    const { ModelJudge } = await import('@interaction/crawler');
+    // Weak triggers are uncertain to JEV, so they are tried; revealed text counts as new content.
+    const jev = { name: 'jev', model: 'jev', async decide(request: { state: unknown }) {
+      return { model: 'jev', value: Object.fromEntries(Object.keys(request.state as object).map(k => [k, (request.state as Record<string, { kind: string }>)[k].kind === 'effect' ? 0.9 : 0.5])) };
+    } };
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url, durationMs: 30000, settleMs: 100, judge: new ModelJudge({ jev }), log: e => events.push(e) }).run();
+    const actions = events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+    const tips = actions.filter(a => /24h low|All-time high/.test(a.step.label));
+    expect(tips.map(a => a.step.label)).toEqual(['24h low', 'All-time high']);
+    expect(tips.every(a => a.newState)).toBe(true);
+  } finally { await new Promise<void>(resolve => local.close(() => resolve())); }
+}, 120000);

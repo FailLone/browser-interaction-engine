@@ -246,8 +246,20 @@ export class SampledCrawler {
     await this.page.waitForTimeout(this.options.settleMs);
   }
 
+  /**
+   * Text-derived names grow when a trigger reveals a tooltip inside itself ("24h low" becomes
+   * "24h lowThe lowest price..."). Within one document, an element keeps the name it was first
+   * seen with, so the same trigger is not taken for a new control.
+   */
+  private readonly firstNames = new Map<string, string>();
+
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM(false, false);
+    for (const c of dom.controls as Control[]) {
+      const first = this.firstNames.get(c.instanceId);
+      if (first === undefined) this.firstNames.set(c.instanceId, c.name);
+      else if (first && c.name !== first && c.name.startsWith(first) && !c.label) c.name = first;
+    }
     return { url: dom.url, title: dom.title, text: dom.text, controls: dom.controls as Control[], overlays: dom.overlays, regions: dom.regions, documentId: dom.documentId };
   }
 
@@ -466,15 +478,20 @@ export class SampledCrawler {
       outcome = 'no_change';
       // Structure is unchanged; content may not be (chart range, panel text). Ask once per action class.
       const textBefore = before.text || '', textAfter = after.text || '';
-      if (textBefore && maskVolatile(textBefore, Infinity) !== maskVolatile(textAfter, Infinity)) {
+      // Text that appeared (tooltips, expanded answers, popovers without dialog semantics),
+      // as whole lines with live numbers masked; lines that only moved or ticked are ignored.
+      const shown = new Set(textBlocks(textBefore)), appeared = textBlocks(textAfter).filter(line => !shown.has(line));
+      if (textBefore && appeared.length) {
         // Without a judge, a text change beyond live numbers (e.g. an empty-result message) is new content.
         let changed = true;
         if (this.options.judge) {
-          const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: excerpt(textAfter, textBefore) });
+          const answer = await this.options.judge.ask({ kind: 'effect', action: `${c.kind} ${step.label}`, before: excerpt(textBefore, textAfter), after: appeared.slice(0, 12).join('\n') });
           this.emit({ type: 'judgement', at: this.now(), question: 'effect', label: step.label, verdict: answer.verdict, source: answer.source, probability: answer.probability });
-          changed = answer.verdict === 'yes';
+          // Text did appear; only a confident "no" (live data drift, same content) rejects it.
+          changed = answer.verdict !== 'no';
         }
-        if (changed) { outcome = 'ok'; afterKey = `${afterKey}|content:${c.classKey}`; }
+        // The new state is keyed by what appeared, so the same tooltip reached twice is one state.
+        if (changed) { outcome = 'ok'; afterKey = `${afterKey}|content:${appeared.slice(0, 6).join('|')}`; }
       }
     }
     step.to = pagePath(after.url);

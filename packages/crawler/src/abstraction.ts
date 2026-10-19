@@ -66,8 +66,9 @@ function listClass(c: Control): string | undefined {
 /** Component class, stable across live-value changes and list membership. */
 export function controlClass(c: Control): string {
   const name = c.name || c.label || c.displayedText || '';
-  // Mode labels are short and static ("1h", "24h", "1W"); masking digits would merge them.
-  return listClass(c) || [c.landmark || '', c.role, c.tag, modeRoles.has(c.role) && name.length <= 24 ? name : maskVolatile(name)].join('|');
+  // Short labels are static ("1h", "24h", "1Y", "2Y"); masking their digits would merge them.
+  const short = name.trim().length <= 4 || modeRoles.has(c.role) && name.length <= 24;
+  return listClass(c) || [c.landmark || '', c.role, c.tag, short ? name : maskVolatile(name)].join('|');
 }
 
 /**
