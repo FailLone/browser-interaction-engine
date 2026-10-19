@@ -200,6 +200,49 @@ function assess(context: RuleContext, options: z.output<typeof clippedControlOpt
         nextSteps: ['Use a rule that supports partial-view targets, or reassess after a viewport or layout change'],
       },
     );
+  // The page can scroll from 0 to (scroll size - client size) on each axis. A box that lies
+  // before the document start, or beyond what the page can scroll to, stays cut off whatever
+  // the user does. Fixed boxes do not move with the page; for them the viewport is the limit.
+  // Inside a clipping or sticky container (a carousel, a picker's list), that container decides
+  // what can be shown, and the container analysis below applies instead.
+  const page = env.scrollingElement;
+  const fixedAt = effective.findIndex(n => n.styles!.position === 'fixed'),
+    fixed = fixedAt >= 0;
+  // A fixed box escapes the containers above it, so only those below it can contain it.
+  const contained = effective
+    .slice(1, fixed ? fixedAt + 1 : undefined)
+    .some(
+      n =>
+        n.id !== page?.nodeId &&
+        n.tag !== 'body' &&
+        (overflow(n.styles!['overflow-x']) || overflow(n.styles!['overflow-y']) || n.styles!.position === 'sticky'),
+    );
+  if (page && !contained) {
+    const reach = {
+      left: fixed ? 0 : -page.scrollLeft,
+      top: fixed ? 0 : -page.scrollTop,
+      right: viewport.right + (fixed ? 0 : page.scrollWidth - page.clientWidth - page.scrollLeft),
+      bottom: viewport.bottom + (fixed ? 0 : page.scrollHeight - page.clientHeight - page.scrollTop),
+    };
+    if (outside(original, reach))
+      return result(
+        'unknown',
+        'CONTROL_UNREACHABLE_BY_SCROLLING',
+        'Part of the control lies where the page cannot scroll; a user cannot bring it fully into view',
+        {
+          severity: 'warning',
+          facts: {
+            identityId: control.identityId ?? null,
+            geometry: 'outside-scrollable-page',
+            targetRect: json(r),
+            reachableBounds: json(reach),
+            position: fixed ? 'fixed' : 'scrolls-with-page',
+            visibleRatio: area(intersect(original, reach)) / area(original),
+          },
+          nextSteps: ['Check the layout that places this control beyond the page edge'],
+        },
+      );
+  }
   if (outside(original, viewport))
     return result(
       'unknown',
@@ -213,7 +256,7 @@ function assess(context: RuleContext, options: z.output<typeof clippedControlOpt
         },
       },
     );
-  let visible = { ...original };
+  const visible = { ...original };
   const clips: { nodeId: string; axis: 'x' | 'y'; overflow: string; scrollable: boolean; bounds: Bounds }[] = [];
   for (let i = 0; i < effective.length; i++) {
     const n = effective[i],

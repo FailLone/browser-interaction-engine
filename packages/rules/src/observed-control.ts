@@ -1,6 +1,6 @@
 import { currentCaptureOnly, findingSnapshot, observationStatus } from './finding-history.js';
 import { canonical } from './util.js';
-import { type Control, type DomEvidence, type Json } from './types.js';
+import type { Control, DomEvidence, Json } from './types.js';
 import type { Inspection, RulePage, ControlRule, RuleCheck, RuleReport, RuleSelection } from './types.js';
 import { RuleRunner } from './runner.js';
 

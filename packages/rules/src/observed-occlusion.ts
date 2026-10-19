@@ -2,7 +2,7 @@ import { currentCaptureOnly, findingSnapshot, observationStatus } from './findin
 import { hasRelevantGaps } from './evidence-dependencies.js';
 import { z } from 'zod';
 import { canonical } from './util.js';
-import { type Control, type DomEvidence, type DomNodeEvidence, type Json, type Observation } from './types.js';
+import type { Control, DomEvidence, DomNodeEvidence, Json, Observation } from './types.js';
 import type { Inspection, RulePage, RuleAssessment, RuleCheck, RuleReport } from './types.js';
 import { RuleRunner } from './runner.js';
 import { sampledOcclusionRule } from './sampled-occlusion.js';

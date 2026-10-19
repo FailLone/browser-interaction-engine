@@ -38,8 +38,8 @@ it('reports the known defects while crawling, and one failing rule does not hide
   expect(found).toEqual(
     new Set([
       'observed-occlusion #blocked-button',
+      // The clipped button's whole box is cut by its container: reported once, as clipping.
       'observed-clipping #clipped-button',
-      'observed-text-truncation #clipped-button',
       'observed-text-truncation #truncated-button',
     ]),
   );

@@ -274,6 +274,23 @@ it('does not report page content under an open popup panel as occluded', async (
   });
 });
 
+it('does not report page content under a panel docked to the side of the viewport as occluded', async () => {
+  // Like a support chat opened from a corner button: fixed, layered, most of the height, one side.
+  const html = `<!doctype html><body style="margin:0;width:800px">
+    <div style="position:fixed;top:40px;right:10px;width:300px;height:500px;background:#fff;z-index:1000"><button>Log in</button></div>
+    <button style="position:absolute;top:200px;left:560px;width:160px;height:40px">Target</button></body>`;
+  expect(await occlusionOf(html)).toMatchObject({ verdict: 'not-applicable', code: 'COVERED_BY_SIDE_PANEL' });
+});
+
+it('does not report page content under a dropdown opened from a header control as occluded', async () => {
+  // Like a navigation menu without popup markup: a layered box dropping out of a small trigger.
+  const html = `<!doctype html><body style="margin:0">
+    <header style="height:48px"><div style="position:relative;display:inline-block;width:60px;height:48px">Trade
+      <div style="position:absolute;top:48px;left:0;width:320px;height:400px;background:#fff;z-index:2000"><a href="#">Spot</a></div></div></header>
+    <button style="position:absolute;top:120px;left:40px;width:160px;height:40px">Target</button></body>`;
+  expect(await occlusionOf(html)).toMatchObject({ verdict: 'not-applicable', code: 'COVERED_BY_OPEN_POPUP' });
+});
+
 it('still reports a small positioned box placed over a static control', async () => {
   const html = `<!doctype html><body style="margin:0">
     <button style="position:absolute;top:100px;left:40px;width:160px;height:40px">Target</button>

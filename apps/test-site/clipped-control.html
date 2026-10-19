@@ -25,6 +25,10 @@ if (mode === 'cancel') clip.addEventListener('scroll',()=>clip.scrollTop=0);
 if (mode === 'fixed') { target.style.position='fixed'; target.style.top='180px'; }
 if (mode === 'absolute-escape') { content.style.position='static'; clip.style.position='static'; }
 if (mode === 'offscreen') clip.style.marginTop='900px';
+// Places a user cannot scroll to: above the document, past a page that hides horizontal overflow, below the viewport while fixed.
+if (mode === 'above-page') { clip.style.overflow='visible'; target.style.top='-45px'; }
+if (mode === 'past-right') { document.documentElement.style.overflowX='hidden'; document.body.style.overflowX='hidden'; clip.style.overflow='visible'; target.style.left='760px'; }
+if (mode === 'fixed-below') { target.style.position='fixed'; target.style.top='590px'; }
 if (mode === 'disabled') target.disabled=true;
 if (mode === 'hidden') target.hidden=true;
 if (mode === 'transform') clip.style.transform='scale(.8)';

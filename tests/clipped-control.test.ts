@@ -101,6 +101,30 @@ it('keeps ordinary viewport overflow pending and skips disabled controls by defa
     expect(targetCheck(await run(page, { includeDisabled: true }), node).severity).toBe('warning');
   });
 });
+it.each(['above-page', 'past-right', 'fixed-below'])('reports a control the page cannot scroll to (%s)', async mode => {
+  await setup(mode, async (f, page, node, id) => {
+    const check = targetCheck(await run(page), node);
+    expect(check, JSON.stringify(check)).toMatchObject({
+      verdict: 'unknown',
+      severity: 'warning',
+      code: 'CONTROL_UNREACHABLE_BY_SCROLLING',
+    });
+    // Scrolling as far as the page allows does not change the verdict.
+    await f.page.evaluate(() => scrollTo(document.documentElement.scrollWidth, document.documentElement.scrollHeight));
+    const tracker = new ClippedControlTracker();
+    expect(targetCheck(await tracker.run(await f.inspect()), id)).toMatchObject({
+      severity: 'warning',
+      code: 'CONTROL_UNREACHABLE_BY_SCROLLING',
+    });
+  });
+});
+it('waits for an ordinary offscreen control the page can scroll to', async () => {
+  await setup('offscreen', async (f, page, node) => {
+    expect(targetCheck(await run(page), node)).toMatchObject({ severity: 'info', code: 'VIEWPORT_RECHECK_PENDING' });
+    await f.page.evaluate(() => scrollTo(0, 900));
+    expect(targetCheck(await run(await f.inspect()), node)).toMatchObject({ code: 'CONTROL_CLIPPING_SUSPECTED' });
+  });
+});
 it.each(['scroll', 'horizontal'])('does not track a %s-clipped control until it is scrolled into view', async mode => {
   await setup(mode, async (f, firstPage, _node, id) => {
     const tracker = new ClippedControlTracker({ rule: requirement(id) });

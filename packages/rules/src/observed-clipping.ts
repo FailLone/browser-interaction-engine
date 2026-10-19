@@ -33,6 +33,7 @@ export class ClippedControlTracker extends ObservedControlTracker {
           'CONTROL_BOX_UNCLIPPED',
           'SCROLL_CLIP_RECHECK_PENDING',
           'CONTROL_CLIPPING_SUSPECTED',
+          'CONTROL_UNREACHABLE_BY_SCROLLING',
           'CLIPPING_REQUIREMENT_FAILED',
         ],
 

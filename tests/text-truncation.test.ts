@@ -41,6 +41,17 @@ async function scroll(f: RuleFixture) {
   return f.inspect();
 }
 
+// Containers outside the control (a scroller around a button, an escaped absolute box) are the
+// control-clipping rule's concern: here the label's own text fits.
+it.each(['scroll', 'modal-scroll', 'label-scroll', 'cancel', 'absolute-escape'])(
+  'leaves %s clipping by a container outside the control to the control-clipping rule',
+  async mode => {
+    await setup(mode, async (_f, page, node) => {
+      const c = target(await run(page), node);
+      expect(c, JSON.stringify(c)).toMatchObject({ verdict: 'pass', code: 'DOM_TEXT_BOXES_FIT' });
+    });
+  },
+);
 it.each(['healthy', 'literal', 'ellipsis-fit', 'clamp-fit', 'wrap', 'native-modal'])(
   'fits %s without mistaking CSS or literal punctuation for actual elision',
   async mode => {
@@ -82,7 +93,7 @@ it.each(['ellipsis', 'nested', 'rtl', 'clamp'])(
     });
   },
 );
-it.each(['scroll', 'viewport', 'offscreen-hard'])('defers %s rather than asserting a text defect', async mode => {
+it.each(['inner-scroll', 'viewport', 'offscreen-hard'])('defers %s rather than asserting a text defect', async mode => {
   await setup(mode, async (_f, page, node) =>
     expect(target(await run(page), node)).toMatchObject({
       verdict: 'unknown',
@@ -91,7 +102,7 @@ it.each(['scroll', 'viewport', 'offscreen-hard'])('defers %s rather than asserti
     }),
   );
 });
-it.each(['transform', 'vertical', 'columns', 'clip-margin', 'absolute-escape', 'fragments-budget'])(
+it.each(['transform', 'vertical', 'columns', 'clip-margin', 'fragments-budget'])(
   'does not certify unsupported or incomplete %s text geometry',
   async mode => {
     await setup(mode, async (_f, page, node) =>
@@ -146,7 +157,7 @@ it('keeps old captures, loading fonts, missing ancestors and truncated text unkn
   });
 });
 
-it.each(['scroll', 'modal-scroll', 'inner-scroll', 'label-scroll'])(
+it.each(['inner-scroll'])(
   'does not track %s text that is out of view, and checks it once scrolled into view',
   async mode => {
     await setup(mode, async (f, firstPage, _node, id) => {
@@ -171,19 +182,6 @@ it.each(['scroll', 'modal-scroll', 'inner-scroll', 'label-scroll'])(
     });
   },
 );
-
-it('does not claim scrolling or upgrade severity when the page cancels movement', async () => {
-  await setup('cancel', async (f, page, _node, id) => {
-    const tracker = new TextTruncationTracker();
-    await tracker.run(page);
-    expect(target(await tracker.run(await scroll(f)), id)).toMatchObject({
-      verdict: 'unknown',
-      severity: 'info',
-      code: 'TEXT_SCROLL_RECHECK_PENDING',
-      facts: { tracking: 'not-in-view' },
-    });
-  });
-});
 
 it('keeps a hard-clip warning through elision and resolves only comparable geometry, then reopens on recurrence', async () => {
   await setup('hard-x', async (f, page, node, id) => {

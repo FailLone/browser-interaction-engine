@@ -237,6 +237,10 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
       continue;
     const layer = chain.findIndex(n => n.layout?.clipping?.topLayer);
     const effective = layer < 0 ? chain : chain.slice(0, layer + 1);
+    // Only the label's own box and what is inside it can cut its text. A container outside the
+    // label clipping the whole control is the control-clipping rule's concern, not this one's.
+    const own = effective.findIndex(n => roots.includes(n.id));
+    const local = own < 0 ? effective : effective.slice(0, own + 1);
     let unsupported = false;
     for (const p of effective) {
       const s = p.styles,
@@ -345,7 +349,7 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
       continue;
     }
     // Ellipsis applies to inline content in its own line formatting container.
-    const lineOwner = effective.find(n => !['inline', 'contents'].includes(n.styles!.display));
+    const lineOwner = local.find(n => !['inline', 'contents'].includes(n.styles!.display));
     for (let index = 0; index < rects.length; index++) {
       const r = rects[index];
       if (!Object.values(r).every(Number.isFinite)) {
@@ -353,8 +357,8 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
         continue;
       }
       const localCuts: Cut[] = [];
-      for (let i = 0; i < effective.length; i++) {
-        const p = effective[i],
+      for (let i = 0; i < local.length; i++) {
+        const p = local[i],
           s = p.styles!,
           l = p.layout!;
         const clamp =
@@ -413,7 +417,7 @@ function assess(context: RuleContext, options: z.output<typeof textTruncationOpt
         }
         if (unsupported) break;
         if (s.position === 'fixed') break;
-        if (s.position === 'absolute' && i + 1 < effective.length && l.offset?.parentId !== effective[i + 1].id) {
+        if (s.position === 'absolute' && i + 1 < local.length && l.offset?.parentId !== local[i + 1].id) {
           issues.push('POSITIONED_TEXT_CLIP_UNVERIFIED');
           unsupported = true;
           break;

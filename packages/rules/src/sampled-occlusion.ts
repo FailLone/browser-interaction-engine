@@ -19,14 +19,19 @@ function ancestors(node: DomNodeEvidence, nodes: Map<string, DomNodeEvidence>) {
  * - page chrome: a sticky/fixed bar spanning (nearly) the whole viewport width, such as a
  *   header or bottom bar, that ordinary content scrolls beneath;
  * - an open popup: the covering element belongs to an overlay the capture recorded
- *   (a menu, picker or dialog opened by an earlier action).
+ *   (a menu, picker or dialog opened by an earlier action);
+ * - a side panel: a fixed, layered panel docked to the left or right edge and spanning most of
+ *   the viewport height, such as a chat or drawer opened by an earlier action;
+ * - a dropdown: a layered absolute/fixed box that extends well outside its parent, i.e. it drops
+ *   out of the control that opened it (header menus, search suggestions) without popup markup.
  * A small positioned box over a static control is not excluded: that is the defect itself.
  */
 function transientCover(
   blockerChain: DomNodeEvidence[],
   targetChain: DomNodeEvidence[],
-  viewportWidth: number,
+  viewport: { width: number; height: number },
   overlayRoots: Set<string>,
+  nodes: Map<string, DomNodeEvidence>,
 ) {
   const targetIds = new Set(targetChain.map(n => n.id));
   for (const n of blockerChain) {
@@ -37,12 +42,41 @@ function transientCover(
     if (
       (position === 'sticky' || position === 'fixed') &&
       n.rect &&
-      n.rect.width >= viewportWidth * 0.9 &&
+      n.rect.width >= viewport.width * 0.9 &&
       n.rect.height < 400
     )
       return {
         code: 'COVERED_BY_PAGE_CHROME',
         actual: `A full-width ${position} bar the page scrolls beneath covers the sampled point`,
+      };
+    if (
+      position === 'fixed' &&
+      n.rect &&
+      Number(n.styles?.['z-index']) > 0 &&
+      n.rect.height >= viewport.height * 0.6 &&
+      n.rect.width <= viewport.width * 0.5 &&
+      (n.rect.x <= viewport.width * 0.1 || n.rect.x + n.rect.width >= viewport.width * 0.9)
+    )
+      return {
+        code: 'COVERED_BY_SIDE_PANEL',
+        actual: 'An open panel docked to the side of the viewport covers the sampled point',
+      };
+    // The opener is the parent: a real, small box (not the page body) the panel extends below.
+    const opener = n.parentId ? nodes.get(n.parentId) : undefined;
+    const parent = opener && !['body', 'html'].includes(opener.tag ?? '') ? opener.rect : undefined;
+    if (
+      (position === 'absolute' || position === 'fixed') &&
+      n.rect &&
+      parent &&
+      parent.width > 0 &&
+      parent.height > 0 &&
+      Number(n.styles?.['z-index']) > 0 &&
+      n.rect.height > parent.height * 2 &&
+      n.rect.y >= parent.y + parent.height * 0.5
+    )
+      return {
+        code: 'COVERED_BY_OPEN_POPUP',
+        actual: 'A layered panel dropped from the control that opened it covers the sampled point',
       };
   }
   return undefined;
@@ -144,8 +178,9 @@ function assess(context: RuleContext, includeDisabled: boolean): RuleAssessment 
   const transient = transientCover(
     blockerChain,
     chain,
-    viewport.width,
+    viewport,
     new Set(overlays.map(o => dom.regionRoots[o.key]).filter(Boolean)),
+    nodes,
   );
   if (transient)
     return result('not-applicable', transient.code, transient.actual, {
