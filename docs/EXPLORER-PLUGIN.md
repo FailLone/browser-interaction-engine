@@ -1,4 +1,6 @@
-# 独立自主探索插件
+# 独立自主探索插件（旧版，可选审计）
+
+> 2026-10-19 起，默认的探索方式是 `@interaction/crawler` 抽样遍历（见 [SAMPLED-CRAWLER-PLAN.md](SAMPLED-CRAWLER-PLAN.md)）。本插件的任务、义务账本与证明链保留为可选审计功能，不再是主要路径；其中的 JEV/LLM 接入（`providers.ts`）被新遍历器复用。
 
 功能位于 `packages/explorer-plugin`，分支为 `codex/autonomous-exploration`。SDK、core、浏览器适配器及原有客户端源码不变。插件只使用现有公开接口，应用服务和调试页面负责加载它。
 

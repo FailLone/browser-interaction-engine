@@ -4,7 +4,21 @@
 
 ![调试界面](docs/screenshots/dashboard.png)
 
-## 可选自主探索插件
+## 抽样遍历（默认探索方式）
+
+`@interaction/crawler` 像真实用户一样遍历当前页面，把弹窗、菜单、提示、输入、hover 等状态交互出来：同类控件只抽样几个，价格等实时数据不算新状态，跳转被拦截并记录，不会离开页面。JEV/LLM 是可选插件，用于程序判断不了的问题。
+
+- 界面：`pnpm demo` 后打开 http://127.0.0.1:5173（默认"抽样遍历"模式）。
+- 接口：`POST /v1/crawls`、`GET /v1/crawls/:id/events` 等，支持停止与续跑。
+- 命令行：`pnpm exec tsx --conditions=development scripts/sampled-crawl.ts OUT URL`。
+
+设计与进度见 [SAMPLED-CRAWLER-PLAN.md](docs/SAMPLED-CRAWLER-PLAN.md)，实测记录见 [docs/experiments/sampled-crawler](docs/experiments/sampled-crawler/README.md)。
+
+## 旧版：证明链探索（可选审计）
+
+下面的自主探索插件（`packages/explorer-plugin` 的任务/义务账本）以及 core 中的严格重入、执行回执、组件对应证明，属于之前"可证明地穷尽"的方向。代码和测试保留，作为需要逐步追溯时的可选审计功能；新的抽样遍历不依赖它们（只复用插件中的 JEV/LLM 接入）。是否删除另行决定。
+
+## 可选自主探索插件（旧版）
 
 独立的 `@interaction/explorer-plugin` 通过现有公开接口实现 JEV 优先决策、LLM 生成与回退、未完成范围记录、跨轮补测和调试时间线。默认关闭；启用与服务配置见 [插件说明](docs/EXPLORER-PLUGIN.md) 和 [.env.explorer.example](.env.explorer.example)。SDK、core、适配器和原有客户端保持模型无关。
 
