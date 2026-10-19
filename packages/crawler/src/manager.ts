@@ -1,4 +1,4 @@
-import type { Providers } from '@interaction/explorer-plugin';
+import type { Providers } from './providers.js';
 import { SampledCrawler, type CrawlOptions } from './crawler.js';
 import { ModelJudge } from './judge.js';
 import { metered } from './meter.js';

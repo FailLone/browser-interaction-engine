@@ -1,4 +1,4 @@
-import type { ModelRequest, Provider } from '@interaction/explorer-plugin';
+import type { ModelRequest, Provider } from './providers.js';
 
 /** Per-provider totals for one crawl. Cost is the provider-reported `usage.cost` (USD). */
 export interface ProviderMeter {

@@ -3,10 +3,9 @@
 // Model plugin and goal mode use the existing EXPLORER_JEV_* / EXPLORER_LLM_* variables.
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { GoalRelevance, ModelJudge, SampledCrawler, defaultChecks, defaultPolicy, metered, planGoal } from '@interaction/crawler';
+import { GoalRelevance, ModelJudge, SampledCrawler, defaultChecks, defaultPolicy, metered, planGoal, providersFromEnv } from '@interaction/crawler';
 import { BrowserAdapter, PlaywrightAdapter } from '@interaction/adapter-playwright';
 import { MemoryEvidenceStore } from '@interaction/storage-memory';
-import { providersFromEnv } from '@interaction/explorer-plugin';
 
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';

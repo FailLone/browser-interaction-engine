@@ -1,6 +1,6 @@
 import type { Control } from '@interaction/adapter-playwright';
 import type { Page } from 'playwright';
-import type { Provider } from '@interaction/explorer-plugin';
+import type { Provider } from './providers.js';
 
 export type InputKind = 'number' | 'search' | 'email' | 'date' | 'text';
 

@@ -1,5 +1,5 @@
 import type { Control } from '@interaction/adapter-playwright';
-import type { Provider } from '@interaction/explorer-plugin';
+import type { Provider } from './providers.js';
 import { metered, type ProviderMeter } from './meter.js';
 
 /**

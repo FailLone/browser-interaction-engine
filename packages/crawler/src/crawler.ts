@@ -8,7 +8,7 @@ import type { GoalRelevance } from './goal.js';
 import type { ProviderMeter } from './meter.js';
 import type { CrawlLedger } from './store.js';
 import { classifyInput, inputSamples, judgeInputKind, readInputFacts, type InputKind } from './inputs.js';
-import type { Provider } from '@interaction/explorer-plugin';
+import type { Provider } from './providers.js';
 
 export interface CrawlOptions {
   url: string;

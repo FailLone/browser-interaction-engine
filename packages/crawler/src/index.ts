@@ -8,3 +8,4 @@ export * from './meter.js';
 export * from './inputs.js';
 export * from './store.js';
 export * from './manager.js';
+export * from './providers.js';
