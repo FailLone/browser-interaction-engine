@@ -673,3 +673,67 @@ test('a control the user cannot see is not clicked; once a button reveals it, it
     await new Promise<void>(resolve => local.close(() => resolve()));
   }
 }, 120000);
+
+const serve = async (html: string) => {
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  return {
+    url: `http://127.0.0.1:${(local.address() as { port: number }).port}/`,
+    close: () => new Promise<void>(resolve => local.close(() => resolve())),
+  };
+};
+const actionsOf = (events: CrawlEvent[]) =>
+  events.filter((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+
+test('an unnamed info icon is hovered to reveal its tooltip; many alike icons are tried once', async () => {
+  const icons = Array.from(
+    { length: 20 },
+    (_, i) =>
+      `<li>Row ${i} <i class="icon icon-copy" style="display:inline-block;width:12px;height:12px;cursor:pointer"></i></li>`,
+  ).join('');
+  const site = await serve(`<!doctype html><title>Icons</title><main>
+    <p>1 USD = 0.00001 BTC <i class="icon icon-info" style="display:inline-block;width:12px;height:12px;cursor:pointer"
+      onmouseenter="document.getElementById('tip').hidden=false" onmouseleave="document.getElementById('tip').hidden=true"></i></p>
+    <div id="tip" hidden>Last updated just now</div><ul>${icons}</ul></main>`);
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url: site.url, durationMs: 30000, settleMs: 100, log: e => events.push(e) }).run();
+    const hovers = actionsOf(events).filter(a => a.step.kind === 'hover');
+    expect(hovers.filter(a => a.step.classKey.includes('icon-info'))).toEqual([
+      expect.objectContaining({ outcome: 'ok', newState: true }),
+    ]);
+    // Twenty copy icons in a list: one kind, so only a sample is hovered, never all of them.
+    expect(hovers.filter(a => a.step.classKey.includes('icon-copy')).length).toBeLessThanOrEqual(2);
+    expect(hovers.length).toBeLessThanOrEqual(3);
+  } finally {
+    await site.close();
+  }
+}, 120000);
+
+test('two amount fields with the same placeholder are both filled; one field per list row is sampled', async () => {
+  const rows = Array.from(
+    { length: 8 },
+    (_, i) =>
+      `<li><span>Item ${i}</span><input placeholder="Qty" oninput="document.getElementById('total').textContent='changed ${i}'"></li>`,
+  ).join('');
+  const site = await serve(`<!doctype html><title>Fields</title><main>
+    <div><button>USD</button><input id="from" placeholder="0"></div>
+    <div><button>BTC</button><input id="to" placeholder="0"></div>
+    <ul>${rows}</ul><p id="total"></p></main>`);
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url: site.url, durationMs: 60000, settleMs: 100, log: e => events.push(e) }).run();
+    const fills = actionsOf(events).filter(a => a.step.kind === 'fill');
+    const amount = new Set(fills.filter(a => a.step.label === '0').map(a => a.step.classKey.replace(/\|[^|]*$/, '')));
+    expect(amount.size).toBe(2);
+    const qtyRows = new Set(
+      fills.filter(a => a.step.label === 'Qty').map(a => a.step.classKey.replace(/\|[^|]*$/, '')),
+    );
+    expect(qtyRows.size).toBeLessThanOrEqual(2);
+  } finally {
+    await site.close();
+  }
+}, 120000);

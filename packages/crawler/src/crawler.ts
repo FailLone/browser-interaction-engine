@@ -147,6 +147,21 @@ interface Candidate {
 // Everything that stays on the current page (including site-chrome menus) runs
 // before any navigation; otherwise the entry page's own UI waits behind other pages.
 const TIERS = ['overlay', 'body', 'in-page-disclosure', 'chrome', 'navigate', 'route'] as const;
+/** Unnamed icons hovered per state, at most; each icon kind is hovered once per crawl. */
+const ICONS_PER_STATE = 3;
+/** A small, unnamed element that only signals interactivity through its pointer cursor. */
+function isHintIcon(c: Control) {
+  const r = c.rect;
+  return (
+    !(c.name || c.label || c.displayedText) &&
+    !!r &&
+    r.width > 0 &&
+    r.height > 0 &&
+    r.width <= 32 &&
+    r.height <= 32 &&
+    !!c.interactionHints?.some(h => h.rule === 'pointer-cursor/v1')
+  );
+}
 
 /**
  * Crawljax-style sampled crawler: abstract states, action classes sampled k
@@ -758,7 +773,25 @@ export class SampledCrawler {
     const scope = overlay ? new Set(overlay.controlIds) : undefined;
     const siblings = modeSiblings(s);
     const rows: Candidate[] = [];
+    let icons = 0;
     for (const c of s.controls) {
+      // A small unnamed icon with a pointer cursor often shows a tooltip on hover (an info icon).
+      // Hovering is safe; one per icon kind and a few per state keep it cheap.
+      if (
+        c.visible &&
+        !c.actions.length &&
+        isHintIcon(c) &&
+        !c.actionable.occludedBy &&
+        (!scope || scope.has(c.localId))
+      ) {
+        const classKey = `hover|${this.classOf(c)}`;
+        if (icons < ICONS_PER_STATE && !this.failedClasses.has(classKey) && !(this.classCounts.get(classKey) || 0)) {
+          icons++;
+          const tierName = scope ? 'overlay' : c.landmark ? 'chrome' : 'in-page-disclosure';
+          rows.push({ control: c, kind: 'hover', classKey, tier: TIERS.indexOf(tierName), tierName });
+        }
+        continue;
+      }
       if (!c.visible || (!c.actions.length && !this.confirmed.has(this.classOf(c)))) continue;
       // An open overlay masks the page beneath it: never fight the backdrop.
       if (scope && !scope.has(c.localId)) continue;
@@ -1299,7 +1332,9 @@ export class SampledCrawler {
       if (!c.visible) continue;
       // Fill keys carry a sample purpose suffix; replay types the recorded sample again.
       const base = step.kind === 'fill' ? step.classKey.slice(0, step.classKey.lastIndexOf('|')) : step.classKey;
-      for (const kind of kindsFor(c, this.confirmed, this.classOf))
+      const kinds =
+        isHintIcon(c) && !c.actions.length ? (['hover'] as CrawlKind[]) : kindsFor(c, this.confirmed, this.classOf);
+      for (const kind of kinds)
         if (
           kind === step.kind &&
           `${kind}|${this.classOf(c)}` === base &&

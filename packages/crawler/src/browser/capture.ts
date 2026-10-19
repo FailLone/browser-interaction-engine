@@ -123,6 +123,29 @@ export function collectDOM(
   // screen-reader-only pixel, or kept inside a transparent or zero-size wrapper until something
   // reveals it. A user cannot click those, so neither should the crawler; once revealed, the
   // control becomes visible and the new state is tested.
+  // A field or an unnamed icon is told apart by what precedes it: the nearest short text
+  // before it within a few ancestors (the currency selector before an amount, the sentence an
+  // info icon follows), plus the icon's own styling class. Text after it is ignored, since
+  // results and messages appear there and would change the control's class.
+  const neighborhood = (el: Element): string | undefined => {
+    const field = el.matches('input,textarea');
+    if (!field && clean(el.textContent)) return undefined;
+    const iconClass = field
+      ? ''
+      : [...el.classList].find(k => /icon|ico-|-ic\b|svg/i.test(k) && !/^(icon|iconfont)$/i.test(k)) || '';
+    // An icon's styling class already names its kind (info, copy, search); the same icon
+    // beside different text is still one kind, hovered once.
+    if (iconClass) return iconClass;
+    let text = '';
+    for (let a: Element | null = el, depth = 0; a && a !== body && depth < 4 && !text; a = a.parentElement, depth++)
+      for (let p = a.previousElementSibling; p && !text; p = p.previousElementSibling)
+        text = clean((p as HTMLElement).innerText || '').slice(0, 40);
+    if (!text && el.parentElement)
+      // Text directly before the icon in the same element ("1 USD = 0.00001 BTC ⓘ").
+      for (let n = el.previousSibling; n && !text; n = n.previousSibling)
+        if (n.nodeType === Node.TEXT_NODE) text = clean(n.textContent).slice(0, 40);
+    return text || undefined;
+  };
   const seenByUser = (
     el: Element,
     r: { x: number; y: number; width: number; height: number },
@@ -864,6 +887,7 @@ export function collectDOM(
       rect: r,
       value: typeof e.value === 'string' ? e.value : (el as HTMLElement).isContentEditable ? clean(el.textContent) : '',
       displayedText: clean(el.textContent),
+      ...(neighborhood(el) ? { neighborhood: neighborhood(el) } : {}),
       checked: ['checkbox', 'radio'].includes(type)
         ? e.checked
         : el.hasAttribute('aria-checked')

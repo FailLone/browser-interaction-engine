@@ -95,7 +95,11 @@ export function listClass(c: Control): string | undefined {
 
 /** Component class, stable across live-value changes and list membership. */
 export function controlClass(c: Control): string {
-  const name = c.name || c.label || c.displayedText || '';
+  const own = c.name || c.label || c.displayedText || '';
+  // Two amount fields both named by a "0" placeholder, or two unnamed icons, differ by what
+  // is around them (the currency selector beside a field, the sentence beside an icon).
+  const field = ['input', 'textarea'].includes(c.tag);
+  const name = (field || !own) && c.neighborhood ? `${own}@${maskVolatile(c.neighborhood)}` : own;
   // Short labels are static ("1h", "24h", "1Y", "2Y"); masking their digits would merge them.
   const short = name.trim().length <= 4 || (modeRoles.has(c.role) && name.length <= 24);
   return listClass(c) || [c.landmark || '', c.role, c.tag, short ? name : maskVolatile(name)].join('|');

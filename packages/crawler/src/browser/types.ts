@@ -107,6 +107,8 @@ export interface Control {
   readiness?: { status: 'unstable'; reason: string };
   value: string;
   displayedText: string;
+  /** Nearby text (and an icon's styling class) for fields and unnamed icons; tells same-named ones apart. */
+  neighborhood?: string;
   checked: boolean | null;
   selected: string[];
   visible: boolean;
