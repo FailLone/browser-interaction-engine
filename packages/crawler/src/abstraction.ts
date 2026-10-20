@@ -5,6 +5,8 @@ export interface Snapshot {
   url: string;
   title: string;
   text?: string;
+  /** Short visible text of live regions (role=status / alert, aria-live, output). */
+  status?: string[];
   controls: Control[];
   overlays?: Overlay[];
   regions?: Region[];
@@ -16,11 +18,14 @@ export interface Snapshot {
 
 /** Live values (prices, times, percentages, counts) never make a new state or component. */
 export function maskVolatile(text: string, max = 80): string {
-  return text
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/[-+]?[\d₀-₉][\d₀-₉.,:%/]*/g, '#')
-    .slice(0, max);
+  return (
+    text
+      .replace(/\s+/g, ' ')
+      .trim()
+      // Digits of any script; thousands grouped by , . ' or a space ("1 234,56" in fr / ru).
+      .replace(/[-+]?[\p{Nd}₀-₉][\p{Nd}₀-₉.,:%/']*(?: (?=\p{Nd}{3}(?!\p{Nd}))[\p{Nd}.,:%/']+)*/gu, '#')
+      .slice(0, max)
+  );
 }
 
 /** Region/script locale prefixes (/zh-hans/, /en-au/) are the same page in another language. */
@@ -74,7 +79,12 @@ export function modeGroup(
 ): string | undefined {
   // Segmented controls are often plain buttons in a row: short, label-only names
   // ("1h", "24h", "1W") sharing a parent behave as one mode group.
-  const segmented = c.role === 'button' && !c.landmark && /^[\w.%+-]{1,4}$/.test((c.name || '').trim());
+  // Outside ASCII a short label is often a whole word ("登录"), so it needs a number ("24ч", "7天").
+  const short = (c.name || '').trim();
+  const segmented =
+    c.role === 'button' &&
+    !c.landmark &&
+    (/^[\w.%+-]{1,4}$/.test(short) || /^(?=.*\p{Nd})[\p{L}\p{N}.%+-]{1,4}$/u.test(short));
   if (!modeRoles.has(c.role) && !segmented) return;
   // The parent element groups the row. Its instance ID changes with every document,
   // so the group is keyed by the parent's member names, which are stable across reloads.
@@ -115,16 +125,17 @@ export function stateKey(s: Snapshot): string {
   // Visible named content counts too: a hover card or expanded answer adds text, not always controls.
   const classes = new Set(s.controls.filter(c => c.visible && (c.actions.length || c.name)).map(controlClass));
   // Status messages (empty results, errors, alerts) are states even when they add no controls.
-  const status = (s.text || '')
+  // Live regions say so by structure, in any language; page lines worded like a status in English
+  // or Chinese are taken too, for pages that show them without a live region.
+  const worded = (s.text || '')
     .split(/\n+/)
     .map(line => line.trim())
     .filter(
       line =>
         /^(no |nothing|not found|没有|暂无|无结果|未找到)|result|empty|error|failed|错误|失败/i.test(line) &&
         line.length <= 80,
-    )
-    .map(line => maskVolatile(line))
-    .sort();
+    );
+  const status = [...(s.status || []), ...worded].map(line => maskVolatile(line)).sort();
   return JSON.stringify([
     pagePath(s.url),
     overlay ? `${overlay.kind}:${maskVolatile(overlay.name)}` : '',

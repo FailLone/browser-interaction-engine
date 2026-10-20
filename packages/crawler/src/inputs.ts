@@ -14,6 +14,9 @@ export interface InputFacts {
   ariaAutocomplete: string;
   ariaHaspopup: string;
   role: string;
+  /** enterkeyhint, and whether the field sits in a role=search landmark: search by structure. */
+  enterkeyhint: string;
+  inSearch: boolean;
   name: string;
   min: string;
   max: string;
@@ -27,6 +30,7 @@ const inputFactsInPage = new Function(
   `const a = n => el.getAttribute(n) || '';
   return { type: a('type') || (el.tagName === 'TEXTAREA' ? 'textarea' : 'text'), inputmode: a('inputmode'), placeholder: a('placeholder'), pattern: a('pattern'),
     autocomplete: a('autocomplete'), ariaAutocomplete: a('aria-autocomplete'), ariaHaspopup: a('aria-haspopup'), role: a('role'),
+    enterkeyhint: a('enterkeyhint'), inSearch: !!el.closest('[role=search],search'),
     name: ((el.labels && el.labels[0] && el.labels[0].textContent) || a('aria-label') || a('name') || '').trim().slice(0, 80),
     min: a('min'), max: a('max'), step: a('step'), value: (el.value || '').slice(0, 40) };`,
 ) as (el: Element) => InputFacts;
@@ -49,7 +53,7 @@ const searchScopeInPage = new Function(
     const out = [];
     for (const root of roots)
       for (const e of root.querySelectorAll(items))
-        if (!e.contains(el) && !e.querySelector(items) && seen(e)) { const t = firstLine(e); if (t.length >= 2) out.push(t); }
+        if (!e.contains(el) && !e.querySelector(items) && seen(e)) { const t = firstLine(e); if (t.length >= 2 || /\\p{Lo}/u.test(t)) out.push(t); }
     return out;
   };
   const ids = ((el.getAttribute('aria-controls') || '') + ' ' + (el.getAttribute('aria-owns') || '')).split(/\\s+/).filter(Boolean);
@@ -85,11 +89,15 @@ export function classifyInput(f: InputFacts): InputKind | undefined {
     f.inputmode === 'search' ||
     f.ariaAutocomplete === 'list' ||
     f.ariaHaspopup === 'listbox' ||
-    /search|搜索|查找|ask us/.test(text)
+    f.enterkeyhint === 'search' ||
+    f.inSearch ||
+    /\bsearch|搜索|查找|\bask us\b/.test(text)
   )
     return 'search';
   // A prefilled decimal value in an otherwise plain field: an amount box.
-  if (/^-?\d+([.,]\d+)?$/.test(f.value.trim())) return 'number';
+  // Digits of any script, thousands grouped by , . ' or a space ("1 234,56", "1.234,56").
+  if (/^-?(?:\p{Nd}+|\p{Nd}{1,3}(?:[ \u00a0\u202f'.,]\p{Nd}{3})+)(?:[.,]\p{Nd}+)?$/u.test(f.value.trim()))
+    return 'number';
   return;
 }
 
@@ -163,10 +171,20 @@ export function inputSamples(
   }
 }
 
-/** A short word already shown on the page, so the search should find something. */
+/**
+ * A short word already shown on the page, so the search should find something: the commonest
+ * capitalised acronym (BTC, USD, ВТБ), else the commonest word, its first two characters in
+ * scripts written without spaces.
+ */
 function searchTerm(pageText: string) {
-  const words = pageText.match(/\b[A-Z]{3,5}\b/g) || [];
-  const counts = new Map<string, number>();
-  for (const w of words) counts.set(w, (counts.get(w) || 0) + 1);
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || 'a';
+  const commonest = (words: string[]) => {
+    const counts = new Map<string, number>();
+    for (const w of words) counts.set(w, (counts.get(w) || 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  };
+  const acronym = commonest(pageText.match(/(?<![\p{L}\p{N}])\p{Lu}{3,5}(?![\p{L}\p{N}])/gu) || []);
+  if (acronym) return acronym;
+  const word = commonest(pageText.match(/(?<!\p{L})\p{L}{4,12}(?!\p{L})/gu) || []);
+  if (!word) return 'a';
+  return /\p{Script=Han}|\p{Script=Hiragana}|\p{Script=Katakana}|\p{Script=Thai}/u.test(word) ? word.slice(0, 2) : word;
 }

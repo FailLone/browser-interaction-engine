@@ -748,6 +748,8 @@ test('inputs are classified from structure and filled with kind-specific samples
     ariaAutocomplete: '',
     ariaHaspopup: '',
     role: '',
+    enterkeyhint: '',
+    inSearch: false,
     name: '',
     min: '',
     max: '',
@@ -1415,3 +1417,260 @@ test('two amount fields with the same placeholder are both filled; one field per
     await site.close();
   }
 }, 120000);
+
+test('a mobile sheet with no dialog semantics or backdrop is an overlay: its content first, the page beneath never', async () => {
+  // A fixed bottom bar and a floating help button stay on the page; the help button opens a
+  // full-screen sheet after a delay (an API call), a plain fixed div with nothing saying "dialog".
+  const site = await serve(`<!doctype html><title>Download</title><main style="padding-bottom:80px">
+    ${Array.from({ length: 6 }, (_, i) => `<p><button onclick="this.textContent='Picked ${i}'">Platform ${i}</button></p>`).join('')}
+  </main>
+  <nav style="position:fixed;left:0;right:0;bottom:0;height:56px;background:#fff"><button>Home</button><button>Markets</button></nav>
+  <button id="help" style="position:fixed;right:12px;bottom:70px" onclick="setTimeout(()=>document.getElementById('sheet').style.display='block',300)">Help</button>
+  <div id="sheet" style="display:none;position:fixed;inset:0;background:#fff;z-index:10">
+    <p>How can we help?</p><button onclick="document.getElementById('topic').hidden=false">Deposits</button>
+    <p id="topic" hidden>Deposit answers</p>
+    <button onclick="document.getElementById('sheet').style.display='none'">Close</button>
+  </div>`);
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 500,
+      viewport: 'mobile',
+      log: e => events.push(e),
+    }).run();
+    const actions = actionsOf(events);
+    const deposits = actions.find(a => a.step.label === 'Deposits');
+    expect(deposits).toMatchObject({ outcome: 'ok' });
+    expect(deposits!.overlay).toMatch(/^modal:/);
+    // Nothing was clicked through the sheet while it was open.
+    expect(actions.filter(a => a.outcome === 'failed')).toEqual([]);
+    // The bottom bar and the help button are page chrome, not overlays.
+    const help = actions.find(a => a.step.label === 'Help');
+    expect(help?.overlay).toBeUndefined();
+  } finally {
+    await site.close();
+  }
+}, 120000);
+
+test('an action that shows it is loading is waited for; a pulse already running on the page is not', async () => {
+  // The price pulses forever from the start. The help button disables itself and shows a
+  // spinner while "the API" answers, then opens its sheet well after the settle time.
+  const site = await serve(`<!doctype html><title>Loading</title>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.5}}</style>
+  <main><p style="animation:pulse 1s infinite">BTC 60,000</p>
+    <button id="help" onclick="load()">Help</button><span id="spinner" hidden style="display:inline-block;width:10px;height:10px;animation:spin 1s linear infinite"></span>
+    <button onclick="this.textContent='Other done'">Other</button>
+  </main>
+  <div id="panel" hidden style="position:relative"><p>Support topics</p><button onclick="this.textContent='Opened'">Topic</button>
+    <span style="position:absolute;top:0;left:0;width:10px;height:10px;animation:spin 1s linear infinite"></span>
+    <p style="position:absolute;top:0;left:0;width:40px;height:40px;margin:0;background:#fff"></p></div>
+  <script>function load(){const b=document.getElementById('help'),s=document.getElementById('spinner');b.disabled=true;s.hidden=false;
+    setTimeout(()=>{s.hidden=true;b.disabled=false;document.getElementById('panel').hidden=false},1200);}</script>`);
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url: site.url, durationMs: 30000, settleMs: 300, log: e => events.push(e) }).run();
+    const actions = actionsOf(events);
+    const help = actions.find(a => a.step.label === 'Help');
+    expect(help).toMatchObject({ outcome: 'ok', newState: true });
+    expect(help!.busyMs).toBeGreaterThan(500);
+    // The panel leaves a spinner running beneath its content: covered, it is no longer waited for.
+    expect(help!.busyMs).toBeLessThan(3000);
+    // Actions with no loading sign keep the plain settle: the pulse does not count.
+    expect(actions.filter(a => a.busyMs).map(a => a.step.label)).toEqual(['Help']);
+  } finally {
+    await site.close();
+  }
+}, 120000);
+
+test('a sheet that opens after the settle is not blamed on the next click, and the page beneath is not failed', async () => {
+  // Help opens its sheet 1.2s later with no loading sign; nothing marks it as a dialog.
+  const site = await serve(`<!doctype html><title>Late</title><main style="padding:20px">
+    <button id="help" onclick="setTimeout(()=>document.getElementById('sheet').style.display='block',1200)">Help</button>
+    ${Array.from({ length: 4 }, (_, i) => `<p><button onclick="this.textContent='Picked ${i}'">Platform ${i}</button></p>`).join('')}
+  </main>
+  <div id="sheet" style="display:none;position:fixed;inset:0;background:#fff">
+    <p>How can we help?</p><button onclick="this.textContent='Answered'">Deposits</button>
+    <button onclick="document.getElementById('sheet').style.display='none'">Close</button>
+  </div>`);
+  try {
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 300,
+      viewport: 'mobile',
+      log: e => events.push(e),
+    });
+    // The capture-time occlusion filter would hide the covered controls; the late sheet must be
+    // caught where it is in a real run, between reading the page and clicking.
+    const internals = crawler as unknown as { snapshot(): Promise<unknown> };
+    const snapshot = internals.snapshot.bind(crawler);
+    let reads = 0;
+    const page = () => (crawler as unknown as { page: { evaluate(f: string): Promise<unknown> } }).page;
+    internals.snapshot = async () => {
+      const s = await snapshot();
+      // Hold the sheet back from the round's first read once, so the next click is chosen beneath it.
+      if (++reads === 3) await page().evaluate('new Promise(r => setTimeout(r, 1200))');
+      return s;
+    };
+    await crawler.run();
+    const changed = events.filter(e => e.type === 'page_changed');
+    expect(changed.length).toBeGreaterThanOrEqual(1);
+    expect(changed[0]).toMatchObject({ after: 'Help' });
+    const actions = actionsOf(events);
+    expect(actions.filter(a => a.outcome === 'failed')).toEqual([]);
+    expect(actions.find(a => a.step.label === 'Deposits')?.overlay).toMatch(/^modal:/);
+  } finally {
+    await site.close();
+  }
+}, 120000);
+
+test('an exit named in another language is found by JEV and tried after the overlay content; English and Chinese need no model', async () => {
+  const sheet = (close: string) => `<!doctype html><meta charset="utf-8"><title>Sheet</title><main><p>Page</p></main>
+  <div role="dialog" aria-modal="true" aria-label="Support" id="d" style="position:fixed;inset:0;background:#fff">
+    <button onclick="document.getElementById('d').remove()">${close}</button>
+    <button onclick="this.textContent='Guest chat'">Продолжить как гость</button>
+  </div>`;
+  const run = async (close: string) => {
+    const site = await serve(sheet(close));
+    const asked: string[] = [];
+    const jev = fakeJev(q => {
+      if (q.kind !== 'exit') return 0.9;
+      asked.push(q.control!.name);
+      return q.control!.name === close ? 0.95 : 0.05;
+    });
+    try {
+      const events: CrawlEvent[] = [];
+      await new SampledCrawler({
+        url: site.url,
+        durationMs: 30000,
+        settleMs: 100,
+        judge: new ModelJudge({ jev }),
+        log: e => events.push(e),
+      }).run();
+      return { order: actionsOf(events).map(a => a.step.label), asked };
+    } finally {
+      await site.close();
+    }
+  };
+  // Russian "Close" comes first in reading order, but JEV marks it an exit: content goes first.
+  const russian = await run('Закрыть');
+  expect(russian.order.indexOf('Продолжить как гость')).toBeLessThan(russian.order.indexOf('Закрыть'));
+  expect(russian.asked).toEqual(expect.arrayContaining(['Закрыть', 'Продолжить как гость']));
+  // English and Chinese close names are matched by the program; JEV is not asked about exits.
+  for (const close of ['Close', '关闭', '关闭弹窗']) {
+    const known = await run(close);
+    expect(known.order.indexOf('Продолжить как гость')).toBeLessThan(known.order.indexOf(close));
+    expect(known.asked).toEqual([]);
+  }
+}, 120000);
+
+test('an opener that toggles a popup does not stand for the close control inside it', async () => {
+  // The opener (popovertarget, outside) is an exit by structure; the Russian close inside is not
+  // named in English or Chinese, so JEV is still asked about the popup's own controls.
+  const site = await serve(`<!doctype html><meta charset="utf-8"><title>Menu</title><main>
+    <button popovertarget="m">Меню</button>
+    <div id="m" popover aria-label="Menu" style="top:40px;left:0;margin:0;background:#fff">
+      <button onclick="document.getElementById('m').hidePopover()">Закрыть</button>
+      <button onclick="this.textContent='Настройки открыты'">Настройки</button>
+    </div></main>`);
+  const asked: string[] = [];
+  const jev = fakeJev(q => {
+    if (q.kind !== 'exit') return 0.9;
+    asked.push(q.control!.name);
+    return q.control!.name === 'Закрыть' ? 0.95 : 0.05;
+  });
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 100,
+      judge: new ModelJudge({ jev }),
+      log: e => events.push(e),
+    }).run();
+    const order = actionsOf(events).map(a => a.step.label);
+    expect(asked).toContain('Закрыть');
+    // The opener is not asked about: structure already says what it does.
+    expect(asked).not.toContain('Меню');
+    expect(order.indexOf('Настройки')).toBeLessThan(order.indexOf('Закрыть'));
+  } finally {
+    await site.close();
+  }
+}, 120000);
+
+test('a status message in any language is a state when a live region shows it; without one, English and Chinese wording is', () => {
+  const base = { url: 'https://x.test/', title: '', controls: [] };
+  // Russian "nothing found" in a live region: a state of its own.
+  expect(stateKey({ ...base, text: 'Ничего не найдено', status: ['Ничего не найдено'] })).not.toBe(
+    stateKey({ ...base, text: '' }),
+  );
+  // Live values in the message do not make new states.
+  expect(stateKey({ ...base, status: ['Найдено 12'] })).toBe(stateKey({ ...base, status: ['Найдено 30'] }));
+  // English and Chinese wording still counts without a live region.
+  expect(stateKey({ ...base, text: 'No results' })).not.toBe(stateKey({ ...base, text: '' }));
+  expect(stateKey({ ...base, text: '暂无数据' })).not.toBe(stateKey({ ...base, text: '' }));
+});
+
+test('a live region is captured as status text, whatever its language', async () => {
+  const site = await serve(`<!doctype html><meta charset="utf-8"><title>Status</title><main>
+    <input aria-label="Поиск" type="search"><div role="status">Ничего не найдено</div>
+    <div aria-live="polite"><ul>${Array.from({ length: 40 }, (_, i) => `<li>Row ${i} with a long description of the item</li>`).join('')}</ul></div>
+    <p role="alert" hidden>Ошибка</p></main>`);
+  const driver = new BrowserDriver({ url: site.url });
+  try {
+    await driver.start();
+    const dom = await driver.readDOM();
+    // Hidden alerts and long live regions (a feed) are not status messages.
+    expect(dom.status).toEqual(['Ничего не найдено']);
+  } finally {
+    await driver.close();
+    await site.close();
+  }
+}, 60000);
+
+test('live values, inputs and lists are read the same way in any language', async () => {
+  const { classifyInput, inputSamples, modeGroup } = await import('@interaction/crawler');
+  // Values in grouped or non-ASCII digits are masked whole, so ticking never makes a new state.
+  expect(maskVolatile('Баланс 999,00 €')).toBe(maskVolatile('Баланс 1 234,56 €'));
+  expect(maskVolatile("Total 1'234.50 CHF")).toBe(maskVolatile('Total 987.10 CHF'));
+  expect(maskVolatile('السعر ١٢٣٤')).toBe(maskVolatile('السعر ٩٨٧'));
+  expect(maskVolatile('价格 １００円')).toBe(maskVolatile('价格 ２５円'));
+  // A count beside a word is still masked; separate numbers stay separate.
+  expect(maskVolatile('Шаг 2 из 5')).toBe('Шаг # из #');
+  const facts = (o: object) => ({
+    type: 'text',
+    inputmode: '',
+    placeholder: '',
+    pattern: '',
+    autocomplete: '',
+    ariaAutocomplete: '',
+    ariaHaspopup: '',
+    role: '',
+    enterkeyhint: '',
+    inSearch: false,
+    name: '',
+    min: '',
+    max: '',
+    step: '',
+    value: '',
+    ...o,
+  });
+  for (const value of ['1 234,56', '1.234,56', '١٢٣', '１００']) expect(classifyInput(facts({ value }))).toBe('number');
+  // Search by structure, whatever the placeholder says; an English word that only contains "search" is not one.
+  expect(classifyInput(facts({ placeholder: 'Поиск', enterkeyhint: 'search' }))).toBe('search');
+  expect(classifyInput(facts({ placeholder: '検索', inSearch: true }))).toBe('search');
+  expect(classifyInput(facts({ placeholder: 'Research topic' }))).toBeUndefined();
+  // A search term comes from the page's own words when it has no Latin acronyms.
+  expect(inputSamples('search', facts({}), 'Купить биткоин, биткоин дорожает')[0].value).toBe('биткоин');
+  expect(inputSamples('search', facts({}), '比特币价格 比特币价格 以太坊')[0].value).toBe('比特');
+  // Short period buttons in other scripts form a mode group, as "1h" / "24h" do.
+  const button = (name: string) =>
+    ({ role: 'button', name, selector: 'div > button', domAncestry: { instanceIds: ['p'] } }) as never;
+  expect(modeGroup(button('24ч'), 'https://x.test/')).toBeDefined();
+  expect(modeGroup(button('7天'), 'https://x.test/')).toBeDefined();
+  // A short word without a number is an ordinary button.
+  expect(modeGroup(button('登录'), 'https://x.test/')).toBeUndefined();
+});
