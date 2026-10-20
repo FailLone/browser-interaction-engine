@@ -28,7 +28,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { ActionTreeView } from './debug/ActionTreeView.js';
+import { ActionTreeView, type TreeDetail } from './debug/ActionTreeView.js';
 import { Hint, InfoTip } from './debug/common.js';
 import { FindingsView } from './debug/FindingsView.js';
 import { GoalView } from './debug/GoalView.js';
@@ -220,6 +220,12 @@ function RunDetail({
   const [tab, setTab] = useState('tree');
   const [action, setAction] = useState<number>();
   const [openCall, setOpenCall] = useState<number>();
+  // In the tree, a state's checks or a model call shown on the right instead of the action.
+  const [detail, setDetail] = useState<TreeDetail>();
+  const pickAction = (seq: number) => {
+    setAction(seq);
+    setDetail(undefined);
+  };
 
   // Slim events in pages; a running crawl is polled until it ends.
   // biome-ignore lint/correctness/useExhaustiveDependencies: onUpdate is a fresh closure each render; the poll belongs to the run
@@ -288,7 +294,7 @@ function RunDetail({
   // Bumped on every jump from outside the tree, so choosing the same action again still scrolls to it.
   const [focus, setFocus] = useState(0);
   const selectAction = (seq: number) => {
-    setAction(seq);
+    pickAction(seq);
     setFocus(n => n + 1);
     setTab('tree');
   };
@@ -455,9 +461,10 @@ function RunDetail({
                 events={events}
                 calls={calls.calls}
                 selected={action}
+                detail={detail}
                 focus={focus}
-                onSelect={setAction}
-                onOpenCall={setOpenCall}
+                onSelect={pickAction}
+                onDetail={setDetail}
               />
             </TabsContent>
             <TabsContent value="models">

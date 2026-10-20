@@ -43,6 +43,8 @@ export class DebugView {
   }
 
   private id(runId: string, key: string) {
+    // Findings reported at the end of a crawl belong to no state.
+    if (!key) return key;
     const id = stateId(key);
     this.run(runId).set(id, key);
     return id;

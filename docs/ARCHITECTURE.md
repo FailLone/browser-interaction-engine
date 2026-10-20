@@ -36,14 +36,25 @@ flowchart TD
 ```ts
 interface CrawlPlugin {
   id: string;
-  onState(context: CrawlStateContext): Promise<Finding[]> | Finding[];
+  onState(context: CrawlStateContext): Promise<PluginResult> | PluginResult;
+  checks?(): CheckInfo[];
+  reasons?(): Record<string, string>;
   onEnd?(): Promise<Finding[]> | Finding[];
 }
+type PluginResult = Finding[] | { findings: Finding[]; checks?: CheckSummary[] };
 ```
 
 `onState` 在每个新状态上调用一次，只读不写：`context` 提供状态键、序号、URL、遍历用的抓取、`page`、按需的详细抓取 `detail()`（样式、布局、文字几何，只有插件需要时才抓）和运行记录 `runtime()`。同一插件、规则、元素和文本的问题每次运行只报一次；插件抛错记为 `plugin_error` 事件，不影响遍历。
 
-`rulesPlugin(options)` 把每个状态的详细抓取组装成规则读的 `RulePage`，依次运行规则跟踪器，默认只上报 warning 和 error。
+每个插件处理完一个新状态，记一条 `inspection` 事件，紧跟在该状态的 `state` 事件之后（因此不重复状态键）。事件里有：
+- 总耗时，以及详细抓取的耗时；
+- 插件返回的每项检查摘要 `CheckSummary`：结论、检查对象数、各结论的计数、耗时，以及没通过的原因码（按结论分组，每组取对象最多的 3 个，带对象数）；
+- 本次运行里第一次用到的原因码的解释（来自插件的 `reasons()`），每个原因码在一次运行中只记一次；
+- 本状态再次命中、但之前已报告过的问题（按问题在本次运行中的序号）。
+
+摘要只存计数，不存每个对象的结果；问题本身仍以 `finding` 记录。`checks()` 在开始时记一条 `checks` 事件，给出每项检查的名称和说明，之后的摘要只带 id。调试页只读这些通用字段，不依赖具体插件。
+
+`rulesPlugin(options)` 把每个状态的详细抓取组装成规则读的 `RulePage`，依次运行规则跟踪器，默认只上报 warning 和 error；每条规则的结论汇总成摘要。在当前状态上没有可检查对象的规则不写进摘要。
 
 ## 会话接口
 

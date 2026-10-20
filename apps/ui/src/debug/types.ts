@@ -168,7 +168,17 @@ export type FindingEvent = {
   plugin: string;
   state: string;
   url: string;
-  finding: { rule: string; severity: 'info' | 'warning' | 'error'; selector: string; text: string; detail: string };
+  finding: {
+    rule: string;
+    severity: 'info' | 'warning' | 'error';
+    selector: string;
+    text: string;
+    detail: string;
+    /** Result code; older runs only have it at the start of `detail`. */
+    code?: string;
+    /** Where the element was on screen in this state. */
+    target?: ScreenView & { box: Box };
+  };
 };
 export type PluginErrorEvent = {
   seq: number;
@@ -177,6 +187,38 @@ export type PluginErrorEvent = {
   plugin: string;
   state: string;
   error: string;
+};
+/** What one check concluded on a state, in counts (see the crawler's CheckSummary). */
+export interface CheckSummary {
+  id: string;
+  verdict: 'pass' | 'fail' | 'unknown' | 'not-applicable';
+  targets: number;
+  counts?: Partial<Record<CheckSummary['verdict'], number>>;
+  ms: number;
+  /** Why targets did not pass: the most frequent codes per verdict, with how many targets each covers. */
+  codes?: { code: string; verdict: Exclude<CheckSummary['verdict'], 'pass'>; count: number }[];
+}
+export interface CheckInfo {
+  id: string;
+  name: string;
+  description?: string;
+}
+export type ChecksEvent = { seq: number; type: 'checks'; at: number; plugin: string; checks: CheckInfo[] };
+/**
+ * One plugin's pass over the state announced just before it. `repeated`: earlier findings seen
+ * again, by their order among findings.
+ */
+export type InspectionEvent = {
+  seq: number;
+  type: 'inspection';
+  at: number;
+  plugin: string;
+  ms: number;
+  captureMs?: number;
+  checks?: CheckSummary[];
+  repeated?: { finding: number; target?: ScreenView & { box: Box } }[];
+  /** Explanations of result codes used here for the first time in the run. */
+  reasons?: Record<string, string>;
 };
 export type Event =
   | { seq: number; type: 'viewport'; at: number; viewport: ResolvedViewport }
@@ -201,7 +243,9 @@ export type Event =
   | PursuitEvent
   | { seq: number; type: 'stop'; at: number; reason: string }
   | FindingEvent
-  | PluginErrorEvent;
+  | PluginErrorEvent
+  | ChecksEvent
+  | InspectionEvent;
 
 export interface ModelCallSummary {
   id: number;

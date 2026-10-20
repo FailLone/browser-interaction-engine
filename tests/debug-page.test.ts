@@ -6,7 +6,15 @@ import { CrawlManager, CrawlStore, type Provider } from '@interaction/crawler';
 import { DebugView, stateId } from '../apps/server/src/debug-view.js';
 import { ModelCallLog } from '../apps/server/src/model-calls.js';
 import { createServer } from '../apps/server/src/server.js';
-import { actionBefore, buildActionTree, callTarget, markIn, modelSteps, pathTo } from '../apps/ui/src/debug/tree.js';
+import {
+  actionBefore,
+  buildActionTree,
+  callTarget,
+  markIn,
+  modelSteps,
+  pathTo,
+  stateFindings,
+} from '../apps/ui/src/debug/tree.js';
 import type { Event } from '../apps/ui/src/debug/types.js';
 
 let seq = 0;
@@ -303,4 +311,59 @@ test('model questions are placed before the action they helped choose, or under 
   // The call dialog describes the same placement as the tree.
   expect(callTarget(tree, call(2, 150, 'crawler-effect'))).toMatchObject({ node: open, relation: 'effect' });
   expect(callTarget(tree, call(1, 50, 'crawler-interactive'))).toMatchObject({ node: open, relation: 'choosing' });
+});
+
+test('plugin checks hang under the action that reached the state, and point repeated findings at the first', () => {
+  seq = 0;
+  const inspection = (verdict: 'pass' | 'fail', repeated?: { finding: number; target?: typeof box }[]): Event => ({
+    seq: ++seq,
+    type: 'inspection',
+    at: seq * 100,
+    plugin: 'rules',
+    ms: 12,
+    checks: [{ id: 'clip', verdict, targets: 4, ms: 3 }],
+    ...(repeated ? { repeated } : {}),
+  });
+  const box = {
+    box: { x: 10, y: 20, width: 30, height: 40 },
+    scroll: { x: 0, y: 0 },
+    viewport: { width: 800, height: 600 },
+  };
+  const finding = (state: string): Event => ({
+    seq: ++seq,
+    type: 'finding',
+    at: seq * 100,
+    plugin: 'rules',
+    state,
+    url: 'https://a.test/',
+    finding: { rule: 'clip', severity: 'warning', selector: 'button', text: 'Go', detail: 'clipped', target: box },
+  });
+  const events: Event[] = [
+    { seq: ++seq, type: 'checks', at: 0, plugin: 'rules', checks: [{ id: 'clip', name: '控件裁切' }] },
+    stateEvent('home'),
+    finding('home'),
+    inspection('fail'),
+    action('Open menu', 'home'),
+    stateEvent('menu'),
+    // Seen again elsewhere on the page: the box is where it is in this state.
+    inspection('fail', [{ finding: 0, target: { ...box, box: { ...box.box, y: 300 } } }]),
+    action('Close', 'menu'),
+  ];
+  const tree = buildActionTree(events);
+  expect(tree.checkNames.get('rules/clip')?.name).toBe('控件裁切');
+  expect(tree.entryChecks.map(g => g.state)).toEqual(['home']);
+  expect(tree.entryChecks[0].findings).toHaveLength(1);
+  const open = tree.actions[0];
+  const after = tree.checksAfter.get(open.event.seq);
+  expect(after?.map(g => g.state)).toEqual(['menu']);
+  expect(after?.[0].node).toBe(open);
+  // Each state's problems are numbered for its screenshot; one seen again refers to the first report
+  // but is outlined where it is now.
+  expect(stateFindings(tree, tree.entryChecks[0])).toMatchObject([{ n: 1, earlier: false, target: box }]);
+  const again = stateFindings(tree, after![0]);
+  expect(again).toMatchObject([{ n: 1, earlier: true, target: { box: { y: 300 } } }]);
+  expect(again[0].event.state).toBe('home');
+  // Checks between a state and its action do not break which action the state led to.
+  expect(tree.shotAfter.get(open.event.seq)).toBe('menu');
+  expect(open.after).toBe('menu');
 });
