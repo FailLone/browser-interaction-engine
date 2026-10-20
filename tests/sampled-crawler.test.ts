@@ -1295,7 +1295,9 @@ test('an action that shows it is loading is waited for; a pulse already running 
     <button id="help" onclick="load()">Help</button><span id="spinner" hidden style="display:inline-block;width:10px;height:10px;animation:spin 1s linear infinite"></span>
     <button onclick="this.textContent='Other done'">Other</button>
   </main>
-  <div id="panel" hidden><p>Support topics</p><button onclick="this.textContent='Opened'">Topic</button></div>
+  <div id="panel" hidden style="position:relative"><p>Support topics</p><button onclick="this.textContent='Opened'">Topic</button>
+    <span style="position:absolute;top:0;left:0;width:10px;height:10px;animation:spin 1s linear infinite"></span>
+    <p style="position:absolute;top:0;left:0;width:40px;height:40px;margin:0;background:#fff"></p></div>
   <script>function load(){const b=document.getElementById('help'),s=document.getElementById('spinner');b.disabled=true;s.hidden=false;
     setTimeout(()=>{s.hidden=true;b.disabled=false;document.getElementById('panel').hidden=false},1200);}</script>`);
   try {
@@ -1305,6 +1307,8 @@ test('an action that shows it is loading is waited for; a pulse already running 
     const help = actions.find(a => a.step.label === 'Help');
     expect(help).toMatchObject({ outcome: 'ok', newState: true });
     expect(help!.busyMs).toBeGreaterThan(500);
+    // The panel leaves a spinner running beneath its content: covered, it is no longer waited for.
+    expect(help!.busyMs).toBeLessThan(3000);
     // Actions with no loading sign keep the plain settle: the pulse does not count.
     expect(actions.filter(a => a.busyMs).map(a => a.step.label)).toEqual(['Help']);
   } finally {

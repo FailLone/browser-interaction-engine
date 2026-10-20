@@ -1971,7 +1971,8 @@ const measureInPage = new Function(
 
 // Built with new Function so the bundler cannot inject helpers into the serialized source.
 // Loading signs now on the page, by structure: the target disabled, a visible
-// aria-busy region or progressbar, a visible element running an endless animation (a spinner).
+// aria-busy region or progressbar, an element running an endless animation (a spinner) that is
+// on top at its centre: a spinner left running beneath the content that replaced it is not a sign.
 // Elements are named by a per-document number so two reads compare; signs in `before` are left out.
 const busyInPage = new Function(
   'args',
@@ -1980,6 +1981,8 @@ const busyInPage = new Function(
   const id = el => { if (!ids.map.has(el)) ids.map.set(el, ++ids.next); return ids.map.get(el); };
   const shown = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el);
     return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
+  const onTop = el => { const r = el.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !!hit && (hit === el || el.contains(hit)); };
   const signs = [];
   const target = document.querySelector(selector);
   if (target && (target.matches(':disabled') || target.getAttribute('aria-disabled') === 'true')) signs.push('target:disabled');
@@ -1987,7 +1990,7 @@ const busyInPage = new Function(
     if (shown(el)) signs.push('busy:' + id(el));
   for (const a of document.getAnimations()) {
     const el = a.effect && a.effect.target;
-    if (el instanceof Element && a.playState === 'running' && a.effect.getTiming().iterations === Infinity && shown(el))
+    if (el instanceof Element && a.playState === 'running' && a.effect.getTiming().iterations === Infinity && shown(el) && onTop(el))
       signs.push('spin:' + id(el));
   }
   return [...new Set(signs)].filter(s => !before.includes(s));`,
