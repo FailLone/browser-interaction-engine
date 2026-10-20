@@ -329,7 +329,9 @@ export function collectOverlays(
         const button = e as HTMLButtonElement | HTMLInputElement;
         const formMethod = button.hasAttribute('formmethod') ? button.formMethod : button.form?.method;
         if (button.form && ['submit', 'image'].includes(button.type) && formMethod === 'dialog') return true;
-        return /^(?:close|dismiss|done|cancel|关闭|取消|完成)(?:\b|\s|$)|^[×✕✖]$/i.test(c.name.trim());
+        // \b does not separate Chinese characters: 关闭 starts a close name ("关闭弹窗"), while
+        // 取消 / 完成 only count alone ("取消订阅" unsubscribes, "完成支付" pays).
+        return /^(?:close|dismiss|done|cancel)\b|^关闭|^(?:取消|完成)$|^[×✕✖]$/i.test(c.name.trim());
       })
       .map(c => c.localId);
     return {

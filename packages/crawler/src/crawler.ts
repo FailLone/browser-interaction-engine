@@ -1127,22 +1127,23 @@ export class SampledCrawler {
   }
 
   /**
-   * An open overlay with no exit known from structure or a close-like English / Chinese name:
-   * ask JEV which of its controls only dismiss it, so they are tried after its content. Names in
-   * other languages, and unnamed icons, are judged from their name, text and context. Returns the
-   * questions; they are asked with the state's other judgements.
+   * An open overlay whose own close control is not known from structure or a close-like English /
+   * Chinese name: ask JEV which of its controls only dismiss it, so they are tried after its
+   * content. Names in other languages, and unnamed icons, are judged from their name, text and
+   * context. An exit outside the overlay (the opener that toggles it) does not stand for one
+   * inside it. Returns the questions; they are asked with the state's other judgements.
    */
   private exitQuestions(s: Snapshot) {
     const overlay = activeOverlay(s);
     const batch: { key: string; label: string; question: Question }[] = [];
-    if (!overlay || overlay.exitControlIds.length) return batch;
+    if (!overlay || overlay.exitControlIds.some(id => overlay.controlIds.includes(id))) return batch;
     const scope = new Set(overlay.controlIds),
       where = `${overlay.kind}:${maskVolatile(overlay.name)}`;
     for (const c of s.controls) {
       if (!scope.has(c.localId) || !c.visible || !c.actions.includes('click') || c.actionable.occludedBy) continue;
       // Choices (options, tabs, radios) and members of a repeated list are the overlay's content,
       // never its exit.
-      if (modeRoles.has(c.role) || listClass(c)) continue;
+      if (modeRoles.has(c.role) || listClass(c) || overlay.exitControlIds.includes(c.localId)) continue;
       const key = `${where}|${this.classOf(c)}`;
       if (this.judgedExits.has(key) || batch.some(b => b.key === key)) continue;
       const name = c.name || c.displayedText || '';

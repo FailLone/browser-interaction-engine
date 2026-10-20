@@ -1392,9 +1392,43 @@ test('an exit named in another language is found by JEV and tried after the over
   expect(russian.order.indexOf('Продолжить как гость')).toBeLessThan(russian.order.indexOf('Закрыть'));
   expect(russian.asked).toEqual(expect.arrayContaining(['Закрыть', 'Продолжить как гость']));
   // English and Chinese close names are matched by the program; JEV is not asked about exits.
-  for (const close of ['Close', '关闭']) {
+  for (const close of ['Close', '关闭', '关闭弹窗']) {
     const known = await run(close);
     expect(known.order.indexOf('Продолжить как гость')).toBeLessThan(known.order.indexOf(close));
     expect(known.asked).toEqual([]);
+  }
+}, 120000);
+
+test('an opener that toggles a popup does not stand for the close control inside it', async () => {
+  // The opener (popovertarget, outside) is an exit by structure; the Russian close inside is not
+  // named in English or Chinese, so JEV is still asked about the popup's own controls.
+  const site = await serve(`<!doctype html><meta charset="utf-8"><title>Menu</title><main>
+    <button popovertarget="m">Меню</button>
+    <div id="m" popover aria-label="Menu" style="top:40px;left:0;margin:0;background:#fff">
+      <button onclick="document.getElementById('m').hidePopover()">Закрыть</button>
+      <button onclick="this.textContent='Настройки открыты'">Настройки</button>
+    </div></main>`);
+  const asked: string[] = [];
+  const jev = fakeJev(q => {
+    if (q.kind !== 'exit') return 0.9;
+    asked.push(q.control!.name);
+    return q.control!.name === 'Закрыть' ? 0.95 : 0.05;
+  });
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 100,
+      judge: new ModelJudge({ jev }),
+      log: e => events.push(e),
+    }).run();
+    const order = actionsOf(events).map(a => a.step.label);
+    expect(asked).toContain('Закрыть');
+    // The opener is not asked about: structure already says what it does.
+    expect(asked).not.toContain('Меню');
+    expect(order.indexOf('Настройки')).toBeLessThan(order.indexOf('Закрыть'));
+  } finally {
+    await site.close();
   }
 }, 120000);
