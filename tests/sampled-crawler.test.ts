@@ -1674,3 +1674,37 @@ test('live values, inputs and lists are read the same way in any language', asyn
   // A short word without a number is an ordinary button.
   expect(modeGroup(button('登录'), 'https://x.test/')).toBeUndefined();
 });
+
+test('a menu opened by click is not hovered again, and the div wrapping its button is not tried on its own', async () => {
+  // A header menu as okx builds it: a pointer-cursor div around the real button, same box.
+  const site = await serve(`<!doctype html><meta charset="utf-8"><title>Menu</title><header>
+    <div id="wrap" style="cursor:pointer;display:inline-block"><button id="b" aria-expanded="false" aria-haspopup="true"
+      onclick="const m=document.getElementById('m');m.hidden=!m.hidden;this.setAttribute('aria-expanded',String(!m.hidden))">Trade</button></div>
+    <div id="m" hidden><a href="#spot">Spot</a></div></header><main><p>Body</p></main>
+    <script>document.getElementById('wrap').addEventListener('click',()=>{});</script>`);
+  const asked: string[] = [];
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 100,
+      judge: new ModelJudge({
+        jev: fakeJev(q => {
+          asked.push(q.control?.name ?? '');
+          return 0.95;
+        }),
+      }),
+      log: e => events.push(e),
+    }).run();
+    const keys = actionsOf(events).map(a => a.step.classKey);
+    expect(keys).toContain('click|banner|button|button|Trade');
+    expect(keys.filter(k => k.includes('|generic|div|Trade'))).toEqual([]);
+    expect(asked).not.toContain('Trade');
+    // Hovered at most once, from the closed menu; never while it is open.
+    const hovers = actionsOf(events).filter(a => a.step.kind === 'hover' && a.step.label === 'Trade');
+    expect(hovers.every(a => !a.step.state?.includes('Spot'))).toBe(true);
+  } finally {
+    await site.close();
+  }
+}, 120000);

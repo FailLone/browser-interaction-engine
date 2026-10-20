@@ -316,6 +316,30 @@ function isHintIcon(c: Control) {
 }
 
 /**
+ * A weak control that only wraps a clickable one of the same size (a header menu's div around
+ * its button): clicking it does what clicking the inner control does, so it is never asked
+ * about or tried on its own. A wrapper around a field is kept: the field is only filled, and
+ * clicking around it may open what focusing it shows (a search box's suggestions).
+ */
+function wrapsActionable(c: Control, controls: Control[]) {
+  const near = (a: Rect, b: Rect) =>
+    Math.abs(a.x - b.x) <= 2 &&
+    Math.abs(a.y - b.y) <= 2 &&
+    Math.abs(a.width - b.width) <= 2 &&
+    Math.abs(a.height - b.height) <= 2;
+  return controls.some(
+    k =>
+      k !== c &&
+      k.visible &&
+      kindsFor(k).includes('click') &&
+      !!k.domAncestry?.instanceIds.includes(c.instanceId) &&
+      !!k.rect &&
+      !!c.rect &&
+      near(k.rect, c.rect),
+  );
+}
+
+/**
  * Crawljax-style sampled crawler: abstract states, action classes sampled k
  * times, overlays first, in-scope pages only, backtracking by replay from the
  * entry URL. No per-action proofs; an action that fails is recorded and skipped.
@@ -1195,7 +1219,14 @@ export class SampledCrawler {
       (scope && !scope.has(c.localId)) || (!scope && !!c.landmark && offAreas.includes(c.landmark));
     const batch: { cls: string; label: string; question: Question }[] = [];
     for (const c of s.controls) {
-      if (!c.visible || c.actions.length || !c.interactionHints?.length || c.actionable.occludedBy || outOfScope(c))
+      if (
+        !c.visible ||
+        c.actions.length ||
+        !c.interactionHints?.length ||
+        c.actionable.occludedBy ||
+        outOfScope(c) ||
+        wrapsActionable(c, s.controls)
+      )
         continue;
       const name = c.name || c.displayedText;
       if (!name) continue;
@@ -1383,6 +1414,7 @@ export class SampledCrawler {
         continue;
       }
       if (!c.visible || (!c.actions.length && !this.confirmed.has(this.classOf(c)))) continue;
+      if (!c.actions.length && wrapsActionable(c, s.controls)) continue;
       // An open overlay masks the page beneath it: never fight the backdrop.
       if (scope && !scope.has(c.localId)) continue;
       if (!scope && c.actionable.occludedBy) continue;
@@ -1426,6 +1458,8 @@ export class SampledCrawler {
         const group = kind === 'click' ? modeGroup(c, s.url, siblings) : undefined;
         // A flat group's members are skipped as redundant; a retry was never tried, so it still goes.
         if (sampled && group && !retry && this.flatModeGroups.has(group)) continue;
+        // An open disclosure is already showing what hovering it would reveal.
+        if (kind === 'hover' && c.expanded === true) continue;
         const disclosure =
           c.expanded !== null ||
           ['tab', 'menuitem', 'option', 'combobox'].includes(c.role) ||
