@@ -24,6 +24,7 @@ export interface Run {
     durationMs?: number;
     viewport?: ViewportOption;
     models?: boolean;
+    goal?: string;
   };
 }
 export type ViewportPreset = 'desktop' | 'desktop-edge' | 'mobile';
@@ -65,11 +66,47 @@ export interface Summary {
   onEntryPage: number;
   models?: { jev: ModelMeter; llm: ModelMeter };
   navigations?: { intercepted: number; sameDocument: unknown[] };
+  /** Goal mode with a question: whether the page answered it. */
+  pursuit?: {
+    question: string;
+    answered: boolean;
+    /** An answer from absence only stands once the scope was exhausted. */
+    settled: boolean;
+    result?: { answer: string; found: boolean; provisional: boolean; url: string; at: number; reason: string };
+    llmCalls: number;
+    costUsd: number;
+    steeredActions: number;
+  };
+  goal?: { plan: GoalPlan; prunedClasses: number; offAreaClasses: number };
   coverage?: {
     pages: { page: string; classesExecuted: number; classesSeen: number; textBlocksRevealedByActions: number }[];
     statesPerMinute: number[];
   };
 }
+/** What the LLM made of a goal prompt; areas are ARIA landmarks. */
+export interface GoalPlan {
+  goal: string;
+  stayOnPage: boolean;
+  allowedPaths: string[];
+  areas: ('banner' | 'navigation' | 'contentinfo')[];
+  focus: string[];
+  tasks: string[];
+  question: string;
+}
+/** One look the LLM took at a state while pursuing the goal's question. */
+export type PursuitEvent = {
+  seq: number;
+  type: 'pursuit';
+  at: number;
+  /** State id. */
+  state: string;
+  url: string;
+  answered: boolean;
+  found: boolean;
+  answer: string;
+  next?: string;
+  reason: string;
+};
 export interface Step {
   kind: string;
   classKey: string;
@@ -160,6 +197,8 @@ export type Event =
   | NavigationEvent
   | JudgementEvent
   | BacktrackEvent
+  | { seq: number; type: 'goal'; at: number; plan: GoalPlan }
+  | PursuitEvent
   | { seq: number; type: 'stop'; at: number; reason: string }
   | FindingEvent
   | PluginErrorEvent;

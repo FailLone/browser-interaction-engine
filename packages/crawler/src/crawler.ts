@@ -33,8 +33,8 @@ import {
 } from './policy.js';
 import { findingKey, type CrawlPlugin, type CrawlStateContext, type Finding } from './plugin.js';
 import type { Judge, Question } from './judge.js';
-import { excludedAreas, type GoalPursuit, type GoalRelevance } from './goal.js';
-import type { ProviderMeter } from './meter.js';
+import { excludedAreas, GoalPursuit, GoalRelevance, planGoal, type GoalPlan } from './goal.js';
+import { metered, type ProviderMeter } from './meter.js';
 import type { CrawlLedger } from './store.js';
 import {
   classifyInput,
@@ -91,6 +91,12 @@ export interface CrawlOptions {
    * promising action, the crawler keeps exploring the scope, which reveals hidden content.
    */
   pursuit?: GoalPursuit;
+  /**
+   * Goal mode from a prompt: once the page is open (in its session), the LLM plans scope and a
+   * question from the entry page's visible controls, then `relevance` and `pursuit` are built from
+   * that plan. Plan paths are added to the policy; a plan that leaves the page follows navigation.
+   */
+  goal?: { text: string; llm: Provider; jev: Provider };
   /** Resume: work recorded by an earlier run of the same target is not repeated. */
   ledger?: CrawlLedger;
   /** Aborting stops the crawl after the current action; the summary is still produced. */
@@ -211,6 +217,8 @@ export type CrawlEvent =
       next?: string;
       reason: string;
     }
+  /** Goal mode: the plan the LLM made from the prompt and the entry page. */
+  | { type: 'goal'; at: number; plan: GoalPlan }
   | { type: 'stop'; at: number; reason: StopReason };
 
 /**
@@ -357,6 +365,7 @@ export class SampledCrawler {
       | 'judge'
       | 'relevance'
       | 'pursuit'
+      | 'goal'
       | 'inputJudge'
       | 'ledger'
       | 'signal'
@@ -371,6 +380,7 @@ export class SampledCrawler {
       | 'judge'
       | 'relevance'
       | 'pursuit'
+      | 'goal'
       | 'inputJudge'
       | 'ledger'
       | 'signal'
@@ -557,7 +567,10 @@ export class SampledCrawler {
       await this.settle();
       // A crawl never runs on a page whose session check failed: it would test the login page.
       if (!(await this.checkSession(true))) stop = 'session_invalid';
-      else await this.saveInitialStorage();
+      else {
+        await this.saveInitialStorage();
+        await this.applyGoal();
+      }
       while (stop !== 'session_invalid' && this.now() < this.options.durationMs && actions < this.options.maxActions) {
         if (this.options.signal?.aborted) {
           stop = 'stopped';
@@ -621,6 +634,30 @@ export class SampledCrawler {
       await this.adapter.close();
     }
     return this.summary();
+  }
+
+  /** Goal planning's LLM spend, when the goal came as a prompt. */
+  private planning?: ProviderMeter;
+
+  /** Goal mode from a prompt: plan on the open entry page, as the run's session shows it. */
+  private async applyGoal() {
+    const goal = this.options.goal;
+    if (!goal) return;
+    const planner = metered(goal.llm);
+    this.planning = planner.meter;
+    const dom = await this.adapter.readDOM();
+    const plan = await planGoal(
+      planner,
+      goal.text,
+      this.options.url,
+      dom.controls.filter(c => c.visible),
+    );
+    for (const pattern of plan.allowedPaths) this.options.policy.allowedPaths.push(new RegExp(pattern));
+    if (!plan.stayOnPage) this.options.followNavigation = true;
+    this.options.relevance = new GoalRelevance(goal.jev, plan);
+    // A goal that asks something of the page is pursued step by step until the page answers it.
+    if (plan.question) this.options.pursuit = new GoalPursuit(goal.llm, plan);
+    this.emit({ type: 'goal', at: this.now(), plan });
   }
 
   /** Run each session's check now (`force`) or when its recheck interval has passed; false stops the crawl. */
@@ -738,7 +775,7 @@ export class SampledCrawler {
       judge: this.options.judge?.stats,
       models: modelCost(
         [this.options.judge?.stats.jev, this.options.relevance?.meter],
-        [this.options.judge?.stats.llm],
+        [this.options.judge?.stats.llm, this.planning, this.options.pursuit?.meter],
       ),
       weakControlsConfirmed: this.confirmed.size,
       splitLists: this.splitLists.size,
@@ -1978,7 +2015,7 @@ function excerpt(text: string, other: string, size = 600) {
   return text.slice(Math.max(0, start - 100), start - 100 + size);
 }
 
-/** Combined JEV / LLM spend for the run summary (planning calls are added by the host). */
+/** Combined JEV / LLM spend for the run summary. */
 function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | undefined)[]) {
   const sum = (meters: (ProviderMeter | undefined)[]) =>
     meters

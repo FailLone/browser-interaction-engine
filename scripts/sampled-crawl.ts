@@ -6,15 +6,11 @@
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  BrowserDriver,
-  GoalPursuit,
-  GoalRelevance,
   ModelJudge,
   SampledCrawler,
   defaultPolicy,
   metered,
   parseViewport,
-  planGoal,
   providersFromEnv,
 } from '@interaction/crawler';
 import { rulesPlugin } from '@interaction/rules';
@@ -39,44 +35,20 @@ console.log(
   'model judge',
   judge ? `jev=${providers.jev?.model ?? 'none'} llm=${providers.llm?.model ?? 'none'}` : 'not configured',
 );
-// Goal mode: the LLM plans scope from the entry page's controls; JEV prunes off-goal actions.
+// Goal mode: once the page is open the LLM plans scope from its controls; JEV prunes off-goal actions,
+// and a goal that asks something of the page is pursued step by step until the page answers it.
 const goal = process.argv[6];
-let relevance: GoalRelevance | undefined;
-let pursuit: GoalPursuit | undefined;
-// Without a goal, a path pattern is an explicit request to visit those pages.
-let followNavigation = !!scope;
-let planning: import('@interaction/crawler').ProviderMeter | undefined;
-if (goal) {
-  if (!providers.llm || !providers.jev) throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
-  const driver = new BrowserDriver({ url, viewport });
-  await driver.start();
-  await driver.page!.waitForTimeout(1500);
-  const dom = await driver.readDOM();
-  await driver.close();
-  const planner = metered(providers.llm);
-  const plan = await planGoal(
-    planner,
-    goal,
-    url,
-    dom.controls.filter(c => c.visible),
-  );
-  planning = planner.meter;
-  for (const pattern of plan.allowedPaths) policy.allowedPaths.push(new RegExp(pattern));
-  followNavigation = !plan.stayOnPage;
-  relevance = new GoalRelevance(providers.jev, plan);
-  // A goal that asks something of the page is pursued step by step until the page answers it.
-  if (plan.question) pursuit = new GoalPursuit(providers.llm, plan);
-  console.log('goal plan', JSON.stringify(plan));
-}
+if (goal && (!providers.llm || !providers.jev))
+  throw new Error('Goal mode needs both EXPLORER_JEV_* and EXPLORER_LLM_*');
 const crawler = new SampledCrawler({
   url,
   viewport,
   durationMs,
   policy,
   judge,
-  relevance,
-  pursuit,
-  followNavigation,
+  ...(goal ? { goal: { text: goal, llm: providers.llm!, jev: providers.jev! } } : {}),
+  // Without a goal, a path pattern is an explicit request to visit those pages; with one, the plan decides.
+  followNavigation: !!scope && !goal,
   inputJudge,
   maxActions: 2000,
   ...(process.env.CRAWL_RULES ? { plugins: [rulesPlugin()] } : {}),
@@ -117,6 +89,7 @@ const crawler = new SampledCrawler({
         event.probability ?? '',
         JSON.stringify(event.label),
       );
+    else if (event.type === 'goal') console.log(t, 'goal plan', JSON.stringify(event.plan));
     else if (event.type === 'pursuit')
       console.log(
         t,
@@ -144,13 +117,12 @@ const crawler = new SampledCrawler({
 });
 const summary = {
   ...(await crawler.run()),
-  ...(planning ? { goalPlanning: planning } : {}),
   ...(inputJudge ? { inputClassification: inputJudge.meter } : {}),
 };
 const inputCost = inputJudge?.meter.costUsd || 0,
   inputCalls = inputJudge?.meter.calls || 0;
-const llmCost = summary.models.llm.costUsd + (planning?.costUsd || 0) + (pursuit?.meter.costUsd || 0),
-  llmCalls = summary.models.llm.calls + (planning?.calls || 0) + (pursuit?.meter.calls || 0);
+const llmCost = summary.models.llm.costUsd,
+  llmCalls = summary.models.llm.calls;
 const total = inputCost + summary.models.jev.costUsd + llmCost;
 console.log(
   `model spend: JEV ${summary.models.jev.calls + inputCalls} calls $${(summary.models.jev.costUsd + inputCost).toFixed(6)}, LLM ${llmCalls} calls $${llmCost.toFixed(6)}, total $${total.toFixed(6)}`,

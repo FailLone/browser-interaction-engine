@@ -87,6 +87,8 @@ export class DebugView {
         const { facts, ...finding } = event.finding;
         return { ...event, state: this.id(runId, event.state), finding: { ...finding, hasFacts: facts !== undefined } };
       }
+      case 'pursuit':
+        return { ...event, state: this.id(runId, event.state) };
       case 'plugin_error':
         return { ...event, state: this.id(runId, event.state), error: event.error.slice(0, 400) };
       default:

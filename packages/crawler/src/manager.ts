@@ -18,6 +18,12 @@ export interface StartCrawl {
   followNavigation?: boolean;
   /** Use configured JEV/LLM providers for weak controls, effects and input kinds. */
   models?: boolean;
+  /**
+   * Goal mode: what to test, in the user's words (e.g. "can a user find the trading fee?"). The
+   * LLM plans scope and a question from it on the open entry page; needs both JEV and LLM. A
+   * resumed run keeps the goal of the run it continues unless given another.
+   */
+  goal?: string;
   /** Continue a previous run of the same URL: its tested classes and judgements are not repeated. */
   resumeFrom?: string;
   /** Names of host-registered plugins to run on every new state. */
@@ -65,6 +71,10 @@ export class CrawlManager {
       : (input.viewport ?? 'desktop');
     if (resume && input.viewport && JSON.stringify(input.viewport) !== JSON.stringify(viewport))
       throw new Error('resumeFrom must use the viewport of the run it continues');
+    // A resumed run pursues the goal of the run it continues unless given another.
+    const goal = (input.goal ?? (resume?.options.goal as string | undefined))?.trim();
+    if (goal && (input.models === false || !this.providers.jev || !this.providers.llm))
+      throw new Error('Goal mode needs models, and the server must have both JEV and LLM configured');
     const unknown = (input.plugins ?? []).filter(name => !this.pluginFactories[name]);
     if (unknown.length) throw new Error(`Unknown plugins: ${unknown.join(', ')}`);
     const requests = [input.session ?? (resume?.options.session as StartCrawl['session'] | undefined) ?? []].flat();
@@ -82,6 +92,7 @@ export class CrawlManager {
     const run = this.store.createRun(id, url, {
       ...input,
       url,
+      ...(goal ? { goal } : {}),
       viewport,
       ...(requests.length ? { session: requests, sessionKeys: resumeKeys } : {}),
     });
@@ -107,6 +118,7 @@ export class CrawlManager {
             ...(this.providers.jev ? { inputJudge: metered(this.providers.jev) } : {}),
           }
         : {}),
+      ...(goal ? { goal: { text: goal, llm: this.providers.llm!, jev: this.providers.jev! } } : {}),
       log: event => this.store.appendEvent(id, event),
       onScreenshot: (state, png) => this.store.saveScreenshot(id, state, png),
     };
