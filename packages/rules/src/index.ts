@@ -1,5 +1,6 @@
 export * from './types.js';
 export * from './plugins.js';
+export * from './reasons.js';
 export {
   imageResourceRule,
   imageResourceOptionsSchema,

@@ -89,33 +89,69 @@ export function Section({
  * A state screenshot, loaded only when shown. Height is bounded so tall mobile screenshots
  * never cover the rest of the panel; click to see it full size.
  */
+type Mark = {
+  box: { x: number; y: number; width: number; height: number };
+  viewport: { width: number; height: number };
+};
+
 export function Screenshot({
   runId,
   state,
   label,
   mark,
+  marks,
 }: {
   runId: string;
   state: string;
   label: string;
   /** A box to outline, in the screenshot's own pixels (the viewport it was taken in). */
-  mark?: { box: { x: number; y: number; width: number; height: number }; viewport: { width: number; height: number } };
+  mark?: Mark;
+  /** Several boxes, numbered; the active one stands out and the others are dimmed. */
+  marks?: (Mark & { key: string | number; label?: string; active?: boolean })[];
 }) {
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);
   const src = `/v1/crawls/${runId}/debug/screenshot/${state}`;
-  // Percentages of the image, so the outline scales with it at any display size.
-  const outline = mark && (
-    <span
-      className="pointer-events-none absolute rounded-sm border-2 border-rose-500"
-      style={{
-        left: `${(mark.box.x / mark.viewport.width) * 100}%`,
-        top: `${(mark.box.y / mark.viewport.height) * 100}%`,
-        width: `${(mark.box.width / mark.viewport.width) * 100}%`,
-        height: `${(mark.box.height / mark.viewport.height) * 100}%`,
-      }}
-    />
-  );
+  const all = marks ?? (mark ? [{ ...mark, key: 'mark', active: true }] : []);
+  const anyActive = all.some(m => m.active);
+  // Percentages of the image, so the outline scales with it at any display size. A box partly
+  // off screen is cut at the edge of the picture.
+  const outline = all.map(m => {
+    const { width: w, height: h } = m.viewport;
+    const left = Math.max(0, m.box.x),
+      top = Math.max(0, m.box.y);
+    const right = Math.min(w, m.box.x + m.box.width),
+      bottom = Math.min(h, m.box.y + m.box.height);
+    if (right <= left || bottom <= top) return null;
+    const dim = anyActive && !m.active;
+    return (
+      <span
+        key={m.key}
+        className={cn(
+          'pointer-events-none absolute rounded-sm border-2',
+          dim ? 'border-rose-500/40' : 'border-rose-500',
+          m.active && marks && 'z-10 ring-2 ring-rose-500/30',
+        )}
+        style={{
+          left: `${(left / w) * 100}%`,
+          top: `${(top / h) * 100}%`,
+          width: `${((right - left) / w) * 100}%`,
+          height: `${((bottom - top) / h) * 100}%`,
+        }}
+      >
+        {m.label && (
+          <span
+            className={cn(
+              'absolute -top-px -left-px rounded-br-sm px-1 text-[10px] leading-4 font-medium text-white',
+              dim ? 'bg-rose-500/50' : 'bg-rose-500',
+            )}
+          >
+            {m.label}
+          </span>
+        )}
+      </span>
+    );
+  });
   if (failed)
     return (
       <div className="flex h-24 items-center justify-center gap-2 rounded-md border border-dashed text-xs text-muted-foreground">

@@ -93,7 +93,7 @@ test('crawl runs are started, stored and inspected over HTTP, and a resumed run 
   }
 }, 180000);
 
-test('a run loads only the host plugins it names and records their findings', async () => {
+test('a run loads only the host plugins it names and records their findings and checks', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'crawls-'));
   const crawls = new CrawlManager(
     new CrawlStore(join(dir, 'crawls.sqlite')),
@@ -101,9 +101,15 @@ test('a run loads only the host plugins it names and records their findings', as
     {
       titles: () => ({
         id: 'titles',
-        onState: ({ snapshot }) => [
-          { rule: 'title', severity: 'warning', selector: 'title', text: snapshot.title, detail: 'Short title' },
-        ],
+        checks: () => [{ id: 'title', name: 'Title length' }],
+        onState: ({ snapshot }) => ({
+          findings: [
+            { rule: 'title', severity: 'warning', selector: 'title', text: snapshot.title, detail: 'Short title' },
+          ],
+          checks: [
+            { id: 'title', verdict: 'fail', targets: 1, ms: 0, codes: [{ code: 'SHORT', verdict: 'fail', count: 1 }] },
+          ],
+        }),
       }),
     },
   );
@@ -124,13 +130,29 @@ test('a run loads only the host plugins it names and records their findings', as
       async () => (await fetch(`${api}/v1/crawls/${run.id}`)).json(),
       r => r.status !== 'running',
     );
-    const findings = (await (await fetch(`${api}/v1/crawls/${run.id}/events`)).json()).filter(
-      (e: { type: string }) => e.type === 'finding',
-    );
+    const events: { type: string }[] = await (await fetch(`${api}/v1/crawls/${run.id}/events`)).json();
+    const findings = events.filter(e => e.type === 'finding');
     // The same finding on every state is reported once.
     expect(findings).toEqual([
       expect.objectContaining({ plugin: 'titles', finding: expect.objectContaining({ rule: 'title', text: 'Run' }) }),
     ]);
+    // The checks are named once; every new state gets one inspection, and later ones point back at the finding.
+    expect(events.filter(e => e.type === 'checks')).toEqual([
+      expect.objectContaining({ plugin: 'titles', checks: [{ id: 'title', name: 'Title length' }] }),
+    ]);
+    // Each follows its state's announcement, so it carries no state key.
+    const inspections = events.filter(e => e.type === 'inspection');
+    expect(inspections.length).toBe(events.filter(e => e.type === 'state').length);
+    events.forEach(
+      (e, i) =>
+        e.type === 'inspection' && expect(events.slice(0, i).findLast(p => p.type !== 'finding')?.type).toBe('state'),
+    );
+    expect(inspections[0]).toMatchObject({
+      plugin: 'titles',
+      checks: [{ id: 'title', verdict: 'fail', targets: 1, codes: [{ code: 'SHORT', verdict: 'fail', count: 1 }] }],
+    });
+    expect(inspections[0]).not.toHaveProperty('repeated');
+    if (inspections.length > 1) expect(inspections[1]).toMatchObject({ repeated: [{ finding: 0 }] });
   } finally {
     await app.close();
     await crawls.close();
@@ -176,3 +198,83 @@ test('a run crawls on the viewport it asks for, and a resumed run keeps it', asy
     await crawls.close();
   }
 }, 90000);
+
+test('a run started with a goal plans it on the open page, pursues its question and keeps it on resume', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'crawls-'));
+  const asked: string[] = [];
+  // Fake models: the plan asks whether the panel offers an action; the answer is behind "Open panel".
+  const llm = {
+    name: 'llm',
+    model: 'llm',
+    async decide(request: { purpose: string; state: unknown }) {
+      asked.push(request.purpose);
+      if (request.purpose === 'crawler-goal-plan')
+        return {
+          model: 'llm',
+          value: {
+            stayOnPage: true,
+            allowedPaths: [],
+            areas: [],
+            focus: ['panel'],
+            tasks: ['open the panel'],
+            question: 'Does the panel offer an action?',
+          },
+        };
+      const state = request.state as { newText: string; actions: string[] };
+      if (state.newText.includes('Panel action'))
+        return { model: 'llm', value: { answered: true, found: true, answer: '"Panel action"', next: -1, reason: '' } };
+      const next = state.actions.findIndex(a => a.includes('Open panel'));
+      return { model: 'llm', value: { answered: false, found: false, answer: '', next, reason: 'open it' } };
+    },
+  };
+  const jev = {
+    name: 'jev',
+    model: 'jev',
+    async decide(request: { checks?: Record<string, unknown> }) {
+      return { model: 'jev', value: Object.fromEntries(Object.keys(request.checks ?? {}).map(k => [k, 0.9])) };
+    },
+  };
+  const crawls = new CrawlManager(new CrawlStore(join(dir, 'crawls.sqlite')), { llm, jev });
+  const app = await createServer(crawls);
+  await app.listen({ host: '127.0.0.1', port: 0 });
+  const api = `http://127.0.0.1:${(app.server.address() as { port: number }).port}`;
+  const post = (body: unknown) =>
+    fetch(`${api}/v1/crawls`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'content-type': 'application/json' },
+    });
+  try {
+    // A goal without models is refused up front rather than crawling without one.
+    expect((await post({ url, durationMs: 10000, models: false, goal: 'find the panel action' })).status).toBe(409);
+    const run = await (await post({ url, durationMs: 60000, goal: 'find the panel action' })).json();
+    expect(run.options.goal).toBe('find the panel action');
+    const done = await waitFor(
+      async () => (await fetch(`${api}/v1/crawls/${run.id}`)).json(),
+      r => r.status !== 'running',
+    );
+    expect(done.summary.stopReason).toBe('goal_answered');
+    expect(done.summary.pursuit).toMatchObject({ answered: true, settled: true, steeredActions: 1 });
+    expect(done.summary.goal.plan.question).toBe('Does the panel offer an action?');
+    // Planning and pursuit are counted with the run's LLM spend.
+    expect(done.summary.models.llm.calls).toBe(asked.length);
+    const events = await (await fetch(`${api}/v1/crawls/${run.id}/debug/events`)).json();
+    expect(events.find((e: { type: string }) => e.type === 'goal').plan.question).toBe(
+      'Does the panel offer an action?',
+    );
+    const answer = events.findLast((e: { type: string }) => e.type === 'pursuit');
+    // The debug page gets a short state id it can load the answer's screenshot with.
+    expect(answer).toMatchObject({ answered: true, state: expect.stringMatching(/^[0-9a-f]{12}$/) });
+    expect((await fetch(`${api}/v1/crawls/${run.id}/debug/screenshot/${answer.state}`)).status).toBe(200);
+
+    const resumed = await (await post({ url, durationMs: 10000, resumeFrom: run.id })).json();
+    expect(resumed.options.goal).toBe('find the panel action');
+    await waitFor(
+      async () => (await fetch(`${api}/v1/crawls/${resumed.id}`)).json(),
+      r => r.status !== 'running',
+    );
+  } finally {
+    await app.close();
+    await crawls.close();
+  }
+}, 120000);

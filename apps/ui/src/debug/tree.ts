@@ -2,12 +2,30 @@ import type {
   ActionEvent,
   BacktrackEvent,
   Box,
+  CheckInfo,
   Event,
+  FindingEvent,
+  InspectionEvent,
   JudgementEvent,
   ModelCallSummary,
   NavigationEvent,
+  PluginErrorEvent,
   ScreenView,
 } from './types.js';
+
+/** What plugins checked on one new state: each plugin's inspection, and what it reported there. */
+export interface StateChecks {
+  /** State id. */
+  state: string;
+  /** Seq of the first event about it, to order it among the run's events. */
+  seq: number;
+  at: number;
+  /** The action that reached the state; none for the entry page. */
+  node?: ActionNode;
+  inspections: InspectionEvent[];
+  /** Findings first reported on this state, and plugin errors. */
+  findings: (FindingEvent | PluginErrorEvent)[];
+}
 
 /** One executed action, placed under the action that led to the state it was taken in. */
 export interface ActionNode {
@@ -56,6 +74,17 @@ export interface ActionTree {
   shotAfter: Map<number, string>;
   /** Judgements after the last action. */
   tail: JudgementEvent[];
+  /** Plugin checks per state id, and per the action that reached the state (by seq). */
+  checks: Map<string, StateChecks>;
+  checksAfter: Map<number, StateChecks[]>;
+  /** Checks on states reached before any action (the entry page). */
+  entryChecks: StateChecks[];
+  /** Check names by `plugin/id`. */
+  checkNames: Map<string, CheckInfo>;
+  /** Plain-words explanations of result codes, by `plugin/code`. */
+  reasons: Map<string, string>;
+  /** Findings in the order reported, which is how an inspection's `repeated` refers to them. */
+  findings: FindingEvent[];
 }
 
 /**
@@ -73,15 +102,34 @@ export function buildActionTree(events: Event[]): ActionTree {
     views: new Map(),
     shotAfter: new Map(),
     tail: [],
+    checks: new Map(),
+    checksAfter: new Map(),
+    entryChecks: [],
+    checkNames: new Map(),
+    reasons: new Map(),
+    findings: [],
+  };
+  // Plugins check a state right after it is announced, so the last action is the one that reached it.
+  const checksOf = (e: Event, state: string) => {
+    let group = tree.checks.get(state);
+    if (group) return group;
+    group = { state, seq: e.seq, at: e.at, inspections: [], findings: [], ...(prev ? { node: prev } : {}) };
+    tree.checks.set(state, group);
+    if (prev) tree.checksAfter.set(prev.event.seq, [...(tree.checksAfter.get(prev.event.seq) ?? []), group]);
+    else tree.entryChecks.push(group);
+    return group;
   };
   const owners = new Map<string, ActionNode | ActionTree['root']>();
   /** Revealed states announced ahead of their action, by that action's seq. */
   const revealedBy = new Map<number, string>();
+  /** The state announced last: an inspection is of that state. */
+  let announced: string | undefined;
   let prev: ActionNode | undefined,
     broken = false,
     pending: (JudgementEvent | NavigationEvent)[] = [];
   for (const [i, e] of events.entries()) {
     if (e.type === 'state') {
+      announced = e.state.key;
       tree.screenshots.add(e.state.key);
       if (e.view) tree.views.set(e.state.key, e.view);
       // The next state announced after an action, before any other action, is where it led. A revealed
@@ -93,6 +141,15 @@ export function buildActionTree(events: Event[]): ActionTree {
         tree.root.state = e.state.key;
         owners.set(e.state.key, tree.root);
       }
+    } else if (e.type === 'checks') {
+      for (const c of e.checks) tree.checkNames.set(`${e.plugin}/${c.id}`, c);
+    } else if (e.type === 'inspection') {
+      if (announced) checksOf(e, announced).inspections.push(e);
+      for (const [code, text] of Object.entries(e.reasons ?? {})) tree.reasons.set(`${e.plugin}/${code}`, text);
+    } else if (e.type === 'finding' || e.type === 'plugin_error') {
+      if (e.type === 'finding') tree.findings.push(e);
+      // Findings that resolved at the end of the crawl belong to no state.
+      if (e.state) checksOf(e, e.state).findings.push(e);
     } else if (e.type === 'judgement' || e.type === 'navigation') pending.push(e);
     else if (e.type === 'backtrack') {
       (prev ?? tree.root).backtracks.push(e);
@@ -144,6 +201,29 @@ export function buildActionTree(events: Event[]): ActionTree {
   }
   tree.tail = pending.filter((c): c is JudgementEvent => c.type === 'judgement');
   return tree;
+}
+
+/** A problem shown on a state: new there, or reported earlier and seen again, with where it is now. */
+export interface StateFinding {
+  event: FindingEvent;
+  /** Reported on an earlier state. */
+  earlier: boolean;
+  target?: FindingEvent['finding']['target'];
+  /** Its number on the screenshot. */
+  n: number;
+}
+
+/** Problems on a state in screenshot order: new ones, then those seen again. */
+export function stateFindings(tree: ActionTree, group: StateChecks): StateFinding[] {
+  const out: Omit<StateFinding, 'n'>[] = group.findings
+    .filter((f): f is FindingEvent => f.type === 'finding')
+    .map(event => ({ event, earlier: false, target: event.finding.target }));
+  for (const i of group.inspections)
+    for (const { finding, target } of i.repeated ?? []) {
+      const event = tree.findings[finding];
+      if (event) out.push({ event, earlier: true, target });
+    }
+  return out.map((f, i) => ({ ...f, n: i + 1 }));
 }
 
 /** Actions from the entry page to this one: how to reach it by hand. */
@@ -257,6 +337,6 @@ export function markIn(target: (ScreenView & { box: Box }) | undefined, view: Sc
 function actionRevealing(events: Event[], i: number): number | undefined {
   for (const e of events.slice(i + 1)) {
     if (e.type === 'action') return e.seq;
-    if (e.type !== 'finding' && e.type !== 'plugin_error' && e.type !== 'judgement') return;
+    if (e.type !== 'finding' && e.type !== 'plugin_error' && e.type !== 'inspection' && e.type !== 'judgement') return;
   }
 }

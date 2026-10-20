@@ -43,6 +43,8 @@ export class DebugView {
   }
 
   private id(runId: string, key: string) {
+    // Findings reported at the end of a crawl belong to no state.
+    if (!key) return key;
     const id = stateId(key);
     this.run(runId).set(id, key);
     return id;
@@ -87,6 +89,8 @@ export class DebugView {
         const { facts, ...finding } = event.finding;
         return { ...event, state: this.id(runId, event.state), finding: { ...finding, hasFacts: facts !== undefined } };
       }
+      case 'pursuit':
+        return { ...event, state: this.id(runId, event.state) };
       case 'plugin_error':
         return { ...event, state: this.id(runId, event.state), error: event.error.slice(0, 400) };
       default:

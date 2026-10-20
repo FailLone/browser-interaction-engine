@@ -43,6 +43,7 @@ const startSchema = z
       .optional(),
     followNavigation: z.boolean().optional(),
     models: z.boolean().optional(),
+    goal: z.string().trim().min(1).max(2000).optional(),
     resumeFrom: z.string().uuid().optional(),
     plugins: z.array(z.string().min(1).max(64)).max(10).optional(),
     session: z.union([sessionRequest, z.array(sessionRequest).min(1).max(5)]).optional(),

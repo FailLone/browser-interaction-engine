@@ -24,6 +24,7 @@ export interface Run {
     durationMs?: number;
     viewport?: ViewportOption;
     models?: boolean;
+    goal?: string;
   };
 }
 export type ViewportPreset = 'desktop' | 'desktop-edge' | 'mobile';
@@ -65,11 +66,47 @@ export interface Summary {
   onEntryPage: number;
   models?: { jev: ModelMeter; llm: ModelMeter };
   navigations?: { intercepted: number; sameDocument: unknown[] };
+  /** Goal mode with a question: whether the page answered it. */
+  pursuit?: {
+    question: string;
+    answered: boolean;
+    /** An answer from absence only stands once the scope was exhausted. */
+    settled: boolean;
+    result?: { answer: string; found: boolean; provisional: boolean; url: string; at: number; reason: string };
+    llmCalls: number;
+    costUsd: number;
+    steeredActions: number;
+  };
+  goal?: { plan: GoalPlan; prunedClasses: number; offAreaClasses: number };
   coverage?: {
     pages: { page: string; classesExecuted: number; classesSeen: number; textBlocksRevealedByActions: number }[];
     statesPerMinute: number[];
   };
 }
+/** What the LLM made of a goal prompt; areas are ARIA landmarks. */
+export interface GoalPlan {
+  goal: string;
+  stayOnPage: boolean;
+  allowedPaths: string[];
+  areas: ('banner' | 'navigation' | 'contentinfo')[];
+  focus: string[];
+  tasks: string[];
+  question: string;
+}
+/** One look the LLM took at a state while pursuing the goal's question. */
+export type PursuitEvent = {
+  seq: number;
+  type: 'pursuit';
+  at: number;
+  /** State id. */
+  state: string;
+  url: string;
+  answered: boolean;
+  found: boolean;
+  answer: string;
+  next?: string;
+  reason: string;
+};
 export interface Step {
   kind: string;
   classKey: string;
@@ -131,7 +168,17 @@ export type FindingEvent = {
   plugin: string;
   state: string;
   url: string;
-  finding: { rule: string; severity: 'info' | 'warning' | 'error'; selector: string; text: string; detail: string };
+  finding: {
+    rule: string;
+    severity: 'info' | 'warning' | 'error';
+    selector: string;
+    text: string;
+    detail: string;
+    /** Result code; older runs only have it at the start of `detail`. */
+    code?: string;
+    /** Where the element was on screen in this state. */
+    target?: ScreenView & { box: Box };
+  };
 };
 export type PluginErrorEvent = {
   seq: number;
@@ -140,6 +187,38 @@ export type PluginErrorEvent = {
   plugin: string;
   state: string;
   error: string;
+};
+/** What one check concluded on a state, in counts (see the crawler's CheckSummary). */
+export interface CheckSummary {
+  id: string;
+  verdict: 'pass' | 'fail' | 'unknown' | 'not-applicable';
+  targets: number;
+  counts?: Partial<Record<CheckSummary['verdict'], number>>;
+  ms: number;
+  /** Why targets did not pass: the most frequent codes per verdict, with how many targets each covers. */
+  codes?: { code: string; verdict: Exclude<CheckSummary['verdict'], 'pass'>; count: number }[];
+}
+export interface CheckInfo {
+  id: string;
+  name: string;
+  description?: string;
+}
+export type ChecksEvent = { seq: number; type: 'checks'; at: number; plugin: string; checks: CheckInfo[] };
+/**
+ * One plugin's pass over the state announced just before it. `repeated`: earlier findings seen
+ * again, by their order among findings.
+ */
+export type InspectionEvent = {
+  seq: number;
+  type: 'inspection';
+  at: number;
+  plugin: string;
+  ms: number;
+  captureMs?: number;
+  checks?: CheckSummary[];
+  repeated?: { finding: number; target?: ScreenView & { box: Box } }[];
+  /** Explanations of result codes used here for the first time in the run. */
+  reasons?: Record<string, string>;
 };
 export type Event =
   | { seq: number; type: 'viewport'; at: number; viewport: ResolvedViewport }
@@ -160,9 +239,13 @@ export type Event =
   | NavigationEvent
   | JudgementEvent
   | BacktrackEvent
+  | { seq: number; type: 'goal'; at: number; plan: GoalPlan }
+  | PursuitEvent
   | { seq: number; type: 'stop'; at: number; reason: string }
   | FindingEvent
-  | PluginErrorEvent;
+  | PluginErrorEvent
+  | ChecksEvent
+  | InspectionEvent;
 
 export interface ModelCallSummary {
   id: number;

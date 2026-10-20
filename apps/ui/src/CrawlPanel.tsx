@@ -28,9 +28,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { ActionTreeView } from './debug/ActionTreeView.js';
+import { ActionTreeView, type TreeDetail } from './debug/ActionTreeView.js';
 import { Hint, InfoTip } from './debug/common.js';
 import { FindingsView } from './debug/FindingsView.js';
+import { GoalView } from './debug/GoalView.js';
 import { ModelCallDialog, ModelCallsView } from './debug/ModelCallsView.js';
 import { StatesView } from './debug/StatesView.js';
 import {
@@ -181,10 +182,16 @@ function RunList({
                 {new URL(r.url).pathname}
               </span>
             </span>
+            {r.options.goal && (
+              <span className="line-clamp-2 text-xs break-words" title={r.options.goal}>
+                {r.options.goal}
+              </span>
+            )}
             <span className="text-xs text-muted-foreground">
               {new Date(r.createdAt).toLocaleString()}
               {` · ${r.summary?.viewport ? `${r.summary.viewport.width}×${r.summary.viewport.height}` : requestedViewport(r.options.viewport)}`}
               {r.options.resumeFrom ? ' · 续跑' : ''}
+              {r.options.goal ? ' · 目标' : ''}
               {r.summary ? ` · ${r.summary.actions} 动作` : ''}
             </span>
           </button>
@@ -213,6 +220,12 @@ function RunDetail({
   const [tab, setTab] = useState('tree');
   const [action, setAction] = useState<number>();
   const [openCall, setOpenCall] = useState<number>();
+  // In the tree, a state's checks or a model call shown on the right instead of the action.
+  const [detail, setDetail] = useState<TreeDetail>();
+  const pickAction = (seq: number) => {
+    setAction(seq);
+    setDetail(undefined);
+  };
 
   // Slim events in pages; a running crawl is polled until it ends.
   // biome-ignore lint/correctness/useExhaustiveDependencies: onUpdate is a fresh closure each render; the poll belongs to the run
@@ -281,7 +294,7 @@ function RunDetail({
   // Bumped on every jump from outside the tree, so choosing the same action again still scrolls to it.
   const [focus, setFocus] = useState(0);
   const selectAction = (seq: number) => {
-    setAction(seq);
+    pickAction(seq);
     setFocus(n => n + 1);
     setTab('tree');
   };
@@ -402,6 +415,16 @@ function RunDetail({
         </dl>
       </section>
 
+      {run.options.goal && (
+        <GoalView
+          runId={run.id}
+          goal={run.options.goal}
+          events={events}
+          summary={summary}
+          running={run.status === 'running'}
+        />
+      )}
+
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="max-w-full overflow-x-auto">
           <TabsTrigger value="tree">
@@ -438,9 +461,10 @@ function RunDetail({
                 events={events}
                 calls={calls.calls}
                 selected={action}
+                detail={detail}
                 focus={focus}
-                onSelect={setAction}
-                onOpenCall={setOpenCall}
+                onSelect={pickAction}
+                onDetail={setDetail}
               />
             </TabsContent>
             <TabsContent value="models">
@@ -516,7 +540,7 @@ function Tooltipped({ tip, children }: { tip: string; children: React.ReactEleme
 
 /** Why a finished run ended, in one line; the explanation is in a tooltip. */
 function StopReason({ reason, elapsedMs, limitMs }: { reason: string; elapsedMs?: number; limitMs?: number }) {
-  const early = reason === 'scope_exhausted';
+  const early = reason === 'scope_exhausted' || reason === 'goal_answered';
   const Icon = early ? CircleCheck : reason === 'stopped' ? CircleStop : reason === 'error' ? CircleAlert : Clock;
   return (
     <span className={cn('flex items-center gap-1', early ? 'text-success' : reason === 'error' && 'text-destructive')}>
@@ -526,7 +550,11 @@ function StopReason({ reason, elapsedMs, limitMs }: { reason: string; elapsedMs?
         <InfoTip>
           用时 {duration(elapsedMs)}
           {limitMs ? `，上限 ${duration(limitMs)}` : ''}
-          {early && limitMs && elapsedMs < limitMs ? '。能测的都测完了，所以提前结束。' : '。'}
+          {early && limitMs && elapsedMs < limitMs
+            ? reason === 'goal_answered'
+              ? '。页面已回答了目标问题，所以提前结束。'
+              : '。能测的都测完了，所以提前结束。'
+            : '。'}
         </InfoTip>
       )}
     </span>
@@ -564,6 +592,7 @@ function NewRunDialog({
   const [url, setUrl] = useState('https://www.okx.com/convert/usd-to-btc');
   const [minutes, setMinutes] = useState(5);
   const [models, setModels] = useState(true);
+  const [goal, setGoal] = useState('');
   const [viewport, setViewport] = useState<ViewportPreset | 'custom'>('desktop');
   const [custom, setCustom] = useState({ width: 1280, height: 800, mobile: false });
   const [available, setAvailable] = useState<string[]>([]);
@@ -605,6 +634,7 @@ function NewRunDialog({
               viewport: viewport === 'custom' ? custom : viewport,
               models,
               plugins,
+              ...(goal.trim() ? { goal: goal.trim() } : {}),
             });
           }}
         >
@@ -614,6 +644,30 @@ function NewRunDialog({
               <InfoTip>只测这一页：页面里的跳转会被拦截并记录，不会离开页面。</InfoTip>
             </Label>
             <Input id="crawl-url" value={url} onChange={e => setUrl(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="crawl-goal" className="gap-1">
+              测试目标（可选）
+              <InfoTip>
+                用一句话说要测什么，例如"用户能不能找到交易手续费说明"。LLM
+                先据此划定范围（只看入口页还是也去别的页、碰不碰页头页脚），再一步步找答案，找到就提前结束。留空则全面遍历。需要服务端同时配置
+                JEV 和 LLM。
+              </InfoTip>
+            </Label>
+            <textarea
+              id="crawl-goal"
+              rows={2}
+              value={goal}
+              onChange={e => setGoal(e.target.value)}
+              placeholder="留空则全面遍历"
+              className="min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
+            />
+            {goal.trim() && (!models || (configured && (!configured.jev || !configured.llm))) && (
+              <span className="flex items-center gap-1 text-xs text-warning">
+                <CircleAlert className="size-3.5" />
+                {models ? '目标模式需要服务端同时配置 JEV 和 LLM' : '目标模式需要使用模型'}
+              </span>
+            )}
           </div>
           <div className="grid grid-cols-[7rem_minmax(0,1fr)] gap-3">
             <div className="grid gap-2">
