@@ -51,6 +51,18 @@ export interface DetailSnapshot {
   documentId: string;
   dom?: DomEvidence;
   runtime: RuntimeEvidence;
+  /**
+   * The viewport as painted when `dom` was captured (same scroll), RGBA rows. Rules may read it
+   * where the DOM paint model cannot decide; it is never required.
+   */
+  pixels?: ViewportPixels;
+}
+export interface ViewportPixels {
+  width: number;
+  height: number;
+  /** Device pixels per CSS pixel. */
+  scale: number;
+  data: Uint8Array;
 }
 /** One capture as rules read it. */
 export interface RulePage {

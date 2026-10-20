@@ -107,6 +107,12 @@ export interface CrawlPlugin {
   onState(context: CrawlStateContext): Promise<PluginResult> | PluginResult;
   /** The checks this plugin runs, for naming them in summaries. */
   checks?(): CheckInfo[];
+  /**
+   * Screenshots this plugin reads. Called with each detailed capture (the state's and each swept
+   * screen's) right after it is taken; true has the viewport as painted at that moment attached
+   * (`DOMSnapshot.shot`). A screenshot costs tens of milliseconds, so ask only where it helps.
+   */
+  wantsPixels?(capture: DOMSnapshot): boolean;
   /** Plain-words explanation of result codes; each is recorded once, the first time a summary uses it. */
   reasons?(): Record<string, string>;
   /** Called once when the crawl ends, e.g. to report findings that resolved. */

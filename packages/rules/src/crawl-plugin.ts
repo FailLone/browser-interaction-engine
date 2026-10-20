@@ -9,11 +9,17 @@ import type {
 } from '@interaction/crawler';
 import { builtinRulePlugins, type RulePlugin } from './plugins.js';
 import { ruleReasons } from './reasons.js';
+import { decodePng } from './png.js';
 import type { Control, RuleCheck, RulePage, RuleReport, RuleVerdict } from './types.js';
 
 export interface RulesPluginOptions {
   /** Rule plugins to run; defaults to all built-in rules. */
   rules?: readonly RulePlugin[];
+  /**
+   * Read screenshots where the DOM alone cannot decide (text on shadows, gradients, images). On by
+   * default: a capture gets a screenshot only when some rule says it would read one there.
+   */
+  pixels?: boolean;
   /** Severities reported as findings; 'info' (pass, not-applicable, unknown) is omitted by default. */
   report?: readonly ('info' | 'warning' | 'error')[];
 }
@@ -23,6 +29,7 @@ const offscreen = (c: RuleCheck) =>
   c.code === 'VIEWPORT_RECHECK_PENDING' ||
   c.code === 'TEXT_SCROLL_RECHECK_PENDING' ||
   c.code === 'OUTSIDE_VIEWPORT' ||
+  c.code === 'TEXT_BACKGROUND_OFFSCREEN' ||
   (c.code === 'OCCLUSION_RECHECK_UNAVAILABLE' && c.actual === 'Error: TARGET_NOT_FULLY_IN_VIEW');
 
 /** A rule's result on one target, with the capture it was measured in and that capture's screenshot. */
@@ -42,6 +49,7 @@ type Seen = { check: RuleCheck; page: RulePage; shot?: string };
 export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
   const rules = (options.rules ?? builtinRulePlugins).map(rule => ({ rule, tracker: rule.create() }));
   const report = new Set(options.report ?? ['warning', 'error']);
+  const pixels = options.pixels ?? true;
   const sessionId = crypto.randomUUID(),
     viewSession = crypto.randomUUID();
   // The crawler's component class names the same control across states; give it a stable id.
@@ -49,10 +57,25 @@ export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
   let viewSequence = 0;
   return {
     id: 'rules',
+    ...(pixels
+      ? {
+          wantsPixels: (capture: DOMSnapshot) => {
+            // Its own identities: deciding must not change how the real run names controls.
+            const page = pageFromCapture(capture, {
+              sessionId,
+              sequence: 0,
+              runtime: emptyRuntime,
+              identities: new Map(),
+              pixels: false,
+            });
+            return rules.some(({ rule }) => rule.wantsPixels?.(page));
+          },
+        }
+      : {}),
     checks: () => rules.map(({ rule }) => ({ id: rule.id, name: rule.name, description: rule.description })),
     reasons: () => ruleReasons,
     async onState(context) {
-      const page = await rulePage(context, sessionId, identities);
+      const page = await rulePage(context, sessionId, identities, pixels);
       const findings: Finding[] = [];
       const checks: CheckSummary[] = [];
       const results: { rule: RulePlugin; report: RuleReport; ms: number }[] = [];
@@ -76,6 +99,7 @@ export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
         report,
         view: n => ({ sessionId: viewSession, sequence: ++viewSequence, state: `${context.state}@${n}` }),
         identities,
+        pixels,
       });
       for (const { rule, report: result, ms } of results) {
         const inPlace = new Set(result.checks.flatMap(c => (c.target ? [`${rule.id}|${c.target.nodeId}`] : [])));
@@ -119,6 +143,7 @@ async function lookFurther(
     report: Set<string>;
     view: (n: number) => { sessionId: string; sequence: number; state: string };
     identities: Map<string, string>;
+    pixels: boolean;
   },
 ): Promise<Map<string, Seen> & { ms: Map<string, number> }> {
   const settled = Object.assign(new Map<string, Seen>(), { ms: new Map<string, number>() });
@@ -153,6 +178,7 @@ async function lookFurther(
       ...input.view(n),
       runtime: context.runtime(),
       identities: input.identities,
+      pixels: input.pixels,
     });
     const controls = view.observation.controls;
     let found = false;
@@ -197,6 +223,7 @@ async function rulePage(
   context: CrawlStateContext,
   sessionId: string,
   identities: Map<string, string>,
+  pixels: boolean,
 ): Promise<RulePage> {
   return pageFromCapture(await context.detail(), {
     sessionId,
@@ -204,6 +231,7 @@ async function rulePage(
     state: context.state,
     runtime: context.runtime(),
     identities,
+    pixels,
   });
 }
 
@@ -219,6 +247,8 @@ export function pageFromCapture(
     state?: string;
     runtime: RuntimeEvidence;
     identities: Map<string, string>;
+    /** Hand rules the capture's screenshot, when it has one (default true). */
+    pixels?: boolean;
   },
 ): RulePage {
   const { sessionId, identities } = input;
@@ -234,6 +264,9 @@ export function pageFromCapture(
   for (const c of controls) counts.set(c.identityId!, (counts.get(c.identityId!) ?? 0) + 1);
   for (const c of controls) if (counts.get(c.identityId!)! > 1) c.hypothesisId = c.identityId;
   const overlay = capture.overlays.at(-1);
+  const decoded = input.pixels !== false && capture.shot && decodePng(capture.shot.png),
+    viewport = capture.dom?.environment?.layoutViewport.clientWidth;
+  const pixels = decoded && viewport ? { ...decoded, scale: decoded.width / viewport } : undefined;
   return {
     inspection: {
       id: `inspection:${observationId}`,
@@ -272,9 +305,26 @@ export function pageFromCapture(
         .filter(o => o.kind === 'modal' || o.kind === 'dialog')
         .map(o => ({ key: o.key, name: o.name })),
     },
-    snapshot: { observationId, documentId: capture.documentId, dom: capture.dom, runtime: input.runtime },
+    snapshot: {
+      observationId,
+      documentId: capture.documentId,
+      dom: capture.dom,
+      runtime: input.runtime,
+      ...(pixels ? { pixels } : {}),
+    },
   };
 }
+
+const emptyRuntime: RuntimeEvidence = {
+  since: '',
+  capturedAt: '',
+  network: [],
+  console: [],
+  errors: [],
+  dropped: { network: 0, console: 0, errors: 0 },
+  truncatedFields: 0,
+  frames: [],
+};
 
 type Reason = NonNullable<CheckSummary['codes']>[number];
 /** Codes kept per verdict that did not pass, most frequent first. */

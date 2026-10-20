@@ -221,3 +221,46 @@ it('after an action changes one part far down the page, scrolls only to that par
     ),
   ).toBe(true);
 }, 120000);
+
+it('reads label backgrounds the color model cannot from screenshots, taken only where they help', async () => {
+  const run = async (pixels: boolean) => {
+    const events: CrawlEvent[] = [];
+    const plugin = rulesPlugin({ pixels });
+    // Count the captures the crawler asks about and those that get a screenshot.
+    const asked = { all: 0, wanted: 0 };
+    const wants = plugin.wantsPixels;
+    if (wants)
+      plugin.wantsPixels = capture => {
+        const want = wants(capture);
+        asked.all++;
+        if (want) asked.wanted++;
+        return want;
+      };
+    await new SampledCrawler({
+      url: `${fixture.url}/text-background-pixels.html`,
+      viewport: { width: 1000, height: 600 },
+      durationMs: 20000,
+      // The entry state and its sweep are what is checked; one action lets the crawl announce it.
+      maxActions: 1,
+      settleMs: 100,
+      plugins: [plugin],
+      log: e => events.push(e),
+    }).run();
+    const found = events
+      .filter((e): e is Extract<CrawlEvent, { type: 'finding' }> => e.type === 'finding')
+      .filter(e => e.finding.rule === 'observed-text-background')
+      .map(e => e.finding.selector.match(/#([\w-]+)$/)?.[1] ?? e.finding.selector);
+    return { found: found.sort(), asked };
+  };
+  // From styles alone none of these can be judged: shadows, gradients, big radii.
+  expect((await run(false)).found).toEqual([]);
+  const { found, asked } = await run(true);
+  // Same-colored labels are found, on the first screen and on the swept screen far below it.
+  expect(found).toEqual(['far-same', 'gradient-same', 'radius-same', 'shadow-same']);
+  // Not judged: half of the label legible and half not, and a label under a veil.
+  expect(found).not.toContain('half');
+  expect(found).not.toContain('covered');
+  // A screenshot is taken only for screens that hold such a label, not for every capture.
+  expect(asked.wanted).toBeGreaterThan(0);
+  expect(asked.wanted).toBeLessThan(asked.all);
+}, 120000);

@@ -48,6 +48,8 @@ const unknown = (code: string, actual: string): RuleAssessment => ({
   evidence: [],
 });
 function freeze<T>(value: T): T {
+  // Typed arrays (screenshot pixels) cannot be frozen; rules only read them.
+  if (ArrayBuffer.isView(value)) return value;
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.freeze(value);
     for (const child of Object.values(value)) freeze(child);

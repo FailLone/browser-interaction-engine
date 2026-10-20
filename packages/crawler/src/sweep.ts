@@ -92,6 +92,8 @@ export interface SweepOptions {
   settleMs: number;
   /** Detailed captures (style, layout, text geometry) at each position, for plugins. */
   detailed: boolean;
+  /** Whether a detailed capture should carry a viewport screenshot, for plugins that read pixels. */
+  pixels?: (capture: DOMSnapshot) => boolean;
   /** An open overlay: only containers inside it are swept, not the page behind it. */
   overlay?: string;
   /** Surfaces already found endless on this page; not swept again. */
@@ -189,7 +191,7 @@ export async function sweep(
       containers: Object.fromEntries(containers.map(c => [c.selector, { x: c.left, y: c.top }])),
     },
   };
-  const read = () => driver.readDOM(options.detailed);
+  const read = () => driver.readDOM(options.detailed, (options.detailed && options.pixels) || false);
   // Classes already shown: on the first screen, in earlier sweeps of this page, and on screens
   // swept so far. A screen showing only these repeats.
   const known = new Set([
