@@ -31,7 +31,16 @@ import {
   type CrawlKind,
   type CrawlPolicy,
 } from './policy.js';
-import { findingKey, type CrawlPlugin, type CrawlStateContext, type Finding } from './plugin.js';
+import {
+  findingKey,
+  type CheckInfo,
+  type CheckSummary,
+  type CrawlPlugin,
+  type CrawlStateContext,
+  type Finding,
+  type FindingTarget,
+  type PluginResult,
+} from './plugin.js';
 import type { Judge, Question } from './judge.js';
 import { excludedAreas, GoalPursuit, GoalRelevance, planGoal, type GoalPlan } from './goal.js';
 import { metered, type ProviderMeter } from './meter.js';
@@ -182,6 +191,26 @@ export type CrawlEvent =
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
   | { type: 'plugin_error'; at: number; plugin: string; state: string; error: string }
+  /** The checks a plugin runs, named once at the start so inspections carry only ids. */
+  | { type: 'checks'; at: number; plugin: string; checks: CheckInfo[] }
+  /**
+   * One plugin's pass over the state announced just before (its key is not repeated, it runs to
+   * several KB): how long it took (`captureMs` of that for the detailed capture, when this plugin
+   * took it) and what each check concluded. `repeated` lists findings seen again here that were
+   * reported on an earlier state, by their order among the run's findings, with where the
+   * element is in this state. `reasons` explains the result codes used here for the first time
+   * in the run.
+   */
+  | {
+      type: 'inspection';
+      at: number;
+      plugin: string;
+      ms: number;
+      captureMs?: number;
+      checks?: CheckSummary[];
+      repeated?: { finding: number; target?: FindingTarget }[];
+      reasons?: Record<string, string>;
+    }
   /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
   | {
       type: 'navigation';
@@ -311,6 +340,10 @@ export class SampledCrawler {
   readonly listMembers = new Map<string, Set<string>>();
   readonly events: CrawlEvent[] = [];
   readonly findings = new Map<string, Finding & { plugin: string; url: string; state: string }>();
+  /** Each reported finding's order among the run's findings, by key. */
+  private readonly findingOrder = new Map<string, number>();
+  /** Result codes already explained in this run, per plugin. */
+  private readonly explained = new Map<string, Set<string>>();
   private adapter!: BrowserDriver;
   private path: Step[] = [];
   /** Document of the entry page currently loaded; route changes keep it, a page load replaces it. */
@@ -517,6 +550,10 @@ export class SampledCrawler {
     this.emit({ type: 'viewport', at: this.now(), viewport: this.adapter.viewport });
     for (const { provider, session } of this.sessions)
       this.emit({ type: 'session', at: this.now(), provider: provider.id, session: session.describe });
+    for (const plugin of this.options.plugins) {
+      const checks = plugin.checks?.();
+      if (checks?.length) this.emit({ type: 'checks', at: this.now(), plugin: plugin.id, checks });
+    }
     // Document navigations are decided before they happen. Aborting with 'aborted' cancels the
     // load and leaves the current document, its DOM and its state untouched (no error page).
     // Popups (window.open, target=_blank) are stopped before they load. Page routes take
@@ -935,13 +972,38 @@ export class SampledCrawler {
 
   private stateSequence = 0;
 
+  /** Explanations of the codes these summaries use for the first time in this run. */
+  private newReasons(plugin: CrawlPlugin, checks: CheckSummary[] | undefined, found: Finding[]) {
+    const known = plugin.reasons?.();
+    if (!known) return;
+    const explained = this.explained.get(plugin.id) ?? new Set<string>();
+    this.explained.set(plugin.id, explained);
+    const fresh: Record<string, string> = {};
+    const codes = [...(checks ?? []).flatMap(c => c.codes ?? []).map(r => r.code), ...found.map(f => f.code)];
+    for (const code of codes)
+      if (code && known[code] && !explained.has(code)) {
+        explained.add(code);
+        fresh[code] = known[code];
+      }
+    return Object.keys(fresh).length ? fresh : undefined;
+  }
+
+  /** Reports new findings; returns the order of those already reported earlier. */
   private report(plugin: string, found: Finding[], url: string, state: string) {
+    const repeated: { finding: number; target?: FindingTarget }[] = [];
     for (const finding of found) {
       const key = findingKey(plugin, finding);
-      if (this.findings.has(key)) continue;
+      const known = this.findingOrder.get(key);
+      if (known !== undefined) {
+        if (this.findings.get(key)?.state !== state)
+          repeated.push({ finding: known, ...(finding.target ? { target: finding.target } : {}) });
+        continue;
+      }
+      this.findingOrder.set(key, this.findings.size);
       this.findings.set(key, { ...finding, plugin, url, state });
       this.emit({ type: 'finding', at: this.now(), plugin, finding, state, url });
     }
+    return repeated;
   }
 
   /**
@@ -987,6 +1049,8 @@ export class SampledCrawler {
       let detail: Promise<DOMSnapshot> | undefined;
       const sequence = ++this.stateSequence;
       for (const plugin of this.options.plugins) {
+        const started = performance.now();
+        let captureMs: number | undefined;
         const context: CrawlStateContext = {
           state: key,
           sequence,
@@ -994,7 +1058,13 @@ export class SampledCrawler {
           snapshot: s.capture!,
           page: this.page,
           // Taken once per state and shared by every plugin.
-          detail: () => (detail ??= this.adapter.readDOM(true)),
+          detail: () =>
+            (detail ??= (async () => {
+              const t = performance.now();
+              const capture = await this.adapter.readDOM(true);
+              captureMs = Math.round(performance.now() - t);
+              return capture;
+            })()),
           runtime: () => this.adapter.runtime(),
           reportError: message =>
             this.emit({
@@ -1006,7 +1076,20 @@ export class SampledCrawler {
             }),
         };
         try {
-          this.report(plugin.id, await plugin.onState(context), s.url, key);
+          const result = await plugin.onState(context);
+          const repeated = this.report(plugin.id, findingsOf(result), s.url, key);
+          const checks = Array.isArray(result) ? undefined : result.checks;
+          const reasons = this.newReasons(plugin, checks, findingsOf(result));
+          this.emit({
+            type: 'inspection',
+            at: this.now(),
+            plugin: plugin.id,
+            ms: Math.round(performance.now() - started),
+            ...(captureMs !== undefined ? { captureMs } : {}),
+            ...(checks?.length ? { checks } : {}),
+            ...(repeated.length ? { repeated } : {}),
+            ...(reasons ? { reasons } : {}),
+          });
         } catch (error) {
           this.emit({
             type: 'plugin_error',
@@ -2106,3 +2189,5 @@ function rawPath(url: string) {
     return url;
   }
 }
+
+const findingsOf = (result: PluginResult) => (Array.isArray(result) ? result : result.findings);

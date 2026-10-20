@@ -98,6 +98,10 @@ const crawler = new SampledCrawler({
         JSON.stringify(event.answered ? event.answer : event.reason),
       );
     else if (event.type === 'plugin_error') console.log(t, 'plugin error', event.plugin, event.error);
+    else if (event.type === 'inspection') {
+      const failed = event.checks?.filter(c => c.verdict === 'fail').map(c => c.id) ?? [];
+      console.log(t, 'inspection', event.plugin, `${event.ms}ms`, failed.length ? `fail=${failed.join(',')}` : 'ok');
+    } else if (event.type === 'checks') console.log(t, 'checks', event.plugin, event.checks.length);
     else if (event.type === 'viewport') {
       const v = event.viewport;
       console.log(

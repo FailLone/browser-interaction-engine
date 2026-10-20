@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
-import { ChevronDown, ChevronRight, CornerDownLeft, CircleX, Info, Sparkles, Undo2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, CornerDownLeft, CircleX, Info, ShieldCheck, Sparkles, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ChecksDetail, ChecksLink, ChecksRowBody, hasProblems } from './ChecksView.js';
 import { Empty, Hint, InfoTip, Kind, Screenshot, Section, Time } from './common.js';
+import { ModelCallDetail } from './ModelCallsView.js';
 import {
   backtrackText,
   providerClass,
@@ -29,6 +31,7 @@ import {
   type ActionTree,
   type ModelStep,
   type ModelSteps,
+  type StateChecks,
   markIn,
   modelSteps,
   pathTo,
@@ -40,7 +43,12 @@ type Row =
   /** The walk ended after this action and went back; shown as its own line. */
   | { type: 'backtrack'; node: ActionNode; depth: number }
   /** A question put to JEV / LLM, at the place in the walk where it was asked. */
-  | { type: 'model'; step: ModelStep; depth: number; key: string };
+  | { type: 'model'; step: ModelStep; depth: number; key: string }
+  /** What plugins checked on the state an action reached (or the entry page). */
+  | { type: 'checks'; group: StateChecks; depth: number };
+
+/** What the right side shows besides an action: a state's checks or one model call. */
+export type TreeDetail = { kind: 'checks'; state: string } | { kind: 'call'; id: number };
 
 /** Deeper levels stop indenting so long walks stay readable; the level is still shown. */
 const maxIndent = 12;
@@ -49,8 +57,12 @@ const maxIndent = 12;
  * Rows in tree order: every action sits one level under the action that reached the state it
  * was taken in. Siblings are different actions tried from the same state.
  */
-function rows(tree: ActionTree, collapsed: Set<number>, models: ModelSteps): Row[] {
+function rows(tree: ActionTree, collapsed: Set<number>, models: ModelSteps, hidePassed: boolean): Row[] {
   const out: Row[] = [];
+  const checked = (groups: StateChecks[] | undefined, depth: number) => {
+    for (const group of groups ?? []) if (!hidePassed || hasProblems(group)) out.push({ type: 'checks', group, depth });
+  };
+  checked(tree.entryChecks, 0);
   const asked = (list: ModelStep[] | undefined, depth: number) => {
     for (const step of list ?? [])
       out.push({
@@ -68,6 +80,7 @@ function rows(tree: ActionTree, collapsed: Set<number>, models: ModelSteps): Row
     asked(models.before.get(node.event.seq), depth);
     out.push({ type: 'action', node, depth });
     asked(models.during.get(node.event.seq), depth + 1);
+    checked(tree.checksAfter.get(node.event.seq), depth + 1);
     if (node.backtracks.length) out.push({ type: 'backtrack', node, depth });
     if (collapsed.has(node.event.seq)) continue;
     for (let i = node.children.length - 1; i >= 0; i--) stack.push({ node: node.children[i], depth: depth + 1 });
@@ -81,10 +94,12 @@ const indent = (depth: number) => 12 + Math.min(depth, maxIndent) * 14;
 function ModelStepRow({
   step,
   depth,
+  selected,
   onOpenCall,
 }: {
   step: ModelStep;
   depth: number;
+  selected: boolean;
   onOpenCall: (id: number) => void;
 }) {
   const provider = step.kind === 'call' ? step.call.provider : step.event.source === 'llm' ? 'llm' : 'jev';
@@ -124,7 +139,7 @@ function ModelStepRow({
     'flex min-w-0 flex-1 items-center gap-1.5 py-0.5 pr-3 pl-1.5 text-left text-xs text-muted-foreground';
   return (
     <div
-      className="relative flex min-w-0 items-center hover:bg-accent/60"
+      className={cn('relative flex min-w-0 items-center hover:bg-accent/60', selected && 'bg-accent')}
       style={{ paddingLeft: `${indent(depth)}px` }}
     >
       <Guides depth={depth} />
@@ -140,6 +155,38 @@ function ModelStepRow({
           {body}
         </div>
       )}
+    </div>
+  );
+}
+
+/** A state's checks in one line; failing ones stand out, passing ones stay quiet. */
+function ChecksRow({
+  group,
+  depth,
+  selected,
+  onOpen,
+}: {
+  group: StateChecks;
+  depth: number;
+  selected: boolean;
+  onOpen: (state: string) => void;
+}) {
+  return (
+    <div
+      className={cn('relative flex min-w-0 items-center hover:bg-accent/60', selected && 'bg-accent')}
+      style={{ paddingLeft: `${indent(depth) + 16}px` }}
+    >
+      <Guides depth={depth} />
+      <button
+        type="button"
+        onClick={() => onOpen(group.state)}
+        className={cn(
+          'flex min-w-0 flex-1 items-center gap-1.5 py-0.5 pr-3 pl-1.5 text-left text-xs text-muted-foreground',
+          !hasProblems(group) && 'opacity-70',
+        )}
+      >
+        <ChecksRowBody group={group} />
+      </button>
     </div>
   );
 }
@@ -196,23 +243,42 @@ export function ActionTreeView({
   events,
   calls,
   selected,
+  detail,
   focus,
   onSelect,
-  onOpenCall,
+  onDetail,
 }: {
   runId: string;
   tree: ActionTree;
   events: Event[];
   calls: ModelCallSummary[];
   selected?: number;
+  /** Shown on the right instead of the selected action. */
+  detail?: TreeDetail;
   /** Changes on every jump from outside the tree (a failure, a finding, a model call). */
   focus?: number;
   onSelect: (seq: number) => void;
-  onOpenCall: (id: number) => void;
+  onDetail: (detail: TreeDetail) => void;
 }) {
   const [collapsed, setCollapsed] = useState(new Set<number>());
+  const [hidePassed, setHidePassed] = useState(() => {
+    try {
+      return localStorage.getItem('debug.hidePassedChecks') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleHidePassed = () =>
+    setHidePassed(prev => {
+      try {
+        localStorage.setItem('debug.hidePassedChecks', prev ? '0' : '1');
+      } catch {}
+      return !prev;
+    });
   const models = useMemo(() => modelSteps(tree, calls), [tree, calls]);
-  const list = useMemo(() => rows(tree, collapsed, models), [tree, collapsed, models]);
+  const list = useMemo(() => rows(tree, collapsed, models, hidePassed), [tree, collapsed, models, hidePassed]);
+  const checks = detail?.kind === 'checks' ? tree.checks.get(detail.state) : undefined;
+  const openChecks = (state: string) => onDetail({ kind: 'checks', state });
   const node = selected === undefined ? undefined : tree.nodes.get(selected);
   const virtuoso = useRef<VirtuosoHandle>(null);
   // Bring an action chosen elsewhere (a finding, a model call) into view; only rendered rows exist.
@@ -277,11 +343,29 @@ export function ActionTreeView({
           ref={virtuoso}
           initialTopMostItemIndex={{ index: initial, align: 'center' }}
           data={list}
-          computeItemKey={(_, row) => (row.type === 'model' ? row.key : `${row.type}:${row.node.event.seq}`)}
+          computeItemKey={(_, row) =>
+            row.type === 'model'
+              ? row.key
+              : row.type === 'checks'
+                ? `checks:${row.group.state}`
+                : `${row.type}:${row.node.event.seq}`
+          }
           style={{ height: Math.min(list.length * 30 + 8, maxListHeight) }}
           components={listPadding}
           itemContent={(_, row) => {
-            if (row.type === 'model') return <ModelStepRow step={row.step} depth={row.depth} onOpenCall={onOpenCall} />;
+            if (row.type === 'model')
+              return (
+                <ModelStepRow
+                  step={row.step}
+                  depth={row.depth}
+                  selected={row.step.kind === 'call' && detail?.kind === 'call' && detail.id === row.step.call.id}
+                  onOpenCall={id => onDetail({ kind: 'call', id })}
+                />
+              );
+            if (row.type === 'checks')
+              return (
+                <ChecksRow group={row.group} depth={row.depth} selected={checks === row.group} onOpen={openChecks} />
+              );
             const { node: n, depth } = row;
             const e = n.event;
             if (row.type === 'backtrack')
@@ -297,7 +381,7 @@ export function ActionTreeView({
                   </span>
                 </div>
               );
-            const isSelected = selected === e.seq;
+            const isSelected = selected === e.seq && !detail;
             const hasChildren = n.children.length > 0;
             return (
               <div
@@ -366,12 +450,25 @@ export function ActionTreeView({
             );
           }}
         />
-        <Legend />
+        <Legend hasChecks={tree.checks.size > 0} hidePassed={hidePassed} onToggleHidePassed={toggleHidePassed} />
       </div>
 
       <div className="min-w-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start lg:overflow-y-auto">
-        {node ? (
-          <ActionDetail runId={runId} tree={tree} node={node} findings={findings} onSelect={onSelect} />
+        {detail?.kind === 'call' ? (
+          <div className="rounded-lg border bg-card p-4">
+            <ModelCallDetail runId={runId} id={detail.id} tree={tree} onSelectAction={onSelect} />
+          </div>
+        ) : checks ? (
+          <ChecksDetail runId={runId} tree={tree} group={checks} onSelect={onSelect} />
+        ) : node ? (
+          <ActionDetail
+            runId={runId}
+            tree={tree}
+            node={node}
+            findings={findings}
+            onSelect={onSelect}
+            onOpenChecks={openChecks}
+          />
         ) : (
           <div className="rounded-lg border border-dashed px-6 py-12 text-center text-sm text-muted-foreground">
             选一个动作，看它的结果、到达路径、截图和模型判断。
@@ -388,7 +485,15 @@ const outcomeDot: Record<string, string> = {
   failed: 'bg-destructive',
 };
 
-function Legend() {
+function Legend({
+  hasChecks,
+  hidePassed,
+  onToggleHidePassed,
+}: {
+  hasChecks: boolean;
+  hidePassed: boolean;
+  onToggleHidePassed: () => void;
+}) {
   return (
     <div className="sticky bottom-0 flex flex-wrap items-center gap-x-3 gap-y-1 border-t bg-card px-3 py-1.5 text-[11px] text-muted-foreground">
       <span className="flex items-center gap-1">
@@ -423,6 +528,20 @@ function Legend() {
         <Undo2 className="size-3 text-warning" />
         到头回溯
       </span>
+      {hasChecks && (
+        <span className="flex items-center gap-1">
+          <ShieldCheck className="size-3" />
+          <Hint tip="插件在动作到达的新状态上做的检查，缩进在那个动作下面。点开看每条规则的结论和耗时。">检查</Hint>
+          <button
+            type="button"
+            onClick={onToggleHidePassed}
+            className={cn('rounded px-1 hover:bg-muted', hidePassed && 'bg-muted text-foreground')}
+            aria-pressed={hidePassed}
+          >
+            {hidePassed ? '显示全部' : '只看有问题的'}
+          </button>
+        </span>
+      )}
       <Hint
         className="ml-auto flex items-center gap-1"
         tip={
@@ -450,13 +569,16 @@ function ActionDetail({
   node,
   findings,
   onSelect,
+  onOpenChecks,
 }: {
   runId: string;
   tree: ActionTree;
   node: ActionNode;
   findings: (FindingEvent | PluginErrorEvent)[];
   onSelect: (seq: number) => void;
+  onOpenChecks: (state: string) => void;
 }) {
+  const checks = tree.checksAfter.get(node.event.seq);
   const e = node.event;
   const path = pathTo(node);
   // Prefer the screenshot taken right after this action; otherwise the state it led to, taken earlier.
@@ -666,6 +788,12 @@ function ActionDetail({
             ))}
           </ul>
         </details>
+      )}
+
+      {checks && (
+        <Section title="新状态上的检查">
+          <ChecksLink groups={checks} onOpen={onOpenChecks} />
+        </Section>
       )}
 
       {findings.length > 0 && (

@@ -46,6 +46,8 @@ export const tierText: Record<string, string> = {
   route: '路由',
 };
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+/** Short spans (a rule, a capture) in milliseconds, longer ones in seconds. */
+export const span = (ms: number) => (ms < 1000 ? `${Math.round(ms)}ms` : seconds(ms));
 export const duration = (ms: number) => {
   const s = Math.round(ms / 1000);
   return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${String(s % 60).padStart(2, '0')} 秒`;

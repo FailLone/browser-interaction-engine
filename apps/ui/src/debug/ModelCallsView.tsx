@@ -3,7 +3,7 @@ import { Fragment, forwardRef, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { Disclosure, Empty, InfoTip, Json, Kind, Section, Time } from './common.js';
 import {
@@ -148,7 +148,7 @@ export function ModelCallsView({
   );
 }
 
-/** One call's reason, input and output; fetched when opened. */
+/** One call in a dialog, for the model calls list. */
 export function ModelCallDialog({
   runId,
   id,
@@ -162,9 +162,52 @@ export function ModelCallDialog({
   onClose: () => void;
   onSelectAction: (seq: number) => void;
 }) {
+  return (
+    <Dialog open={id !== undefined} onOpenChange={open => !open && onClose()}>
+      <DialogContent className="sm:max-w-3xl">
+        {id !== undefined && (
+          <ModelCallDetail
+            runId={runId}
+            id={id}
+            tree={tree}
+            onSelectAction={seq => {
+              onSelectAction(seq);
+              onClose();
+            }}
+            Title={DialogTitle}
+            Description={DialogDescription}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const PlainTitle = ({ className, children }: { className?: string; children: React.ReactNode }) => (
+  <h2 className={cn('font-semibold', className)}>{children}</h2>
+);
+const PlainDescription = ({ children }: { asChild?: boolean; children: React.ReactNode }) => (
+  <div className="text-sm text-muted-foreground">{children}</div>
+);
+
+/** One call's reason, input and output; fetched when shown. In a dialog it uses the dialog's title. */
+export function ModelCallDetail({
+  runId,
+  id,
+  tree,
+  onSelectAction,
+  Title = PlainTitle,
+  Description = PlainDescription,
+}: {
+  runId: string;
+  id: number;
+  tree: ActionTree;
+  onSelectAction: (seq: number) => void;
+  Title?: React.ComponentType<{ className?: string; children: React.ReactNode }>;
+  Description?: React.ComponentType<{ asChild?: boolean; children: React.ReactNode }>;
+}) {
   const [detail, setDetail] = useState<ModelCall | { error: string }>();
   useEffect(() => {
-    if (id === undefined) return;
     let live = true;
     setDetail(undefined);
     call<ModelCall>(`/v1/crawls/${runId}/debug/model-calls/${id}`)
@@ -177,98 +220,93 @@ export function ModelCallDialog({
   const c = detail && 'request' in detail ? detail : undefined;
   const target = c && callTarget(tree, c);
   return (
-    <Dialog open={id !== undefined} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {c ? (
-              <>
-                <Kind className={providerClass[c.provider]}>{c.provider.toUpperCase()}</Kind>
-                {reasonOf(c.purpose)}
-              </>
-            ) : (
-              '模型调用'
-            )}
-          </DialogTitle>
-          {c && (
-            <DialogDescription asChild>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span>
-                  花费 <b className="text-foreground">{c.costUsd === undefined ? '未计价' : usd(c.costUsd)}</b>
-                </span>
-                <span>
-                  耗时 <b className="text-foreground">{seconds(c.ms)}</b>
-                </span>
-                {c.inputTokens !== undefined && (
-                  <span>
-                    tokens {c.inputTokens} → {c.outputTokens ?? '?'}
-                  </span>
-                )}
-                <span className="font-mono text-xs">{c.model}</span>
-                <span>
-                  第 <Time ms={c.at} /> 发起
-                </span>
-              </div>
-            </DialogDescription>
+    <div className="flex min-w-0 flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Title className="flex items-center gap-2">
+          {c ? (
+            <>
+              <Kind className={providerClass[c.provider]}>{c.provider.toUpperCase()}</Kind>
+              {reasonOf(c.purpose)}
+            </>
+          ) : (
+            '模型调用'
           )}
-        </DialogHeader>
-        {!detail ? (
-          <div className="flex justify-center py-10">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : 'error' in detail ? (
-          <p className="text-sm text-destructive">{detail.error}</p>
-        ) : (
-          c && (
-            <div className="flex min-w-0 flex-col gap-4">
-              <Section title="为什么调用">
-                <ul className="flex flex-col gap-1 text-sm">
-                  {purposeKinds(c.purpose).map(k => (
-                    <li key={k}>
-                      <span className="font-medium">{questionText[k]?.title ?? k}</span>
-                      <span className="text-muted-foreground">：{questionText[k]?.why ?? c.purpose}</span>
-                    </li>
-                  ))}
-                </ul>
-                {target && (
-                  <button
-                    type="button"
-                    className="w-fit text-left text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                    onClick={() => {
-                      onSelectAction(target.node.event.seq);
-                      onClose();
-                    }}
-                  >
-                    {relationText[target.relation](
-                      `#${target.node.index}「${target.node.event.step.label || '未命名'}」`,
-                    )}{' '}
-                    →
-                  </button>
-                )}
-              </Section>
-              {c.error && (
-                <Section title="调用失败">
-                  <p className="text-sm text-destructive">{c.error}</p>
-                </Section>
+        </Title>
+        {c && (
+          <Description asChild>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>
+                花费 <b className="text-foreground">{c.costUsd === undefined ? '未计价' : usd(c.costUsd)}</b>
+              </span>
+              <span>
+                耗时 <b className="text-foreground">{seconds(c.ms)}</b>
+              </span>
+              {c.inputTokens !== undefined && (
+                <span>
+                  tokens {c.inputTokens} → {c.outputTokens ?? '?'}
+                </span>
               )}
-              <Questions call={c} />
-              <Disclosure summary="原始请求与输出（JSON）">
-                <Json
-                  value={{
-                    instructions: c.request.instructions || undefined,
-                    state: c.request.state,
-                    checks: c.request.checks,
-                    options: c.request.options,
-                    answer: c.answer,
-                  }}
-                  className="max-h-96"
-                />
-              </Disclosure>
+              <span className="font-mono text-xs">{c.model}</span>
+              <span>
+                第 <Time ms={c.at} /> 发起
+              </span>
             </div>
-          )
+          </Description>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+      {!detail ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : 'error' in detail ? (
+        <p className="text-sm text-destructive">{detail.error}</p>
+      ) : (
+        c && (
+          <div className="flex min-w-0 flex-col gap-4">
+            <Section title="为什么调用">
+              <ul className="flex flex-col gap-1 text-sm">
+                {purposeKinds(c.purpose).map(k => (
+                  <li key={k}>
+                    <span className="font-medium">{questionText[k]?.title ?? k}</span>
+                    <span className="text-muted-foreground">：{questionText[k]?.why ?? c.purpose}</span>
+                  </li>
+                ))}
+              </ul>
+              {target && (
+                <button
+                  type="button"
+                  className="w-fit text-left text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  onClick={() => onSelectAction(target.node.event.seq)}
+                >
+                  {relationText[target.relation](
+                    `#${target.node.index}「${target.node.event.step.label || '未命名'}」`,
+                  )}{' '}
+                  →
+                </button>
+              )}
+            </Section>
+            {c.error && (
+              <Section title="调用失败">
+                <p className="text-sm text-destructive">{c.error}</p>
+              </Section>
+            )}
+            <Questions call={c} />
+            <Disclosure summary="原始请求与输出（JSON）">
+              <Json
+                value={{
+                  instructions: c.request.instructions || undefined,
+                  state: c.request.state,
+                  checks: c.request.checks,
+                  options: c.request.options,
+                  answer: c.answer,
+                }}
+                className="max-h-96"
+              />
+            </Disclosure>
+          </div>
+        )
+      )}
+    </div>
   );
 }
 

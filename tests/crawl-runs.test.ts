@@ -93,7 +93,7 @@ test('crawl runs are started, stored and inspected over HTTP, and a resumed run 
   }
 }, 180000);
 
-test('a run loads only the host plugins it names and records their findings', async () => {
+test('a run loads only the host plugins it names and records their findings and checks', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'crawls-'));
   const crawls = new CrawlManager(
     new CrawlStore(join(dir, 'crawls.sqlite')),
@@ -101,9 +101,15 @@ test('a run loads only the host plugins it names and records their findings', as
     {
       titles: () => ({
         id: 'titles',
-        onState: ({ snapshot }) => [
-          { rule: 'title', severity: 'warning', selector: 'title', text: snapshot.title, detail: 'Short title' },
-        ],
+        checks: () => [{ id: 'title', name: 'Title length' }],
+        onState: ({ snapshot }) => ({
+          findings: [
+            { rule: 'title', severity: 'warning', selector: 'title', text: snapshot.title, detail: 'Short title' },
+          ],
+          checks: [
+            { id: 'title', verdict: 'fail', targets: 1, ms: 0, codes: [{ code: 'SHORT', verdict: 'fail', count: 1 }] },
+          ],
+        }),
       }),
     },
   );
@@ -124,13 +130,29 @@ test('a run loads only the host plugins it names and records their findings', as
       async () => (await fetch(`${api}/v1/crawls/${run.id}`)).json(),
       r => r.status !== 'running',
     );
-    const findings = (await (await fetch(`${api}/v1/crawls/${run.id}/events`)).json()).filter(
-      (e: { type: string }) => e.type === 'finding',
-    );
+    const events: { type: string }[] = await (await fetch(`${api}/v1/crawls/${run.id}/events`)).json();
+    const findings = events.filter(e => e.type === 'finding');
     // The same finding on every state is reported once.
     expect(findings).toEqual([
       expect.objectContaining({ plugin: 'titles', finding: expect.objectContaining({ rule: 'title', text: 'Run' }) }),
     ]);
+    // The checks are named once; every new state gets one inspection, and later ones point back at the finding.
+    expect(events.filter(e => e.type === 'checks')).toEqual([
+      expect.objectContaining({ plugin: 'titles', checks: [{ id: 'title', name: 'Title length' }] }),
+    ]);
+    // Each follows its state's announcement, so it carries no state key.
+    const inspections = events.filter(e => e.type === 'inspection');
+    expect(inspections.length).toBe(events.filter(e => e.type === 'state').length);
+    events.forEach(
+      (e, i) =>
+        e.type === 'inspection' && expect(events.slice(0, i).findLast(p => p.type !== 'finding')?.type).toBe('state'),
+    );
+    expect(inspections[0]).toMatchObject({
+      plugin: 'titles',
+      checks: [{ id: 'title', verdict: 'fail', targets: 1, codes: [{ code: 'SHORT', verdict: 'fail', count: 1 }] }],
+    });
+    expect(inspections[0]).not.toHaveProperty('repeated');
+    if (inspections.length > 1) expect(inspections[1]).toMatchObject({ repeated: [{ finding: 0 }] });
   } finally {
     await app.close();
     await crawls.close();
