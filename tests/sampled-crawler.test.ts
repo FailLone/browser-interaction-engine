@@ -1432,3 +1432,33 @@ test('an opener that toggles a popup does not stand for the close control inside
     await site.close();
   }
 }, 120000);
+
+test('a status message in any language is a state when a live region shows it; without one, English and Chinese wording is', () => {
+  const base = { url: 'https://x.test/', title: '', controls: [] };
+  // Russian "nothing found" in a live region: a state of its own.
+  expect(stateKey({ ...base, text: 'Ничего не найдено', status: ['Ничего не найдено'] })).not.toBe(
+    stateKey({ ...base, text: '' }),
+  );
+  // Live values in the message do not make new states.
+  expect(stateKey({ ...base, status: ['Найдено 12'] })).toBe(stateKey({ ...base, status: ['Найдено 30'] }));
+  // English and Chinese wording still counts without a live region.
+  expect(stateKey({ ...base, text: 'No results' })).not.toBe(stateKey({ ...base, text: '' }));
+  expect(stateKey({ ...base, text: '暂无数据' })).not.toBe(stateKey({ ...base, text: '' }));
+});
+
+test('a live region is captured as status text, whatever its language', async () => {
+  const site = await serve(`<!doctype html><meta charset="utf-8"><title>Status</title><main>
+    <input aria-label="Поиск" type="search"><div role="status">Ничего не найдено</div>
+    <div aria-live="polite"><ul>${Array.from({ length: 40 }, (_, i) => `<li>Row ${i} with a long description of the item</li>`).join('')}</ul></div>
+    <p role="alert" hidden>Ошибка</p></main>`);
+  const driver = new BrowserDriver({ url: site.url });
+  try {
+    await driver.start();
+    const dom = await driver.readDOM();
+    // Hidden alerts and long live regions (a feed) are not status messages.
+    expect(dom.status).toEqual(['Ничего не найдено']);
+  } finally {
+    await driver.close();
+    await site.close();
+  }
+}, 60000);

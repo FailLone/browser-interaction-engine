@@ -5,6 +5,8 @@ export interface Snapshot {
   url: string;
   title: string;
   text?: string;
+  /** Short visible text of live regions (role=status / alert, aria-live, output). */
+  status?: string[];
   controls: Control[];
   overlays?: Overlay[];
   regions?: Region[];
@@ -115,16 +117,17 @@ export function stateKey(s: Snapshot): string {
   // Visible named content counts too: a hover card or expanded answer adds text, not always controls.
   const classes = new Set(s.controls.filter(c => c.visible && (c.actions.length || c.name)).map(controlClass));
   // Status messages (empty results, errors, alerts) are states even when they add no controls.
-  const status = (s.text || '')
+  // Live regions say so by structure, in any language; page lines worded like a status in English
+  // or Chinese are taken too, for pages that show them without a live region.
+  const worded = (s.text || '')
     .split(/\n+/)
     .map(line => line.trim())
     .filter(
       line =>
         /^(no |nothing|not found|没有|暂无|无结果|未找到)|result|empty|error|failed|错误|失败/i.test(line) &&
         line.length <= 80,
-    )
-    .map(line => maskVolatile(line))
-    .sort();
+    );
+  const status = [...(s.status || []), ...worded].map(line => maskVolatile(line)).sort();
   return JSON.stringify([
     pagePath(s.url),
     overlay ? `${overlay.kind}:${maskVolatile(overlay.name)}` : '',

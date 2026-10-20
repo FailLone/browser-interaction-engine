@@ -167,6 +167,22 @@ export function collectDOM(
   };
   const body = document.body;
   const bodyText = body?.innerText ?? body?.textContent ?? '';
+  // Status messages announced by live regions (results, errors, confirmations), in any language.
+  // Short ones only: a region holding a whole list or feed is content, not a status.
+  const status = [
+    ...document.querySelectorAll('[role=status],[role=alert],[aria-live=polite],[aria-live=assertive],output'),
+  ]
+    .filter(el => {
+      const r = el.getBoundingClientRect();
+      return (
+        r.width > 1 &&
+        r.height > 1 &&
+        getComputedStyle(el).visibility !== 'hidden' &&
+        seenByUser(el, r, getComputedStyle(el))
+      );
+    })
+    .map(el => ((el as HTMLElement).innerText || '').replace(/\s+/g, ' ').trim())
+    .filter(text => text && text.length <= 80);
   const selector = (el: Element): string => {
     if (el.id && document.querySelectorAll(`#${CSS.escape(el.id)}`).length === 1) return `#${CSS.escape(el.id)}`;
     const parts: string[] = [];
@@ -1069,6 +1085,7 @@ export function collectDOM(
     url: location.href,
     title: document.title,
     text: bodyText.slice(0, 50000),
+    status: [...new Set(status)].slice(0, 20),
     controls,
     regions,
     components,

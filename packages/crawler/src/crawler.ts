@@ -862,6 +862,7 @@ export class SampledCrawler {
       url: dom.url,
       title: dom.title,
       text: dom.text,
+      status: dom.status,
       controls: dom.controls as Control[],
       overlays: dom.overlays,
       regions: dom.regions,
