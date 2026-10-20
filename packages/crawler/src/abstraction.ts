@@ -1,3 +1,4 @@
+import { withoutLanguage } from './language.js';
 import type { Control, Overlay, Region } from './browser/types.js';
 
 /** Minimal capture the crawler needs; produced by the adapter's DOM collector. */
@@ -23,16 +24,13 @@ export function maskVolatile(text: string, max = 80): string {
     .slice(0, max);
 }
 
-/** Region/script locale prefixes (/zh-hans/, /en-au/) are the same page in another language. */
-const localePrefix = /^\/[a-z]{2}-(?:[a-z]{2}|hans|hant)(?=\/|$)/i;
-
+/**
+ * The page a URL shows, from the URL alone: a leading language segment with a script or region
+ * (/zh-hans/, /en-au/, /es-419/) is taken off. Pages that declare their language versions are
+ * matched exactly by `LanguageVersions`, which the crawler uses for navigation decisions.
+ */
 export function pagePath(url: string): string {
-  try {
-    const u = new URL(url);
-    return u.origin + u.pathname.replace(localePrefix, '').replace(/\/+$/, '');
-  } catch {
-    return url;
-  }
+  return withoutLanguage(url);
 }
 
 /**
@@ -42,7 +40,7 @@ export function pagePath(url: string): string {
 export function pageTemplate(url: string): string {
   try {
     const u = new URL(url),
-      parts = u.pathname.replace(localePrefix, '').replace(/\/+$/, '').split('/');
+      parts = new URL(withoutLanguage(url)).pathname.split('/');
     if (parts.length > 2) parts[parts.length - 1] = '*';
     return u.origin + parts.join('/');
   } catch {

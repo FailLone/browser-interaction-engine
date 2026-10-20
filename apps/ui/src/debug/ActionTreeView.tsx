@@ -764,6 +764,7 @@ function ActionDetail({
           <ul className="flex flex-col gap-1 text-xs text-muted-foreground">
             {node.triggered.map(n => (
               <li key={n.seq} className="break-all">
+                {n.kind === 'language' ? '其他语言版本，' : ''}
                 {navigationText[n.outcome] ?? n.outcome} → {n.to}
               </li>
             ))}
@@ -778,11 +779,13 @@ function ActionDetail({
             <InfoTip>
               只测当前页：指向其他页面的链接不点击，直接从 href
               记下目的地。它们出现在新状态里（比如打开了一个列表），和这一步本身无关。每个目的地只记一次。
+              同一页面的其他语言版本（页面用 hreflang 声明，或路径以语言代码开头）只测入口页的语言，标为"其他语言版本"。
             </InfoTip>
           </summary>
           <ul className="mt-1.5 flex max-h-48 flex-col gap-1 overflow-y-auto pl-4 text-muted-foreground">
             {node.linksSeen.map(n => (
               <li key={n.seq} className="break-all">
+                {n.kind === 'language' ? '其他语言版本：' : ''}
                 {n.action || '未命名'} → {n.to}
               </li>
             ))}

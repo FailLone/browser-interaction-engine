@@ -116,6 +116,8 @@ const crawler = new SampledCrawler({
       console.log(t, 'session', event.provider, JSON.stringify(event.check ?? event.session));
     else if (event.type === 'navigation')
       console.log(t, 'navigation', event.kind, event.outcome, event.to, JSON.stringify(event.action));
+    else if (event.type === 'languages')
+      console.log(t, 'languages', event.language ?? '?', `${event.variants.length} versions declared`);
     else console.log(t, event.type, event.reason);
   },
 });
