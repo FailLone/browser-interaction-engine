@@ -140,12 +140,13 @@ test('a run loads only the host plugins it names and records their findings and 
     expect(events.filter(e => e.type === 'checks')).toEqual([
       expect.objectContaining({ plugin: 'titles', checks: [{ id: 'title', name: 'Title length' }] }),
     ]);
-    // Each follows its state's announcement, so it carries no state key.
+    // Each follows its state's announcement (and the sweep of that state), so it carries no state key.
     const inspections = events.filter(e => e.type === 'inspection');
     expect(inspections.length).toBe(events.filter(e => e.type === 'state').length);
     events.forEach(
       (e, i) =>
-        e.type === 'inspection' && expect(events.slice(0, i).findLast(p => p.type !== 'finding')?.type).toBe('state'),
+        e.type === 'inspection' &&
+        expect(events.slice(0, i).findLast(p => p.type !== 'finding' && p.type !== 'sweep')?.type).toBe('state'),
     );
     expect(inspections[0]).toMatchObject({
       plugin: 'titles',

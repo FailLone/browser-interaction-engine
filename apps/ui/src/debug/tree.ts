@@ -7,6 +7,7 @@ import type {
   FindingEvent,
   InspectionEvent,
   JudgementEvent,
+  SweepEvent,
   ModelCallSummary,
   NavigationEvent,
   PluginErrorEvent,
@@ -23,6 +24,8 @@ export interface StateChecks {
   /** The action that reached the state; none for the entry page. */
   node?: ActionNode;
   inspections: InspectionEvent[];
+  /** The state scrolled to the end, when it was. */
+  sweep?: SweepEvent;
   /** Findings first reported on this state, and plugin errors. */
   findings: (FindingEvent | PluginErrorEvent)[];
 }
@@ -143,6 +146,8 @@ export function buildActionTree(events: Event[]): ActionTree {
       }
     } else if (e.type === 'checks') {
       for (const c of e.checks) tree.checkNames.set(`${e.plugin}/${c.id}`, c);
+    } else if (e.type === 'sweep') {
+      if (announced) checksOf(e, announced).sweep = e;
     } else if (e.type === 'inspection') {
       if (announced) checksOf(e, announced).inspections.push(e);
       for (const [code, text] of Object.entries(e.reasons ?? {})) tree.reasons.set(`${e.plugin}/${code}`, text);
@@ -337,6 +342,6 @@ export function markIn(target: (ScreenView & { box: Box }) | undefined, view: Sc
 function actionRevealing(events: Event[], i: number): number | undefined {
   for (const e of events.slice(i + 1)) {
     if (e.type === 'action') return e.seq;
-    if (e.type !== 'finding' && e.type !== 'plugin_error' && e.type !== 'inspection' && e.type !== 'judgement') return;
+    if (!['finding', 'plugin_error', 'inspection', 'sweep', 'judgement'].includes(e.type)) return;
   }
 }

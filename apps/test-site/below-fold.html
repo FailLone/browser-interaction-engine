@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Below the fold</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.6 system-ui, sans-serif; color: #203c32; background: #f3f6f1; }
+  header { position: sticky; top: 0; z-index: 2; height: 56px; padding: 12px 24px; background: #203c32; color: white; }
+  main { padding: 24px; }
+  .spacer { height: 1400px; }
+  section { padding: 18px; margin-bottom: 24px; background: white; border: 1px solid #d7e1d5; }
+  button { padding: 8px 14px; border: 1px solid #53826b; background: #eef5ec; font: 15px/22px system-ui, sans-serif; }
+  #clip-box { position: relative; width: 290px; height: 72px; overflow: hidden; border: 2px solid #b87559; }
+  #clipped-far { position: absolute; top: 52px; left: 16px; width: 220px; height: 44px; }
+  #truncated-far { display: block; width: 120px; overflow: hidden; white-space: nowrap; text-align: left; }
+  #healthy-far { display: block; }
+  #lazy { min-height: 40px; }
+  #virtual { height: 160px; width: 320px; overflow-y: auto; border: 1px solid #d7e1d5; }
+  #virtual-track { position: relative; height: 1200px; }
+  #virtual-track button { position: absolute; left: 8px; width: 280px; }
+  .feed-item { height: 120px; padding: 12px; margin-bottom: 8px; background: white; border: 1px solid #d7e1d5; }
+</style>
+<header>Below the fold</header>
+<main>
+  <section>
+    <p>Nothing wrong up here.</p>
+    <button id="top" type="button">Top button</button>
+    <!-- Renders only the rows in its own visible window, as virtual lists do. -->
+    <div id="virtual" aria-label="Virtual list"><div id="virtual-track"></div></div>
+  </section>
+  <div class="spacer"></div>
+  <section>
+    <h2>Far down</h2>
+    <div id="clip-box"><button id="clipped-far" type="button">Clipped far down</button></div>
+    <button id="truncated-far" type="button">Truncated text far down the page</button>
+    <button id="healthy-far" type="button">Fine</button>
+    <div id="lazy"></div>
+  </section>
+  <div class="spacer"></div>
+  <section>
+    <button id="bottom" type="button">Bottom button</button>
+  </section>
+  <div id="feed"></div>
+</main>
+<script>
+  // Loads more content once scrolled near, as lazy sections do.
+  const lazy = document.getElementById('lazy');
+  new IntersectionObserver(entries => {
+    if (entries.some(e => e.isIntersecting) && !lazy.childElementCount) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.id = 'lazy-loaded';
+      b.textContent = 'Loaded on scroll';
+      lazy.append(b);
+    }
+  }).observe(lazy);
+
+  // A virtual list: 30 rows of 40px, only those in the window are in the DOM.
+  const scroller = document.getElementById('virtual');
+  const track = document.getElementById('virtual-track');
+  const renderRows = () => {
+    const first = Math.floor(scroller.scrollTop / 40);
+    track.replaceChildren(
+      ...Array.from({ length: 5 }, (_, i) => first + i)
+        .filter(i => i < 30)
+        .map(i => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.id = `row-${i}`;
+          b.textContent = i === 27 ? 'Row 27 has a label far too long for its button to show' : `Row ${i}`;
+          if (i === 27) Object.assign(b.style, { width: '120px', overflow: 'hidden', whiteSpace: 'nowrap' });
+          b.style.top = `${i * 40}px`;
+          return b;
+        }),
+    );
+  };
+  scroller.addEventListener('scroll', renderRows);
+  renderRows();
+
+  // An infinite feed: reaching the end of the page always adds more, without limit.
+  const feed = document.getElementById('feed');
+  let fed = 0;
+  const more = () => {
+    for (let i = 0; i < 6; i++) {
+      const item = document.createElement('article');
+      item.className = 'feed-item';
+      item.innerHTML = `<button type="button">Feed item ${++fed}</button>`;
+      feed.append(item);
+    }
+  };
+  addEventListener('scroll', () => {
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 200) more();
+  });
+</script>
+</html>

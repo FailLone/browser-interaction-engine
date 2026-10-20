@@ -116,6 +116,14 @@ const crawler = new SampledCrawler({
       console.log(t, 'session', event.provider, JSON.stringify(event.check ?? event.session));
     else if (event.type === 'navigation')
       console.log(t, 'navigation', event.kind, event.outcome, event.to, JSON.stringify(event.action));
+    else if (event.type === 'sweep')
+      console.log(
+        t,
+        'sweep',
+        `${event.ms}ms`,
+        `revealed=${event.revealed}`,
+        event.surfaces.map(s => `${s.surface}:${s.screens}:${s.end}`).join(' '),
+      );
     else console.log(t, event.type, event.reason);
   },
 });

@@ -43,6 +43,8 @@ export const ruleReasons: Record<string, string> = {
   TARGET_NOT_FULLY_IN_VIEW: '控件只有一部分在屏幕内，等滚动后再查',
   CONTROL_UNREACHABLE_BY_SCROLLING: '控件有一部分在滚动不到的地方',
   VIEWPORT_RECHECK_PENDING: '控件超出屏幕，等遍历滚动到它再查',
+  CHECKED_FURTHER_DOWN_EARLIER: '不在屏幕内；页面下方和之前滚动检查时一样，没有再滚动',
+  LIST_SAMPLED: '在长列表里，按列表抽样，没有滚动到',
   SCROLL_CLIP_RECHECK_PENDING: '控件在滚动区边缘，滚动后可能露出来',
   CONTROL_CLIPPING_SUSPECTED: '控件疑似被容器裁掉，还不能确认是否故意',
   CLIPPING_REQUIREMENT_FAILED: '控件被容器裁掉',

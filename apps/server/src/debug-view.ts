@@ -86,9 +86,27 @@ export class DebugView {
         };
       }
       case 'finding': {
-        const { facts, ...finding } = event.finding;
-        return { ...event, state: this.id(runId, event.state), finding: { ...finding, hasFacts: facts !== undefined } };
+        const { facts, target, ...finding } = event.finding;
+        return {
+          ...event,
+          state: this.id(runId, event.state),
+          finding: {
+            ...finding,
+            ...(target ? { target: { ...target, ...(target.shot ? { shot: this.id(runId, target.shot) } : {}) } } : {}),
+            hasFacts: facts !== undefined,
+          },
+        };
       }
+      case 'inspection':
+        // Seen-again findings measured further down the page carry that picture.
+        return event.repeated?.some(r => r.target?.shot)
+          ? {
+              ...event,
+              repeated: event.repeated.map(r =>
+                r.target?.shot ? { ...r, target: { ...r.target, shot: this.id(runId, r.target.shot) } } : r,
+              ),
+            }
+          : event;
       case 'pursuit':
         return { ...event, state: this.id(runId, event.state) };
       case 'plugin_error':

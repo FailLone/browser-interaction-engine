@@ -2,6 +2,7 @@ export * from './abstraction.js';
 export * from './policy.js';
 export * from './crawler.js';
 export * from './plugin.js';
+export * from './sweep.js';
 export * from './session.js';
 export * from './experiment.js';
 export * from './judge.js';
