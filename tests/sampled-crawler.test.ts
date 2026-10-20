@@ -1249,3 +1249,39 @@ test('two amount fields with the same placeholder are both filled; one field per
     await site.close();
   }
 }, 120000);
+
+test('a mobile sheet with no dialog semantics or backdrop is an overlay: its content first, the page beneath never', async () => {
+  // A fixed bottom bar and a floating help button stay on the page; the help button opens a
+  // full-screen sheet after a delay (an API call), a plain fixed div with nothing saying "dialog".
+  const site = await serve(`<!doctype html><title>Download</title><main style="padding-bottom:80px">
+    ${Array.from({ length: 6 }, (_, i) => `<p><button onclick="this.textContent='Picked ${i}'">Platform ${i}</button></p>`).join('')}
+  </main>
+  <nav style="position:fixed;left:0;right:0;bottom:0;height:56px;background:#fff"><button>Home</button><button>Markets</button></nav>
+  <button id="help" style="position:fixed;right:12px;bottom:70px" onclick="setTimeout(()=>document.getElementById('sheet').style.display='block',300)">Help</button>
+  <div id="sheet" style="display:none;position:fixed;inset:0;background:#fff;z-index:10">
+    <p>How can we help?</p><button onclick="document.getElementById('topic').hidden=false">Deposits</button>
+    <p id="topic" hidden>Deposit answers</p>
+    <button onclick="document.getElementById('sheet').style.display='none'">Close</button>
+  </div>`);
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 500,
+      viewport: 'mobile',
+      log: e => events.push(e),
+    }).run();
+    const actions = actionsOf(events);
+    const deposits = actions.find(a => a.step.label === 'Deposits');
+    expect(deposits).toMatchObject({ outcome: 'ok' });
+    expect(deposits!.overlay).toMatch(/^modal:/);
+    // Nothing was clicked through the sheet while it was open.
+    expect(actions.filter(a => a.outcome === 'failed')).toEqual([]);
+    // The bottom bar and the help button are page chrome, not overlays.
+    const help = actions.find(a => a.step.label === 'Help');
+    expect(help?.overlay).toBeUndefined();
+  } finally {
+    await site.close();
+  }
+}, 120000);
