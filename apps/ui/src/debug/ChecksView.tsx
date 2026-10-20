@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Disclosure, InfoTip, Json, Kind, Screenshot, Section, Time } from './common.js';
+import { Disclosure, Hint, InfoTip, Json, Kind, Screenshot, Section, Time } from './common.js';
 import { call, kindText, pluginText, severityText, span } from './text.js';
 import { type ActionTree, type StateChecks, type StateFinding, actionBefore, stateFindings } from './tree.js';
-import type { CheckSummary, FindingEvent } from './types.js';
+import type { CheckSummary, FindingEvent, SweepEvent } from './types.js';
 
 type Verdict = CheckSummary['verdict'];
 const verdictOrder: Verdict[] = ['fail', 'unknown', 'pass', 'not-applicable'];
@@ -93,9 +93,14 @@ export function ChecksDetail({
   const [active, setActive] = useState<number>();
   const t = checkTally(group);
   const problems = stateFindings(tree, group);
-  const marks = problems.flatMap(p =>
-    p.target ? [{ ...p.target, key: p.n, label: String(p.n), active: active === p.n }] : [],
-  );
+  // Problems further down the page were measured on a picture of their own; the rest on the state's.
+  const pictures = [undefined, ...new Set(problems.flatMap(p => (p.target?.shot ? [p.target.shot] : [])))];
+  const marksOn = (shot: string | undefined) =>
+    problems.flatMap(p =>
+      p.target && p.target.shot === shot ? [{ ...p.target, key: p.n, label: String(p.n), active: active === p.n }] : [],
+    );
+  const placed = problems.filter(p => p.target).length;
+  const sweep = group.sweep;
   const capture = group.inspections.reduce((n, i) => n + (i.captureMs ?? 0), 0);
   const targets = Math.max(0, ...group.inspections.flatMap(i => (i.checks ?? []).map(c => c.targets)));
   const errors = group.findings.filter(f => f.type === 'plugin_error');
@@ -144,18 +149,33 @@ export function ChecksDetail({
             </span>
           )}
           {targets > 0 && <span>最多检查 {targets} 个对象</span>}
+          {sweep && <SweepSummary sweep={sweep} />}
           <Time ms={group.at} />
         </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Screenshot runId={runId} state={group.state} label="检查的状态" marks={marks} />
+        <div className={cn('grid gap-2', pictures.length > 1 && 'grid-cols-2')}>
+          {pictures.map(shot => (
+            <div key={shot ?? 'state'} className="flex min-w-0 flex-col gap-1">
+              {pictures.length > 1 && (
+                <span className="text-xs text-muted-foreground">{shot ? '往下滚动后' : '页面顶部'}</span>
+              )}
+              <Screenshot
+                runId={runId}
+                state={shot ?? group.state}
+                label={shot ? '滚动后检查的位置' : '检查的状态'}
+                marks={marksOn(shot)}
+              />
+            </div>
+          ))}
+        </div>
         {problems.length > 0 && (
           <p className="text-xs text-muted-foreground">
-            {marks.length === problems.length
+            {placed === problems.length
               ? '红框是发现问题的元素，编号与下面的问题对应；点问题可以突出它的框。'
-              : marks.length
-                ? `红框是发现问题的元素，编号与下面的问题对应。有 ${problems.length - marks.length} 个问题没有位置（较早的运行，或元素没有尺寸）。`
+              : placed
+                ? `红框是发现问题的元素，编号与下面的问题对应。有 ${problems.length - placed} 个问题没有位置（较早的运行，或元素没有尺寸）。`
                 : '这些问题没有记录位置（较早的运行），无法在截图上标出。'}
           </p>
         )}
@@ -507,6 +527,42 @@ function RawEvidence({ runId, finding: f }: { runId: string; finding: FindingEve
         <Json value={facts ?? '这条结果没有附带证据。'} />
       )}
     </div>
+  );
+}
+
+const sweepEndText: Record<SweepEvent['surfaces'][number]['end'], string> = {
+  end: '到底',
+  endless: '无限加载，已停止',
+  repeats: '后面都是同类内容，按列表抽样',
+  budget: '达到上限',
+};
+
+/** How far the crawler scrolled this state: the page and each scrolling container, and how each ended. */
+function SweepSummary({ sweep }: { sweep: SweepEvent }) {
+  const screens = sweep.surfaces.reduce((n, s) => n + s.screens, 0);
+  return (
+    <Hint
+      tip={
+        <ul className="flex flex-col gap-0.5">
+          {sweep.surfaces.map(s => (
+            <li key={s.surface}>
+              {s.surface === 'page' ? '页面' : `容器 ${s.surface}`}：{s.screens} 屏，{sweepEndText[s.end]}
+              {s.ms !== undefined && `，${span(s.ms)}，新出现 ${s.revealed} 个控件（新类型 ${s.newClasses}）`}
+            </li>
+          ))}
+          {sweep.skipped?.map(s => (
+            <li key={s}>{s === 'page' ? '页面' : `容器 ${s}`}：和之前滚动时一样，没有再滚动</li>
+          ))}
+          <li>
+            滚动后新出现 {sweep.revealed} 个控件，用时 {span(sweep.ms)}
+          </li>
+        </ul>
+      }
+      className={cn(sweep.surfaces.some(s => s.end === 'endless') && 'text-warning')}
+    >
+      {screens ? `滚动查看了 ${screens} 屏` : '下方无变化，未再滚动'}
+      {sweep.surfaces.some(s => s.end === 'endless') && '（含无限加载）'}
+    </Hint>
   );
 }
 

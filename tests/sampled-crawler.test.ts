@@ -1501,6 +1501,8 @@ test('a sheet that opens after the settle is not blamed on the next click, and t
       durationMs: 30000,
       settleMs: 300,
       viewport: 'mobile',
+      // Scrolling a new state re-reads the page, which would change the read this test delays.
+      sweep: false,
       log: e => events.push(e),
     });
     // The capture-time occlusion filter would hide the covered controls; the late sheet must be

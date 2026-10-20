@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expanding answer</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.6 system-ui, sans-serif; color: #203c32; background: #f3f6f1; }
+  main { padding: 24px; }
+  .block { padding: 18px; margin-bottom: 24px; background: white; border: 1px solid #d7e1d5; }
+  .tall { height: 700px; }
+  button, a { display: block; margin: 8px 0; padding: 8px 14px; font: 15px/22px system-ui, sans-serif; }
+  #truncated { width: 120px; overflow: hidden; white-space: nowrap; text-align: left; }
+</style>
+<main>
+  <header class="block">
+    <p>A long page of different parts, with one expandable answer far down.</p>
+    <button id="expand" type="button" aria-expanded="false">Show the answer</button>
+  </header>
+  <!-- Links elsewhere are recorded, not clicked; the page has nothing else to act on. -->
+  <nav class="block tall"><a href="https://example.com/prices">Prices</a></nav>
+  <section class="block tall"><a href="https://example.com/fees">Fees</a></section>
+  <article class="block">
+    <h2>Question</h2>
+    <div id="answer" hidden>
+      <p>The answer pushes everything after it further down the page.</p>
+      <div style="height: 500px"></div>
+      <button id="truncated" type="button">A label far too long for this answer's button</button>
+    </div>
+  </article>
+  <aside class="block tall"><a href="https://example.com/help">Help</a></aside>
+  <footer class="block tall"><a href="https://example.com/terms">Terms</a></footer>
+</main>
+<script>
+  document.getElementById('expand').addEventListener('click', e => {
+    const open = e.currentTarget.getAttribute('aria-expanded') !== 'true';
+    e.currentTarget.setAttribute('aria-expanded', String(open));
+    document.getElementById('answer').hidden = !open;
+  });
+</script>
+</html>

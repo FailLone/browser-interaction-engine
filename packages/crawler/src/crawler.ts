@@ -46,6 +46,16 @@ import type { Judge, Question } from './judge.js';
 import { LanguageVersions, pageLanguageInPage, type LanguageVariant } from './language.js';
 import { excludedAreas, GoalPursuit, GoalRelevance, planGoal, type GoalPlan } from './goal.js';
 import { metered, type ProviderMeter } from './meter.js';
+import {
+  defaultSweep,
+  restore,
+  show,
+  sweep,
+  type SweepMemory,
+  type SweptSurface,
+  type SweepOptions,
+  type SweepResult,
+} from './sweep.js';
 import type { CrawlLedger } from './store.js';
 import {
   classifyInput,
@@ -116,6 +126,12 @@ export interface CrawlOptions {
   onScreenshot?: (state: string, image: Buffer) => void | Promise<void>;
   /** Plugins (UI rules, checks) that observe each newly discovered state; composed by the host. */
   plugins?: CrawlPlugin[];
+  /**
+   * Scroll each new state to the end (the page, then each scrolling container) so content below
+   * the first screen or rendered only while scrolled near is explored and checked. `false` acts
+   * on the first screen as captured; clicks still scroll their own target into view.
+   */
+  sweep?: Partial<SweepOptions> | false;
   /** Called once per newly discovered abstract state, after checks. */
   onState?: (state: CrawlState, page: import('playwright').Page) => Promise<void> | void;
   log?: (event: CrawlEvent) => void;
@@ -201,6 +217,20 @@ export type CrawlEvent =
   | { type: 'page_changed'; at: number; url: string; label: string; after?: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
   | { type: 'plugin_error'; at: number; plugin: string; state: string; error: string }
+  /**
+   * A new state scrolled to the end: per surface (the page, or a container's selector), how many
+   * screens and how it ended. 'endless' is an infinite feed: it is sampled, not exhausted, and not
+   * scrolled again on this page. `revealed` counts controls that were not in the first capture.
+   */
+  | {
+      type: 'sweep';
+      at: number;
+      ms: number;
+      surfaces: Omit<SweptSurface, 'grew'>[];
+      /** Surfaces not swept again: nothing beyond the first screen changed since their last sweep. */
+      skipped?: string[];
+      revealed: number;
+    }
   /** The checks a plugin runs, named once at the start so inspections carry only ids. */
   | { type: 'checks'; at: number; plugin: string; checks: CheckInfo[] }
   /**
@@ -536,6 +566,7 @@ export class SampledCrawler {
       policy: defaultPolicy(options.url),
       plugins: [],
       ...options,
+      sweep: options.sweep ?? {},
     };
   }
   /** Everything a later run needs to continue where this one stopped. */
@@ -679,9 +710,17 @@ export class SampledCrawler {
           stop = 'session_invalid';
           break;
         }
-        const snapshot = await this.snapshot();
+        let snapshot = await this.snapshot();
         if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
+        this.swept = false;
         await this.visit(snapshot);
+        if (this.swept) {
+          this.swept = false;
+          const fresh = await this.snapshot();
+          // What scrolling loaded makes another state: announce and check it before acting.
+          if (stateKey(fresh) !== stateKey(snapshot)) continue;
+          snapshot = fresh;
+        }
         await this.reviewWeakControls(snapshot);
         await this.assessRelevance(snapshot);
         if (await this.pursue(snapshot)) {
@@ -1150,6 +1189,14 @@ export class SampledCrawler {
     if (this.options.plugins.length) {
       let detail: Promise<DOMSnapshot> | undefined;
       const sequence = ++this.stateSequence;
+      // Taken before sweeping: scrolling can load content the state as announced does not have.
+      const first = (async () => {
+        const t = performance.now();
+        const capture = await this.adapter.readDOM(true);
+        return { capture, ms: Math.round(performance.now() - t) };
+      })();
+      await first;
+      const swept = await this.sweep(s, true);
       for (const plugin of this.options.plugins) {
         const started = performance.now();
         let captureMs: number | undefined;
@@ -1161,12 +1208,23 @@ export class SampledCrawler {
           page: this.page,
           // Taken once per state and shared by every plugin.
           detail: () =>
-            (detail ??= (async () => {
-              const t = performance.now();
-              const capture = await this.adapter.readDOM(true);
-              captureMs = Math.round(performance.now() - t);
-              return capture;
-            })()),
+            (detail ??= first.then(f => {
+              captureMs = f.ms;
+              return f.capture;
+            })),
+          views: () => swept?.views ?? [],
+          unchanged: () => swept?.skipped ?? [],
+          shoot: async view => {
+            if (!this.options.onScreenshot) return;
+            await show(this.page, view, this.sweepOptions.settleMs);
+            const image = await this.page
+              .screenshot({ type: 'webp', quality: 80, timeout: 3000 })
+              .catch(() => undefined);
+            if (!image) return;
+            const id = `view:${++this.actionShots}`;
+            await this.options.onScreenshot(id, image);
+            return id;
+          },
           runtime: () => this.adapter.runtime(),
           reportError: message =>
             this.emit({
@@ -1202,9 +1260,66 @@ export class SampledCrawler {
           });
         }
       }
-    }
+      // Screenshots of views scrolled the page again.
+      if (swept) await restore(this.page, swept).catch(() => {});
+    } else await this.sweep(s, false);
     await this.options.onState?.(state, this.page);
     return true;
+  }
+
+  private get sweepOptions(): SweepOptions {
+    return { ...defaultSweep, ...(this.options.sweep || {}) };
+  }
+
+  /**
+   * Set when a new state was scrolled to the end. Scrolling can load content (lazy sections,
+   * feeds), so the capture taken before is stale: the walk re-reads the page before acting, or the
+   * loaded content would be credited to the next action.
+   */
+  private swept = false;
+  /** Surfaces found to be infinite feeds, per page: sampled once, never scrolled to the end again. */
+  private readonly endless = new Map<string, Set<string>>();
+  /** What sweeps saw, per page and open overlay. */
+  private readonly sweepMemory = new Map<string, SweepMemory>();
+
+  /** Scroll a new state to the end, page then containers, and record what that showed. */
+  private async sweep(s: Snapshot, detailed: boolean): Promise<SweepResult | undefined> {
+    if (this.options.sweep === false || !s.capture) return;
+    const page = pagePath(s.url),
+      overlay = activeOverlay(s)?.key;
+    const skip = this.endless.get(page) ?? new Set<string>();
+    const memoryKey = `${page}|${overlay ?? ''}`;
+    const seen = this.sweepMemory.get(memoryKey) ?? {
+      extents: new Map(),
+      classes: new Set(),
+      checked: new Set(),
+      reached: 0,
+    };
+    this.sweepMemory.set(memoryKey, seen);
+    const result = await sweep(this.page, this.adapter, s.capture, {
+      ...this.sweepOptions,
+      detailed,
+      overlay,
+      skip,
+      seen,
+    }).catch(() => undefined);
+    if (!result?.surfaces.length && !result?.skipped.length) return result;
+    this.swept = true;
+    for (const surface of result.surfaces) if (surface.end === 'endless') skip.add(surface.surface);
+    this.endless.set(page, skip);
+    const known = new Set(s.controls.map(c => c.instanceId));
+    const revealed = new Set(
+      result.views.flatMap(v => v.capture.controls.filter(c => !known.has(c.instanceId)).map(c => c.instanceId)),
+    );
+    this.emit({
+      type: 'sweep',
+      at: this.now(),
+      ms: result.ms,
+      surfaces: result.surfaces.map(({ grew: _, ...surface }) => surface),
+      ...(result.skipped.length ? { skipped: result.skipped } : {}),
+      revealed: revealed.size,
+    });
+    return result;
   }
 
   /** Ask the judge about visible controls that only have weak interaction hints. */

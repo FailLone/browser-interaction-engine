@@ -122,3 +122,102 @@ it('reports a page that overflows sideways once per crawl, on a phone, without a
   // The rule reads the capture only: this page has nothing to act on, so the crawl takes no actions.
   expect(events.filter(e => e.type === 'action')).toEqual([]);
 }, 120000);
+
+it('scrolls each new state to the end, page and containers, stops at an infinite feed, and checks what it saw', async () => {
+  const run = async (sweep?: false) => {
+    const events: CrawlEvent[] = [];
+    const shots: string[] = [];
+    const scrolls: number[] = [];
+    await new SampledCrawler({
+      url: `${fixture.url}/below-fold.html`,
+      viewport: { width: 800, height: 600 },
+      durationMs: 20000,
+      // One click on the first button at the top: a click scrolls its own control into view,
+      // so more would bring far-down controls on screen without any sweep.
+      maxActions: 1,
+      settleMs: 100,
+      ...(sweep === false ? { sweep } : {}),
+      plugins: [rulesPlugin()],
+      // Called once every plugin is done with a state: the page must be back where it was.
+      onState: async (_, page) => void scrolls.push(await page.evaluate(() => scrollY)),
+      onScreenshot: id => void shots.push(id),
+      log: e => events.push(e),
+    }).run();
+    return { events, shots, scrolls };
+  };
+  type FindingEvent = Extract<CrawlEvent, { type: 'finding' }>;
+  type SweepEvent = Extract<CrawlEvent, { type: 'sweep' }>;
+  const findingsOf = (events: CrawlEvent[]) => events.filter((e): e is FindingEvent => e.type === 'finding');
+  const names = (events: CrawlEvent[]) => findingsOf(events).map(f => `${f.finding.rule} ${f.finding.selector}`);
+
+  // Without scrolling, the defects far down the page and deep in the list are never judged.
+  const blind = await run(false);
+  expect(names(blind.events)).toEqual([]);
+  expect(blind.events.some(e => e.type === 'sweep')).toBe(false);
+
+  const { events, shots, scrolls } = await run();
+  const found = new Set(names(events));
+  expect(found).toContain('observed-clipping #clipped-far');
+  expect(found).toContain('observed-text-truncation #truncated-far');
+  // The virtual list repeats one row template: it is sampled like a list, not scrolled to its end,
+  // so a defect deep inside it (row 27) is accepted as unseen.
+  expect(found).not.toContain('observed-text-truncation #row-27');
+  // Each is outlined on a picture of the part of the page it is in.
+  for (const f of findingsOf(events)) {
+    const target = f.finding.target!;
+    expect(target.shot).toMatch(/^view:/);
+    expect(shots).toContain(target.shot);
+    expect(target.box.y).toBeGreaterThanOrEqual(0);
+    expect(target.box.y + target.box.height).toBeLessThanOrEqual(600);
+  }
+  const sweeps = events.filter((e): e is SweepEvent => e.type === 'sweep');
+  const first = sweeps[0];
+  // The page keeps growing at its end: recognised as an infinite feed, not scrolled forever.
+  expect(first.surfaces.find(s => s.surface === 'page')).toMatchObject({ end: 'endless' });
+  // Rows rendered only once scrolled to are read, until the list shows only more of the same.
+  expect(first.surfaces.find(s => s.surface === '#virtual')).toMatchObject({ end: 'repeats' });
+  expect(first.surfaces.find(s => s.surface === '#virtual')!.revealed).toBeGreaterThan(0);
+  expect(first.revealed).toBeGreaterThan(0);
+  // Once found endless, the feed is not scrolled again on this page.
+  for (const later of sweeps.slice(1)) expect(later.surfaces.some(s => s.surface === 'page')).toBe(false);
+  // No rule is left waiting for the page to scroll.
+  const inspection = events.find(
+    (e): e is Extract<CrawlEvent, { type: 'inspection' }> => e.type === 'inspection' && e.plugin === 'rules',
+  );
+  const codes = inspection?.checks?.flatMap(c => c.codes ?? []).map(r => r.code) ?? [];
+  expect(codes).not.toContain('VIEWPORT_RECHECK_PENDING');
+  expect(codes).not.toContain('TEXT_SCROLL_RECHECK_PENDING');
+  expect(scrolls.every(y => y === 0)).toBe(true);
+  // What scrolling loaded is a state of its own, checked like any other.
+  expect(events.filter(e => e.type === 'state').length).toBeGreaterThan(1);
+}, 120000);
+
+it('after an action changes one part far down the page, scrolls only to that part, and still checks it', async () => {
+  const events: CrawlEvent[] = [];
+  await new SampledCrawler({
+    url: `${fixture.url}/expanding.html`,
+    viewport: { width: 800, height: 600 },
+    durationMs: 20000,
+    // "Show the answer", at the top, expands an answer far down the page; the answer's own button
+    // is clicked next. Links elsewhere are recorded, not clicked.
+    maxActions: 2,
+    settleMs: 100,
+    plugins: [rulesPlugin()],
+    log: e => events.push(e),
+  }).run();
+  const sweeps = events.filter((e): e is Extract<CrawlEvent, { type: 'sweep' }> => e.type === 'sweep');
+  const page = sweeps.map(s => s.surfaces.find(x => x.surface === 'page'));
+  // The first state is read to the end of the page.
+  expect(page[0]).toMatchObject({ end: 'end' });
+  expect(page[0]!.screens).toBeGreaterThan(4);
+  // After the answer opened, only the screens showing it are looked at, not the whole page again.
+  expect(page[1]!.screens).toBeGreaterThan(0);
+  expect(page[1]!.screens).toBeLessThan(page[0]!.screens);
+  expect(sweeps[1].skipped).toContain('page');
+  // The defect inside the answer is still found.
+  expect(
+    events.some(
+      e => e.type === 'finding' && e.finding.rule === 'observed-text-truncation' && e.finding.selector === '#truncated',
+    ),
+  ).toBe(true);
+}, 120000);

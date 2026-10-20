@@ -1,5 +1,6 @@
 import type { Page } from 'playwright';
 import type { DOMSnapshot } from './browser/driver.js';
+import type { SweepView } from './sweep.js';
 import type { Rect, RuntimeEvidence } from './browser/types.js';
 
 /**
@@ -10,6 +11,8 @@ export interface FindingTarget {
   box: Rect;
   scroll: { x: number; y: number };
   viewport: { width: number; height: number };
+  /** Screenshot taken where the element was measured, when not the state's own (see `shoot()`). */
+  shot?: string;
 }
 
 /** A problem a plugin observed in one crawled state. */
@@ -56,7 +59,10 @@ export interface CheckInfo {
 }
 export type PluginResult = Finding[] | { findings: Finding[]; checks?: CheckSummary[] };
 
-/** What a plugin sees for each newly discovered state. Reads only; plugins never act on the page. */
+/**
+ * What a plugin sees for each newly discovered state. Plugins never act on the page: the crawler
+ * scrolls it (the page, then each scrolling container) and hands over what it saw at each screen.
+ */
 export interface CrawlStateContext {
   /** Abstract state key and its order of discovery in this crawl (1-based). */
   state: string;
@@ -68,6 +74,19 @@ export interface CrawlStateContext {
   page: Page;
   /** Detailed capture (full DOM evidence with styles, layout and text geometry), taken on first call. */
   detail(): Promise<DOMSnapshot>;
+  /**
+   * Detailed captures the crawler took while scrolling this state to the end: content below the
+   * first screen and inside scrolling containers, including content rendered only while scrolled
+   * near. Empty when the state was not swept (sweeping disabled, nothing to scroll).
+   */
+  views(): SweepView[];
+  /**
+   * Surfaces not scrolled on this state because nothing beyond its first screen changed since an
+   * earlier state of the page was scrolled: what lies there was already seen and checked.
+   */
+  unchanged(): string[];
+  /** Screenshot of one of those views (the page is scrolled back to it); returns its id. */
+  shoot(view: SweepView): Promise<string | undefined>;
   /** Network, console and error records so far. */
   runtime(): RuntimeEvidence;
   /** Record a partial failure (as a plugin_error event) while still returning other findings. */

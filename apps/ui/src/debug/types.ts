@@ -176,10 +176,12 @@ export type FindingEvent = {
     detail: string;
     /** Result code; older runs only have it at the start of `detail`. */
     code?: string;
-    /** Where the element was on screen in this state. */
-    target?: ScreenView & { box: Box };
+    /** Where the element was on screen in this state; `shot` when measured further down the page. */
+    target?: FindingTarget;
   };
 };
+/** Where an element was on screen, and the picture it was measured on when not the state's own. */
+export type FindingTarget = ScreenView & { box: Box; shot?: string };
 export type PluginErrorEvent = {
   seq: number;
   type: 'plugin_error';
@@ -216,9 +218,32 @@ export type InspectionEvent = {
   ms: number;
   captureMs?: number;
   checks?: CheckSummary[];
-  repeated?: { finding: number; target?: ScreenView & { box: Box } }[];
+  repeated?: { finding: number; target?: FindingTarget }[];
   /** Explanations of result codes used here for the first time in the run. */
   reasons?: Record<string, string>;
+};
+/**
+ * A new state scrolled to the end, announced right after it: per surface (the page, or a container's
+ * selector) the screens looked at and how it ended. 'endless' is an infinite feed, not exhausted.
+ */
+export type SweepEvent = {
+  seq: number;
+  type: 'sweep';
+  at: number;
+  ms: number;
+  surfaces: {
+    surface: string;
+    screens: number;
+    end: 'end' | 'endless' | 'repeats' | 'budget';
+    ms?: number;
+    revealed?: number;
+    /** Controls of a class not seen before: what the sweep added to exploration. */
+    newClasses?: number;
+  }[];
+  /** Surfaces not swept again: nothing beyond the first screen changed since their last sweep. */
+  skipped?: string[];
+  /** Controls that were not in the first capture of the state. */
+  revealed: number;
 };
 export type Event =
   | { seq: number; type: 'viewport'; at: number; viewport: ResolvedViewport }
@@ -245,7 +270,8 @@ export type Event =
   | FindingEvent
   | PluginErrorEvent
   | ChecksEvent
-  | InspectionEvent;
+  | InspectionEvent
+  | SweepEvent;
 
 export interface ModelCallSummary {
   id: number;
