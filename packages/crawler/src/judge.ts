@@ -263,7 +263,7 @@ export class ModelJudge implements Judge {
         const answer = await this.jev.decide(
           {
             id: crypto.randomUUID(),
-            purpose: `crawler-${list[0].kind}`,
+            purpose: `crawler-${[...new Set(list.map(q => q.kind))].join('+')}`,
             kind: 'checklist',
             instructions: '',
             // Each item's facts are a named state field; each check refers to its field by name.

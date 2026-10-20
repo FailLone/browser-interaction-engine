@@ -591,7 +591,6 @@ export class SampledCrawler {
         if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
         await this.visit(snapshot);
         await this.reviewWeakControls(snapshot);
-        await this.reviewExits(snapshot);
         await this.assessRelevance(snapshot);
         if (await this.pursue(snapshot)) {
           stop = 'goal_answered';
@@ -1077,10 +1076,26 @@ export class SampledCrawler {
       this.askedLists.add(list);
       listBatch.push({ list, question: { kind: 'same-kind', role: members[0].role, members: names } });
     }
-    if (!batch.length && !listBatch.length) return;
-    const all = [...batch.map(b => b.question), ...listBatch.map(b => b.question)];
+    // Exit questions for an open overlay go in the same JEV request.
+    const exitBatch = this.exitQuestions(s);
+    if (!batch.length && !listBatch.length && !exitBatch.length) return;
+    const all = [...batch, ...listBatch, ...exitBatch].map(b => b.question);
     const results = judge.askAll ? await judge.askAll(all) : await Promise.all(all.map(q => judge.ask(q)));
     const answers = results.slice(0, batch.length);
+    exitBatch.forEach(({ key, label }, i) => {
+      const answer = results[batch.length + listBatch.length + i];
+      this.emit({
+        type: 'judgement',
+        at: this.now(),
+        question: 'exit',
+        label,
+        verdict: answer.verdict,
+        source: answer.source,
+        probability: answer.probability,
+      });
+      // Uncertain is not an exit: content first is the safe order, and the overlay is closed in the end anyway.
+      this.judgedExits.set(key, answer.verdict === 'yes');
+    });
     listBatch.forEach(({ list, question }, i) => {
       const answer = results[batch.length + i];
       this.emit({
@@ -1114,15 +1129,15 @@ export class SampledCrawler {
   /**
    * An open overlay with no exit known from structure or a close-like English / Chinese name:
    * ask JEV which of its controls only dismiss it, so they are tried after its content. Names in
-   * other languages, and unnamed icons, are judged from their name, text and context.
+   * other languages, and unnamed icons, are judged from their name, text and context. Returns the
+   * questions; they are asked with the state's other judgements.
    */
-  private async reviewExits(s: Snapshot) {
-    const judge = this.options.judge,
-      overlay = activeOverlay(s);
-    if (!judge || !overlay || overlay.exitControlIds.length) return;
+  private exitQuestions(s: Snapshot) {
+    const overlay = activeOverlay(s);
+    const batch: { key: string; label: string; question: Question }[] = [];
+    if (!overlay || overlay.exitControlIds.length) return batch;
     const scope = new Set(overlay.controlIds),
       where = `${overlay.kind}:${maskVolatile(overlay.name)}`;
-    const batch: { key: string; label: string; question: Question }[] = [];
     for (const c of s.controls) {
       if (!scope.has(c.localId) || !c.visible || !c.actions.includes('click') || c.actionable.occludedBy) continue;
       // Choices (options, tabs, radios) and members of a repeated list are the overlay's content,
@@ -1152,23 +1167,7 @@ export class SampledCrawler {
         },
       });
     }
-    if (!batch.length) return;
-    const all = batch.map(b => b.question);
-    const answers = judge.askAll ? await judge.askAll(all) : await Promise.all(all.map(q => judge.ask(q)));
-    batch.forEach(({ key, label }, i) => {
-      const answer = answers[i];
-      this.emit({
-        type: 'judgement',
-        at: this.now(),
-        question: 'exit',
-        label,
-        verdict: answer.verdict,
-        source: answer.source,
-        probability: answer.probability,
-      });
-      // Uncertain is not an exit: content first is the safe order, and the overlay is closed in the end anyway.
-      this.judgedExits.set(key, answer.verdict === 'yes');
-    });
+    return batch;
   }
 
   /** The overlay's exits: from structure and English / Chinese names, then as JEV judged them. */
