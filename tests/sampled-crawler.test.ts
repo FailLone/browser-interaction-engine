@@ -1285,3 +1285,29 @@ test('a mobile sheet with no dialog semantics or backdrop is an overlay: its con
     await site.close();
   }
 }, 120000);
+
+test('an action that shows it is loading is waited for; a pulse already running on the page is not', async () => {
+  // The price pulses forever from the start. The help button disables itself and shows a
+  // spinner while "the API" answers, then opens its sheet well after the settle time.
+  const site = await serve(`<!doctype html><title>Loading</title>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.5}}</style>
+  <main><p style="animation:pulse 1s infinite">BTC 60,000</p>
+    <button id="help" onclick="load()">Help</button><span id="spinner" hidden style="display:inline-block;width:10px;height:10px;animation:spin 1s linear infinite"></span>
+    <button onclick="this.textContent='Other done'">Other</button>
+  </main>
+  <div id="panel" hidden><p>Support topics</p><button onclick="this.textContent='Opened'">Topic</button></div>
+  <script>function load(){const b=document.getElementById('help'),s=document.getElementById('spinner');b.disabled=true;s.hidden=false;
+    setTimeout(()=>{s.hidden=true;b.disabled=false;document.getElementById('panel').hidden=false},1200);}</script>`);
+  try {
+    const events: CrawlEvent[] = [];
+    await new SampledCrawler({ url: site.url, durationMs: 30000, settleMs: 300, log: e => events.push(e) }).run();
+    const actions = actionsOf(events);
+    const help = actions.find(a => a.step.label === 'Help');
+    expect(help).toMatchObject({ outcome: 'ok', newState: true });
+    expect(help!.busyMs).toBeGreaterThan(500);
+    // Actions with no loading sign keep the plain settle: the pulse does not count.
+    expect(actions.filter(a => a.busyMs).map(a => a.step.label)).toEqual(['Help']);
+  } finally {
+    await site.close();
+  }
+}, 120000);

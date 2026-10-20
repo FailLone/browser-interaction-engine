@@ -172,6 +172,8 @@ export type CrawlEvent =
        * another scroll position and so cannot show where the target is.
        */
       shot?: string;
+      /** How long the page showed it was busy (loading) after the settle; its effect came after that. */
+      busyMs?: number;
     }
   | { type: 'backtrack'; at: number; reason: string; url: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
@@ -803,6 +805,26 @@ export class SampledCrawler {
   }
 
   /**
+   * An action whose effect waits on a request often shows that it is busy: the target disabled
+   * or aria-busy, a progressbar, a spinner. Loading signs present before the action (a page-wide
+   * pulse, a live ticker) are `before` and ignored. While a new sign shows, wait (bounded), then
+   * settle once more for the effect to render. Returns how long the page was busy.
+   */
+  private async waitWhileBusy(selector: string, before: string[]) {
+    const busy = () =>
+      this.page.evaluate(busyInPage, [selector, before] as [string, string[]]).then(
+        signs => signs.length > 0,
+        () => false,
+      );
+    if (!(await busy())) return undefined;
+    const started = performance.now();
+    while (performance.now() - started < BUSY_WAIT_MS && (await busy())) await this.page.waitForTimeout(BUSY_POLL_MS);
+    const ms = Math.round(performance.now() - started);
+    await this.settle();
+    return ms;
+  }
+
+  /**
    * Text-derived names grow when a trigger reveals a tooltip inside itself ("24h low" becomes
    * "24h lowThe lowest price..."). Within one document, an element keeps the name it was first
    * seen with, so the same trigger is not taken for a new control.
@@ -1319,9 +1341,14 @@ export class SampledCrawler {
     this.actionShot = undefined;
     this.shootFor = this.options.onScreenshot ? beforeKey : undefined;
     this.dispatching = true;
+    let busyMs: number | undefined;
     try {
+      const busy = await this.page
+        .evaluate(busyInPage, [c.control.selector, []] as [string, string[]])
+        .catch(() => [] as string[]);
       await this.dispatch(c);
       await this.settle();
+      busyMs = await this.waitWhileBusy(c.control.selector, busy);
     } catch (e) {
       outcome = 'failed';
       error = String(e).slice(0, 200);
@@ -1464,6 +1491,7 @@ export class SampledCrawler {
       after: pagePath(after.url),
       ...(this.lastTarget ? { target: this.lastTarget } : {}),
       ...(this.actionShot ? { shot: this.actionShot } : {}),
+      ...(busyMs ? { busyMs } : {}),
     });
     if (revealed) await this.visit(after, afterKey, step);
     this.options.pursuit?.note(`${describe(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
@@ -1866,6 +1894,9 @@ export class SampledCrawler {
 const REPLAY_SETTLE_MS = 150;
 /** How long a replay waits for a step's target to appear before it stops. */
 const REPLAY_WAIT_MS = 3000;
+/** How long an action that shows it is loading is waited for, at most, and how often it is checked. */
+const BUSY_WAIT_MS = 5000;
+const BUSY_POLL_MS = 200;
 
 /**
  * The steps a replay needs. Left out:
@@ -1904,6 +1935,30 @@ const measureInPage = new Function(
   return { box: { x: r.left, y: r.top, width: r.width, height: r.height }, scroll: { x: scrollX, y: scrollY },
     viewport: { width: innerWidth, height: innerHeight } };`,
 ) as (el: Element) => unknown;
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
+// Loading signs now on the page, by structure: the target disabled, a visible
+// aria-busy region or progressbar, a visible element running an endless animation (a spinner).
+// Elements are named by a per-document number so two reads compare; signs in `before` are left out.
+const busyInPage = new Function(
+  'args',
+  `const [selector, before] = args;
+  const w = window, ids = (w.__interactionBusyIds ??= { map: new WeakMap(), next: 0 });
+  const id = el => { if (!ids.map.has(el)) ids.map.set(el, ++ids.next); return ids.map.get(el); };
+  const shown = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
+  const signs = [];
+  const target = document.querySelector(selector);
+  if (target && (target.matches(':disabled') || target.getAttribute('aria-disabled') === 'true')) signs.push('target:disabled');
+  for (const el of document.querySelectorAll('[aria-busy=true],[role=progressbar],progress'))
+    if (shown(el)) signs.push('busy:' + id(el));
+  for (const a of document.getAnimations()) {
+    const el = a.effect && a.effect.target;
+    if (el instanceof Element && a.playState === 'running' && a.effect.getTiming().iterations === Infinity && shown(el))
+      signs.push('spin:' + id(el));
+  }
+  return [...new Set(signs)].filter(s => !before.includes(s));`,
+) as (args: [string, string[]]) => string[];
 
 // Built with new Function so the bundler cannot inject helpers into the serialized source.
 const hitTestInPage = new Function(
