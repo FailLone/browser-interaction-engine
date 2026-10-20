@@ -1289,9 +1289,9 @@ export class SampledCrawler {
           .map(r => [pick(r), r]),
       ).values(),
     ];
-    const options = rows.map(r => ({ classKey: pick(r), description: describe(r) }));
+    const options = rows.map(r => ({ classKey: pick(r), description: offer(r) }));
     const before = pursuit.meter.calls;
-    const decision = await pursuit.decide(key, s.text || '', options);
+    const decision = await pursuit.decide(key, `${s.text || ''}\n${controlStates(s.controls)}`, options);
     if (!decision) return false;
     if (pursuit.meter.calls > before)
       this.emit({
@@ -1309,7 +1309,9 @@ export class SampledCrawler {
       // Absence is only proven by exhausting the scope: keep exploring, keep the answer as provisional.
       pursuit.result = { ...decision, state: key, url: s.url, at: this.now(), provisional: !decision.found };
       if (decision.found) return true;
-    } else if (pursuit.result?.provisional) pursuit.result = undefined;
+    }
+    // A later look sees only newly revealed text, so "not answered yet" there does not take back
+    // an earlier "not on the page"; only a found answer overturns it.
     const row = decision.next ? rows.find(r => pick(r) === decision.next) : undefined;
     this.steer = row && { state: key, row };
     return false;
@@ -1503,7 +1505,7 @@ export class SampledCrawler {
       ...(this.actionShot ? { shot: this.actionShot } : {}),
     });
     if (revealed) await this.visit(after, afterKey, step);
-    this.options.pursuit?.note(`${describe(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
+    this.options.pursuit?.note(`${offer(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
     if (routeChanged) this.routeClasses.add(c.classKey);
     // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
     // A same-document route change (kept) is still the entry page's document, not a departure.
@@ -2048,6 +2050,48 @@ function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | und
   return { jev: withAvg(sum(jev)), llm: withAvg(sum(llm)) };
 }
 
+/**
+ * A control as a screen reader would announce it: role, name, where it is and what state it is
+ * in. A name that is only a number or a placeholder says little, so the text right before the
+ * control (a currency selector before an amount) is given with it; the model reads both.
+ */
+function announce(c: Control) {
+  const name = maskVolatile(c.name || c.label);
+  const before = c.neighborhood && c.neighborhood !== c.name ? ` after "${maskVolatile(c.neighborhood, 40)}"` : '';
+  return `${c.role} "${name}"${before}${c.landmark ? ` in site ${c.landmark}` : ''}`;
+}
+
+/** What a control holds or is set to, when page text does not show it; '' when nothing. */
+function controlState(c: Control) {
+  const states = [
+    c.value && !['button', 'link', 'checkbox', 'radio', 'switch'].includes(c.role) ? `= ${c.value.slice(0, 80)}` : '',
+    c.checked === true ? 'checked' : c.checked === false ? 'not checked' : '',
+    c.pressed === true ? 'pressed' : '',
+    c.selected.length && c.role !== 'combobox' && c.role !== 'listbox' ? 'selected' : '',
+    c.role === 'combobox' || c.role === 'listbox'
+      ? c.selected.length
+        ? `= ${c.selected.join(', ').slice(0, 80)}`
+        : ''
+      : '',
+    c.expanded === true ? 'expanded' : '',
+  ].filter(Boolean);
+  return states.join(', ');
+}
+
+/**
+ * Visible controls whose state page text leaves out (field values, checked boxes, the selected
+ * tab), one line each; capped, as a form-heavy page has many.
+ */
+function controlStates(controls: Control[], max = 40) {
+  return controls
+    .filter(c => c.visible)
+    .map(c => [announce(c), controlState(c)])
+    .filter(([, state]) => state)
+    .slice(0, max)
+    .map(([who, state]) => `${who}: ${state}`)
+    .join('\n');
+}
+
 /** One specific action on one specific control, as the model picks it. */
 const pick = (r: Candidate) => `${r.kind}|${r.control.localId}|${r.purpose ?? ''}`;
 
@@ -2056,6 +2100,9 @@ function describe(r: Candidate) {
   const c = r.control;
   return `${r.kind} ${c.role} "${maskVolatile(c.name || c.label)}"${c.landmark ? ` in site ${c.landmark}` : ''}`;
 }
+
+/** A candidate action as goal pursuit reads it: the control as announced, with what precedes it. */
+const offer = (r: Candidate) => `${r.kind} ${announce(r.control)}`;
 
 /** Visible text split into comparable blocks, live numbers masked, tiny fragments dropped. */
 function textBlocks(text: string) {

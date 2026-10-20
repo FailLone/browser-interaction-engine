@@ -347,7 +347,14 @@ test('a goal question is pursued into hidden content and the crawl stops once th
       if (seen.join('\n').includes('trading fee'))
         return {
           model: 'llm',
-          value: { answered: true, found: true, answer: 'Yes: "The trading fee is 0.1%"', next: -1, reason: 'shown' },
+          value: {
+            answered: true,
+            found: true,
+            answer: 'Yes: "The trading fee is 0.1%"',
+            evidence: ['"The trading fee is 0.1% per conversion."'],
+            next: -1,
+            reason: 'shown',
+          },
         };
       const i = state.actions.findIndex(a => /cost/i.test(a));
       return { model: 'llm', value: { answered: false, answer: '', next: i, reason: 'look for fees' } };
@@ -399,7 +406,17 @@ test('a goal question is pursued into hidden content and the crawl stops once th
         async decide(request: { state: unknown }) {
           const state = request.state as { newText: string };
           return state.newText.includes('trading fee')
-            ? { model: 'llm', value: { answered: true, found: true, answer: '0.1%', next: -1, reason: 'shown' } }
+            ? {
+                model: 'llm',
+                value: {
+                  answered: true,
+                  found: true,
+                  answer: '0.1%',
+                  evidence: ['trading fee is 0.1%'],
+                  next: -1,
+                  reason: 'shown',
+                },
+              }
             : { model: 'llm', value: { answered: false, answer: '', next: -1, reason: 'nothing obvious' } };
         },
       },
@@ -424,7 +441,17 @@ test('a goal question is pursued into hidden content and the crawl stops once th
             async decide(request: { state: unknown }) {
               const state = request.state as { newText: string };
               return reveals && state.newText.includes('trading fee')
-                ? { model: 'llm', value: { answered: true, found: true, answer: '0.1%', next: -1, reason: 'shown' } }
+                ? {
+                    model: 'llm',
+                    value: {
+                      answered: true,
+                      found: true,
+                      answer: '0.1%',
+                      evidence: ['trading fee is 0.1%'],
+                      next: -1,
+                      reason: 'shown',
+                    },
+                  }
                 : {
                     model: 'llm',
                     value: { answered: true, found: false, answer: 'No fee is shown', next: -1, reason: 'none seen' },
@@ -443,6 +470,65 @@ test('a goal question is pursued into hidden content and the crawl stops once th
       const overturned = await crawl(hasty(true));
       expect(overturned.stopReason).toBe('goal_answered');
       expect(overturned.pursuit?.result).toMatchObject({ found: true, provisional: false, answer: '0.1%' });
+      // "Found" with a quote the page never showed (a tagline paraphrased into an answer) is not
+      // taken at its word: the crawl keeps exploring, and the real text then settles it.
+      const misquoting = new GoalPursuit(
+        {
+          ...llm,
+          async decide(request: { state: unknown }) {
+            const state = request.state as { newText: string };
+            return state.newText.includes('trading fee')
+              ? {
+                  model: 'llm',
+                  value: {
+                    answered: true,
+                    found: true,
+                    answer: '0.1%',
+                    evidence: ['trading fee is 0.1%'],
+                    next: -1,
+                    reason: '',
+                  },
+                }
+              : {
+                  model: 'llm',
+                  value: {
+                    answered: true,
+                    found: true,
+                    answer: 'Fees are free',
+                    evidence: ['Zero fees!'],
+                    next: -1,
+                    reason: '',
+                  },
+                };
+          },
+        },
+        plan,
+      );
+      const verified = await crawl(misquoting);
+      expect(verified.stopReason).toBe('goal_answered');
+      expect(verified.actions).toBeGreaterThan(0);
+      expect(verified.pursuit?.result).toMatchObject({ found: true, answer: '0.1%' });
+      // Later looks see only what is new, so "not answered yet" there leaves an earlier
+      // "not on the page" standing; once the scope is exhausted it holds.
+      let looks = 0;
+      const forgetful = new GoalPursuit(
+        {
+          ...llm,
+          async decide() {
+            return looks++
+              ? { model: 'llm', value: { answered: false, found: false, answer: '', next: -1, reason: 'nothing new' } }
+              : {
+                  model: 'llm',
+                  value: { answered: true, found: false, answer: 'No fee is shown', next: -1, reason: 'none seen' },
+                };
+          },
+        },
+        plan,
+      );
+      const kept = await crawl(forgetful);
+      expect(looks).toBeGreaterThan(1);
+      expect(kept.stopReason).toBe('scope_exhausted');
+      expect(kept.pursuit).toMatchObject({ answered: true, settled: true, result: { answer: 'No fee is shown' } });
       const absent = await crawl(hasty(false));
       expect(absent.stopReason).toBe('scope_exhausted');
       expect(absent.actions).toBeGreaterThan(0);
@@ -458,6 +544,86 @@ test('a goal question is pursued into hidden content and the crawl stops once th
     await new Promise<void>(resolve => local.close(() => resolve()));
   }
 }, 120000);
+
+test('goal pursuit sees what fields hold, so a result shown only in an input can answer it', async () => {
+  const { GoalPursuit } = await import('@interaction/crawler');
+  // A converter as OKX builds it: the result sits in an unlabelled read-only input (placeholder "0")
+  // after its currency, and page text leaves its value out.
+  const html = `<!doctype html><title>Convert</title><main>
+    <label>Amount <input id="a" value="100"></label>
+    <button onclick="document.getElementById('c').textContent='EUR';document.getElementById('r').value='85'">Switch to EUR</button>
+    <div><div><span id="c">USD</span></div><input id="r" readonly placeholder="0" value="100"></div></main>`;
+  const local = createServer((_req, res) => {
+    res.setHeader('content-type', 'text/html');
+    res.end(html);
+  });
+  await new Promise<void>(resolve => local.listen(0, '127.0.0.1', resolve));
+  const seen: string[] = [];
+  const llm = {
+    name: 'llm',
+    model: 'llm',
+    async decide(request: { state: unknown }) {
+      const state = request.state as { newText: string; actions: string[] };
+      seen.push(state.newText);
+      const line = state.newText.split('\n').find(l => /after "EUR".*: = 85$/.test(l));
+      if (line)
+        return {
+          model: 'llm',
+          value: { answered: true, found: true, answer: 'Yes, 85', evidence: [line], next: -1, reason: '' },
+        };
+      const next = state.actions.findIndex(a => a.includes('EUR'));
+      return { model: 'llm', value: { answered: false, found: false, answer: '', next, reason: 'switch' } };
+    },
+  };
+  try {
+    const summary = await new SampledCrawler({
+      url: `http://127.0.0.1:${(local.address() as { port: number }).port}/`,
+      durationMs: 30000,
+      settleMs: 100,
+      pursuit: new GoalPursuit(llm, {
+        goal: 'does the result update after switching currency',
+        stayOnPage: true,
+        allowedPaths: [],
+        areas: [],
+        focus: [],
+        tasks: [],
+        question: 'Does the result update after switching to EUR?',
+      }),
+    }).run();
+    expect(seen[0]).toMatch(/^textbox "#" after "USD": = 100$/m);
+    expect(summary.stopReason).toBe('goal_answered');
+    expect(summary.pursuit?.result).toMatchObject({ found: true, answer: 'Yes, 85' });
+    // Not only fields: any state page text leaves out is announced, here a checkbox nothing else shows.
+    seen.length = 0;
+    const toggle = createServer((_req, res) => {
+      res.setHeader('content-type', 'text/html');
+      res.end('<!doctype html><title>Prefs</title><main><label><input type="checkbox"> Email me</label></main>');
+    });
+    await new Promise<void>(resolve => toggle.listen(0, '127.0.0.1', resolve));
+    try {
+      await new SampledCrawler({
+        url: `http://127.0.0.1:${(toggle.address() as { port: number }).port}/`,
+        durationMs: 20000,
+        settleMs: 100,
+        pursuit: new GoalPursuit(llm, {
+          goal: 'g',
+          stayOnPage: true,
+          allowedPaths: [],
+          areas: [],
+          focus: [],
+          tasks: [],
+          question: 'Is email opted in?',
+        }),
+      }).run();
+      expect(seen[0]).toMatch(/^checkbox "Email me": not checked$/m);
+      expect(seen.join('\n')).toMatch(/^checkbox "Email me": checked$/m);
+    } finally {
+      await new Promise<void>(resolve => toggle.close(() => resolve()));
+    }
+  } finally {
+    await new Promise<void>(resolve => local.close(() => resolve()));
+  }
+}, 60000);
 
 test('a goal plan stays on the page unless it asks for other pages, and maps named areas', async () => {
   const { planGoal } = await import('@interaction/crawler');

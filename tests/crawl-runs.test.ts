@@ -200,7 +200,17 @@ test('a run started with a goal plans it on the open page, pursues its question 
         };
       const state = request.state as { newText: string; actions: string[] };
       if (state.newText.includes('Panel action'))
-        return { model: 'llm', value: { answered: true, found: true, answer: '"Panel action"', next: -1, reason: '' } };
+        return {
+          model: 'llm',
+          value: {
+            answered: true,
+            found: true,
+            answer: '"Panel action"',
+            evidence: ['Panel action'],
+            next: -1,
+            reason: '',
+          },
+        };
       const next = state.actions.findIndex(a => a.includes('Open panel'));
       return { model: 'llm', value: { answered: false, found: false, answer: '', next, reason: 'open it' } };
     },
