@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { canonical } from './util.js';
-import type { DomNodeEvidence, Json, Rect } from './types.js';
+import type { DomNodeEvidence, Json, Rect, RulePage, ViewportPixels } from './types.js';
 import type { ControlRule, RuleAssessment, RuleContext } from './types.js';
 import { textLabelRoots } from './text-truncation.js';
 import { hasRelevantGaps } from './evidence-dependencies.js';
@@ -14,6 +14,14 @@ export const textBackgroundOptionsSchema = z
     includeDisabled: z.boolean().default(false),
     /** RGB channel tolerance, in the 0..255 scale. Not a contrast/accessibility standard. */
     channelTolerance: z.number().min(0).max(2).default(0),
+    /**
+     * Where the background is read from the screenshot, a contrast ratio below this means the
+     * label does not stand out from it. Not WCAG's 4.5: it marks text hard to tell from its
+     * background at all, the defect this rule names.
+     */
+    pixelContrast: z.number().min(1).max(21).default(1.5),
+    /** Only say whether a screenshot would be read (`facts.wantsPixels`); used to decide whether to take one. */
+    probe: z.boolean().default(false),
     requirements: z
       .array(
         z
@@ -102,12 +110,84 @@ function insideBackground(rects: Rect[], p: DomNodeEvidence): boolean {
 }
 type Sample = {
   textNodeId: string;
+  /** 'pixels' when the background was read from the screenshot, not modeled from styles. */
+  source?: 'pixels';
+  contrast?: number;
+  glyphShare?: number;
   foreground: Color;
   background: Color;
   compositedForeground: Color;
   channelDifference: number;
   backgroundNodeIds: string[];
 };
+
+const luminance = (c: Color) => {
+  const f = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+};
+const contrast = (a: Color, b: Color) => {
+  const x = luminance(a),
+    y = luminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+};
+/**
+ * The background a label is painted on, read from the screenshot instead of modeled: pixels in the
+ * text's own boxes that are not the glyphs. A pixel within `glyph` of the known text color is a
+ * glyph; one far from it (beyond half the farthest pixel's distance) is background, and the
+ * antialiased edge in between is left out. The text color must show (some glyph pixels) or the
+ * screenshot does not show this text as modeled: covered, recolored, not painted.
+ */
+function pixelBackground(
+  pixels: ViewportPixels,
+  rects: Rect[],
+  foreground: Color,
+): { background: Color; difference: number; contrast: number; glyphShare: number } | string {
+  const { width, height, scale, data } = pixels;
+  const distance = (i: number) =>
+    Math.max(
+      Math.abs(data[i] - foreground[0]),
+      Math.abs(data[i + 1] - foreground[1]),
+      Math.abs(data[i + 2] - foreground[2]),
+    );
+  const all: number[] = [];
+  for (const r of rects) {
+    const x0 = Math.round(r.x * scale),
+      y0 = Math.round(r.y * scale),
+      x1 = Math.round((r.x + r.width) * scale),
+      y1 = Math.round((r.y + r.height) * scale);
+    if (x0 < 0 || y0 < 0 || x1 > width || y1 > height) return 'PIXELS_OUTSIDE_VIEWPORT';
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) all.push((y * width + x) * 4);
+  }
+  if (all.length < 16) return 'PIXELS_TOO_FEW';
+  const glyph = 24;
+  let far = 0,
+    glyphs = 0;
+  const d = all.map(i => {
+    const v = distance(i);
+    if (v <= glyph) glyphs++;
+    if (v > far) far = v;
+    return v;
+  });
+  const glyphShare = glyphs / all.length;
+  // Same color as the text everywhere: the label does not stand out from what is behind it.
+  if (far <= glyph) return { background: foreground, difference: far, contrast: 1, glyphShare };
+  if (glyphShare < 0.02) return 'PIXELS_TEXT_COLOR_ABSENT';
+  // Glyphs cover a minority of their own box. When most of it is the text color, the box shows
+  // something else (a layer over it, a background partly the text color): not a settled reading.
+  if (glyphShare > 0.4) return 'PIXELS_TEXT_COLOR_DOMINANT';
+  const back = all.filter((_, k) => d[k] >= far / 2);
+  // The background is what lies behind most of the box; take its least distinct tenth.
+  const ranked = back
+    .map(i => [data[i], data[i + 1], data[i + 2], 1] as Color)
+    .sort((a, b) => contrast(a, foreground) - contrast(b, foreground));
+  const worst = ranked[Math.floor(ranked.length * 0.1)];
+  return {
+    background: worst,
+    difference: Math.max(...[0, 1, 2].map(i => Math.abs(worst[i] - foreground[i]))),
+    contrast: contrast(worst, foreground),
+    glyphShare,
+  };
+}
 
 function assess(context: RuleContext, options: z.output<typeof textBackgroundOptionsSchema>): RuleAssessment {
   const { control, node, dom, observation, inspection, capture } = context;
@@ -117,6 +197,8 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
     samples: Sample[] = [],
     limitations: { code: string; nodeId?: string; textNodeId?: string }[] = [];
   let bindingComplete = true;
+  /** In a probe: some fragment would be read from a screenshot. */
+  let wanted = false;
   const result = (
     verdict: RuleAssessment['verdict'],
     code: string,
@@ -236,6 +318,72 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
       rects.some(r => r.x < 0 || r.y < 0 || r.x + r.width > view.clientWidth || r.y + r.height > view.clientHeight)
     )
       offscreen.add(text.id);
+    // Deciding whether to take a screenshot: text off it cannot be read from it.
+    if (options.probe && offscreen.has(text.id)) continue;
+    /**
+     * When the style model gives up on this fragment, read its background from the screenshot
+     * instead: allowed only while the text's own color is what reaches the screen (nothing on the
+     * text's ancestors recolors or hides glyphs), so the known text color can find the glyphs.
+     */
+    const fromPixels = (chain: DomNodeEvidence[]) => {
+      const pixels = context.snapshot.pixels;
+      if (!pixels && !options.probe) return false;
+      // Off this screenshot: the screen that shows it reads it.
+      if (offscreen.has(text.id)) return false;
+      // The screenshot shows whatever is on top. Where the control's own hit points land on
+      // something else (a layer, a backdrop), its pixels are that layer, not the label's background.
+      const hits = node.layout?.hitSamples;
+      if (!hits?.length || hits.some(h => !h.withinSubtree)) {
+        limitations.push({ code: hits?.length ? 'PIXELS_COVERED' : 'PIXELS_HIT_UNKNOWN', nodeId: text.id });
+        return false;
+      }
+      const fill = color(chain[0]?.styles?.['-webkit-text-fill-color']);
+      if (!fill || fill[3] !== 1) return false;
+      const recolors = chain.some(p => {
+        const s = p.styles;
+        return (
+          !s ||
+          p.paint?.motion !== 'idle' ||
+          Number(s.opacity) !== 1 ||
+          s.filter !== 'none' ||
+          s['mix-blend-mode'] !== 'normal' ||
+          s['text-shadow'] !== 'none' ||
+          parseFloat(s['-webkit-text-stroke-width'] ?? '0') !== 0 ||
+          s['clip-path'] !== 'none' ||
+          s['mask-image'] !== 'none'
+        );
+      });
+      if (recolors) return false;
+      // Asked only whether a screenshot would be read here: it would.
+      if (!pixels) {
+        wanted = true;
+        return false;
+      }
+      const read = pixelBackground(pixels, rects, fill);
+      if (typeof read === 'string') {
+        limitations.push({ code: read, nodeId: text.id });
+        return false;
+      }
+      samples.push({
+        textNodeId: text.id,
+        source: 'pixels',
+        contrast: Math.round(read.contrast * 100) / 100,
+        glyphShare: Math.round(read.glyphShare * 100) / 100,
+        foreground: fill,
+        background: read.background,
+        compositedForeground: fill,
+        channelDifference: read.difference,
+        backgroundNodeIds: [],
+      });
+      return true;
+    };
+    /** Drop the style model's limitation for this fragment when pixels settled it. */
+    const settle = (chain: DomNodeEvidence[]) => {
+      const before = limitations.length;
+      if (!fromPixels(chain)) return;
+      // The model's limitation was the last pushed before the attempt.
+      limitations.splice(before - 1, 1);
+    };
     if (rects.length > 128) {
       issue('TEXT_GEOMETRY_MISSING', text);
       continue;
@@ -341,7 +489,10 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
         break;
       }
     }
-    if (unsupported) continue;
+    if (unsupported) {
+      settle(chain);
+      continue;
+    }
     let background: Color = [0, 0, 0, 0];
     const backgroundNodeIds: string[] = [];
     for (const p of effective) {
@@ -381,9 +532,13 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
       }
       if (background[3] === 1) break;
     }
-    if (unsupported) continue;
+    if (unsupported) {
+      settle(chain);
+      continue;
+    }
     if (background[3] !== 1) {
       issue('OPAQUE_BACKGROUND_MISSING', text);
+      settle(chain);
       continue;
     }
     // Ancestor colors alone cannot describe an intervening sibling or generated
@@ -436,7 +591,10 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
         break;
       }
     }
-    if (unsupported) continue;
+    if (unsupported) {
+      settle(chain);
+      continue;
+    }
     if (chain[0].styles!['-webkit-text-fill-color'] === undefined) {
       issue('FOREGROUND_EVIDENCE_MISSING', text);
       continue;
@@ -467,7 +625,11 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
           canonical(r.label) === canonical(label),
       )
     : undefined;
-  const matched = samples.filter(s => s.channelDifference <= options.channelTolerance + 1e-7);
+  const matched = samples.filter(s =>
+    s.source === 'pixels'
+      ? s.contrast! < options.pixelContrast
+      : s.channelDifference <= options.channelTolerance + 1e-7,
+  );
   let assessment: RuleAssessment;
   if (requirement?.kind === 'allow-matching-label-colors')
     assessment = result(
@@ -504,6 +666,7 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
       'TEXT_BACKGROUND_DISTINCT',
       'Modeled label foreground differs from its solid background; no minimum contrast or general readability claim is made',
     );
+  if (wanted) assessment.facts!.wantsPixels = true;
   if (requirement) {
     assessment.facts!.requirement = json(requirement);
     assessment.evidence.push(...requirement.evidence);
@@ -524,3 +687,40 @@ export const textBackgroundRule: ControlRule = {
     return context => assess(context, options);
   },
 };
+
+/**
+ * Whether a screenshot of this capture would let the rule read a background the color model cannot:
+ * some active, on-screen control whose label the model gives up on, with nothing on it or its
+ * label that hides or recolors glyphs. Reads only the DOM; decides whether to take a screenshot.
+ */
+export function wantsPixels(page: RulePage): boolean {
+  const dom = page.snapshot.dom;
+  if (!dom || page.snapshot.pixels) return false;
+  const nodes = new Map(dom.nodes.map(n => [n.id, n]));
+  const options = textBackgroundOptionsSchema.parse({ probe: true });
+  const signal = new AbortController().signal;
+  const view = dom.environment?.layoutViewport;
+  for (const control of page.observation.controls) {
+    // Only what this screenshot would show: active controls wholly on screen.
+    const r = control.rect;
+    if (!control.visible || !control.enabled || !view) continue;
+    if (r.x < 0 || r.y < 0 || r.x + r.width > view.clientWidth || r.y + r.height > view.clientHeight) continue;
+    const node = nodes.get(control.localId);
+    if (!node) continue;
+    const result = assess(
+      {
+        inspection: page.inspection,
+        capture: page.capture,
+        observation: page.observation,
+        snapshot: page.snapshot,
+        dom,
+        control,
+        node,
+        signal,
+      },
+      options,
+    );
+    if (result.facts?.wantsPixels) return true;
+  }
+  return false;
+}

@@ -66,6 +66,8 @@ export interface DOMSnapshot {
   scroll: { x: number; y: number; maxY: number };
   gaps: Gap[];
   dom?: DomEvidence;
+  /** Viewport PNG taken right after this capture, before anything moved; only when asked for. */
+  shot?: { png: Buffer; ms: number };
 }
 
 export type DriverAction = { kind: 'click' | 'hover' | 'check' | 'press'; value?: boolean | string };
@@ -175,14 +177,22 @@ export class BrowserDriver {
   }
 
   /** Capture the page; `detailed` adds the full DOM evidence (styles, layout, text geometry). */
-  async readDOM(detailed = false): Promise<DOMSnapshot> {
+  async readDOM(detailed = false, shoot: boolean | ((capture: DOMSnapshot) => boolean) = false): Promise<DOMSnapshot> {
     const page = this.page!;
     // tsx preserves nested function names with a module-local __name helper; supply it in the
     // serialized closure so development and compiled builds agree.
     const source = `(() => { const __name = (fn) => fn; return JSON.stringify((${collectDOM.toString()})(${[collectOverlays, collectActionEvidence, collectIdentityContexts, collectPopupRelations, collectComponents, collectScrollContainers, discoverStructuralLists, describeStructuralLists].map(f => f.toString()).join(', ')}, ${detailed ? collectEvidence.toString() : 'undefined'}, ${JSON.stringify(detailOptions)})); })()`;
     const raw = JSON.parse((await page.evaluate(source)) as string) as DOMSnapshot & { detailDom?: DomEvidence };
     const { detailDom, ...snapshot } = raw;
-    return detailDom ? { ...snapshot, dom: detailDom } : snapshot;
+    const read: DOMSnapshot = detailDom ? { ...snapshot, dom: detailDom } : snapshot;
+    // Decided on the capture itself, before anything moves: the screenshot shows the same moment.
+    if (typeof shoot === 'function' ? shoot(read) : shoot) {
+      const started = performance.now();
+      // caret 'initial': Playwright would otherwise inject a style to hide the caret.
+      const png = await page.screenshot({ type: 'png', caret: 'initial', timeout: 3000 }).catch(() => undefined);
+      if (png) read.shot = { png, ms: Math.round(performance.now() - started) };
+    }
+    return read;
   }
 
   /** Network, console and error records collected so far (bounded). */

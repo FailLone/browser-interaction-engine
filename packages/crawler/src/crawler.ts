@@ -1192,7 +1192,7 @@ export class SampledCrawler {
       // Taken before sweeping: scrolling can load content the state as announced does not have.
       const first = (async () => {
         const t = performance.now();
-        const capture = await this.adapter.readDOM(true);
+        const capture = await this.adapter.readDOM(true, this.pixels);
         return { capture, ms: Math.round(performance.now() - t) };
       })();
       await first;
@@ -1267,6 +1267,9 @@ export class SampledCrawler {
     return true;
   }
 
+  /** Whether a detailed capture should carry a screenshot: some plugin asks for one there. */
+  private readonly pixels = (capture: DOMSnapshot) => this.options.plugins.some(p => p.wantsPixels?.(capture));
+
   private get sweepOptions(): SweepOptions {
     return { ...defaultSweep, ...(this.options.sweep || {}) };
   }
@@ -1299,6 +1302,7 @@ export class SampledCrawler {
     const result = await sweep(this.page, this.adapter, s.capture, {
       ...this.sweepOptions,
       detailed,
+      ...(detailed ? { pixels: this.pixels } : {}),
       overlay,
       skip,
       seen,

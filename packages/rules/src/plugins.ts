@@ -6,6 +6,7 @@ import { imageAspectRatioRule } from './image-aspect-ratio.js';
 import { ImageAspectRatioTracker } from './observed-image-aspect-ratio.js';
 import { TextBackgroundTracker, observedTextBackgroundRule } from './observed-text-background.js';
 import { imageResourceRule } from './image-resource.js';
+import { wantsPixels } from './text-background.js';
 import { ImageResourceTracker } from './observed-image-resource.js';
 import { HorizontalOverflowTracker, horizontalOverflowRule } from './horizontal-overflow.js';
 
@@ -19,6 +20,11 @@ export interface RulePluginInfo {
 /** One rule with cross-capture history. A fresh instance consumes one crawl's pages in sequence. */
 export interface RulePlugin extends RulePluginInfo {
   create(): { run(page: RulePage): Promise<RuleReport> };
+  /**
+   * Whether a screenshot of this capture would let the rule decide something it otherwise cannot.
+   * Run on the capture before any screenshot exists, so it must be cheap and read only the DOM.
+   */
+  wantsPixels?(page: RulePage): boolean;
 }
 
 export const builtinRulePlugins: readonly RulePlugin[] = [
@@ -52,6 +58,7 @@ export const builtinRulePlugins: readonly RulePlugin[] = [
     name: '文字与背景同色',
     description: '检查控件文字是否与纯色背景相同；复杂绘制单独标明范围限制。',
     create: () => new TextBackgroundTracker(),
+    wantsPixels: page => wantsPixels(page),
   },
   {
     ...imageResourceRule,

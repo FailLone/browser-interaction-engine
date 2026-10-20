@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>文字背景截图判断测试</title>
+<style>
+  html, body { background: white; font: 16px/1.5 Arial, sans-serif; margin: 0; }
+  body { padding: 16px; } main { display: grid; grid-template-columns: repeat(3, 300px); gap: 12px; }
+  button { appearance: none; border: 0; border-radius: 8px; padding: 10px 16px; font: 16px Arial, sans-serif; }
+  .shadow { box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+  .veil { position: relative; display: inline-block; }
+  .veil::after { content: ''; position: absolute; inset: 0; background: rgba(128,128,128,.9); }
+  .tall { height: 1400px; }
+</style>
+<h1>文字背景截图判断测试</h1>
+<p>样式模型算不出背景（阴影、渐变、图案、大圆角）的按钮，由截图判断；被遮住的不判断。</p>
+<main>
+  <button id="shadow-ok" class="shadow" style="background:#1a1a1a;color:#fff">阴影，黑底白字</button>
+  <button id="shadow-same" class="shadow" style="background:#e8e8e8;color:#e2e2e2">阴影，浅灰底近白字</button>
+  <button id="gradient-ok" style="background:linear-gradient(90deg,#003,#036);color:#fff">深色渐变白字</button>
+  <button id="gradient-same" style="background:linear-gradient(90deg,#f5f5f5,#fafafa);color:#f0f0f0">浅色渐变浅色字</button>
+  <button id="half" style="background:linear-gradient(90deg,#000 0%,#000 40%,#fff 60%,#fff 100%);color:#fff">一半看不清：黑到白渐变白字</button>
+  <button id="radius-same" style="background:#0a7;color:#0b8;border-radius:20px">大圆角，绿底绿字</button>
+  <span class="veil"><button id="covered" style="background:#fff;color:#000">被灰色遮罩盖住</button></span>
+</main>
+<div class="tall"></div>
+<button id="far-same" class="shadow" style="background:#e8e8e8;color:#e2e2e2">页面下方：阴影，同色</button>
+</html>
