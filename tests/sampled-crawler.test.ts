@@ -1358,3 +1358,43 @@ test('a sheet that opens after the settle is not blamed on the next click, and t
     await site.close();
   }
 }, 120000);
+
+test('an exit named in another language is found by JEV and tried after the overlay content; English and Chinese need no model', async () => {
+  const sheet = (close: string) => `<!doctype html><meta charset="utf-8"><title>Sheet</title><main><p>Page</p></main>
+  <div role="dialog" aria-modal="true" aria-label="Support" id="d" style="position:fixed;inset:0;background:#fff">
+    <button onclick="document.getElementById('d').remove()">${close}</button>
+    <button onclick="this.textContent='Guest chat'">Продолжить как гость</button>
+  </div>`;
+  const run = async (close: string) => {
+    const site = await serve(sheet(close));
+    const asked: string[] = [];
+    const jev = fakeJev(q => {
+      if (q.kind !== 'exit') return 0.9;
+      asked.push(q.control!.name);
+      return q.control!.name === close ? 0.95 : 0.05;
+    });
+    try {
+      const events: CrawlEvent[] = [];
+      await new SampledCrawler({
+        url: site.url,
+        durationMs: 30000,
+        settleMs: 100,
+        judge: new ModelJudge({ jev }),
+        log: e => events.push(e),
+      }).run();
+      return { order: actionsOf(events).map(a => a.step.label), asked };
+    } finally {
+      await site.close();
+    }
+  };
+  // Russian "Close" comes first in reading order, but JEV marks it an exit: content goes first.
+  const russian = await run('Закрыть');
+  expect(russian.order.indexOf('Продолжить как гость')).toBeLessThan(russian.order.indexOf('Закрыть'));
+  expect(russian.asked).toEqual(expect.arrayContaining(['Закрыть', 'Продолжить как гость']));
+  // English and Chinese close names are matched by the program; JEV is not asked about exits.
+  for (const close of ['Close', '关闭']) {
+    const known = await run(close);
+    expect(known.order.indexOf('Продолжить как гость')).toBeLessThan(known.order.indexOf(close));
+    expect(known.asked).toEqual([]);
+  }
+}, 120000);

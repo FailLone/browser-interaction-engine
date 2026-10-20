@@ -13,6 +13,7 @@ import {
   activeOverlay,
   controlClass as baseClass,
   listClass,
+  modeRoles,
   maskVolatile,
   modeGroup,
   modeSiblings,
@@ -430,6 +431,11 @@ export class SampledCrawler {
   private readonly submitsSkipped = new Set<string>();
   /** Weak control classes already asked about. */
   private readonly asked = new Set<string>();
+  /**
+   * Overlay controls JEV was asked about as exits, by overlay and control class, and its answer.
+   * Asked only for overlays whose structure and the English / Chinese names found no exit.
+   */
+  private readonly judgedExits = new Map<string, boolean>();
 
   constructor(options: CrawlOptions) {
     this.options = {
@@ -585,6 +591,7 @@ export class SampledCrawler {
         if (pagePath(snapshot.url) === pagePath(this.options.url)) this.entryDocument = snapshot.documentId;
         await this.visit(snapshot);
         await this.reviewWeakControls(snapshot);
+        await this.reviewExits(snapshot);
         await this.assessRelevance(snapshot);
         if (await this.pursue(snapshot)) {
           stop = 'goal_answered';
@@ -1104,6 +1111,76 @@ export class SampledCrawler {
     });
   }
 
+  /**
+   * An open overlay with no exit known from structure or a close-like English / Chinese name:
+   * ask JEV which of its controls only dismiss it, so they are tried after its content. Names in
+   * other languages, and unnamed icons, are judged from their name, text and context.
+   */
+  private async reviewExits(s: Snapshot) {
+    const judge = this.options.judge,
+      overlay = activeOverlay(s);
+    if (!judge || !overlay || overlay.exitControlIds.length) return;
+    const scope = new Set(overlay.controlIds),
+      where = `${overlay.kind}:${maskVolatile(overlay.name)}`;
+    const batch: { key: string; label: string; question: Question }[] = [];
+    for (const c of s.controls) {
+      if (!scope.has(c.localId) || !c.visible || !c.actions.includes('click') || c.actionable.occludedBy) continue;
+      // Choices (options, tabs, radios) and members of a repeated list are the overlay's content,
+      // never its exit.
+      if (modeRoles.has(c.role) || listClass(c)) continue;
+      const key = `${where}|${this.classOf(c)}`;
+      if (this.judgedExits.has(key) || batch.some(b => b.key === key)) continue;
+      const name = c.name || c.displayedText || '';
+      batch.push({
+        key,
+        label: (name || c.role).slice(0, 60),
+        question: {
+          kind: 'exit',
+          overlay: where,
+          control: {
+            tag: c.tag,
+            role: c.role,
+            name: maskVolatile(name),
+            hints: [],
+            text: maskVolatile(c.displayedText || ''),
+            context:
+              [s.regions?.find(r => r.key === c.region)?.label]
+                .filter(Boolean)
+                .map(x => maskVolatile(String(x)))
+                .join(' / ') || undefined,
+          },
+        },
+      });
+    }
+    if (!batch.length) return;
+    const all = batch.map(b => b.question);
+    const answers = judge.askAll ? await judge.askAll(all) : await Promise.all(all.map(q => judge.ask(q)));
+    batch.forEach(({ key, label }, i) => {
+      const answer = answers[i];
+      this.emit({
+        type: 'judgement',
+        at: this.now(),
+        question: 'exit',
+        label,
+        verdict: answer.verdict,
+        source: answer.source,
+        probability: answer.probability,
+      });
+      // Uncertain is not an exit: content first is the safe order, and the overlay is closed in the end anyway.
+      this.judgedExits.set(key, answer.verdict === 'yes');
+    });
+  }
+
+  /** The overlay's exits: from structure and English / Chinese names, then as JEV judged them. */
+  private exitsOf(s: Snapshot, overlay: NonNullable<ReturnType<typeof activeOverlay>>) {
+    const exits = new Set(overlay.exitControlIds),
+      where = `${overlay.kind}:${maskVolatile(overlay.name)}`;
+    for (const c of s.controls)
+      if (overlay.controlIds.includes(c.localId) && this.judgedExits.get(`${where}|${this.classOf(c)}`))
+        exits.add(c.localId);
+    return exits;
+  }
+
   private budget(classKey: string) {
     return classKey.startsWith('list:') ? this.options.listSamples : this.options.samples;
   }
@@ -1327,7 +1404,7 @@ export class SampledCrawler {
     const overlay = activeOverlay(s);
     // Inside an overlay, explore its content before its exits so it is not dismissed early.
     if (overlay) {
-      const exits = new Set(overlay.exitControlIds);
+      const exits = this.exitsOf(s, overlay);
       return rows.find(r => !exits.has(r.control.localId)) || rows[0];
     }
     return rows[0];
