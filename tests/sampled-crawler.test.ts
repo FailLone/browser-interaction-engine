@@ -582,6 +582,8 @@ test('inputs are classified from structure and filled with kind-specific samples
     ariaAutocomplete: '',
     ariaHaspopup: '',
     role: '',
+    enterkeyhint: '',
+    inSearch: false,
     name: '',
     min: '',
     max: '',
@@ -1462,3 +1464,47 @@ test('a live region is captured as status text, whatever its language', async ()
     await site.close();
   }
 }, 60000);
+
+test('live values, inputs and lists are read the same way in any language', async () => {
+  const { classifyInput, inputSamples, modeGroup } = await import('@interaction/crawler');
+  // Values in grouped or non-ASCII digits are masked whole, so ticking never makes a new state.
+  expect(maskVolatile('Баланс 999,00 €')).toBe(maskVolatile('Баланс 1 234,56 €'));
+  expect(maskVolatile("Total 1'234.50 CHF")).toBe(maskVolatile('Total 987.10 CHF'));
+  expect(maskVolatile('السعر ١٢٣٤')).toBe(maskVolatile('السعر ٩٨٧'));
+  expect(maskVolatile('价格 １００円')).toBe(maskVolatile('价格 ２５円'));
+  // A count beside a word is still masked; separate numbers stay separate.
+  expect(maskVolatile('Шаг 2 из 5')).toBe('Шаг # из #');
+  const facts = (o: object) => ({
+    type: 'text',
+    inputmode: '',
+    placeholder: '',
+    pattern: '',
+    autocomplete: '',
+    ariaAutocomplete: '',
+    ariaHaspopup: '',
+    role: '',
+    enterkeyhint: '',
+    inSearch: false,
+    name: '',
+    min: '',
+    max: '',
+    step: '',
+    value: '',
+    ...o,
+  });
+  for (const value of ['1 234,56', '1.234,56', '١٢٣', '１００']) expect(classifyInput(facts({ value }))).toBe('number');
+  // Search by structure, whatever the placeholder says; an English word that only contains "search" is not one.
+  expect(classifyInput(facts({ placeholder: 'Поиск', enterkeyhint: 'search' }))).toBe('search');
+  expect(classifyInput(facts({ placeholder: '検索', inSearch: true }))).toBe('search');
+  expect(classifyInput(facts({ placeholder: 'Research topic' }))).toBeUndefined();
+  // A search term comes from the page's own words when it has no Latin acronyms.
+  expect(inputSamples('search', facts({}), 'Купить биткоин, биткоин дорожает')[0].value).toBe('биткоин');
+  expect(inputSamples('search', facts({}), '比特币价格 比特币价格 以太坊')[0].value).toBe('比特');
+  // Short period buttons in other scripts form a mode group, as "1h" / "24h" do.
+  const button = (name: string) =>
+    ({ role: 'button', name, selector: 'div > button', domAncestry: { instanceIds: ['p'] } }) as never;
+  expect(modeGroup(button('24ч'), 'https://x.test/')).toBeDefined();
+  expect(modeGroup(button('7天'), 'https://x.test/')).toBeDefined();
+  // A short word without a number is an ordinary button.
+  expect(modeGroup(button('登录'), 'https://x.test/')).toBeUndefined();
+});

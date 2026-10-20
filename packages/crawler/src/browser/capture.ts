@@ -347,8 +347,12 @@ export function collectDOM(
     if (!fullLabel)
       for (const el of [...copy.querySelectorAll('*')].reverse()) {
         const text = (el.textContent || '').trim();
+        // A number in any script's digits, grouped by , . ' or a space, with its currency before
+        // or after it ("$1,234", "1 234,56 €", "100 ₽") or a percent sign.
         const readout =
-          /^[+\-−]?\p{Sc}\s*\d[\d,.]*(?:\s*[KMBTkmbt])?$/u.test(text) || /^[+\-−]?\d[\d,.]*\s*[%‰]$/.test(text);
+          /^[+\-−]?\p{Sc}\s*\p{Nd}[\p{Nd},.'\s]*(?:\s*[KMBTkmbt])?$/u.test(text) ||
+          /^[+\-−]?\p{Nd}[\p{Nd},.'\s]*(?:\s*[KMBTkmbt])?\s*\p{Sc}$/u.test(text) ||
+          /^[+\-−]?\p{Nd}[\p{Nd},.'\s]*\s*[%‰]$/u.test(text);
         if (
           readout &&
           !el.closest('label') &&

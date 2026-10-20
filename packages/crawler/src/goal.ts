@@ -165,7 +165,9 @@ export class GoalPursuit {
     text: string,
     actions: { classKey: string; description: string }[],
   ): Promise<PursuitDecision | undefined> {
-    const lines = [...new Set(text.split(/\n+/).map(l => l.replace(/\s+/g, ' ').trim()))].filter(l => l.length >= 3);
+    const lines = [...new Set(text.split(/\n+/).map(l => l.replace(/\s+/g, ' ').trim()))].filter(
+      l => l.length >= 3 || /\p{L}{2}/u.test(l),
+    );
     const fresh = lines.filter(l => !this.shown.has(l));
     // Revealed text (an expanded answer) may leave the state key unchanged: new text is a new look.
     const known = this.decisions.get(state);

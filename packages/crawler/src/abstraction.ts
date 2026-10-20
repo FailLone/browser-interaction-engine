@@ -18,11 +18,14 @@ export interface Snapshot {
 
 /** Live values (prices, times, percentages, counts) never make a new state or component. */
 export function maskVolatile(text: string, max = 80): string {
-  return text
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/[-+]?[\d₀-₉][\d₀-₉.,:%/]*/g, '#')
-    .slice(0, max);
+  return (
+    text
+      .replace(/\s+/g, ' ')
+      .trim()
+      // Digits of any script; thousands grouped by , . ' or a space ("1 234,56" in fr / ru).
+      .replace(/[-+]?[\p{Nd}₀-₉][\p{Nd}₀-₉.,:%/']*(?: (?=\p{Nd}{3}(?!\p{Nd}))[\p{Nd}.,:%/']+)*/gu, '#')
+      .slice(0, max)
+  );
 }
 
 /** Region/script locale prefixes (/zh-hans/, /en-au/) are the same page in another language. */
@@ -76,7 +79,12 @@ export function modeGroup(
 ): string | undefined {
   // Segmented controls are often plain buttons in a row: short, label-only names
   // ("1h", "24h", "1W") sharing a parent behave as one mode group.
-  const segmented = c.role === 'button' && !c.landmark && /^[\w.%+-]{1,4}$/.test((c.name || '').trim());
+  // Outside ASCII a short label is often a whole word ("登录"), so it needs a number ("24ч", "7天").
+  const short = (c.name || '').trim();
+  const segmented =
+    c.role === 'button' &&
+    !c.landmark &&
+    (/^[\w.%+-]{1,4}$/.test(short) || /^(?=.*\p{Nd})[\p{L}\p{N}.%+-]{1,4}$/u.test(short));
   if (!modeRoles.has(c.role) && !segmented) return;
   // The parent element groups the row. Its instance ID changes with every document,
   // so the group is keyed by the parent's member names, which are stable across reloads.

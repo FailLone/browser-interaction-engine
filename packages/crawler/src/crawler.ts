@@ -2094,6 +2094,8 @@ const emptyFacts = {
   ariaAutocomplete: '',
   ariaHaspopup: '',
   role: '',
+  enterkeyhint: '',
+  inSearch: false,
   name: '',
   min: '',
   max: '',
@@ -2196,7 +2198,8 @@ function textBlocks(text: string) {
       text
         .split(/\n+/)
         .map(line => maskVolatile(line, 200))
-        .filter(line => line.length >= 3),
+        // Two letters make a line ("成功", "完成"); masked numbers and dashes alone do not.
+        .filter(line => line.length >= 3 || /\p{L}{2}/u.test(line)),
     ),
   ];
 }
@@ -2217,6 +2220,12 @@ function distinctNames(names: string[]) {
         n
           .toLowerCase()
           .split(/[^\p{L}\p{N}#]+/u)
+          // Scripts written without spaces give one token per name: compare their character pairs.
+          .flatMap(w =>
+            /\p{Script=Han}|\p{Script=Hiragana}|\p{Script=Katakana}|\p{Script=Thai}/u.test(w)
+              ? [...w].slice(0, -1).map((ch, i) => ch + [...w][i + 1])
+              : [w],
+          )
           .filter(w => w.length > 1),
       ),
   );
