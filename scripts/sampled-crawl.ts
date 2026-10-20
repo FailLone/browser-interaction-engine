@@ -123,6 +123,8 @@ const crawler = new SampledCrawler({
         JSON.stringify(event.label),
         event.after ? `late effect of ${JSON.stringify(event.after)}` : '',
       );
+    else if (event.type === 'languages')
+      console.log(t, 'languages', event.language ?? '?', `${event.variants.length} versions declared`);
     else console.log(t, event.type, event.reason);
   },
 });

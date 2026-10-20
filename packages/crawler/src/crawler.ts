@@ -43,6 +43,7 @@ import {
   type PluginResult,
 } from './plugin.js';
 import type { Judge, Question } from './judge.js';
+import { LanguageVersions, pageLanguageInPage, type LanguageVariant } from './language.js';
 import { excludedAreas, GoalPursuit, GoalRelevance, planGoal, type GoalPlan } from './goal.js';
 import { metered, type ProviderMeter } from './meter.js';
 import type { CrawlLedger } from './store.js';
@@ -220,11 +221,17 @@ export type CrawlEvent =
       repeated?: { finding: number; target?: FindingTarget }[];
       reasons?: Record<string, string>;
     }
+  /**
+   * The language versions the entry page declares (hreflang), and its own language. The crawl
+   * tests the entry's language; links to the others are recorded as language switches.
+   */
+  | { type: 'languages'; at: number; url: string; language?: string; variants: LanguageVariant[] }
   /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
   | {
       type: 'navigation';
       at: number;
-      kind: 'document' | 'same-document' | 'popup';
+      /** `language`: the same page in another language, never followed while one language is tested. */
+      kind: 'document' | 'same-document' | 'popup' | 'language';
       from: string;
       to: string;
       action: string;
@@ -361,10 +368,19 @@ export class SampledCrawler {
   private intercepted?: string;
   /** Popup opened during the current dispatch. */
   private popup?: string;
+  /** Language versions pages declare (hreflang), learnt once per document. */
+  readonly languages = new LanguageVersions();
+  private languageRead?: string;
   /** Outgoing navigations recorded per (page, target page). */
   readonly links = new Map<
     string,
-    { from: string; to: string; kind: 'document' | 'same-document' | 'popup'; action: string; count: number }
+    {
+      from: string;
+      to: string;
+      kind: 'document' | 'same-document' | 'popup' | 'language';
+      action: string;
+      count: number;
+    }
   >();
   /** Backtracks served by browser history instead of replay. */
   private historyBacks = 0;
@@ -592,11 +608,13 @@ export class SampledCrawler {
       if (!request.isNavigationRequest() || request.frame() !== this.page.mainFrame()) return route.fallback();
       const target = request.url(),
         current = this.page.url();
-      // A different path, or the same page under another locale prefix (re-renders everything).
+      // A different page, or the same page in another language (re-renders everything): one
+      // language is tested, so a language switch is never followed, whatever the scope allows.
+      const language = this.languages.otherLanguage(target, current);
       const leaving = pagePath(target) !== pagePath(current) || rawPath(target) !== rawPath(current);
       const intercept =
         this.dispatching &&
-        (placementOfUrl(target, this.options) === 'outside' || (leaving && !this.options.followNavigation));
+        (language || placementOfUrl(target, this.options) === 'outside' || (leaving && !this.options.followNavigation));
       if (intercept) {
         this.intercepted = target;
         return route.abort('aborted');
@@ -815,11 +833,16 @@ export class SampledCrawler {
       storageRestores: this.storageRestores,
       navigations: {
         intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
+        languages: [...this.links.values()].filter(l => l.kind === 'language').length,
         sameDocument: [...this.links.values()]
           .filter(l => l.kind === 'same-document')
           .map(l => ({ from: l.from, to: l.to, action: l.action })),
         outgoingPages: [
-          ...new Set([...this.links.values()].filter(l => l.kind !== 'same-document').map(l => pagePath(l.to))),
+          ...new Set(
+            [...this.links.values()]
+              .filter(l => l.kind !== 'same-document' && l.kind !== 'language')
+              .map(l => this.languages.page(l.to)),
+          ),
         ].length,
       },
       directLoads: this.directLoads,
@@ -919,6 +942,11 @@ export class SampledCrawler {
 
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM();
+    if (this.languageRead !== dom.documentId) {
+      this.languageRead = dom.documentId;
+      const language = await this.page.evaluate(pageLanguageInPage).catch(() => undefined);
+      if (language) this.learnLanguages(dom.url, language);
+    }
     const byOwner = new Map<string, string[]>();
     for (const c of dom.controls as Control[])
       if (c.structuralItem) {
@@ -943,6 +971,21 @@ export class SampledCrawler {
       documentId: dom.documentId,
       capture: dom,
     };
+  }
+
+  /** The language versions a document declares; the entry's are announced once. */
+  private learnLanguages(url: string, language: Parameters<LanguageVersions['learn']>[1]) {
+    const first = !this.languages.variantsOf(this.options.url).length;
+    this.languages.learn(url, language);
+    const variants = this.languages.variantsOf(this.options.url);
+    if (first && variants.length)
+      this.emit({
+        type: 'languages',
+        at: this.now(),
+        url,
+        language: this.languages.language(url) ?? language.documentLang,
+        variants,
+      });
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -1343,6 +1386,12 @@ export class SampledCrawler {
       // An open overlay masks the page beneath it: never fight the backdrop.
       if (scope && !scope.has(c.localId)) continue;
       if (!scope && c.actionable.occludedBy) continue;
+      const target = linkTarget(c, s.url);
+      // The page in another language: recorded as a language switch, never clicked.
+      if (target && c.reviewBinding?.attributes.target !== '_blank' && this.languages.otherLanguage(target, s.url)) {
+        this.noteLink(c, s.url);
+        continue;
+      }
       const where = placement(c, s.url, this.options.url, this.options.policy);
       // Testing the current page only: a link's destination is recorded, never visited, so a
       // link elsewhere needs no click at all (its href is already the record).
@@ -1598,7 +1647,14 @@ export class SampledCrawler {
     // Navigations are recorded, never followed by default. Set asynchronously during dispatch.
     const intercepted = this.intercepted as string | undefined,
       popup = this.popup as string | undefined;
-    if (intercepted) this.recordLink('document', before.url, intercepted, step.label, 'intercepted');
+    if (intercepted)
+      this.recordLink(
+        this.languages.otherLanguage(intercepted, before.url) ? 'language' : 'document',
+        before.url,
+        intercepted,
+        step.label,
+        'intercepted',
+      );
     if (popup) this.recordLink('popup', before.url, popup, step.label, 'intercepted');
     // A navigation is the expected result of a link: it worked, so it is not a failure.
     if ((intercepted || popup) && outcome === 'failed' && /aborted|ERR_ABORTED/.test(error || '')) {
@@ -1746,7 +1802,11 @@ export class SampledCrawler {
     const target = linkTarget(c, base);
     if (target)
       this.recordLink(
-        c.reviewBinding?.attributes.target === '_blank' ? 'popup' : 'document',
+        c.reviewBinding?.attributes.target === '_blank'
+          ? 'popup'
+          : this.languages.otherLanguage(target, base)
+            ? 'language'
+            : 'document',
         base,
         target,
         (c.name || c.label).slice(0, 60),
@@ -1755,13 +1815,14 @@ export class SampledCrawler {
   }
 
   private recordLink(
-    kind: 'document' | 'same-document' | 'popup',
+    kind: 'document' | 'same-document' | 'popup' | 'language',
     from: string,
     to: string,
     action: string,
     outcome: 'intercepted' | 'kept' | 'reverted' | 'followed',
   ) {
-    const key = `${kind === 'same-document' ? kind : 'leave'}|${pagePath(from)}|${kind === 'same-document' ? to : pagePath(to)}`;
+    // A language switch is keyed by its full path: each language is its own record.
+    const key = `${kind === 'same-document' ? kind : 'leave'}|${pagePath(from)}|${kind === 'same-document' || kind === 'language' ? to : pagePath(to)}`;
     const row = this.links.get(key);
     if (row) {
       row.count++;
