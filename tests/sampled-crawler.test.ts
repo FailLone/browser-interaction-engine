@@ -1311,3 +1311,46 @@ test('an action that shows it is loading is waited for; a pulse already running 
     await site.close();
   }
 }, 120000);
+
+test('a sheet that opens after the settle is not blamed on the next click, and the page beneath is not failed', async () => {
+  // Help opens its sheet 1.2s later with no loading sign; nothing marks it as a dialog.
+  const site = await serve(`<!doctype html><title>Late</title><main style="padding:20px">
+    <button id="help" onclick="setTimeout(()=>document.getElementById('sheet').style.display='block',1200)">Help</button>
+    ${Array.from({ length: 4 }, (_, i) => `<p><button onclick="this.textContent='Picked ${i}'">Platform ${i}</button></p>`).join('')}
+  </main>
+  <div id="sheet" style="display:none;position:fixed;inset:0;background:#fff">
+    <p>How can we help?</p><button onclick="this.textContent='Answered'">Deposits</button>
+    <button onclick="document.getElementById('sheet').style.display='none'">Close</button>
+  </div>`);
+  try {
+    const events: CrawlEvent[] = [];
+    const crawler = new SampledCrawler({
+      url: site.url,
+      durationMs: 30000,
+      settleMs: 300,
+      viewport: 'mobile',
+      log: e => events.push(e),
+    });
+    // The capture-time occlusion filter would hide the covered controls; the late sheet must be
+    // caught where it is in a real run, between reading the page and clicking.
+    const internals = crawler as unknown as { snapshot(): Promise<unknown> };
+    const snapshot = internals.snapshot.bind(crawler);
+    let reads = 0;
+    const page = () => (crawler as unknown as { page: { evaluate(f: string): Promise<unknown> } }).page;
+    internals.snapshot = async () => {
+      const s = await snapshot();
+      // Hold the sheet back from the round's first read once, so the next click is chosen beneath it.
+      if (++reads === 3) await page().evaluate('new Promise(r => setTimeout(r, 1200))');
+      return s;
+    };
+    await crawler.run();
+    const changed = events.filter(e => e.type === 'page_changed');
+    expect(changed.length).toBeGreaterThanOrEqual(1);
+    expect(changed[0]).toMatchObject({ after: 'Help' });
+    const actions = actionsOf(events);
+    expect(actions.filter(a => a.outcome === 'failed')).toEqual([]);
+    expect(actions.find(a => a.step.label === 'Deposits')?.overlay).toMatch(/^modal:/);
+  } finally {
+    await site.close();
+  }
+}, 120000);

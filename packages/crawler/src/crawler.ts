@@ -176,6 +176,12 @@ export type CrawlEvent =
       busyMs?: number;
     }
   | { type: 'backtrack'; at: number; reason: string; url: string }
+  /**
+   * The page changed by itself between being read and being acted on, so the target of `label`
+   * was covered; the action is dropped and the page read again. `after` names the previous
+   * action when it was taken for no change: the change was most likely its late effect.
+   */
+  | { type: 'page_changed'; at: number; url: string; label: string; after?: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
   | { type: 'plugin_error'; at: number; plugin: string; state: string; error: string }
   /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
@@ -1341,7 +1347,8 @@ export class SampledCrawler {
     this.actionShot = undefined;
     this.shootFor = this.options.onScreenshot ? beforeKey : undefined;
     this.dispatching = true;
-    let busyMs: number | undefined;
+    let busyMs: number | undefined,
+      pageChanged = false;
     try {
       const busy = await this.page
         .evaluate(busyInPage, [c.control.selector, []] as [string, string[]])
@@ -1352,11 +1359,28 @@ export class SampledCrawler {
     } catch (e) {
       outcome = 'failed';
       error = String(e).slice(0, 200);
+      // Covered because the page changed by itself since it was read (a sheet opened late, after
+      // the last action's settle): the target is not at fault. Nothing is counted; the next round
+      // reads the page as it now is.
+      if (/Target not actionable: covered by/.test(error) && (await this.changedSince(before))) {
+        pageChanged = true;
+        this.pageCounts.set(pagePath(before.url), (this.pageCounts.get(pagePath(before.url)) || 1) - 1);
+        const previous = this.events.findLast((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+        this.emit({
+          type: 'page_changed',
+          at: this.now(),
+          url: before.url,
+          label: (c.control.name || c.control.label || c.control.role).slice(0, 60),
+          ...(previous?.outcome === 'no_change' ? { after: previous.step.label } : {}),
+        });
+        return;
+      }
       // Covered on the first try: try once more later. Any other failure, or a failed retry, is final.
       if (!c.retry && /Target not actionable: covered by/.test(error)) this.covered.set(c.classKey, beforeKey);
       else this.failedClasses.add(c.classKey);
     } finally {
-      if (c.retry) this.covered.delete(c.classKey);
+      // A retry the page's own change got in the way of is still owed.
+      if (c.retry && !pageChanged) this.covered.delete(c.classKey);
       this.dispatching = false;
     }
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
@@ -1545,6 +1569,15 @@ export class SampledCrawler {
     }
     this.links.set(key, { from: pagePath(from), to, kind, action, count: 1 });
     this.emit({ type: 'navigation', at: this.now(), kind, from, to, action, outcome });
+  }
+
+  /** True when the page's structural state is no longer the one `before` was read from. */
+  private async changedSince(before: Snapshot) {
+    try {
+      return stateKey(await this.snapshot()) !== stateKey(before);
+    } catch {
+      return false;
+    }
   }
 
   /** True when the document that produced `before` is still loaded (no full page load happened). */
