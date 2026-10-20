@@ -115,7 +115,7 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
     nodes = new Map(dom.nodes.map(n => [n.id, n]));
   const texts: DomNodeEvidence[] = [],
     samples: Sample[] = [],
-    limitations: { code: string; nodeId?: string }[] = [];
+    limitations: { code: string; nodeId?: string; textNodeId?: string }[] = [];
   let bindingComplete = true;
   const result = (
     verdict: RuleAssessment['verdict'],
@@ -142,7 +142,7 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
       observationStatus:
         code === 'TEXT_BACKGROUND_UNSUPPORTED'
           ? 'unsupported'
-          : code === 'TEXT_BACKGROUND_UNAVAILABLE'
+          : code === 'TEXT_BACKGROUND_UNAVAILABLE' || code === 'TEXT_BACKGROUND_OFFSCREEN'
             ? 'unavailable'
             : 'current',
     },
@@ -205,10 +205,14 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
     }
   };
   for (const id of roots) visit(id, true);
+  // Each limitation is about the label fragment being judged when it was found.
+  let current: string | undefined;
   const issue = (code: string, n?: DomNodeEvidence) => {
-    limitations.push({ code, nodeId: n?.id });
+    limitations.push({ code, nodeId: n?.id, textNodeId: current });
   };
+  const offscreen = new Set<string>();
   for (const text of texts) {
+    current = text.id;
     if (context.signal.aborted) {
       issue('RULE_ABORTED');
       break;
@@ -224,6 +228,14 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
     }
     const rects = layout.rects.filter(r => r.width > 0 && r.height > 0);
     if (!rects.length) continue;
+    // Off this screen. The color model still judges it; only when that cannot is it left for a
+    // capture that shows it, rather than counted as unsupported here.
+    const view = dom.environment?.layoutViewport;
+    if (
+      view &&
+      rects.some(r => r.x < 0 || r.y < 0 || r.x + r.width > view.clientWidth || r.y + r.height > view.clientHeight)
+    )
+      offscreen.add(text.id);
     if (rects.length > 128) {
       issue('TEXT_GEOMETRY_MISSING', text);
       continue;
@@ -469,6 +481,12 @@ function assess(context: RuleContext, options: z.output<typeof textBackgroundOpt
       requirement ? 'TEXT_BACKGROUND_REQUIREMENT_FAILED' : 'TEXT_BACKGROUND_MATCH',
       'At least one DOM label fragment has matching foreground and background in the supported solid-color model; actual glyph visibility and product necessity are separate questions',
       requirement ? 'error' : 'warning',
+    );
+  else if (limitations.length && limitations.every(i => i.textNodeId && offscreen.has(i.textNodeId)))
+    assessment = result(
+      'unknown',
+      'TEXT_BACKGROUND_OFFSCREEN',
+      'Label text is not wholly on screen in this capture; a capture that shows it judges it',
     );
   else if (limitations.length)
     assessment = result(

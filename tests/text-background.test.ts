@@ -24,7 +24,8 @@ const plan = { ruleId: textBackgroundRule.id, ruleVersion: textBackgroundRule.ve
 const run = async (s: RulePage, options = {}) =>
   (await new RuleRunner([textBackgroundRule]).run(s, [{ ...plan, options }]))[0];
 async function setup(fn: (f: RuleFixture, s: RulePage) => Promise<void>) {
-  await withFixture(fixture.url + '/text-background.html', fn, { width: 1100, height: 900 });
+  // Tall enough that every sample is on screen: text below it is left for a capture that shows it.
+  await withFixture(fixture.url + '/text-background.html', fn, { width: 1100, height: 1400 });
 }
 
 it('measures solid label colors, transparency, fill overrides and visible associated labels without acting', async () => {
@@ -192,6 +193,15 @@ it('does not certify incomplete evidence, unknown backgrounds or unsettled/effec
         'TEXT_BACKGROUND_UNAVAILABLE',
       ],
       [
+        'below the screen',
+        s => {
+          for (const r of s.snapshot.dom!.nodes.find(n => n.parentId === node(s, 'target').id && n.nodeType === 'text')!
+            .textLayout!.rects)
+            r.y += 2000;
+        },
+        'TEXT_BACKGROUND_OFFSCREEN',
+      ],
+      [
         'truncated field',
         s => {
           node(s, 'target').gaps.push({ code: 'FIELD_TRUNCATED', message: 'color' });
@@ -206,6 +216,7 @@ it('does not certify incomplete evidence, unknown backgrounds or unsettled/effec
         code,
         verdict: 'unknown',
         severity: 'info',
+        ...(code === 'TEXT_BACKGROUND_OFFSCREEN' ? { facts: { observationStatus: 'unavailable' } } : {}),
       });
     }
   });

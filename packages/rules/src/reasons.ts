@@ -106,6 +106,7 @@ export const ruleReasons: Record<string, string> = {
   // Text and background
   TEXT_BACKGROUND_UNSUPPORTED: '背景不是纯色（渐变、图片等），无法比较',
   TEXT_BACKGROUND_UNAVAILABLE: '缺少文字或背景的颜色',
+  TEXT_BACKGROUND_OFFSCREEN: '文字不在屏幕内，等遍历滚动到它再查',
   TEXT_BACKGROUND_MATCH: '文字和背景同色',
   TEXT_BACKGROUND_REQUIREMENT_FAILED: '文字和背景同色',
   TEXT_BACKGROUND_RECHECK_UNAVAILABLE: '之前发现的同色问题没能再次检查',

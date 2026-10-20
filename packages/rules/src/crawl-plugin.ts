@@ -23,6 +23,7 @@ const offscreen = (c: RuleCheck) =>
   c.code === 'VIEWPORT_RECHECK_PENDING' ||
   c.code === 'TEXT_SCROLL_RECHECK_PENDING' ||
   c.code === 'OUTSIDE_VIEWPORT' ||
+  c.code === 'TEXT_BACKGROUND_OFFSCREEN' ||
   (c.code === 'OCCLUSION_RECHECK_UNAVAILABLE' && c.actual === 'Error: TARGET_NOT_FULLY_IN_VIEW');
 
 /** A rule's result on one target, with the capture it was measured in and that capture's screenshot. */
