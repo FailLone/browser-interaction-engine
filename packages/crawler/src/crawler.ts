@@ -13,6 +13,7 @@ import {
   activeOverlay,
   controlClass as baseClass,
   listClass,
+  modeRoles,
   maskVolatile,
   modeGroup,
   modeSiblings,
@@ -42,6 +43,7 @@ import {
   type PluginResult,
 } from './plugin.js';
 import type { Judge, Question } from './judge.js';
+import { LanguageVersions, pageLanguageInPage, type LanguageVariant } from './language.js';
 import { excludedAreas, GoalPursuit, GoalRelevance, planGoal, type GoalPlan } from './goal.js';
 import { metered, type ProviderMeter } from './meter.js';
 import {
@@ -203,8 +205,16 @@ export type CrawlEvent =
        * another scroll position and so cannot show where the target is.
        */
       shot?: string;
+      /** How long the page showed it was busy (loading) after the settle; its effect came after that. */
+      busyMs?: number;
     }
   | { type: 'backtrack'; at: number; reason: string; url: string }
+  /**
+   * The page changed by itself between being read and being acted on, so the target of `label`
+   * was covered; the action is dropped and the page read again. `after` names the previous
+   * action when it was taken for no change: the change was most likely its late effect.
+   */
+  | { type: 'page_changed'; at: number; url: string; label: string; after?: string }
   | { type: 'finding'; at: number; plugin: string; finding: Finding; state: string; url: string }
   | { type: 'plugin_error'; at: number; plugin: string; state: string; error: string }
   /**
@@ -241,11 +251,17 @@ export type CrawlEvent =
       repeated?: { finding: number; target?: FindingTarget }[];
       reasons?: Record<string, string>;
     }
+  /**
+   * The language versions the entry page declares (hreflang), and its own language. The crawl
+   * tests the entry's language; links to the others are recorded as language switches.
+   */
+  | { type: 'languages'; at: number; url: string; language?: string; variants: LanguageVariant[] }
   /** A navigation the action triggered: intercepted document load, same-document route change, or popup. */
   | {
       type: 'navigation';
       at: number;
-      kind: 'document' | 'same-document' | 'popup';
+      /** `language`: the same page in another language, never followed while one language is tested. */
+      kind: 'document' | 'same-document' | 'popup' | 'language';
       from: string;
       to: string;
       action: string;
@@ -382,10 +398,19 @@ export class SampledCrawler {
   private intercepted?: string;
   /** Popup opened during the current dispatch. */
   private popup?: string;
+  /** Language versions pages declare (hreflang), learnt once per document. */
+  readonly languages = new LanguageVersions();
+  private languageRead?: string;
   /** Outgoing navigations recorded per (page, target page). */
   readonly links = new Map<
     string,
-    { from: string; to: string; kind: 'document' | 'same-document' | 'popup'; action: string; count: number }
+    {
+      from: string;
+      to: string;
+      kind: 'document' | 'same-document' | 'popup' | 'language';
+      action: string;
+      count: number;
+    }
   >();
   /** Backtracks served by browser history instead of replay. */
   private historyBacks = 0;
@@ -495,6 +520,11 @@ export class SampledCrawler {
   private readonly submitsSkipped = new Set<string>();
   /** Weak control classes already asked about. */
   private readonly asked = new Set<string>();
+  /**
+   * Overlay controls JEV was asked about as exits, by overlay and control class, and its answer.
+   * Asked only for overlays whose structure and the English / Chinese names found no exit.
+   */
+  private readonly judgedExits = new Map<string, boolean>();
 
   constructor(options: CrawlOptions) {
     this.options = {
@@ -609,11 +639,13 @@ export class SampledCrawler {
       if (!request.isNavigationRequest() || request.frame() !== this.page.mainFrame()) return route.fallback();
       const target = request.url(),
         current = this.page.url();
-      // A different path, or the same page under another locale prefix (re-renders everything).
+      // A different page, or the same page in another language (re-renders everything): one
+      // language is tested, so a language switch is never followed, whatever the scope allows.
+      const language = this.languages.otherLanguage(target, current);
       const leaving = pagePath(target) !== pagePath(current) || rawPath(target) !== rawPath(current);
       const intercept =
         this.dispatching &&
-        (placementOfUrl(target, this.options) === 'outside' || (leaving && !this.options.followNavigation));
+        (language || placementOfUrl(target, this.options) === 'outside' || (leaving && !this.options.followNavigation));
       if (intercept) {
         this.intercepted = target;
         return route.abort('aborted');
@@ -840,11 +872,16 @@ export class SampledCrawler {
       storageRestores: this.storageRestores,
       navigations: {
         intercepted: [...this.links.values()].filter(l => l.kind !== 'same-document').length,
+        languages: [...this.links.values()].filter(l => l.kind === 'language').length,
         sameDocument: [...this.links.values()]
           .filter(l => l.kind === 'same-document')
           .map(l => ({ from: l.from, to: l.to, action: l.action })),
         outgoingPages: [
-          ...new Set([...this.links.values()].filter(l => l.kind !== 'same-document').map(l => pagePath(l.to))),
+          ...new Set(
+            [...this.links.values()]
+              .filter(l => l.kind !== 'same-document' && l.kind !== 'language')
+              .map(l => this.languages.page(l.to)),
+          ),
         ].length,
       },
       directLoads: this.directLoads,
@@ -916,6 +953,26 @@ export class SampledCrawler {
   }
 
   /**
+   * An action whose effect waits on a request often shows that it is busy: the target disabled
+   * or aria-busy, a progressbar, a spinner. Loading signs present before the action (a page-wide
+   * pulse, a live ticker) are `before` and ignored. While a new sign shows, wait (bounded), then
+   * settle once more for the effect to render. Returns how long the page was busy.
+   */
+  private async waitWhileBusy(selector: string, before: string[]) {
+    const busy = () =>
+      this.page.evaluate(busyInPage, [selector, before] as [string, string[]]).then(
+        signs => signs.length > 0,
+        () => false,
+      );
+    if (!(await busy())) return undefined;
+    const started = performance.now();
+    while (performance.now() - started < BUSY_WAIT_MS && (await busy())) await this.page.waitForTimeout(BUSY_POLL_MS);
+    const ms = Math.round(performance.now() - started);
+    await this.settle();
+    return ms;
+  }
+
+  /**
    * Text-derived names grow when a trigger reveals a tooltip inside itself ("24h low" becomes
    * "24h lowThe lowest price..."). Within one document, an element keeps the name it was first
    * seen with, so the same trigger is not taken for a new control.
@@ -924,6 +981,11 @@ export class SampledCrawler {
 
   private async snapshot(): Promise<Snapshot> {
     const dom = await this.adapter.readDOM();
+    if (this.languageRead !== dom.documentId) {
+      this.languageRead = dom.documentId;
+      const language = await this.page.evaluate(pageLanguageInPage).catch(() => undefined);
+      if (language) this.learnLanguages(dom.url, language);
+    }
     const byOwner = new Map<string, string[]>();
     for (const c of dom.controls as Control[])
       if (c.structuralItem) {
@@ -941,12 +1003,28 @@ export class SampledCrawler {
       url: dom.url,
       title: dom.title,
       text: dom.text,
+      status: dom.status,
       controls: dom.controls as Control[],
       overlays: dom.overlays,
       regions: dom.regions,
       documentId: dom.documentId,
       capture: dom,
     };
+  }
+
+  /** The language versions a document declares; the entry's are announced once. */
+  private learnLanguages(url: string, language: Parameters<LanguageVersions['learn']>[1]) {
+    const first = !this.languages.variantsOf(this.options.url).length;
+    this.languages.learn(url, language);
+    const variants = this.languages.variantsOf(this.options.url);
+    if (first && variants.length)
+      this.emit({
+        type: 'languages',
+        at: this.now(),
+        url,
+        language: this.languages.language(url) ?? language.documentLang,
+        variants,
+      });
   }
 
   /** A page is worth entering if it is the entry, already known, or its template has budget left. */
@@ -1277,10 +1355,26 @@ export class SampledCrawler {
       this.askedLists.add(list);
       listBatch.push({ list, question: { kind: 'same-kind', role: members[0].role, members: names } });
     }
-    if (!batch.length && !listBatch.length) return;
-    const all = [...batch.map(b => b.question), ...listBatch.map(b => b.question)];
+    // Exit questions for an open overlay go in the same JEV request.
+    const exitBatch = this.exitQuestions(s);
+    if (!batch.length && !listBatch.length && !exitBatch.length) return;
+    const all = [...batch, ...listBatch, ...exitBatch].map(b => b.question);
     const results = judge.askAll ? await judge.askAll(all) : await Promise.all(all.map(q => judge.ask(q)));
     const answers = results.slice(0, batch.length);
+    exitBatch.forEach(({ key, label }, i) => {
+      const answer = results[batch.length + listBatch.length + i];
+      this.emit({
+        type: 'judgement',
+        at: this.now(),
+        question: 'exit',
+        label,
+        verdict: answer.verdict,
+        source: answer.source,
+        probability: answer.probability,
+      });
+      // Uncertain is not an exit: content first is the safe order, and the overlay is closed in the end anyway.
+      this.judgedExits.set(key, answer.verdict === 'yes');
+    });
     listBatch.forEach(({ list, question }, i) => {
       const answer = results[batch.length + i];
       this.emit({
@@ -1309,6 +1403,61 @@ export class SampledCrawler {
       // Uncertain weak controls are tried once: a click is cheaper and more accurate than an LLM.
       if (answer.verdict !== 'no') this.confirmed.add(cls);
     });
+  }
+
+  /**
+   * An open overlay whose own close control is not known from structure or a close-like English /
+   * Chinese name: ask JEV which of its controls only dismiss it, so they are tried after its
+   * content. Names in other languages, and unnamed icons, are judged from their name, text and
+   * context. An exit outside the overlay (the opener that toggles it) does not stand for one
+   * inside it. Returns the questions; they are asked with the state's other judgements.
+   */
+  private exitQuestions(s: Snapshot) {
+    const overlay = activeOverlay(s);
+    const batch: { key: string; label: string; question: Question }[] = [];
+    if (!overlay || overlay.exitControlIds.some(id => overlay.controlIds.includes(id))) return batch;
+    const scope = new Set(overlay.controlIds),
+      where = `${overlay.kind}:${maskVolatile(overlay.name)}`;
+    for (const c of s.controls) {
+      if (!scope.has(c.localId) || !c.visible || !c.actions.includes('click') || c.actionable.occludedBy) continue;
+      // Choices (options, tabs, radios) and members of a repeated list are the overlay's content,
+      // never its exit.
+      if (modeRoles.has(c.role) || listClass(c) || overlay.exitControlIds.includes(c.localId)) continue;
+      const key = `${where}|${this.classOf(c)}`;
+      if (this.judgedExits.has(key) || batch.some(b => b.key === key)) continue;
+      const name = c.name || c.displayedText || '';
+      batch.push({
+        key,
+        label: (name || c.role).slice(0, 60),
+        question: {
+          kind: 'exit',
+          overlay: where,
+          control: {
+            tag: c.tag,
+            role: c.role,
+            name: maskVolatile(name),
+            hints: [],
+            text: maskVolatile(c.displayedText || ''),
+            context:
+              [s.regions?.find(r => r.key === c.region)?.label]
+                .filter(Boolean)
+                .map(x => maskVolatile(String(x)))
+                .join(' / ') || undefined,
+          },
+        },
+      });
+    }
+    return batch;
+  }
+
+  /** The overlay's exits: from structure and English / Chinese names, then as JEV judged them. */
+  private exitsOf(s: Snapshot, overlay: NonNullable<ReturnType<typeof activeOverlay>>) {
+    const exits = new Set(overlay.exitControlIds),
+      where = `${overlay.kind}:${maskVolatile(overlay.name)}`;
+    for (const c of s.controls)
+      if (overlay.controlIds.includes(c.localId) && this.judgedExits.get(`${where}|${this.classOf(c)}`))
+        exits.add(c.localId);
+    return exits;
   }
 
   private budget(classKey: string) {
@@ -1352,6 +1501,12 @@ export class SampledCrawler {
       // An open overlay masks the page beneath it: never fight the backdrop.
       if (scope && !scope.has(c.localId)) continue;
       if (!scope && c.actionable.occludedBy) continue;
+      const target = linkTarget(c, s.url);
+      // The page in another language: recorded as a language switch, never clicked.
+      if (target && c.reviewBinding?.attributes.target !== '_blank' && this.languages.otherLanguage(target, s.url)) {
+        this.noteLink(c, s.url);
+        continue;
+      }
       const where = placement(c, s.url, this.options.url, this.options.policy);
       // Testing the current page only: a link's destination is recorded, never visited, so a
       // link elsewhere needs no click at all (its href is already the record).
@@ -1487,9 +1642,9 @@ export class SampledCrawler {
           .map(r => [pick(r), r]),
       ).values(),
     ];
-    const options = rows.map(r => ({ classKey: pick(r), description: describe(r) }));
+    const options = rows.map(r => ({ classKey: pick(r), description: offer(r) }));
     const before = pursuit.meter.calls;
-    const decision = await pursuit.decide(key, s.text || '', options);
+    const decision = await pursuit.decide(key, `${s.text || ''}\n${controlStates(s.controls)}`, options);
     if (!decision) return false;
     if (pursuit.meter.calls > before)
       this.emit({
@@ -1507,7 +1662,9 @@ export class SampledCrawler {
       // Absence is only proven by exhausting the scope: keep exploring, keep the answer as provisional.
       pursuit.result = { ...decision, state: key, url: s.url, at: this.now(), provisional: !decision.found };
       if (decision.found) return true;
-    } else if (pursuit.result?.provisional) pursuit.result = undefined;
+    }
+    // A later look sees only newly revealed text, so "not answered yet" there does not take back
+    // an earlier "not on the page"; only a found answer overturns it.
     const row = decision.next ? rows.find(r => pick(r) === decision.next) : undefined;
     this.steer = row && { state: key, row };
     return false;
@@ -1534,7 +1691,7 @@ export class SampledCrawler {
     const overlay = activeOverlay(s);
     // Inside an overlay, explore its content before its exits so it is not dismissed early.
     if (overlay) {
-      const exits = new Set(overlay.exitControlIds);
+      const exits = this.exitsOf(s, overlay);
       return rows.find(r => !exits.has(r.control.localId)) || rows[0];
     }
     return rows[0];
@@ -1554,17 +1711,40 @@ export class SampledCrawler {
     this.actionShot = undefined;
     this.shootFor = this.options.onScreenshot ? beforeKey : undefined;
     this.dispatching = true;
+    let busyMs: number | undefined,
+      pageChanged = false;
     try {
+      const busy = await this.page
+        .evaluate(busyInPage, [c.control.selector, []] as [string, string[]])
+        .catch(() => [] as string[]);
       await this.dispatch(c);
       await this.settle();
+      busyMs = await this.waitWhileBusy(c.control.selector, busy);
     } catch (e) {
       outcome = 'failed';
       error = String(e).slice(0, 200);
+      // Covered because the page changed by itself since it was read (a sheet opened late, after
+      // the last action's settle): the target is not at fault. Nothing is counted; the next round
+      // reads the page as it now is.
+      if (/Target not actionable: covered by/.test(error) && (await this.changedSince(before))) {
+        pageChanged = true;
+        this.pageCounts.set(pagePath(before.url), (this.pageCounts.get(pagePath(before.url)) || 1) - 1);
+        const previous = this.events.findLast((e): e is Extract<CrawlEvent, { type: 'action' }> => e.type === 'action');
+        this.emit({
+          type: 'page_changed',
+          at: this.now(),
+          url: before.url,
+          label: (c.control.name || c.control.label || c.control.role).slice(0, 60),
+          ...(previous?.outcome === 'no_change' ? { after: previous.step.label } : {}),
+        });
+        return;
+      }
       // Covered on the first try: try once more later. Any other failure, or a failed retry, is final.
       if (!c.retry && /Target not actionable: covered by/.test(error)) this.covered.set(c.classKey, beforeKey);
       else this.failedClasses.add(c.classKey);
     } finally {
-      if (c.retry) this.covered.delete(c.classKey);
+      // A retry the page's own change got in the way of is still owed.
+      if (c.retry && !pageChanged) this.covered.delete(c.classKey);
       this.dispatching = false;
     }
     // Fill resolves its sample (value, purpose, class key) during dispatch; count the final key.
@@ -1582,7 +1762,14 @@ export class SampledCrawler {
     // Navigations are recorded, never followed by default. Set asynchronously during dispatch.
     const intercepted = this.intercepted as string | undefined,
       popup = this.popup as string | undefined;
-    if (intercepted) this.recordLink('document', before.url, intercepted, step.label, 'intercepted');
+    if (intercepted)
+      this.recordLink(
+        this.languages.otherLanguage(intercepted, before.url) ? 'language' : 'document',
+        before.url,
+        intercepted,
+        step.label,
+        'intercepted',
+      );
     if (popup) this.recordLink('popup', before.url, popup, step.label, 'intercepted');
     // A navigation is the expected result of a link: it worked, so it is not a failure.
     if ((intercepted || popup) && outcome === 'failed' && /aborted|ERR_ABORTED/.test(error || '')) {
@@ -1699,9 +1886,10 @@ export class SampledCrawler {
       after: pagePath(after.url),
       ...(this.lastTarget ? { target: this.lastTarget } : {}),
       ...(this.actionShot ? { shot: this.actionShot } : {}),
+      ...(busyMs ? { busyMs } : {}),
     });
     if (revealed) await this.visit(after, afterKey, step);
-    this.options.pursuit?.note(`${describe(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
+    this.options.pursuit?.note(`${offer(c)} -> ${outcome}${isNew ? ', revealed new content' : ', nothing new'}`);
     if (routeChanged) this.routeClasses.add(c.classKey);
     // Left the allowed scope anyway (server redirect, followed navigation): return to entry.
     // A same-document route change (kept) is still the entry page's document, not a departure.
@@ -1729,7 +1917,11 @@ export class SampledCrawler {
     const target = linkTarget(c, base);
     if (target)
       this.recordLink(
-        c.reviewBinding?.attributes.target === '_blank' ? 'popup' : 'document',
+        c.reviewBinding?.attributes.target === '_blank'
+          ? 'popup'
+          : this.languages.otherLanguage(target, base)
+            ? 'language'
+            : 'document',
         base,
         target,
         (c.name || c.label).slice(0, 60),
@@ -1738,13 +1930,14 @@ export class SampledCrawler {
   }
 
   private recordLink(
-    kind: 'document' | 'same-document' | 'popup',
+    kind: 'document' | 'same-document' | 'popup' | 'language',
     from: string,
     to: string,
     action: string,
     outcome: 'intercepted' | 'kept' | 'reverted' | 'followed',
   ) {
-    const key = `${kind === 'same-document' ? kind : 'leave'}|${pagePath(from)}|${kind === 'same-document' ? to : pagePath(to)}`;
+    // A language switch is keyed by its full path: each language is its own record.
+    const key = `${kind === 'same-document' ? kind : 'leave'}|${pagePath(from)}|${kind === 'same-document' || kind === 'language' ? to : pagePath(to)}`;
     const row = this.links.get(key);
     if (row) {
       row.count++;
@@ -1752,6 +1945,15 @@ export class SampledCrawler {
     }
     this.links.set(key, { from: pagePath(from), to, kind, action, count: 1 });
     this.emit({ type: 'navigation', at: this.now(), kind, from, to, action, outcome });
+  }
+
+  /** True when the page's structural state is no longer the one `before` was read from. */
+  private async changedSince(before: Snapshot) {
+    try {
+      return stateKey(await this.snapshot()) !== stateKey(before);
+    } catch {
+      return false;
+    }
   }
 
   /** True when the document that produced `before` is still loaded (no full page load happened). */
@@ -2101,6 +2303,9 @@ export class SampledCrawler {
 const REPLAY_SETTLE_MS = 150;
 /** How long a replay waits for a step's target to appear before it stops. */
 const REPLAY_WAIT_MS = 3000;
+/** How long an action that shows it is loading is waited for, at most, and how often it is checked. */
+const BUSY_WAIT_MS = 5000;
+const BUSY_POLL_MS = 200;
 
 /**
  * The steps a replay needs. Left out:
@@ -2141,6 +2346,33 @@ const measureInPage = new Function(
 ) as (el: Element) => unknown;
 
 // Built with new Function so the bundler cannot inject helpers into the serialized source.
+// Loading signs now on the page, by structure: the target disabled, a visible
+// aria-busy region or progressbar, an element running an endless animation (a spinner) that is
+// on top at its centre: a spinner left running beneath the content that replaced it is not a sign.
+// Elements are named by a per-document number so two reads compare; signs in `before` are left out.
+const busyInPage = new Function(
+  'args',
+  `const [selector, before] = args;
+  const w = window, ids = (w.__interactionBusyIds ??= { map: new WeakMap(), next: 0 });
+  const id = el => { if (!ids.map.has(el)) ids.map.set(el, ++ids.next); return ids.map.get(el); };
+  const shown = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
+  const onTop = el => { const r = el.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !!hit && (hit === el || el.contains(hit)); };
+  const signs = [];
+  const target = document.querySelector(selector);
+  if (target && (target.matches(':disabled') || target.getAttribute('aria-disabled') === 'true')) signs.push('target:disabled');
+  for (const el of document.querySelectorAll('[aria-busy=true],[role=progressbar],progress'))
+    if (shown(el)) signs.push('busy:' + id(el));
+  for (const a of document.getAnimations()) {
+    const el = a.effect && a.effect.target;
+    if (el instanceof Element && a.playState === 'running' && a.effect.getTiming().iterations === Infinity && shown(el) && onTop(el))
+      signs.push('spin:' + id(el));
+  }
+  return [...new Set(signs)].filter(s => !before.includes(s));`,
+) as (args: [string, string[]]) => string[];
+
+// Built with new Function so the bundler cannot inject helpers into the serialized source.
 const hitTestInPage = new Function(
   'el',
   `const r = el.getBoundingClientRect(), s = getComputedStyle(el);
@@ -2160,6 +2392,8 @@ const emptyFacts = {
   ariaAutocomplete: '',
   ariaHaspopup: '',
   role: '',
+  enterkeyhint: '',
+  inSearch: false,
   name: '',
   min: '',
   max: '',
@@ -2246,6 +2480,48 @@ function modelCost(jev: (ProviderMeter | undefined)[], llm: (ProviderMeter | und
   return { jev: withAvg(sum(jev)), llm: withAvg(sum(llm)) };
 }
 
+/**
+ * A control as a screen reader would announce it: role, name, where it is and what state it is
+ * in. A name that is only a number or a placeholder says little, so the text right before the
+ * control (a currency selector before an amount) is given with it; the model reads both.
+ */
+function announce(c: Control) {
+  const name = maskVolatile(c.name || c.label);
+  const before = c.neighborhood && c.neighborhood !== c.name ? ` after "${maskVolatile(c.neighborhood, 40)}"` : '';
+  return `${c.role} "${name}"${before}${c.landmark ? ` in site ${c.landmark}` : ''}`;
+}
+
+/** What a control holds or is set to, when page text does not show it; '' when nothing. */
+function controlState(c: Control) {
+  const states = [
+    c.value && !['button', 'link', 'checkbox', 'radio', 'switch'].includes(c.role) ? `= ${c.value.slice(0, 80)}` : '',
+    c.checked === true ? 'checked' : c.checked === false ? 'not checked' : '',
+    c.pressed === true ? 'pressed' : '',
+    c.selected.length && c.role !== 'combobox' && c.role !== 'listbox' ? 'selected' : '',
+    c.role === 'combobox' || c.role === 'listbox'
+      ? c.selected.length
+        ? `= ${c.selected.join(', ').slice(0, 80)}`
+        : ''
+      : '',
+    c.expanded === true ? 'expanded' : '',
+  ].filter(Boolean);
+  return states.join(', ');
+}
+
+/**
+ * Visible controls whose state page text leaves out (field values, checked boxes, the selected
+ * tab), one line each; capped, as a form-heavy page has many.
+ */
+function controlStates(controls: Control[], max = 40) {
+  return controls
+    .filter(c => c.visible)
+    .map(c => [announce(c), controlState(c)])
+    .filter(([, state]) => state)
+    .slice(0, max)
+    .map(([who, state]) => `${who}: ${state}`)
+    .join('\n');
+}
+
 /** One specific action on one specific control, as the model picks it. */
 const pick = (r: Candidate) => `${r.kind}|${r.control.localId}|${r.purpose ?? ''}`;
 
@@ -2255,6 +2531,9 @@ function describe(r: Candidate) {
   return `${r.kind} ${c.role} "${maskVolatile(c.name || c.label)}"${c.landmark ? ` in site ${c.landmark}` : ''}`;
 }
 
+/** A candidate action as goal pursuit reads it: the control as announced, with what precedes it. */
+const offer = (r: Candidate) => `${r.kind} ${announce(r.control)}`;
+
 /** Visible text split into comparable blocks, live numbers masked, tiny fragments dropped. */
 function textBlocks(text: string) {
   return [
@@ -2262,7 +2541,8 @@ function textBlocks(text: string) {
       text
         .split(/\n+/)
         .map(line => maskVolatile(line, 200))
-        .filter(line => line.length >= 3),
+        // Two letters make a line ("成功", "完成"); masked numbers and dashes alone do not.
+        .filter(line => line.length >= 3 || /\p{L}{2}/u.test(line)),
     ),
   ];
 }
@@ -2283,6 +2563,12 @@ function distinctNames(names: string[]) {
         n
           .toLowerCase()
           .split(/[^\p{L}\p{N}#]+/u)
+          // Scripts written without spaces give one token per name: compare their character pairs.
+          .flatMap(w =>
+            /\p{Script=Han}|\p{Script=Hiragana}|\p{Script=Katakana}|\p{Script=Thai}/u.test(w)
+              ? [...w].slice(0, -1).map((ch, i) => ch + [...w][i + 1])
+              : [w],
+          )
           .filter(w => w.length > 1),
       ),
   );

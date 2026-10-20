@@ -55,6 +55,8 @@ export interface DOMSnapshot {
   url: string;
   title: string;
   text: string;
+  /** Short visible text of live regions (role=status / alert, aria-live, output). */
+  status?: string[];
   controls: Control[];
   regions: Region[];
   overlays: Overlay[];

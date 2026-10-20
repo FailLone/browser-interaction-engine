@@ -124,6 +124,15 @@ const crawler = new SampledCrawler({
         `revealed=${event.revealed}`,
         event.surfaces.map(s => `${s.surface}:${s.screens}:${s.end}`).join(' '),
       );
+    else if (event.type === 'page_changed')
+      console.log(
+        t,
+        'page changed',
+        JSON.stringify(event.label),
+        event.after ? `late effect of ${JSON.stringify(event.after)}` : '',
+      );
+    else if (event.type === 'languages')
+      console.log(t, 'languages', event.language ?? '?', `${event.variants.length} versions declared`);
     else console.log(t, event.type, event.reason);
   },
 });

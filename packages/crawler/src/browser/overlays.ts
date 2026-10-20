@@ -192,6 +192,38 @@ export function collectOverlays(
     });
     if (panels.length === 1) add(panels[0], 'modal', 'fixed-backdrop-with-interactive-panel');
   }
+  // Mobile sheets: a fixed panel spanning the viewport width, anchored at its bottom and at
+  // least half its height, with no semantics and no backdrop. Bars (headers, tab bars) are too
+  // short; an app shell holding the whole page covers nothing outside itself. It counts only
+  // when it covers a control of the page beneath it at that control's centre.
+  const sheets: Element[] = [];
+  for (const sheet of document.querySelectorAll('body *')) {
+    if (getComputedStyle(sheet).position !== 'fixed' || !visible(sheet)) continue;
+    const r = sheet.getBoundingClientRect();
+    if (
+      getComputedStyle(sheet).pointerEvents === 'none' ||
+      r.width < innerWidth * 0.9 ||
+      r.height < innerHeight * 0.5 ||
+      r.bottom < innerHeight - 1 ||
+      !sheet.querySelector('a[href],button,input,select,textarea,[role=button]') ||
+      sheets.some(el => el.contains(sheet)) ||
+      [...candidates.keys()].some(el => el === sheet || el.contains(sheet) || sheet.contains(el))
+    )
+      continue;
+    const covers = controls.some(c => {
+      const e = elements.get(c.localId);
+      if (!c.visible || !e || sheet.contains(e)) return false;
+      const b = e.getBoundingClientRect();
+      const x = b.left + b.width / 2,
+        y = b.top + b.height / 2;
+      if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+      const hit = document.elementFromPoint(x, y);
+      return !!hit && sheet.contains(hit);
+    });
+    if (!covers) continue;
+    sheets.push(sheet);
+    add(sheet, r.height >= innerHeight * 0.9 ? 'modal' : 'dialog', 'fixed-sheet-covering-page');
+  }
   const prior: Element[] = tracker.visibleOverlays || [];
   const roots = [...candidates.keys()];
   const order = [...prior.filter(el => candidates.has(el)), ...roots.filter(el => !prior.includes(el))];
@@ -297,7 +329,9 @@ export function collectOverlays(
         const button = e as HTMLButtonElement | HTMLInputElement;
         const formMethod = button.hasAttribute('formmethod') ? button.formMethod : button.form?.method;
         if (button.form && ['submit', 'image'].includes(button.type) && formMethod === 'dialog') return true;
-        return /^(?:close|dismiss|done|cancel|关闭|取消|完成)(?:\b|\s|$)|^[×✕✖]$/i.test(c.name.trim());
+        // \b does not separate Chinese characters: 关闭 starts a close name ("关闭弹窗"), while
+        // 取消 / 完成 only count alone ("取消订阅" unsubscribes, "完成支付" pays).
+        return /^(?:close|dismiss|done|cancel)\b|^关闭|^(?:取消|完成)$|^[×✕✖]$/i.test(c.name.trim());
       })
       .map(c => c.localId);
     return {

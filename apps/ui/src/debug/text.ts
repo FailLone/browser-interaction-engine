@@ -92,6 +92,10 @@ export const questionText: Record<string, { title: string; why: string }> = {
     title: '列表是否同类',
     why: '一组列表项名字各不相同。同类（币种、文章）只抽样测一两个；不同类（不同功能入口）会逐个测试。',
   },
+  exit: {
+    title: '是不是关闭弹窗',
+    why: '弹窗里没有从结构或中英文名称认出的关闭按钮（其他语言、只有图标），需要判断哪些控件只是关掉弹窗。关闭类控件排在最后，先测弹窗里的内容。',
+  },
   'input-kind': {
     title: '输入框类型',
     why: '从输入框的属性判断不出它要填什么（数字、搜索、邮箱……），按类型决定填入的样本值。',
@@ -130,6 +134,7 @@ export const verdictLabel = (j: { verdict: string; detail?: string; unrelated?: 
 export const verdictMeaning: Record<string, Partial<Record<'yes' | 'no' | 'uncertain', string>>> = {
   interactive: { yes: '可操作，会点击', no: '只是展示信息，不点击', uncertain: '拿不准，仍会点一次试试' },
   'same-kind': { yes: '同类，只抽样测一两个', no: '不同功能，逐个测试', uncertain: '拿不准，按同类抽样' },
+  exit: { yes: '只是关闭弹窗，最后再点', no: '是弹窗里的功能，先测', uncertain: '拿不准，按弹窗内容先测' },
   effect: { yes: '是新内容，记为新状态', no: '无实质变化，不算新状态', uncertain: '拿不准，仍记为新状态' },
   'goal-relevance': { yes: '与目标相关，会执行', no: '与目标无关，不执行' },
   relevance: { yes: '与目标相关，会执行', no: '与目标无关，不执行' },
