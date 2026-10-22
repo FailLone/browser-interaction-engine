@@ -13,6 +13,10 @@ import { decodePng } from './png.js';
 import type { Control, RuleCheck, RulePage, RuleReport, RuleVerdict } from './types.js';
 
 export interface RulesPluginOptions {
+  /** Host-visible plugin name, useful for independently selectable rule packs. */
+  id?: string;
+  /** Additional explanations for this pack's result codes. */
+  reasons?: Readonly<Record<string, string>>;
   /** Rule plugins to run; defaults to all built-in rules. */
   rules?: readonly RulePlugin[];
   /**
@@ -56,7 +60,7 @@ export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
   const identities = new Map<string, string>();
   let viewSequence = 0;
   return {
-    id: 'rules',
+    id: options.id ?? 'rules',
     ...(pixels
       ? {
           wantsPixels: (capture: DOMSnapshot) => {
@@ -73,7 +77,7 @@ export function rulesPlugin(options: RulesPluginOptions = {}): CrawlPlugin {
         }
       : {}),
     checks: () => rules.map(({ rule }) => ({ id: rule.id, name: rule.name, description: rule.description })),
-    reasons: () => ruleReasons,
+    reasons: () => ({ ...ruleReasons, ...options.reasons }),
     async onState(context) {
       const page = await rulePage(context, sessionId, identities, pixels);
       const findings: Finding[] = [];
@@ -186,10 +190,12 @@ async function lookFurther(
     for (const { rule } of results) {
       const done = judged.get(rule.id)!;
       const open = controls.filter(c => !done.has(c.localId));
-      if (!open.length) continue;
+      const domTargets = rule.sweepTargets === 'dom';
+      if (domTargets ? !view.snapshot.dom?.nodes.some(n => n.nodeType === 'element' && !done.has(n.id)) : !open.length)
+        continue;
       const started = performance.now();
       try {
-        view.observation.controls = open;
+        if (!domTargets) view.observation.controls = open;
         const report = await rule.create().run(view);
         for (const check of report.checks) {
           const nodeId = check.target?.nodeId;

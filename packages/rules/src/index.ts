@@ -70,3 +70,4 @@ export {
   type HorizontalOverflowOptions,
 } from './horizontal-overflow.js';
 export * from './crawl-plugin.js';
+export * from './sentinel/index.js';

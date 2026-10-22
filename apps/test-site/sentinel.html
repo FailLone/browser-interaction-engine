@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentinel rule fixtures</title>
+    <style>
+      body { margin: 24px; font-family: sans-serif; color: #111; background: white; }
+      button { padding: 12px 20px; border: 1px solid #333; background: white; color: #111; }
+      [role="tab"][aria-selected="true"] { background: #163d8c; color: white; }
+      body[data-broken="true"] [role="tab"][aria-selected="true"]:hover { background: white; color: #111; }
+      h2 { font: 600 20px/1.4 sans-serif; }
+      #heading-peer { font-size: 28px; }
+      .below { margin-top: 1250px; }
+      #below-title { font-size: 30px; }
+      .below p { margin-bottom: 100px; }
+      button:focus-visible { outline: 3px solid #b00066; outline-offset: 3px; }
+    </style>
+  </head>
+  <body data-broken="true">
+    <div role="tablist" aria-label="Reporting period">
+      <button id="chosen" role="tab" aria-selected="true">Extended interval</button>
+      <button id="unchosen" role="tab" aria-selected="false">Recent interval</button>
+    </div>
+    <h2 id="heading-main">First section</h2>
+    <h2 id="heading-peer">Second section</h2>
+    <section class="below">
+      <h2 id="below-title">Section reached by scrolling</h2>
+      <h2 id="below-peer">Equivalent section</h2>
+      <p>This region intentionally has no interactive controls.</p>
+    </section>
+  </body>
+</html>

@@ -13,7 +13,7 @@ import {
   parseViewport,
   providersFromEnv,
 } from '@interaction/crawler';
-import { rulesPlugin } from '@interaction/rules';
+import { rulesPlugin, sentinelPlugin } from '@interaction/rules';
 
 const out = process.argv[2] || 'work/sampled-crawl';
 const url = process.argv[3] || 'https://www.okx.com/convert/usd-to-btc';
@@ -22,6 +22,7 @@ const viewport = parseViewport(process.env.CRAWL_VIEWPORT || 'desktop');
 // Longer runs can spend more per secondary page and visit more pages per template:
 // CRAWL_PAGE_ACTIONS (default 20), CRAWL_PAGE_SAMPLES (default 2).
 // Optional UI rules as a side observation (not an acceptance target): CRAWL_RULES=1.
+// Optional semantic rule pack: CRAWL_SENTINEL=1 (unbound checks explicitly remain unknown).
 // Optional anchored pathname pattern for other in-scope pages (same origin as the entry).
 const scope = process.argv[5] || undefined;
 const policy = defaultPolicy(url);
@@ -51,7 +52,10 @@ const crawler = new SampledCrawler({
   followNavigation: !!scope && !goal,
   inputJudge,
   maxActions: 2000,
-  ...(process.env.CRAWL_RULES ? { plugins: [rulesPlugin()] } : {}),
+  plugins: [
+    ...(process.env.CRAWL_RULES ? [rulesPlugin()] : []),
+    ...(process.env.CRAWL_SENTINEL ? [sentinelPlugin()] : []),
+  ],
   ...(process.env.CRAWL_PAGE_ACTIONS ? { pageActions: Number(process.env.CRAWL_PAGE_ACTIONS) } : {}),
   ...(process.env.CRAWL_PAGE_SAMPLES ? { pageSamples: Number(process.env.CRAWL_PAGE_SAMPLES) } : {}),
   log: event => {
@@ -99,8 +103,13 @@ const crawler = new SampledCrawler({
       );
     else if (event.type === 'plugin_error') console.log(t, 'plugin error', event.plugin, event.error);
     else if (event.type === 'inspection') {
-      const failed = event.checks?.filter(c => c.verdict === 'fail').map(c => c.id) ?? [];
-      console.log(t, 'inspection', event.plugin, `${event.ms}ms`, failed.length ? `fail=${failed.join(',')}` : 'ok');
+      const counts = Object.fromEntries(
+        ['fail', 'unknown', 'pass', 'not-applicable'].map(verdict => [
+          verdict,
+          event.checks?.filter(c => c.verdict === verdict).length ?? 0,
+        ]),
+      );
+      console.log(t, 'inspection', event.plugin, `${event.ms}ms`, JSON.stringify(counts));
     } else if (event.type === 'checks') console.log(t, 'checks', event.plugin, event.checks.length);
     else if (event.type === 'viewport') {
       const v = event.viewport;

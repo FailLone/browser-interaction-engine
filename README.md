@@ -172,7 +172,7 @@ new SampledCrawler({ url, session: [auth.provider({ select: { labels: { entity: 
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `GET` | `/v1/crawl-plugins` | 服务端提供的插件名（目前是 `rules`） |
+| `GET` | `/v1/crawl-plugins` | 服务端提供的插件名：`rules`、`sentinel` |
 | `GET` | `/v1/crawl-sessions` | 服务端提供的会话提供者名（默认有 `experiment`；登录提供者由宿主注册） |
 | `POST` | `/v1/crawls` | 开始一次遍历：`{ url, durationMs?, viewport?, models?, plugins?, session?（一个或多个 `{ provider, options }`）, resumeFrom?, followNavigation?, allowedPaths? }` |
 | `GET` | `/v1/crawls` | 运行列表 |
@@ -182,6 +182,8 @@ new SampledCrawler({ url, session: [auth.provider({ select: { labels: { entity: 
 | `POST` | `/v1/crawls/:id/stop` | 停止 |
 
 `resumeFrom` 续跑同一网址的上一次运行，已测过的控件类和模型判断不会重复。
+
+`sentinel` 提供来自 UI Sentinel 规则库的 19 项语义检查与体验审查；另 4 项复用 `rules` 的已有测量。宿主需用 `collect` 绑定当前对象并提供产品语义或观察证据，默认服务未配置该采集器时明确返回 unknown。接入示例、逐项范围与开发步骤见 [UI Sentinel 插件](docs/SENTINEL-PLUGINS.md)。
 
 ## 开发
 
