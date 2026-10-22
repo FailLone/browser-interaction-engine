@@ -122,14 +122,26 @@ class EvidenceError extends Error {
     super(message);
   }
 }
+// Per DOM capture: each id's nodes, so ancestry is a lookup rather than a scan per level.
+const indexes = new WeakMap<object, Map<string, DomNodeEvidence[]>>();
+function indexOf(nodes: readonly DomNodeEvidence[]) {
+  let index = indexes.get(nodes);
+  if (!index) {
+    index = new Map();
+    for (const n of nodes) index.get(n.id)?.push(n) ?? index.set(n.id, [n]);
+    indexes.set(nodes, index);
+  }
+  return index;
+}
 function chain(page: RulePage, nodeId: string): DomNodeEvidence[] {
   const dom = page.snapshot.dom;
   if (!dom) throw new EvidenceError('EVIDENCE_UNAVAILABLE', 'A detailed DOM capture is required');
+  const index = indexOf(dom.nodes);
   const result: DomNodeEvidence[] = [];
   const visited = new Set<string>();
   let id: string | undefined = nodeId;
   while (id) {
-    const matches = dom.nodes.filter(n => n.id === id);
+    const matches: DomNodeEvidence[] = index.get(id) ?? [];
     if (matches.length !== 1 || visited.has(id))
       throw new EvidenceError('UIK_TARGET_UNAVAILABLE', 'Target ancestry is missing, ambiguous or cyclic');
     const node = matches[0];
@@ -142,20 +154,33 @@ function chain(page: RulePage, nodeId: string): DomNodeEvidence[] {
 }
 /** Bind the actual current node, independent of its text or CSS selector. Rebind after any change. */
 export function bindSentinelTarget(page: RulePage, nodeId: string): SentinelTarget {
-  const ancestors = chain(page, nodeId);
   return {
     sessionId: page.capture.sessionId,
     documentId: page.capture.documentId,
     observationId: page.observation.id,
     captureId: page.capture.id,
     nodeId,
-    fingerprint: hash({
-      ancestors,
-      control: page.observation.controls.filter(c => c.localId === nodeId),
-      environment: page.snapshot.dom?.environment,
-      focus: page.inspection.focus,
-    }),
+    fingerprint: fingerprint(page, nodeId),
   };
+}
+// Only a frozen capture can be trusted not to change under a cached fingerprint.
+const fingerprints = new WeakMap<RulePage, Map<string, string>>();
+function fingerprint(page: RulePage, nodeId: string) {
+  const frozen = Object.isFrozen(page);
+  let cached = frozen ? fingerprints.get(page) : undefined;
+  const hit = cached?.get(nodeId);
+  if (hit) return hit;
+  const value = hash({
+    ancestors: chain(page, nodeId),
+    control: page.observation.controls.filter(c => c.localId === nodeId),
+    environment: page.snapshot.dom?.environment,
+    focus: page.inspection.focus,
+  });
+  if (frozen) {
+    if (!cached) fingerprints.set(page, (cached = new Map()));
+    cached.set(nodeId, value);
+  }
+  return value;
 }
 function resolve(page: RulePage, target: SentinelTarget) {
   if (hash(bindSentinelTarget(page, target.nodeId)) !== hash(target))
@@ -231,6 +256,10 @@ function report(page: RulePage, id: string, checks: RuleCheck[]): RuleReport {
     checks,
   };
 }
+const bindingRequired = (): RuleCheck => ({
+  ...unknown('This check requires current semantic bindings and recorded evidence from the host'),
+  code: 'UIK_BINDING_REQUIRED',
+});
 function freeze<T>(value: T): T {
   if (ArrayBuffer.isView(value)) return value;
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -299,6 +328,8 @@ export function makeSentinelPlugins(
             return report(input, definition.id, [
               { ...unknown('A complete, current capture is required'), code: badCapture },
             ]);
+          // Without a host collector nothing can be bound; skip copying the capture.
+          if (!options.collect) return report(input, definition.id, [bindingRequired()]);
           let data: Awaited<ReturnType<typeof read>>;
           try {
             data = await read(input);
@@ -325,13 +356,7 @@ export function makeSentinelPlugins(
             return resolve(page, target);
           };
           const bindings = data.bindings.filter(b => b.ruleId === definition.id);
-          if (!bindings.length)
-            return report(page, definition.id, [
-              {
-                ...unknown('This check requires current semantic bindings and recorded evidence from the host'),
-                code: 'UIK_BINDING_REQUIRED',
-              },
-            ]);
+          if (!bindings.length) return report(page, definition.id, [bindingRequired()]);
           const checks: RuleCheck[] = bindings.map(binding => {
             let result: RuleAssessment;
             let node: DomNodeEvidence | undefined;
