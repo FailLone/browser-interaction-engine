@@ -17,7 +17,7 @@ flowchart TD
 | `@interaction/crawler` | 浏览器驱动与页面抓取、会话接口与 A/B 实验会话、抽象状态、控件类与列表抽样、动作选择与回退、跳转拦截、模型判断（JEV/LLM）与计费、输入分类、目标模式、运行存储（SQLite）、续跑、插件接口 |
 | `@interaction/rules` | UI 规则（遮挡、裁切、文字截断、图片资源、图片比例、文字与背景同色）与跨状态跟踪；`rulesPlugin()` 把它们接成遍历插件 |
 | `@interaction/auth` | 账号底座 `Auth`：加密保存会话快照、账号库（标签筛选）与占用锁、调度验证和巡检；`Auth.provider()` 是一个 `SessionProvider`。账号从哪来、什么算已登录由适配器 `AuthAdapter` 决定，自带参考实现 `PresetAdapter`（preset 文件 + 登录心跳） |
-| `apps/server` | `/v1/crawls` 路由；按名字提供插件（目前是 `rules`）和会话（目前是 `experiment`），每次运行由请求选择 |
+| `apps/server` | `/v1/crawls` 路由；按名字提供插件（`rules`、`sentinel`）和会话（目前是 `experiment`），每次运行由请求选择 |
 | `apps/ui` | 发起/停止/续跑遍历，查看动作、状态截图、覆盖统计和插件结果 |
 | `apps/test-site` | 本地演示站与规则夹具页 |
 
@@ -97,3 +97,5 @@ interface PreparedSession {
 每条规则读一次不可变的详细抓取，输出逐目标的 `pass`、`fail`、`unknown` 或 `not-applicable`。证据不完整（抓取被截断、字体未加载、布局不稳定等）时判为 `unknown`，不会当作通过。跟踪器按状态顺序接收抓取，跟踪同一控件跨状态的问题：恢复记为 resolved，控件被替换或文本改变时保留历史结果，不当作恢复。
 
 产品要求（例如"这张图必须保持比例"）只能由宿主以精确绑定的 requirement 传入，页面上的属性或模型提议不会直接改变判定。
+
+`sentinelPlugin()` 使用同一套 `RulePlugin` 和摘要接口提供语义检查。宿主的 `collect` 在每个冻结捕获上绑定对象、要求与已记录观察；没有绑定时仍为 unknown。体验审查通过 `unknown + warning` 输出意见，不自动形成 fail。静态 DOM 检查可声明 `sweepTargets: 'dom'`，在没有可点击控件的滚动画面里仍能运行。逐项对照及实现边界见 [SENTINEL-PLUGINS.md](SENTINEL-PLUGINS.md)。

@@ -20,6 +20,8 @@ export interface RulePluginInfo {
 /** One rule with cross-capture history. A fresh instance consumes one crawl's pages in sequence. */
 export interface RulePlugin extends RulePluginInfo {
   create(): { run(page: RulePage): Promise<RuleReport> };
+  /** Passive/bound DOM rules also inspect swept views with no interactive controls. */
+  sweepTargets?: 'controls' | 'dom';
   /**
    * Whether a screenshot of this capture would let the rule decide something it otherwise cannot.
    * Run on the capture before any screenshot exists, so it must be cheap and read only the DOM.

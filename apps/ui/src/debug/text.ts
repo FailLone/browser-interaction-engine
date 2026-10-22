@@ -13,7 +13,7 @@ export const statusText: Record<Run['status'], string> = {
   failed: '失败',
   interrupted: '已中断',
 };
-export const pluginText: Record<string, string> = { rules: 'UI 规则' };
+export const pluginText: Record<string, string> = { rules: 'UI 规则', sentinel: 'UI Sentinel 语义审查' };
 export const viewportText: Record<ViewportPreset | 'custom', string> = {
   desktop: '桌面 1280×800',
   'desktop-edge': '桌面临界（按页面断点）',

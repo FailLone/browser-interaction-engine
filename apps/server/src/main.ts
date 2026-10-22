@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { CrawlManager, CrawlStore, experimentSessionFactory, providersFromEnv } from '@interaction/crawler';
-import { rulesPlugin } from '@interaction/rules';
+import { rulesPlugin, sentinelPlugin } from '@interaction/rules';
 import { ModelCallLog } from './model-calls.js';
 import { createServer } from './server.js';
 
@@ -17,6 +17,7 @@ const crawls = new CrawlManager(
   modelCalls.wrap(providers),
   {
     rules: () => rulesPlugin(),
+    sentinel: () => sentinelPlugin(),
   },
   // Experiment variants need no secrets, so they are offered by default; a login provider
   // (`authSessionFactory` from @interaction/auth, with the host's own adapter) is added by hosts that have accounts.
